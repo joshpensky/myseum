@@ -1,0 +1,10 @@
+{
+  "extends": ["@upstatement/eslint-config/react", "plugin:jest/recommended"],
+  "plugins": ["jest"],
+  "env": {
+    "jest/globals": true
+  },
+  "rules": {
+    "no-console": "off"
+  }
+}
