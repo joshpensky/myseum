@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "craco start",
     "build": "craco build",
+    "build:serve": "yarn build && yarn serve",
+    "serve": "serve build",
+    "start": "craco start",
     "test": "craco test"
   },
   "browserslist": {
