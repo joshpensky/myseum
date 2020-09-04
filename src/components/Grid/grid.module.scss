@@ -1,0 +1,55 @@
+.container {
+  @include margin(20px x);
+  display: flex;
+  flex: 1;
+  opacity: 0;
+  overflow: hidden;
+  position: relative;
+  transition: opacity 150ms ease-out;
+}
+
+.container--draggable {
+  cursor: grab;
+  opacity: 0.2;
+}
+
+.container--dragging {
+  cursor: grabbing;
+}
+
+.grid {
+  @include absolute(0);
+  @include size(100%);
+}
+
+.grid__rows,
+.grid__columns {
+  @include absolute(0);
+  @include size(100%);
+  display: flex;
+}
+
+.grid__rows {
+  flex-direction: column;
+}
+
+.grid__rows__item {
+  // subtract 1px to account for border
+  @include size(calc(var(--grid-items) * var(--grid-item-size) - 1px), var(--grid-item-size));
+  border-top: 1px solid #6a715c;
+  flex-shrink: 0;
+
+  &:last-child {
+    border-bottom: 1px solid #6a715c;
+  }
+}
+
+.grid__columns__item {
+  @include size(var(--grid-item-size), 100%);
+  border-left: 1px solid #6a715c;
+  flex-shrink: 0;
+
+  &:last-child {
+    border-right: 1px solid #6a715c;
+  }
+}

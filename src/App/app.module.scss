@@ -1,7 +1,6 @@
-.test {
-  color: $c-tan;
-}
-
-.test--green {
-  color: #03a203;
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100vh;
 }

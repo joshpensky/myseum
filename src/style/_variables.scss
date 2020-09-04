@@ -3,11 +3,19 @@ $c-white: #ffffff;
 $c-black: #000000;
 $c-tan: #f0f2ea;
 
+/* Font Families */
+$font-migra: 'Migra Web';
+$font-plex: 'IBM PLex Sans';
+
 /* Fonts - Default */
 $ff-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
   'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 $ff-serif: Georgia, 'New York', 'Times New Roman', Times, serif;
 $ff-mono: 'SF Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+
+/* Fonts - Custom */
+$ff-migra: $font-migra, $ff-serif;
+$ff-plex: $font-plex, $ff-sans;
 
 /* Font Sizes */
 $fs-base: 20px;

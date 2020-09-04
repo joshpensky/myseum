@@ -1,5 +1,12 @@
+@mixin h1 {
+  font-family: $ff-migra;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
 @mixin body {
-  font-family: $ff-sans;
+  font-family: $ff-plex;
   font-size: $fs-base;
   font-weight: 400;
   line-height: 1.4;

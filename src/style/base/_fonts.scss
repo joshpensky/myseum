@@ -1,9 +1,12 @@
-// /* Halyard Display */
+/* IBM Plex Sans */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400&display=swap');
 
-// @include font-face(
-//   $font-display,
-//   'halyard/HalyardDisplay-Book',
-//   300,
-//   normal,
-//   ('woff2', 'woff', 'otf')
-// );
+/* Migra */
+
+@include font-face(
+  $font-migra,
+  'migra/Migra-Regular',
+  400,
+  normal,
+  ('woff2', 'woff', 'otf', 'ttf', 'eot')
+);
