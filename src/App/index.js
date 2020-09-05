@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Grid from '@src/components/Grid';
+import GridItem from '@src/components/GridItem';
 import styles from './app.module.scss';
 
 const App = () => {
@@ -20,7 +21,9 @@ const App = () => {
         />
         in
       </div>
-      <Grid rows={wallHeight} />
+      <Grid rows={wallHeight}>
+        <GridItem x={2} y={2} width={4} height={6} />
+      </Grid>
     </div>
   );
 };

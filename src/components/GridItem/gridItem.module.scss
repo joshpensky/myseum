@@ -1,0 +1,4 @@
+.grid-item {
+  @include absolute(0 x x 0);
+  background-color: mix(#b6bba8, $c-tan, 60);
+}

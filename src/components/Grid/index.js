@@ -1,13 +1,14 @@
-import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import anime from 'animejs';
 import c from 'classnames';
 import styles from './grid.module.scss';
+import { GridContext } from '@src/utils/contexts';
 
 // A buffer of columns to display offscreen
 const COLUMN_BUFFER = 10;
 
-const Grid = ({ minColumns, rows }) => {
+const Grid = ({ children, minColumns, rows }) => {
   /** @type {React.MutableRefObject<HTMLDivElement>} */
   const containerRef = useRef(null);
   /** @type {React.MutableRefObject<HTMLDivElement>} */
@@ -15,6 +16,12 @@ const Grid = ({ minColumns, rows }) => {
 
   const [height, setHeight] = useState(0);
   const [visibleWidth, setVisibleWidth] = useState(window.innerWidth);
+
+  const onResize = entries => {
+    const entry = entries[0];
+    setHeight(entry.contentRect.height);
+    setVisibleWidth(entry.contentRect.width);
+  };
 
   const itemSize = height / rows;
   let minColumnsForWidth = COLUMN_BUFFER;
@@ -24,22 +31,26 @@ const Grid = ({ minColumns, rows }) => {
   const columns = Math.max(minColumns, minColumnsForWidth);
   const gridWidth = columns * itemSize;
 
-  const xRef = useRef(0);
+  const [xPos, setXPos] = useState(0);
+  const xPosRef = useRef(0);
   const startXRef = useRef(0);
 
   const updateScroll = () => {
     anime({
       targets: [gridRef.current],
-      translateX: -1 * xRef.current,
+      translateX: -1 * xPosRef.current,
       duration: 0,
     });
   };
 
   const onScroll = delta => {
-    const prevX = xRef.current;
+    const prevX = xPosRef.current;
+
     const max = gridWidth - visibleWidth;
     const nextX = Math.max(0, Math.min(max, prevX + delta));
-    xRef.current = nextX;
+
+    xPosRef.current = nextX;
+    setXPos(nextX);
 
     if (nextX !== prevX) {
       requestAnimationFrame(updateScroll);
@@ -49,26 +60,52 @@ const Grid = ({ minColumns, rows }) => {
   const [isDragEnabled, setIsDragEnabled] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const onResize = entries => {
-    const entry = entries[0];
-    setHeight(entry.contentRect.height);
-    setVisibleWidth(entry.contentRect.width);
-  };
-
   const onKeyDown = evt => {
     switch (evt.key) {
-      case ' ':
-      case 'Spacebar': {
+      case 'Spacebar':
+      case ' ': {
         setIsDragEnabled(true);
+        break;
+      }
+
+      case 'Right':
+      case 'ArrowRight': {
+        if (xPosRef.current < gridWidth - visibleWidth) {
+          evt.preventDefault();
+          const delta = xPosRef.current % itemSize;
+          const remaining = itemSize - delta;
+          if (remaining < itemSize / 2) {
+            onScroll(itemSize + remaining);
+          } else {
+            onScroll(remaining);
+          }
+        }
+        break;
+      }
+
+      case 'Left':
+      case 'ArrowLeft': {
+        if (xPosRef.current > 0) {
+          evt.preventDefault();
+          const delta = xPosRef.current % itemSize;
+          const remaining = itemSize - (itemSize - delta);
+          if (remaining < itemSize / 2) {
+            onScroll(-remaining - itemSize);
+          } else {
+            onScroll(-remaining);
+          }
+        }
+        break;
       }
     }
   };
 
   const onKeyUp = evt => {
     switch (evt.key) {
-      case ' ':
-      case 'Spacebar': {
+      case 'Spacebar':
+      case ' ': {
         setIsDragEnabled(false);
+        break;
       }
     }
   };
@@ -123,7 +160,7 @@ const Grid = ({ minColumns, rows }) => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  }, [onKeyDown, onKeyUp]);
 
   useLayoutEffect(() => {
     const observer = new ResizeObserver(onResize);
@@ -132,36 +169,52 @@ const Grid = ({ minColumns, rows }) => {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className={c(
-        styles.container,
-        isDragEnabled && styles.containerDraggable,
-        isDragging && styles.containerDragging,
-      )}>
+    <Fragment>
       <div
-        ref={gridRef}
-        className={styles.grid}
+        ref={containerRef}
+        className={c(
+          styles.container,
+          isDragEnabled && styles.containerDraggable,
+          isDragging && styles.containerDragging,
+        )}
         style={{
           '--grid-item-size': `${itemSize}px`,
           '--grid-items': columns,
         }}>
-        <div className={styles.gridRows}>
-          {Array.apply(null, Array(rows)).map((_, idx) => (
-            <div key={idx} className={styles.gridRowsItem} />
-          ))}
-        </div>
-        <div className={styles.gridColumns}>
-          {Array.apply(null, Array(columns)).map((_, idx) => (
-            <div key={idx} className={styles.gridColumnsItem} />
-          ))}
+        <div ref={gridRef} className={styles.grid}>
+          <div className={styles.gridInner}>
+            <div className={styles.gridRows}>
+              {Array.apply(null, Array(rows)).map((_, idx) => (
+                <div key={idx} className={styles.gridRowsItem} />
+              ))}
+            </div>
+            <div className={styles.gridColumns}>
+              {Array.apply(null, Array(columns)).map((_, idx) => (
+                <div key={idx} className={styles.gridColumnsItem} />
+              ))}
+            </div>
+          </div>
+          <GridContext.Provider value={{ itemSize }}>{children}</GridContext.Provider>
         </div>
       </div>
-    </div>
+
+      <div className={styles.indicator}>
+        <div className={styles.indicatorBar}>
+          <div
+            className={styles.indicatorBarThumb}
+            style={{
+              '--scroll-offset': `${(xPos / gridWidth) * 100}%`,
+              '--wall-visibility': `${(visibleWidth / gridWidth) * 100}%`,
+            }}
+          />
+        </div>
+      </div>
+    </Fragment>
   );
 };
 
 Grid.propTypes = {
+  children: PropTypes.node,
   rows: PropTypes.number.isRequired,
   minColumns: PropTypes.number,
 };

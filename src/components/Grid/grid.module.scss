@@ -2,15 +2,12 @@
   @include margin(20px x);
   display: flex;
   flex: 1;
-  opacity: 0;
   overflow: hidden;
   position: relative;
-  transition: opacity 150ms ease-out;
 }
 
 .container--draggable {
   cursor: grab;
-  opacity: 0.2;
 }
 
 .container--dragging {
@@ -20,6 +17,19 @@
 .grid {
   @include absolute(0);
   @include size(100%);
+}
+
+.grid__inner {
+  @include size(calc(var(--grid-item-size) * var(--grid-items)), 100%);
+  box-shadow: inset 0 0 0 1px #6a715c;
+  // opacity: 0.2;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+
+  .container--draggable & {
+    opacity: 0.2;
+    transition: opacity 0;
+  }
 }
 
 .grid__rows,
@@ -34,22 +44,44 @@
 }
 
 .grid__rows__item {
-  // subtract 1px to account for border
-  @include size(calc(var(--grid-items) * var(--grid-item-size) - 1px), var(--grid-item-size));
-  border-top: 1px solid #6a715c;
+  @include size(calc(var(--grid-items) * var(--grid-item-size)), var(--grid-item-size));
+  box-shadow: inset 0 0 0 0.5px #6a715c;
   flex-shrink: 0;
-
-  &:last-child {
-    border-bottom: 1px solid #6a715c;
-  }
 }
 
 .grid__columns__item {
   @include size(var(--grid-item-size), 100%);
-  border-left: 1px solid #6a715c;
+  box-shadow: inset 0 0 0 0.5px #6a715c;
   flex-shrink: 0;
+}
 
-  &:last-child {
-    border-right: 1px solid #6a715c;
+$bar-height: 32px;
+
+.indicator {
+  @include margin(x auto 20px);
+  display: flex;
+  flex-direction: column;
+  height: $bar-height;
+  justify-content: center;
+}
+
+.indicator__bar {
+  border: 1px solid #b6bba8;
+  border-radius: 5px;
+  height: $bar-height / 2;
+  overflow: hidden;
+  transition: height 150ms ease-out;
+  width: 400px;
+
+  &:hover {
+    height: $bar-height;
   }
+}
+
+.indicator__bar__thumb {
+  background-color: rgba(#b6bba8, 0.6);
+  cursor: pointer;
+  height: 100%;
+  margin-left: var(--scroll-offset);
+  width: var(--wall-visibility);
 }
