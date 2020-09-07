@@ -1,6 +1,5 @@
 import React, { useState, useLayoutEffect, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import anime from 'animejs';
 import c from 'classnames';
 import styles from './grid.module.scss';
 import { GridContext } from '@src/utils/contexts';
@@ -24,24 +23,16 @@ const Grid = ({ children, minColumns, rows }) => {
   };
 
   const itemSize = height / rows;
-  let minColumnsForWidth = COLUMN_BUFFER;
+  let minColumnsForWidth = 100;
   if (itemSize > 0) {
-    minColumnsForWidth += Math.ceil(visibleWidth / itemSize);
+    minColumnsForWidth = Math.ceil(visibleWidth / itemSize);
   }
-  const columns = Math.max(minColumns, minColumnsForWidth);
+  const columns = Math.max(minColumns, minColumnsForWidth) + COLUMN_BUFFER;
   const gridWidth = columns * itemSize;
 
   const [xPos, setXPos] = useState(0);
   const xPosRef = useRef(0);
   const startXRef = useRef(0);
-
-  const updateScroll = () => {
-    anime({
-      targets: [gridRef.current],
-      translateX: -1 * xPosRef.current,
-      duration: 0,
-    });
-  };
 
   const onScroll = delta => {
     const prevX = xPosRef.current;
@@ -51,10 +42,6 @@ const Grid = ({ children, minColumns, rows }) => {
 
     xPosRef.current = nextX;
     setXPos(nextX);
-
-    if (nextX !== prevX) {
-      requestAnimationFrame(updateScroll);
-    }
   };
 
   const [isDragEnabled, setIsDragEnabled] = useState(false);
@@ -62,6 +49,7 @@ const Grid = ({ children, minColumns, rows }) => {
 
   const onKeyDown = evt => {
     switch (evt.key) {
+      // Enable dragging
       case 'Spacebar':
       case ' ': {
         setIsDragEnabled(true);
@@ -70,6 +58,7 @@ const Grid = ({ children, minColumns, rows }) => {
 
       case 'Right':
       case 'ArrowRight': {
+        // Move the grid to the right by 1 grid square
         if (xPosRef.current < gridWidth - visibleWidth) {
           evt.preventDefault();
           const delta = xPosRef.current % itemSize;
@@ -85,6 +74,7 @@ const Grid = ({ children, minColumns, rows }) => {
 
       case 'Left':
       case 'ArrowLeft': {
+        // Move the grid to the left by 1 grid square
         if (xPosRef.current > 0) {
           evt.preventDefault();
           const delta = xPosRef.current % itemSize;
@@ -102,6 +92,7 @@ const Grid = ({ children, minColumns, rows }) => {
 
   const onKeyUp = evt => {
     switch (evt.key) {
+      // Disable dragging
       case 'Spacebar':
       case ' ': {
         setIsDragEnabled(false);
@@ -180,6 +171,7 @@ const Grid = ({ children, minColumns, rows }) => {
         style={{
           '--grid-item-size': `${itemSize}px`,
           '--grid-items': columns,
+          '--scroll-offset': `${-1 * xPos}px`,
         }}>
         <div ref={gridRef} className={styles.grid}>
           <div className={styles.gridInner}>

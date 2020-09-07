@@ -8,13 +8,17 @@ const GridItem = ({ x, y, width, height }) => {
 
   return (
     <div
-      className={styles.gridItem}
+      className={styles.container}
       style={{
-        width: width * itemSize,
-        height: height * itemSize,
+        width: Math.ceil(width) * itemSize,
+        height: Math.ceil(height) * itemSize,
         transform: `translateX(${x * itemSize}px) translateY(${y * itemSize}px)`,
-      }}
-    />
+      }}>
+      <div
+        className={styles.gridItem}
+        style={{ width: width * itemSize, height: height * itemSize }}
+      />
+    </div>
   );
 };
 

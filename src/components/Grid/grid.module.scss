@@ -17,6 +17,7 @@
 .grid {
   @include absolute(0);
   @include size(100%);
+  transform: translateX(var(--scroll-offset));
 }
 
 .grid__inner {

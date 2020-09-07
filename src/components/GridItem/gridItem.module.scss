@@ -1,4 +1,11 @@
-.grid-item {
+.container {
   @include absolute(0 x x 0);
+  align-items: center;
+  background-color: rgba(#b6bba8, 0.3);
+  display: flex;
+  justify-content: center;
+}
+
+.grid-item {
   background-color: mix(#b6bba8, $c-tan, 60);
 }
