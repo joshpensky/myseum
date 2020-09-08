@@ -1,8 +1,9 @@
-import React, { useState, useLayoutEffect, useRef, useEffect, Fragment } from 'react';
+import React, { useLayoutEffect, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
-import styles from './grid.module.scss';
+import { useState } from '@upstatement/react-hooks';
 import { GridContext } from '@src/utils/contexts';
+import styles from './grid.module.scss';
 
 // A buffer of columns to display offscreen
 const COLUMN_BUFFER = 10;
@@ -121,24 +122,26 @@ const Grid = ({ children, minColumns, rows }) => {
 
   useEffect(() => {
     if (isDragging) {
-      containerRef.current.addEventListener('mousemove', onDrag);
+      const container = containerRef.current;
+      container.addEventListener('mousemove', onDrag);
 
       return () => {
-        containerRef.current.removeEventListener('mousemove', onDrag);
+        container.removeEventListener('mousemove', onDrag);
       };
     }
   }, [isDragging, visibleWidth]);
 
   useEffect(() => {
     if (isDragEnabled) {
-      containerRef.current.addEventListener('mousedown', onDragStart);
-      containerRef.current.addEventListener('mouseup', onDragEnd);
-      containerRef.current.addEventListener('mouseleave', onDragEnd);
+      const container = containerRef.current;
+      container.addEventListener('mousedown', onDragStart);
+      container.addEventListener('mouseup', onDragEnd);
+      container.addEventListener('mouseleave', onDragEnd);
 
       return () => {
-        containerRef.current.removeEventListener('mousedown', onDragStart);
-        containerRef.current.removeEventListener('mouseup', onDragEnd);
-        containerRef.current.removeEventListener('mouseleave', onDragEnd);
+        container.removeEventListener('mousedown', onDragStart);
+        container.removeEventListener('mouseup', onDragEnd);
+        container.removeEventListener('mouseleave', onDragEnd);
       };
     }
   }, [isDragEnabled]);
@@ -156,7 +159,9 @@ const Grid = ({ children, minColumns, rows }) => {
   useLayoutEffect(() => {
     const observer = new ResizeObserver(onResize);
     observer.observe(containerRef.current);
-    return observer.disconnect;
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (

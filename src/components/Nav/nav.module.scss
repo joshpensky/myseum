@@ -1,0 +1,25 @@
+.nav-content {
+  > *:not(.nav-content--no-replace):not(:first-child) {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+.nav-inner {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-inner__item {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+
+  &--left {
+    justify-content: flex-start;
+  }
+
+  &--right {
+    justify-content: flex-end;
+  }
+}
