@@ -25,11 +25,13 @@
     "@upstatement/react-hooks": "^1.0.2",
     "animejs": "^3.2.0",
     "classnames": "^2.2.6",
+    "msw": "^0.20.5",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet-async": "^1.0.6",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "swr": "^0.3.2"
   },
   "devDependencies": {
     "@craco/craco": "^5.6.4",

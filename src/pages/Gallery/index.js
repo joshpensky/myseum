@@ -1,68 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
 import styles from './gallery.module.scss';
 import Portal from '@src/components/Portal';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
+import useSWR from 'swr';
+import NotFound from '@src/pages/NotFound';
 
 const Gallery = () => {
-  const { url, params } = useRouteMatch();
+  const history = useHistory();
+  const { museumId, galleryId } = useParams();
 
-  const [wallHeight, setWallHeight] = useState(62);
+  const { data: gallery, error } = useSWR(() => `/api/galleries/${galleryId}`);
 
-  const gridItems = [
-    {
-      x: 3,
-      y: 25,
-      width: 27,
-      height: 35,
-    },
-    {
-      x: 36,
-      y: 3,
-      width: 15,
-      height: 15,
-    },
-    {
-      x: 57,
-      y: 11,
-      width: 19,
-      height: 24,
-    },
-    {
-      x: 48,
-      y: 40,
-      width: 14.2,
-      height: 11.4,
-    },
-    {
-      x: 80,
-      y: 52,
-      width: 10,
-      height: 10,
-    },
-  ];
+  const [wallHeight, setWallHeight] = useState(0);
 
-  const minHeight = gridItems.reduce((acc, { y, height }) => {
-    const y2 = y + Math.ceil(height);
+  useLayoutEffect(() => {
+    if (gallery) {
+      setWallHeight(gallery.height);
+    }
+  }, [gallery]);
+
+  if (!gallery && !error) {
+    return <p>Loading...</p>;
+  } else if (error) {
+    return <NotFound />;
+  }
+
+  const { artwork } = gallery;
+
+  const minHeight = artwork.reduce((acc, { item, position }) => {
+    const y2 = position.y + Math.ceil(item.frame.dimensions.height);
     return acc > y2 ? acc : y2;
-  });
+  }, 0);
 
-  const minColumns = gridItems.reduce((acc, { x, width }) => {
-    const x2 = x + Math.ceil(width);
+  const minColumns = artwork.reduce((acc, { item, position }) => {
+    const x2 = position.x + Math.ceil(item.frame.dimensions.width);
     return acc > x2 ? acc : x2;
   }, 0);
 
   return (
     <div className={styles.container}>
       <Portal to="nav-left" prepend>
-        <Link to={`/museum/${params.museumId}`} replace>
-          Back
-        </Link>
+        <button onClick={history.goBack}>Back</button>
       </Portal>
       <Portal to="nav-center" prepend>
-        <Link to={url}>
-          <h1>Gallery Name</h1>
+        <Link to={`/museum/${museumId}/gallery/${galleryId}`}>
+          <h1>{gallery.name}</h1>
         </Link>
       </Portal>
 
@@ -80,8 +64,8 @@ const Gallery = () => {
       </div>
 
       <Grid rows={wallHeight} minColumns={minColumns}>
-        {gridItems.map(({ x, y, width, height }, idx) => (
-          <GridItem key={idx} x={x} y={y} width={width} height={height} />
+        {artwork.map(({ item, position }, idx) => (
+          <GridItem key={idx} item={item} position={position} />
         ))}
       </Grid>
     </div>

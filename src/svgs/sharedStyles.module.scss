@@ -1,0 +1,18 @@
+.root {
+  @include size(100%);
+  display: block;
+}
+
+// Use for SVGs determined by their height
+.root--tall {
+  display: block;
+  height: 100%;
+}
+
+.fill {
+  fill: currentColor;
+}
+
+.stroke {
+  stroke: currentColor;
+}

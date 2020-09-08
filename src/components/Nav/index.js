@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import styles from './nav.module.scss';
+import Logo from '@src/svgs/Logo';
 
 const Nav = () => (
   <nav id="nav" className={styles.navContent}>
@@ -12,14 +13,15 @@ const Nav = () => (
       />
 
       <div id="nav-center" className={(styles.navInnerItem, styles.navContent)}>
-        <h1>Logo</h1>
+        <span className={styles.logo}>
+          <Logo />
+        </span>
       </div>
 
       <div
         id="nav-right"
-        className={c(styles.navInnerItem, styles.navInnerItemRight, styles.navContent)}>
-        <button className={styles.navContentNoReplace}>Log in</button>
-      </div>
+        className={c(styles.navInnerItem, styles.navInnerItemRight, styles.navContent)}
+      />
     </div>
   </nav>
 );

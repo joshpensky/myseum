@@ -1,16 +1,22 @@
-.container {
+.wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.grid-container {
   @include margin(20px x);
   display: flex;
   flex: 1;
-  overflow: hidden;
   position: relative;
 }
 
-.container--draggable {
+.grid-container--draggable {
   cursor: grab;
 }
 
-.container--dragging {
+.grid-container--dragging {
   cursor: grabbing;
 }
 
@@ -27,7 +33,7 @@
   opacity: 0;
   transition: opacity 150ms ease-out;
 
-  .container--draggable & {
+  .grid-container--draggable & {
     opacity: 0.2;
     transition: opacity 0;
   }

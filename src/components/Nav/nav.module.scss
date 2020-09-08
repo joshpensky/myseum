@@ -1,5 +1,5 @@
 .nav-content {
-  > *:not(.nav-content--no-replace):not(:first-child) {
+  > *:not(:global(.no-replace)):not(:first-child) {
     display: none;
     visibility: hidden;
   }
@@ -22,4 +22,9 @@
   &--right {
     justify-content: flex-end;
   }
+}
+
+.logo {
+  display: flex;
+  height: 30px;
 }

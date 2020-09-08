@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useEffect, Fragment } from 'react';
+import React, { useLayoutEffect, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
 import { useState } from '@upstatement/react-hooks';
@@ -23,7 +23,7 @@ const Grid = ({ children, minColumns, rows }) => {
     setVisibleWidth(entry.contentRect.width);
   };
 
-  const itemSize = height / rows;
+  const itemSize = rows ? height / rows : 0;
   let minColumnsForWidth = 100;
   if (itemSize > 0) {
     minColumnsForWidth = Math.ceil(visibleWidth / itemSize);
@@ -165,13 +165,13 @@ const Grid = ({ children, minColumns, rows }) => {
   }, []);
 
   return (
-    <Fragment>
+    <div className={styles.wrapper}>
       <div
         ref={containerRef}
         className={c(
-          styles.container,
-          isDragEnabled && styles.containerDraggable,
-          isDragging && styles.containerDragging,
+          styles.gridContainer,
+          isDragEnabled && styles.gridContainerDraggable,
+          isDragging && styles.gridContainerDragging,
         )}
         style={{
           '--grid-item-size': `${itemSize}px`,
@@ -206,7 +206,7 @@ const Grid = ({ children, minColumns, rows }) => {
           />
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 };
 
