@@ -43,7 +43,11 @@ const MuseumRoutes = () => {
 };
 
 const App = () => (
-  <SWRConfig value={{ fetcher: (...args) => fetch(...args).then(res => res.json()) }}>
+  <SWRConfig
+    value={{
+      fetcher: (...args) => fetch(...args).then(res => res.json()),
+      revalidateOnFocus: false,
+    }}>
     <BrowserRouter>
       <Layout>
         <Switch>

@@ -57,8 +57,22 @@
 .details__header {
   border-bottom: 1px solid $c-dark-mint;
   display: flex;
-  justify-content: flex-end;
-  padding: 10px 22px;
+  justify-content: space-between;
+  padding: 8px 20px;
+}
+
+.details__header__button {
+  &:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.details__header__group {
+  display: flex;
+
+  &:not(:last-child) {
+    margin-right: 10px;
+  }
 }
 
 .details__body {

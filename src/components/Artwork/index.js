@@ -1,17 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import c from 'classnames';
+import { Link, useParams } from 'react-router-dom';
+import IconButton from '@src/components/IconButton';
+import Close from '@src/svgs/Close';
+import Fullscreen from '@src/svgs/Fullscreen';
+import Edit from '@src/svgs/Edit';
+import Trash from '@src/svgs/Trash';
 import styles from './artwork.module.scss';
 
 const Artwork = ({ data, withShadow }) => {
-  const { id, title, description, frame, src, alt } = data;
-  const { width: frameWidth, height: frameHeight, depth } = frame.dimensions;
-  const { width: windowWidth, height: windowHeight } = frame.window.dimensions;
+  const { museumId } = useParams();
+
+  const detailsRef = useRef(null);
+  const triggerButtonRef = useRef(null);
 
   const [areDetailsExpanded, setAreDetailsExpanded] = useState(false);
 
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
+
+  const onOutsideClick = evt => {
+    if (!(detailsRef.current === evt.target || detailsRef.current.contains(evt.target))) {
+      setAreDetailsExpanded(false);
+    }
+  };
+
+  const onCloseButton = () => {
+    setAreDetailsExpanded(false);
+    triggerButtonRef.current.focus();
+  };
+
+  const onKeyDown = evt => {
+    switch (evt.key) {
+      case 'Esc':
+      case 'Escape': {
+        evt.preventDefault();
+        setAreDetailsExpanded(false);
+        triggerButtonRef.current.focus();
+        break;
+      }
+      // TODO: add tab lock
+    }
+  };
+
+  useEffect(() => {
+    if (areDetailsExpanded) {
+      detailsRef.current.focus();
+      document.addEventListener('click', onOutsideClick);
+      document.addEventListener('keydown', onKeyDown);
+
+      return () => {
+        document.removeEventListener('click', onOutsideClick);
+        document.removeEventListener('keydown', onKeyDown);
+      };
+    }
+  }, [areDetailsExpanded]);
+
+  const { id, title, artist, description, acquired, created, frame, gallery, src, alt } = data;
+  const { width: frameWidth, height: frameHeight, depth } = frame.dimensions;
+  const { width: windowWidth, height: windowHeight } = frame.window.dimensions;
 
   const loaded = isFrameLoaded && isArtworkLoaded;
 
@@ -21,6 +69,7 @@ const Artwork = ({ data, withShadow }) => {
         className={c(styles.wrapper, withShadow && loaded && styles.wrapperShadow)}
         xmlns="http://www.w3.org/2000/svg"
         id={id}
+        aria-labelledby={`${id}-title`}
         aria-describedby={`${id}-desc`}
         style={{
           '--frame-width': frameWidth,
@@ -28,6 +77,7 @@ const Artwork = ({ data, withShadow }) => {
           '--frame-depth': depth,
         }}
         viewBox={`0 0 ${frameWidth} ${frameHeight}`}>
+        <title id={`${id}-title`}>{title}</title>
         <desc id={`${id}-desc`}>{alt}</desc>
         <image
           className={c(styles.frame, loaded && styles.loaded)}
@@ -59,6 +109,7 @@ const Artwork = ({ data, withShadow }) => {
         />
       </svg>
       <button
+        ref={triggerButtonRef}
         className={styles.button}
         title="Expand"
         aria-label={`Expand details for artwork "${title}"`}
@@ -66,18 +117,45 @@ const Artwork = ({ data, withShadow }) => {
         aria-controls={`${id}-details`}
         onClick={() => setAreDetailsExpanded(true)}
       />
-      <div id={`${id}-details`} className={styles.details} aria-hidden={!areDetailsExpanded}>
+      <div
+        ref={detailsRef}
+        id={`${id}-details`}
+        tabIndex={-1}
+        className={styles.details}
+        aria-modal={true}
+        aria-hidden={!areDetailsExpanded}>
         <div className={styles.detailsHeader}>
-          <button onClick={() => setAreDetailsExpanded(false)} aria-label="Close">
-            X
-          </button>
+          <div className={styles.detailsHeaderGroup}>
+            <div className={styles.detailsHeaderButton}>
+              <IconButton icon={Fullscreen} title="Expand artwork" />
+            </div>
+            <div className={styles.detailsHeaderButton}>
+              <IconButton icon={Edit} title="Edit artwork" />
+            </div>
+            <div className={styles.detailsHeaderButton}>
+              <IconButton icon={Trash} title="Delete artwork" />
+            </div>
+          </div>
+          <div className={styles.detailsHeaderButton}>
+            <IconButton icon={Close} title="Close" onClick={onCloseButton} />
+          </div>
         </div>
         <div className={styles.detailsBody}>
           <p>{title}</p>
           <p>
+            <span>{artist || 'Unknown'}</span>, <time dateTime={created}>{created}</time>
+          </p>
+          <p>
             {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
           </p>
           <p>{description}</p>
+          {acquired && <p>Acquired {acquired}</p>}
+          {gallery && (
+            <p>
+              Featured in the{' '}
+              <Link to={`/museum/${museumId}/gallery/${gallery.id}`}>{gallery.name}</Link>
+            </p>
+          )}
         </div>
       </div>
     </span>

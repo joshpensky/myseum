@@ -1,5 +1,16 @@
+.collection {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: -20px;
+}
+
 .artwork {
   align-items: flex-start;
   display: flex;
   height: 200px;
+  margin-bottom: 20px;
+
+  &:not(:last-child) {
+    margin-right: 20px;
+  }
 }

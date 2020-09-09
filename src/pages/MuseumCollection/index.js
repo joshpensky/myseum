@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import Artwork from '@src/components/Artwork';
 import styles from './museumCollection.module.scss';
@@ -19,19 +19,10 @@ const MuseumCollection = () => {
     <div>
       <h1>Collection</h1>
 
-      <ul>
+      <ul className={styles.collection}>
         {data.map(artwork => (
-          <li key={artwork.id}>
-            <p>{artwork.title}</p>
-            <p>
-              Featured in the{' '}
-              <Link to={`/museum/${museumId}/gallery/${artwork.gallery.id}`}>
-                {artwork.gallery.name}
-              </Link>
-            </p>
-            <div className={styles.artwork} style={{ height: 200 }}>
-              <Artwork data={artwork} />
-            </div>
+          <li key={artwork.id} className={styles.artwork}>
+            <Artwork data={artwork} />
           </li>
         ))}
       </ul>
