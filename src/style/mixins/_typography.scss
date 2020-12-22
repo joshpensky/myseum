@@ -11,3 +11,10 @@
   font-weight: 400;
   line-height: 1.4;
 }
+
+@mixin small {
+  font-family: $ff-plex;
+  font-size: $fs-sm;
+  font-weight: 400;
+  line-height: 1.4;
+}

@@ -141,20 +141,26 @@ const Artwork = ({ data, withShadow }) => {
           </div>
         </div>
         <div className={styles.detailsBody}>
-          <p>{title}</p>
-          <p>
-            <span>{artist || 'Unknown'}</span>, <time dateTime={created}>{created}</time>
-          </p>
-          <p>
-            {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
-          </p>
-          <p>{description}</p>
-          {acquired && <p>Acquired {acquired}</p>}
-          {gallery && (
+          <div className={styles.detailsBodyHeader}>
+            <p>{title}</p>
             <p>
-              Featured in the{' '}
-              <Link to={`/museum/${museumId}/gallery/${gallery.id}`}>{gallery.name}</Link>
+              <span>{artist || 'Unknown'}</span>, <time dateTime={created}>{created}</time>
             </p>
+            <p className={styles.detailsBodySmall}>
+              {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
+            </p>
+          </div>
+          <p className={styles.detailsBodySmall}>{description}</p>
+          {(acquired || gallery) && (
+            <div className={styles.detailsBodyFooter}>
+              {acquired && <p className={styles.detailsBodySmall}>Acquired {acquired}</p>}
+              {gallery && (
+                <p className={styles.detailsBodySmall}>
+                  Featured in the{' '}
+                  <Link to={`/museum/${museumId}/gallery/${gallery.id}`}>{gallery.name}</Link>
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>

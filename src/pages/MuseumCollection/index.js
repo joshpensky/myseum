@@ -18,6 +18,9 @@ const MuseumCollection = () => {
   return (
     <div>
       <h1>Collection</h1>
+      <p>
+        {data.length} item{data.length === 1 ? '' : 's'}
+      </p>
 
       <ul className={styles.collection}>
         {data.map(artwork => (

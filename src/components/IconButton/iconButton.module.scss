@@ -1,6 +1,6 @@
 .button {
   @include reset-input;
-  @include size(30px);
+  @include size(32px);
   @include margin(x -5px);
   align-items: center;
   cursor: pointer;
@@ -16,21 +16,21 @@
     border-radius: 50%;
     content: '';
     opacity: 0;
-    transform: scale(1.05);
+    transform: scale(0.95);
     transition: transform 100ms ease-out;
     z-index: -1;
   }
 
   &:hover {
     &::after {
-      opacity: 0.075;
+      opacity: 0.05;
     }
   }
 
   &:focus {
     &::after {
-      opacity: 0.125;
-      transform: scale(1.2);
+      opacity: 0.1;
+      transform: scale(1.05);
     }
   }
 }

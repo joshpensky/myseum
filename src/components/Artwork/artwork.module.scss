@@ -63,7 +63,7 @@
 
 .details__header__button {
   &:not(:last-child) {
-    margin-right: 10px;
+    margin-right: 12px;
   }
 }
 
@@ -77,4 +77,30 @@
 
 .details__body {
   padding: 20px;
+}
+
+.details__body__header {
+  margin-bottom: 16px;
+}
+
+.details__body__small {
+  @include small;
+
+  a {
+    @include small;
+  }
+}
+
+.details__body__footer {
+  font-style: italic;
+  margin-top: 30px;
+
+  a {
+    color: $c-black;
+    text-decoration: underline;
+  }
+
+  .details__body__small:not(:last-child) {
+    margin-bottom: 2px;
+  }
 }
