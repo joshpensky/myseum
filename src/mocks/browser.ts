@@ -81,7 +81,7 @@ export const mockServiceWorker = setupWorker(
     const { museumId } = req.params;
 
     try {
-      const museum = getMuseum(museumId);
+      const museum = getMuseum(Number(museumId));
       return res(ctx.status(200), ctx.json(museum));
     } catch {
       return res(ctx.status(404), ctx.json({ message: 'Museum not found' }));
@@ -93,7 +93,7 @@ export const mockServiceWorker = setupWorker(
     const { museumId } = req.params;
 
     try {
-      const museum = getMuseum(museumId);
+      const museum = getMuseum(Number(museumId));
       const collection = getMuseumCollection(museum);
       return res(ctx.status(200), ctx.json(collection));
     } catch {
@@ -106,7 +106,7 @@ export const mockServiceWorker = setupWorker(
     const { galleryId } = req.params;
 
     try {
-      const gallery = getGallery(galleryId);
+      const gallery = getGallery(Number(galleryId));
       return res(ctx.status(200), ctx.json(gallery));
     } catch {
       return res(ctx.status(404), ctx.json({ message: 'Gallery not found' }));

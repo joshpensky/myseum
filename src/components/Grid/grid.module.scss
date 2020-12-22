@@ -1,0 +1,94 @@
+.wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.grid-container {
+  @include margin(20px x);
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.grid-container--draggable {
+  cursor: grab;
+}
+
+.grid-container--dragging {
+  cursor: grabbing;
+}
+
+.grid {
+  @include absolute(0);
+  @include size(100%);
+  transform: translateX(var(--scroll-offset));
+}
+
+.grid__inner {
+  @include size(calc(var(--grid-item-size) * var(--grid-items)), 100%);
+  box-shadow: inset 0 0 0 1px #6a715c;
+  // opacity: 0.2;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+
+  .grid-container--draggable & {
+    opacity: 0.2;
+    transition: opacity 0;
+  }
+}
+
+.grid__rows,
+.grid__columns {
+  @include absolute(0);
+  @include size(100%);
+  display: flex;
+}
+
+.grid__rows {
+  flex-direction: column;
+}
+
+.grid__rows__item {
+  @include size(calc(var(--grid-items) * var(--grid-item-size)), var(--grid-item-size));
+  box-shadow: inset 0 0 0 0.5px #6a715c;
+  flex-shrink: 0;
+}
+
+.grid__columns__item {
+  @include size(var(--grid-item-size), 100%);
+  box-shadow: inset 0 0 0 0.5px #6a715c;
+  flex-shrink: 0;
+}
+
+$bar-height: 32px;
+
+.indicator {
+  @include margin(x auto 20px);
+  display: flex;
+  flex-direction: column;
+  height: $bar-height;
+  justify-content: center;
+}
+
+.indicator__bar {
+  border: 1px solid #b6bba8;
+  border-radius: 5px;
+  height: $bar-height / 2;
+  overflow: hidden;
+  transition: height 150ms ease-out;
+  width: 400px;
+
+  &:hover {
+    height: $bar-height;
+  }
+}
+
+.indicator__bar__thumb {
+  background-color: rgba(#b6bba8, 0.6);
+  cursor: pointer;
+  height: 100%;
+  margin-left: var(--scroll-offset);
+  width: var(--wall-visibility);
+}

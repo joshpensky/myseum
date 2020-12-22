@@ -1,0 +1,13 @@
+.container {
+  @include absolute(0 x x 0);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  // DEBUG: enable background-color to see grid size
+  // background-color: rgba(#b6bba8, 0.3);
+}
+
+.inner {
+  align-items: flex-start;
+  display: flex;
+}

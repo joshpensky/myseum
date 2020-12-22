@@ -1,0 +1,16 @@
+.collection {
+  @include margin(20px x -20px);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.artwork {
+  align-items: flex-start;
+  display: flex;
+  height: 200px;
+  margin-bottom: 20px;
+
+  &:not(:last-child) {
+    margin-right: 20px;
+  }
+}

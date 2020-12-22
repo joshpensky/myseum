@@ -1,19 +1,21 @@
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Layout from '@src/components/Layout';
 import { SWRProvider } from '@src/providers/SWRProvider';
+import Home from '@src/pages/Home';
+import NotFound from '@src/pages/NotFound';
+import MuseumRoot from '@src/roots/MuseumRoot';
 
 const App = () => (
   <SWRProvider>
-    <Layout>
-      <header>
-        <h1>Gallery</h1>
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
-    </Layout>
+    <BrowserRouter>
+      <Layout>
+        <Switch>
+          <Route path="/" exact component={Home} />
+          <Route path="/museum/:museumId" component={MuseumRoot} />
+          <Route path="*" component={NotFound} />
+        </Switch>
+      </Layout>
+    </BrowserRouter>
   </SWRProvider>
 );
 
