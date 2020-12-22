@@ -84,7 +84,7 @@ export const mockServiceWorker = setupWorker(
       const museum = getMuseum(museumId);
       return res(ctx.status(200), ctx.json(museum));
     } catch {
-      return res(ctx.status(404));
+      return res(ctx.status(404), ctx.json({ message: 'Museum not found' }));
     }
   }),
 
@@ -97,7 +97,7 @@ export const mockServiceWorker = setupWorker(
       const collection = getMuseumCollection(museum);
       return res(ctx.status(200), ctx.json(collection));
     } catch {
-      return res(ctx.status(404));
+      return res(ctx.status(404), ctx.json({ message: 'Museum not found' }));
     }
   }),
 
@@ -109,7 +109,7 @@ export const mockServiceWorker = setupWorker(
       const gallery = getGallery(galleryId);
       return res(ctx.status(200), ctx.json(gallery));
     } catch {
-      return res(ctx.status(404));
+      return res(ctx.status(404), ctx.json({ message: 'Gallery not found' }));
     }
   }),
 );
