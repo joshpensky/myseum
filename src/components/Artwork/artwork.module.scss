@@ -81,6 +81,10 @@
 
 .details__body__header {
   margin-bottom: 16px;
+
+  h1 {
+    @include h2;
+  }
 }
 
 .details__body__small {

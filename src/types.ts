@@ -37,11 +37,15 @@ export type Frame = {
   };
 };
 
+export type Artist = {
+  id: Id;
+  name: string;
+};
+
 export type Artwork = {
   id: Id;
   title: string;
-  // TODO: add artist
-  artist: null;
+  artist: Artist | null;
   description: string;
   src: string;
   alt: string;

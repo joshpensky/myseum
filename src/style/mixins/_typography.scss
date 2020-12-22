@@ -5,6 +5,13 @@
   line-height: 1.2;
 }
 
+@mixin h2 {
+  font-family: $ff-migra;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
 @mixin body {
   font-family: $ff-plex;
   font-size: $fs-base;

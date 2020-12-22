@@ -3,7 +3,8 @@ import { artworks } from './data/artworks';
 import { museums } from './data/museums';
 import { galleries } from './data/galleries';
 import { frames } from './data/frames';
-import { Artwork, Gallery, Id, Museum, MuseumCollectionItem } from '@src/types';
+import { Artist, Artwork, Gallery, Id, Museum, MuseumCollectionItem } from '@src/types';
+import { artists } from './data/artists';
 
 const getArtwork = (id: Id): Artwork => {
   const work = artworks.find(work => id === work.id);
@@ -11,13 +12,25 @@ const getArtwork = (id: Id): Artwork => {
     throw new Error('Artwork not found!');
   }
 
-  const frame = frames.find(({ id }) => id === work.frameId);
+  const { frameId, artistId, ...artwork } = work;
+
+  const frame = frames.find(({ id }) => id === frameId);
   if (!frame) {
     throw new Error('Frame not found!');
   }
 
+  let artist: Artist | null = null;
+  if (artistId !== null) {
+    const foundArtist = artists.find(({ id }) => id === artistId);
+    if (!foundArtist) {
+      throw new Error('Artist not found!');
+    }
+    artist = foundArtist;
+  }
+
   return {
-    ...work,
+    ...artwork,
+    artist,
     frame,
   };
 };

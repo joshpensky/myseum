@@ -1,6 +1,7 @@
 import { Artwork, Id } from '@src/types';
 
-export type RawArtwork = Omit<Artwork, 'frame'> & {
+export type RawArtwork = Omit<Artwork, 'artist' | 'frame'> & {
+  artistId: Id | null;
   frameId: Id;
 };
 
@@ -8,7 +9,7 @@ export const artworks: RawArtwork[] = [
   {
     id: 1,
     title: 'Choose Goose',
-    artist: null,
+    artistId: 1,
     description:
       'Nullam quis risus eget urna mollis ornare vel eu leo. Curabitur blandit tempus porttitor.',
     src: '/img/choose-goose.png',

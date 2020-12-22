@@ -9,3 +9,9 @@
   display: flex;
   justify-content: space-between;
 }
+
+.fab-wrapper {
+  @include fixed(x 24px 24px x);
+  display: flex;
+  flex-direction: column;
+}

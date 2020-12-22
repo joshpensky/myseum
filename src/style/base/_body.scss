@@ -1,4 +1,5 @@
 body {
   @include margin(0);
+  @include body;
   background-color: $c-bg;
 }

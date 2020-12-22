@@ -8,6 +8,7 @@ import Edit from '@src/svgs/Edit';
 import Trash from '@src/svgs/Trash';
 import styles from './artwork.module.scss';
 import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
+import dayjs from 'dayjs';
 
 export type ArtworkProps = {
   data: ArtworkData | MuseumCollectionItem;
@@ -134,7 +135,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
         className={styles.details}
         aria-modal={true}
         aria-hidden={!areDetailsExpanded}>
-        <div className={styles.detailsHeader}>
+        <section className={styles.detailsHeader}>
           <div className={styles.detailsHeaderGroup}>
             <div className={styles.detailsHeaderButton}>
               <IconButton icon={Fullscreen} title="Expand artwork" />
@@ -149,22 +150,26 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           <div className={styles.detailsHeaderButton}>
             <IconButton icon={Close} title="Close" onClick={onCloseButton} />
           </div>
-        </div>
-        <div className={styles.detailsBody}>
-          <div className={styles.detailsBodyHeader}>
-            <p>{title}</p>
+        </section>
+        <section className={styles.detailsBody}>
+          <header className={styles.detailsBodyHeader}>
+            <h1>{title}</h1>
             <p>
-              <span>{artist || 'Unknown'}</span>,{' '}
-              <time dateTime={createdAt.toString()}>{createdAt}</time>
+              <span>{artist ? artist.name : 'Unknown'}</span>,{' '}
+              <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
             <p className={styles.detailsBodySmall}>
               {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
             </p>
-          </div>
+          </header>
           <p className={styles.detailsBodySmall}>{description}</p>
           {(acquiredAt || 'gallery' in data) && (
             <div className={styles.detailsBodyFooter}>
-              {acquiredAt && <p className={styles.detailsBodySmall}>Acquired {acquiredAt}</p>}
+              {acquiredAt && (
+                <p className={styles.detailsBodySmall}>
+                  Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
+                </p>
+              )}
               {'gallery' in data && (
                 <p className={styles.detailsBodySmall}>
                   Featured in the{' '}
@@ -175,7 +180,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
               )}
             </div>
           )}
-        </div>
+        </section>
       </div>
     </span>
   );
