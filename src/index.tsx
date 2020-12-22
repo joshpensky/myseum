@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import App from '@src/App';
 import { mockServiceWorker } from '@src/mocks/browser';
-import '@src/style/index.scss';
 import reportWebVitals from '@src/reportWebVitals';
 
 mockServiceWorker.start();

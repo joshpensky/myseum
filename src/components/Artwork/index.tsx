@@ -138,17 +138,25 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
         <section className={styles.detailsHeader}>
           <div className={styles.detailsHeaderGroup}>
             <div className={styles.detailsHeaderButton}>
-              <IconButton icon={Fullscreen} title="Expand artwork" />
+              <IconButton title="Expand artwork">
+                <Fullscreen />
+              </IconButton>
             </div>
             <div className={styles.detailsHeaderButton}>
-              <IconButton icon={Edit} title="Edit artwork" />
+              <IconButton title="Edit artwork">
+                <Edit />
+              </IconButton>
             </div>
             <div className={styles.detailsHeaderButton}>
-              <IconButton icon={Trash} title="Delete artwork" />
+              <IconButton title="Delete artwork">
+                <Trash />
+              </IconButton>
             </div>
           </div>
           <div className={styles.detailsHeaderButton}>
-            <IconButton icon={Close} title="Close" onClick={onCloseButton} />
+            <IconButton title="Close" onClick={onCloseButton}>
+              <Close />
+            </IconButton>
           </div>
         </section>
         <section className={styles.detailsBody}>

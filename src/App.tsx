@@ -4,10 +4,12 @@ import { SWRProvider } from '@src/providers/SWRProvider';
 import Home from '@src/pages/Home';
 import NotFound from '@src/pages/NotFound';
 import MuseumRoot from '@src/roots/MuseumRoot';
+import { GlobalStyles } from 'twin.macro';
 
 const App = () => (
   <SWRProvider>
     <BrowserRouter>
+      <GlobalStyles />
       <Layout>
         <Switch>
           <Route path="/" exact component={Home} />

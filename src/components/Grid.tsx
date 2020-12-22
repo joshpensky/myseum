@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useState, useEffect, PropsWithChildren } from 'react';
-import c from 'classnames';
-import styles from './grid.module.scss';
 import { GridProvider } from '@src/providers/GridProvider';
+import tw, { css } from 'twin.macro';
 
 export type GridProps = {
   minColumns?: number;
@@ -45,9 +44,9 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
 
   const onKeyDown = (evt: KeyboardEvent) => {
     switch (evt.key) {
-      // Enable dragging
       case 'Spacebar':
       case ' ': {
+        // Enable dragging
         setIsDragEnabled(true);
         break;
       }
@@ -169,33 +168,66 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div css={[tw`flex flex-col flex-1 overflow-hidden`]}>
       <div
         ref={containerRef}
-        className={c(
-          styles.gridContainer,
-          isDragEnabled && styles.gridContainerDraggable,
-          isDragging && styles.gridContainerDragging,
-        )}
-        style={{
-          '--grid-item-size': `${itemSize}px`,
-          '--grid-items': columns,
-          '--scroll-offset': `${-1 * xPos}px`,
-        }}>
-        <div ref={gridRef} className={styles.grid}>
-          <div className={styles.gridInner}>
-            <div className={styles.gridRows}>
+        css={[
+          tw`my-6 flex flex-1 relative`,
+          isDragEnabled && tw`cursor-grab`,
+          isDragging && tw`cursor-grabbing`,
+          css`
+            --grid-item-size: ${itemSize}px;
+            --grid-items: ${columns};
+            --scroll-offset: ${-1 * xPos}px;
+          `,
+        ]}>
+        <div
+          ref={gridRef}
+          css={[
+            tw`absolute top-0 left-0 w-full h-full`,
+            css`
+              transform: translateX(var(--scroll-offset));
+            `,
+          ]}>
+          <div
+            css={[
+              tw`opacity-0 transition-opacity h-full relative`,
+              css`
+                box-shadow: inset 0 0 0 1px #6a715c;
+                width: calc(var(--grid-item-size) * var(--grid-items));
+              `,
+              isDragEnabled && tw`opacity-20 transition-none`,
+            ]}>
+            <div css={[tw`absolute top-0 left-0 w-full h-full flex flex-col`]}>
               {Array(rows)
                 .fill(null)
                 .map((_, idx) => (
-                  <div key={idx} className={styles.gridRowsItem} />
+                  <div
+                    key={idx}
+                    css={[
+                      tw`flex-shrink-0 w-full`,
+                      css`
+                        box-shadow: inset 0 0 0 0.5px #6a715c;
+                        height: var(--grid-item-size);
+                      `,
+                    ]}
+                  />
                 ))}
             </div>
-            <div className={styles.gridColumns}>
+            <div css={[tw`absolute top-0 left-0 w-full h-full flex`]}>
               {Array(columns)
                 .fill(null)
                 .map((_, idx) => (
-                  <div key={idx} className={styles.gridColumnsItem} />
+                  <div
+                    key={idx}
+                    css={[
+                      tw`flex-shrink-0 h-full`,
+                      css`
+                        box-shadow: inset 0 0 0 0.5px #6a715c;
+                        width: var(--grid-item-size);
+                      `,
+                    ]}
+                  />
                 ))}
             </div>
           </div>
@@ -203,14 +235,24 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
         </div>
       </div>
 
-      <div className={styles.indicator}>
-        <div className={styles.indicatorBar}>
+      <div css={[tw`mb-6 flex flex-col h-8 justify-center w-screen`]}>
+        <div
+          css={[
+            tw`border rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
+            css`
+              border-color: #b6bba8;
+            `,
+            tw`hover:h-8`,
+          ]}>
           <div
-            className={styles.indicatorBarThumb}
-            style={{
-              '--scroll-offset': `${(xPos / gridWidth) * 100}%`,
-              '--wall-visibility': `${(visibleWidth / gridWidth) * 100}%`,
-            }}
+            css={[
+              // TODO: fix color
+              tw`bg-gray-300 bg-opacity-60 cursor-pointer h-full`,
+              css`
+                margin-left: ${(xPos / gridWidth) * 100}%;
+                width: ${(visibleWidth / gridWidth) * 100}%;
+              `,
+            ]}
           />
         </div>
       </div>

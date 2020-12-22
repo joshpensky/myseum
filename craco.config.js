@@ -7,6 +7,9 @@ const DIRS = {
 
 module.exports = {
   style: {
+    postcss: {
+      plugins: [require('tailwindcss')('./tailwind.config.js')],
+    },
     css: {
       loaderOptions(options) {
         return {
@@ -36,10 +39,9 @@ module.exports = {
   webpack: {
     alias: {
       '@src': DIRS.src,
-      '/public': path.resolve(DIRS.base, 'public'),
     },
     resolve: {
-      extensions: ['.scss'],
+      extensions: ['.css', '.scss'],
     },
   },
   plugins: [
