@@ -1,10 +1,33 @@
 {
-  "extends": ["@upstatement/eslint-config/react", "plugin:jest/recommended"],
-  "plugins": ["jest"],
+  "extends": ["@upstatement/eslint-config/react", "plugin:promise/recommended"],
+  "plugins": ["promise"],
   "env": {
-    "jest/globals": true
+    "node": true,
+    "es6": true
   },
   "rules": {
-    "no-console": "off"
-  }
+    "no-console": "off",
+    "no-empty-function": "off",
+    "promise/prefer-await-to-then": "error",
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/no-onchange": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts?(x)"],
+      "extends": "plugin:@typescript-eslint/recommended",
+      "plugins": ["@typescript-eslint"],
+      "parser": "@typescript-eslint/parser",
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "no-useless-constructor": "off",
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "react/prop-types": "off"
+      }
+    }
+  ]
 }

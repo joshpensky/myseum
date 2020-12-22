@@ -11,7 +11,7 @@
   $font-style: normal,
   $formats: ('woff2', 'woff')
 ) {
-  $file-path: '/fonts/#{$file-name}';
+  $file-path: '../../static/fonts/#{$file-name}';
   $urls: ();
   $eot: null;
 
