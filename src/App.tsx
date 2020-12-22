@@ -1,8 +1,9 @@
-import { SWRProvider } from './providers/SWRProvider';
+import Layout from '@src/components/Layout';
+import { SWRProvider } from '@src/providers/SWRProvider';
 
 const App = () => (
   <SWRProvider>
-    <div>
+    <Layout>
       <header>
         <h1>Gallery</h1>
         <p>
@@ -12,7 +13,7 @@ const App = () => (
           Learn React
         </a>
       </header>
-    </div>
+    </Layout>
   </SWRProvider>
 );
 
