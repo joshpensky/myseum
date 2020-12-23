@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState, useEffect, PropsWithChildren } from 'react';
-import c from 'classnames';
-import styles from './grid.module.scss';
+import tw, { css } from 'twin.macro';
 import { GridProvider } from '@src/providers/GridProvider';
 
 export type GridProps = {
@@ -45,9 +44,9 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
 
   const onKeyDown = (evt: KeyboardEvent) => {
     switch (evt.key) {
-      // Enable dragging
       case 'Spacebar':
       case ' ': {
+        // Enable dragging
         setIsDragEnabled(true);
         break;
       }
@@ -169,33 +168,63 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div css={tw`flex flex-col flex-1 overflow-hidden`}>
       <div
         ref={containerRef}
-        className={c(
-          styles.gridContainer,
-          isDragEnabled && styles.gridContainerDraggable,
-          isDragging && styles.gridContainerDragging,
-        )}
-        style={{
-          '--grid-item-size': `${itemSize}px`,
-          '--grid-items': columns,
-          '--scroll-offset': `${-1 * xPos}px`,
-        }}>
-        <div ref={gridRef} className={styles.grid}>
-          <div className={styles.gridInner}>
-            <div className={styles.gridRows}>
+        css={[
+          tw`my-6 flex flex-1 relative`,
+          css`
+            --grid-item-size: ${itemSize}px;
+            --grid-items: ${columns};
+            --scroll-offset: ${-1 * xPos}px;
+          `,
+          isDragEnabled && tw`cursor-grab`,
+          isDragging && tw`cursor-grabbing`,
+        ]}>
+        <div
+          ref={gridRef}
+          css={[
+            tw`absolute inset-0 size-full`,
+            css`
+              transform: translateX(var(--scroll-offset));
+            `,
+          ]}>
+          <div
+            css={[
+              tw`opacity-0 transition-opacity h-full relative ring-1 ring-inset ring-mint-700`,
+              css`
+                width: calc(var(--grid-item-size) * var(--grid-items));
+              `,
+              isDragEnabled && tw`opacity-20 transition-none`,
+            ]}>
+            <div css={tw`absolute inset-0 size-full flex flex-col`}>
               {Array(rows)
                 .fill(null)
                 .map((_, idx) => (
-                  <div key={idx} className={styles.gridRowsItem} />
+                  <div
+                    key={idx}
+                    css={[
+                      tw`flex-shrink-0 w-full ring-0.5 ring-inset ring-mint-700`,
+                      css`
+                        height: var(--grid-item-size);
+                      `,
+                    ]}
+                  />
                 ))}
             </div>
-            <div className={styles.gridColumns}>
+            <div css={tw`absolute inset-0 size-full flex`}>
               {Array(columns)
                 .fill(null)
                 .map((_, idx) => (
-                  <div key={idx} className={styles.gridColumnsItem} />
+                  <div
+                    key={idx}
+                    css={[
+                      tw`flex-shrink-0 h-full ring-0.5 ring-inset ring-mint-700`,
+                      css`
+                        width: var(--grid-item-size);
+                      `,
+                    ]}
+                  />
                 ))}
             </div>
           </div>
@@ -203,14 +232,20 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
         </div>
       </div>
 
-      <div className={styles.indicator}>
-        <div className={styles.indicatorBar}>
+      <div css={tw`mb-6 flex flex-col h-8 justify-center w-full`}>
+        <div
+          css={[
+            tw`border border-mint-600 rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
+            tw`hover:h-8`,
+          ]}>
           <div
-            className={styles.indicatorBarThumb}
-            style={{
-              '--scroll-offset': `${(xPos / gridWidth) * 100}%`,
-              '--wall-visibility': `${(visibleWidth / gridWidth) * 100}%`,
-            }}
+            css={[
+              tw`bg-mint-600 bg-opacity-60 cursor-pointer h-full`,
+              css`
+                margin-left: ${(xPos / gridWidth) * 100}%;
+                width: ${(visibleWidth / gridWidth) * 100}%;
+              `,
+            ]}
           />
         </div>
       </div>

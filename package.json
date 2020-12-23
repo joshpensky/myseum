@@ -3,38 +3,43 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "develop": "BROWSER=none craco start",
-    "build": "craco build",
+    "develop": "rimraf build && BROWSER=none craco start",
+    "build": "rimraf build && craco build",
     "start": "serve build --single",
     "test": "craco test"
   },
   "dependencies": {
-    "classnames": "^2.2.6",
     "dayjs": "^1.9.7",
     "msw": "^0.24.2",
+    "polished": "^4.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
+    "styled-components": "^5.2.1",
     "swr": "^0.3.11",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "tailwindcss-interaction-variants": "^5.0.0",
+    "twin.macro": "^2.0.7",
     "typescript": "^4.0.3",
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {
     "@craco/craco": "^6.0.0",
+    "@tailwindcss/postcss7-compat": "^2.0.2",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "@types/classnames": "^2.2.11",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
+    "@types/styled-components": "^5.1.7",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
     "@typescript-eslint/parser": "^4.11.0",
     "@upstatement/eslint-config": "^0.4.3",
     "@upstatement/prettier-config": "^0.3.0",
+    "babel-plugin-macros": "^3.0.1",
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -44,10 +49,9 @@
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "sass": "^1.30.0",
-    "serve": "^11.3.2",
-    "stylelint": "^13.8.0",
-    "stylelint-config-sass-guidelines": "^7.1.0"
+    "react-scripts": "4.0.1",
+    "rimraf": "^3.0.2",
+    "serve": "^11.3.2"
   },
   "browserslist": {
     "production": [
@@ -62,8 +66,7 @@
     ]
   },
   "lint-staged": {
-    "*.ts?(x)": "eslint --fix",
-    "*.scss": "stylelint"
+    "*.ts?(x)": "eslint --fix"
   },
   "husky": {
     "hooks": {

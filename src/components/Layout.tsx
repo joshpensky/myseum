@@ -1,12 +1,12 @@
 import { PropsWithChildren } from 'react';
+import tw from 'twin.macro';
 import Nav from '@src/components/Nav';
-import styles from './layout.module.scss';
 
 export type LayoutProps = Record<string, unknown>;
 const Layout = ({ children }: PropsWithChildren<LayoutProps>) => (
-  <div className={styles.page}>
+  <div css={tw`flex flex-col flex-1 min-h-screen`}>
     <Nav />
-    <main className={styles.main}>{children}</main>
+    <main css={tw`flex flex-col flex-1`}>{children}</main>
   </div>
 );
 
