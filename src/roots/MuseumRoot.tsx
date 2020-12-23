@@ -2,10 +2,10 @@ import { Fragment } from 'react';
 import { useRouteMatch, Link, Route, Switch } from 'react-router-dom';
 import useSWR from 'swr';
 import Portal from '@src/components/Portal';
-import NotFound from '@src/pages/NotFound';
 import MuseumAbout from '@src/pages/museum/MuseumAbout';
 import MuseumGallery from '@src/pages/museum/MuseumGallery';
 import MuseumHome from '@src/pages/museum/MuseumHome';
+import NotFound from '@src/pages/NotFound';
 import { Museum } from '@src/types';
 
 const MuseumRoot = () => {

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, useEffect, PropsWithChildren } from 'react';
-import { GridProvider } from '@src/providers/GridProvider';
 import tw, { css } from 'twin.macro';
+import { GridProvider } from '@src/providers/GridProvider';
 
 export type GridProps = {
   minColumns?: number;

@@ -1,6 +1,6 @@
-import { Museum } from '@src/types';
 import { Link, useParams } from 'react-router-dom';
 import useSWR from 'swr';
+import { Museum } from '@src/types';
 
 const MuseumMap = () => {
   const { museumId } = useParams<{ museumId: string }>();

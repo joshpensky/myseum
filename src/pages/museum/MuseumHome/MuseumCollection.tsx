@@ -1,8 +1,8 @@
-import { MuseumCollectionItem } from '@src/types';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
-import Artwork from '@src/components/Artwork';
 import tw from 'twin.macro';
+import Artwork from '@src/components/Artwork';
+import { MuseumCollectionItem } from '@src/types';
 
 const MuseumCollection = () => {
   const { museumId } = useParams<{ museumId: string }>();

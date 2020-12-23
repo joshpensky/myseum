@@ -1,10 +1,10 @@
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Layout from '@src/components/Layout';
-import { SWRProvider } from '@src/providers/SWRProvider';
 import Home from '@src/pages/Home';
 import NotFound from '@src/pages/NotFound';
+import StyleProvider from '@src/providers/StyleProvider';
+import { SWRProvider } from '@src/providers/SWRProvider';
 import MuseumRoot from '@src/roots/MuseumRoot';
-import StyleProvider from './providers/StyleProvider';
 
 const App = () => (
   <StyleProvider>

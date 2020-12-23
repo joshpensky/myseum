@@ -1,14 +1,14 @@
 import { useState, useLayoutEffect, ChangeEvent } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import useSWR from 'swr';
+import tw from 'twin.macro';
+import FloatingActionButton from '@src/components/FloatingActionButton';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
 import Portal from '@src/components/Portal';
-import { Link, useParams } from 'react-router-dom';
-import useSWR from 'swr';
 import NotFound from '@src/pages/NotFound';
-import { Gallery } from '@src/types';
-import FloatingActionButton from '@src/components/FloatingActionButton';
 import Edit from '@src/svgs/Edit';
-import tw from 'twin.macro';
+import { Gallery } from '@src/types';
 
 const MuseumGallery = () => {
   const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();

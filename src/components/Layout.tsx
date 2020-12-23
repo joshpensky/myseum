@@ -1,5 +1,5 @@
-import tw from 'twin.macro';
 import { PropsWithChildren } from 'react';
+import tw from 'twin.macro';
 import Nav from '@src/components/Nav';
 
 export type LayoutProps = Record<string, unknown>;
