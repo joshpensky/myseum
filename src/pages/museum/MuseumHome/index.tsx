@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { useRouteMatch, Link, useParams } from 'react-router-dom';
+import tw from 'twin.macro';
 import Portal from '@src/components/Portal';
 import MuseumCollection from './MuseumCollection';
 import MuseumMap from './MuseumMap';
@@ -23,7 +24,7 @@ const MuseumHome = () => {
         <Link to={`/museum/${museumId}/about`}>About</Link>
       </Portal>
       <Portal to="nav-right" prepend>
-        <Link to={toggleLink} replace>
+        <Link css={tw`mr-6`} to={toggleLink} replace>
           Go to {collectionMatch ? 'map' : 'collection'}
         </Link>
       </Portal>

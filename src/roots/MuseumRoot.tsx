@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { useRouteMatch, Link, Route, Switch } from 'react-router-dom';
 import useSWR from 'swr';
+import tw from 'twin.macro';
 import Portal from '@src/components/Portal';
 import MuseumAbout from '@src/pages/museum/MuseumAbout';
 import MuseumGallery from '@src/pages/museum/MuseumGallery';
@@ -23,7 +24,7 @@ const MuseumRoot = () => {
     <Fragment>
       <Portal to="nav-center" prepend>
         <Link to={`/museum/${museum.id}`}>
-          <h1>{museum.name}</h1>
+          <h1 css={tw`font-serif leading-none text-2xl`}>{museum.name}</h1>
         </Link>
       </Portal>
       <Portal to="nav-right" className="no-replace" prepend>

@@ -1,13 +1,13 @@
-import { useHistory } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Portal from '@src/components/Portal';
 
 const MuseumAbout = () => {
-  const history = useHistory();
+  const { museumId } = useParams<{ museumId: string }>();
 
   return (
     <div>
       <Portal to="nav-left" prepend>
-        <button onClick={history.goBack}>Back</button>
+        <Link to={`/museum/${museumId}`}>Back</Link>
       </Portal>
 
       <h1>About</h1>

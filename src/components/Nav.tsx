@@ -9,16 +9,16 @@ const replaceableContent = css`
 
 const Nav = () => (
   <nav id="nav" css={replaceableContent}>
-    <div css={tw`flex justify-between`}>
-      <div id="nav-left" css={[tw`flex flex-1 justify-start`, replaceableContent]} />
+    <div css={tw`flex flex-1 py-2 px-4`}>
+      <div id="nav-left" css={[tw`flex flex-1 items-center justify-start`, replaceableContent]} />
 
-      <div id="nav-center" css={[tw`flex flex-1 justify-center`, replaceableContent]}>
+      <div id="nav-center" css={[tw`flex flex-1 items-center justify-center`, replaceableContent]}>
         <span css={tw`flex h-8`}>
           <Logo />
         </span>
       </div>
 
-      <div id="nav-right" css={[tw`flex flex-1 justify-end`, replaceableContent]} />
+      <div id="nav-right" css={[tw`flex flex-1 items-center justify-end`, replaceableContent]} />
     </div>
   </nav>
 );
