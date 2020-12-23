@@ -12,7 +12,15 @@ module.exports = {
       none: 'none',
     },
     extend: {
-      colors: {},
+      colors: {
+        'off-white': '#f8f8f8',
+        mint: {
+          400: '#f0f2ea',
+          500: '#dde1d2',
+          800: '#585f3c',
+          900: '#4e533f',
+        },
+      },
       cursor: {
         grab: 'grab',
         grabbing: 'grabbing',

@@ -18,7 +18,7 @@ const GridItem = ({ item, position }: GridItemProps) => {
     <div
       css={[
         tw`absolute top-0 bottom-0 flex items-center justify-center`,
-        tw`bg-red-400 bg-opacity-30`, // <- DEBUG
+        // tw`bg-red-400 bg-opacity-30`, // <- DEBUG
         css`
           height: ${Math.ceil(frameHeight) * itemSize}px;
           width: ${Math.ceil(frameWidth) * itemSize}px;

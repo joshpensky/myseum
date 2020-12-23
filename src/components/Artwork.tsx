@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import cx from 'classnames';
+import dayjs from 'dayjs';
+import { rgba } from 'polished';
 import { Link, useParams } from 'react-router-dom';
+import tw, { css, theme } from 'twin.macro';
 import IconButton from '@src/components/IconButton';
 import Close from '@src/svgs/Close';
-import Fullscreen from '@src/svgs/Fullscreen';
 import Edit from '@src/svgs/Edit';
+import Fullscreen from '@src/svgs/Fullscreen';
 import Trash from '@src/svgs/Trash';
-import styles from './artwork.module.scss';
 import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
-import dayjs from 'dayjs';
 
 export type ArtworkProps = {
   data: ArtworkData | MuseumCollectionItem;
@@ -75,23 +75,31 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
   const loaded = isFrameLoaded && isArtworkLoaded;
 
   return (
-    <span className={styles.root}>
+    <span css={[tw`h-full relative`]}>
       <svg
-        className={cx(styles.wrapper, withShadow && loaded && styles.wrapperShadow)}
-        xmlns="http://www.w3.org/2000/svg"
         id={`artwork-${id}`}
+        css={[
+          tw`bg-mint-500 h-full`,
+          withShadow &&
+            loaded &&
+            css`
+              // TODO: scale shadow with grid
+              box-shadow: calc(${frameWidth} * 0.3px) calc(${frameHeight} * 0.7px)
+                  calc(${frame.depth} * 5px) 1px ${rgba(theme`colors.mint.800`, 0.1)},
+                calc(${frameWidth} * 0.5px) calc(${frameHeight} * 0.75px) calc(${frame.depth} * 5px) -2px
+                  ${rgba(theme`colors.mint.800`, 0.15)},
+                calc(${frameWidth} * -1px) calc(${frameHeight} * -1px) calc(${frame.depth} * 7px)
+                  1px ${rgba(theme`colors.white`, 0.3)};
+            `,
+        ]}
+        xmlns="http://www.w3.org/2000/svg"
         aria-labelledby={`artwork-${id}-title`}
         aria-describedby={`artwork-${id}-desc`}
-        style={{
-          '--frame-width': frameWidth,
-          '--frame-height': frameHeight,
-          '--frame-depth': frame.depth,
-        }}
         viewBox={`0 0 ${frameWidth} ${frameHeight}`}>
         <title id={`artwork-${id}-title`}>{title}</title>
         <desc id={`artwork-${id}-desc`}>{alt}</desc>
         <image
-          className={cx(styles.frame, loaded && styles.loaded)}
+          css={[!loaded && tw`opacity-0`]}
           href={frame.src}
           preserveAspectRatio="xMinYMin slice"
           x="0"
@@ -101,7 +109,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           onLoad={() => setIsFrameLoaded(true)}
         />
         <rect
-          className={styles.window}
+          css={[tw`fill-current text-mint-400`]}
           x={frame.window.position.x}
           y={frame.window.position.y}
           width={windowWidth}
@@ -109,7 +117,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
         />
         {/* LIMITATION: no inset shadow */}
         <image
-          className={cx(styles.artwork, loaded && styles.loaded)}
+          css={[!loaded && tw`opacity-0`]}
           href={src}
           preserveAspectRatio="xMinYMin slice"
           x={frame.window.position.x}
@@ -121,7 +129,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
       </svg>
       <button
         ref={triggerButtonRef}
-        className={styles.button}
+        css={[tw`absolute top-0 left-0 w-full h-full cursor-pointer`]}
         title="Expand"
         aria-label={`Expand details for artwork "${title}"`}
         aria-expanded={areDetailsExpanded}
@@ -131,57 +139,62 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
       <div
         ref={detailsRef}
         id={`artwork-${id}-details`}
+        css={[
+          tw`absolute top-0 -right-2.5 bg-white rounded-md shadow-xl ring-mint-800 transform translate-x-full w-96`,
+          !areDetailsExpanded && tw`pointer-events-none invisible`,
+        ]}
         tabIndex={-1}
-        className={styles.details}
         aria-modal={true}
         aria-hidden={!areDetailsExpanded}>
-        <section className={styles.detailsHeader}>
-          <div className={styles.detailsHeaderGroup}>
-            <div className={styles.detailsHeaderButton}>
+        <section css={tw`border-b border-mint-500 flex justify-between py-2 px-5`}>
+          <div css={tw`flex mr-3`}>
+            <div css={tw`mr-3`}>
               <IconButton title="Expand artwork">
                 <Fullscreen />
               </IconButton>
             </div>
-            <div className={styles.detailsHeaderButton}>
+            <div css={tw`mr-3`}>
               <IconButton title="Edit artwork">
                 <Edit />
               </IconButton>
             </div>
-            <div className={styles.detailsHeaderButton}>
+            <div>
               <IconButton title="Delete artwork">
                 <Trash />
               </IconButton>
             </div>
           </div>
-          <div className={styles.detailsHeaderButton}>
+          <div>
             <IconButton title="Close" onClick={onCloseButton}>
               <Close />
             </IconButton>
           </div>
         </section>
-        <section className={styles.detailsBody}>
-          <header className={styles.detailsBodyHeader}>
-            <h1>{title}</h1>
+        <section css={tw`p-5`}>
+          <header css={tw`mb-4`}>
+            <h1 css={tw`font-serif text-xl`}>{title}</h1>
             <p>
               <span>{artist ? artist.name : 'Unknown'}</span>,{' '}
               <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
-            <p className={styles.detailsBodySmall}>
+            <p css={tw`text-sm`}>
               {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
             </p>
           </header>
-          <p className={styles.detailsBodySmall}>{description}</p>
+          <p css={tw`text-sm`}>{description}</p>
           {(acquiredAt || 'gallery' in data) && (
-            <div className={styles.detailsBodyFooter}>
+            <div css={tw`italic mt-8`}>
               {acquiredAt && (
-                <p className={styles.detailsBodySmall}>
+                <p css={tw`text-sm`}>
                   Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
                 </p>
               )}
               {'gallery' in data && (
-                <p className={styles.detailsBodySmall}>
+                <p css={tw`text-sm`}>
                   Featured in the{' '}
-                  <Link to={`/museum/${museumId}/gallery/${data.gallery.id}`}>
+                  <Link
+                    css={tw`text-black underline`}
+                    to={`/museum/${museumId}/gallery/${data.gallery.id}`}>
                     {data.gallery.name}
                   </Link>
                 </p>

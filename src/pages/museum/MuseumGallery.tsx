@@ -1,7 +1,6 @@
 import { useState, useLayoutEffect, ChangeEvent } from 'react';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
-import styles from './museumGallery.module.scss';
 import Portal from '@src/components/Portal';
 import { Link, useParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -9,6 +8,7 @@ import NotFound from '@src/pages/NotFound';
 import { Gallery } from '@src/types';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import Edit from '@src/svgs/Edit';
+import tw from 'twin.macro';
 
 const MuseumGallery = () => {
   const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();
@@ -49,7 +49,7 @@ const MuseumGallery = () => {
   }, 1);
 
   return (
-    <div className={styles.container}>
+    <div css={tw`bg-mint-400 flex flex-col flex-1`}>
       <Portal to="nav-left" prepend>
         <Link to={`/museum/${museumId}`}>Back</Link>
       </Portal>
@@ -59,7 +59,7 @@ const MuseumGallery = () => {
         </Link>
       </Portal>
 
-      <div className={styles.fabWrapper}>
+      <div css={tw`fixed bottom-6 right-6 flex flex-col`}>
         <FloatingActionButton title="Edit">
           <Edit />
         </FloatingActionButton>
