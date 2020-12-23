@@ -1,13 +1,18 @@
-import { ChangeEvent } from 'react';
-import tw, { css } from 'twin.macro';
+import { ChangeEvent, Fragment } from 'react';
+import tw, { css, TwStyle } from 'twin.macro';
+import { GalleryColor } from '@src/types';
 
 type GallerySettingsProps = {
+  wallColor: GalleryColor;
+  onWallColorChange(nextWallColor: GalleryColor): void;
   minWallHeight: number;
   wallHeight: number;
   onWallHeightChange(nextWallHeight: number): void;
 };
 
 const GallerySettings = ({
+  wallColor,
+  onWallColorChange,
   minWallHeight,
   wallHeight,
   onWallHeightChange,
@@ -20,13 +25,64 @@ const GallerySettings = ({
     onWallHeightChange(value);
   };
 
+  type WallColorOption = {
+    value: GalleryColor;
+    label: string;
+    color: TwStyle;
+  };
+
+  const wallColorOptions: WallColorOption[] = [
+    {
+      value: 'mint',
+      label: 'Mint',
+      color: tw`bg-mint-200 border-mint-300`,
+    },
+    {
+      value: 'pink',
+      label: 'Dusty Pink',
+      color: tw`bg-pink-200 border-mint-300`,
+    },
+    {
+      value: 'navy',
+      label: 'Navy',
+      color: tw`bg-navy-200 border-navy-800`,
+    },
+    {
+      value: 'paper',
+      label: 'Paper',
+      color: tw`bg-paper-200 border-mint-300`,
+    },
+  ];
+
   return (
-    <div>
-      <div css={tw`flex flex-col mb-4`}>
-        <label css={tw`text-sm`} htmlFor="wallColor">
-          Wall color
-        </label>
-      </div>
+    <Fragment>
+      <fieldset css={tw`flex flex-col mb-4`}>
+        <legend css={tw`text-sm mb-1.5`}>Wall color</legend>
+        <div css={tw`flex`}>
+          {wallColorOptions.map(({ value, label, color }) => (
+            <label
+              key={value}
+              className="group"
+              css={tw`cursor-pointer not-last:mr-2 rounded-full`}>
+              <input
+                css={tw`sr-only checked:sibling:ring-1 focus:checked:sibling:ring-2`}
+                type="radio"
+                checked={value === wallColor}
+                onChange={() => onWallColorChange(value)}
+                name="wallColor"
+              />
+              <span
+                css={[
+                  tw`flex size-8 rounded-full border ring-0 ring-black transition-shadow`,
+                  color,
+                ]}
+              />
+              <span css={tw`sr-only`}>{label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <div css={tw`flex flex-col items-start`}>
         <label css={tw`text-sm`} htmlFor="wallHeight">
           Wall height
@@ -64,7 +120,7 @@ const GallerySettings = ({
           </span>
         </div>
       </div>
-    </div>
+    </Fragment>
   );
 };
 

@@ -12,7 +12,7 @@ import { Museum } from '@src/types';
 const MuseumRoot = () => {
   const { path, params } = useRouteMatch<{ museumId: string }>();
 
-  const { data: museum, error } = useSWR<Museum>(`/api/museums/${params.museumId}`);
+  const { data: museum, error } = useSWR<Museum>(() => `/api/museums/${params.museumId}`);
 
   if (error) {
     return <NotFound />;

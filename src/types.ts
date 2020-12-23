@@ -69,11 +69,13 @@ export type ListItem<T> = {
   position: Position;
 };
 
+export type GalleryColor = 'mint' | 'pink' | 'navy' | 'paper';
+
 export type Gallery<T = Artwork> = {
   id: Id;
   slug: string;
   name: string;
-  color: 'mint';
+  color: GalleryColor;
   height: number;
   artworks: ListItem<T>[];
   createdAt: Date;

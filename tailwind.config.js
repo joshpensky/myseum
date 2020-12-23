@@ -13,6 +13,9 @@ module.exports = {
       none: 'none',
     },
     extend: {
+      boxShadow: {
+        popover: '0 20px 25px -5px var(--tw-ring-color), 0 10px 10px -5px var(--tw-ring-color)',
+      },
       colors: {
         'off-white': '#f8f8f8',
         mint: {
@@ -23,6 +26,16 @@ module.exports = {
           700: '#6a715c',
           800: '#585f3c',
           900: '#4e533f',
+        },
+        pink: {
+          200: '#f6efe8',
+        },
+        navy: {
+          200: '#232e3f',
+          800: '#6582ab',
+        },
+        paper: {
+          200: '#f8f8f8',
         },
       },
       cursor: {
@@ -51,8 +64,6 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    require('tailwindcss-interaction-variants'),
-
     /**
      * Adds the `size` mixin as a utility, for defining height and width at the same time!
      *
@@ -75,7 +86,7 @@ module.exports = {
 
       const sizeVariants = new Set([...variants('width'), ...variants('height')]);
 
-      addUtilities(sizeUtilities, sizeVariants);
+      addUtilities(sizeUtilities, Array.from(sizeVariants));
     }),
 
     /**

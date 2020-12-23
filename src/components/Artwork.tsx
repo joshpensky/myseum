@@ -4,12 +4,12 @@ import { rgba } from 'polished';
 import { Link, useParams } from 'react-router-dom';
 import tw, { css, theme } from 'twin.macro';
 import IconButton from '@src/components/IconButton';
+import Popover from '@src/components/Popover';
 import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
 import Fullscreen from '@src/svgs/Fullscreen';
 import Trash from '@src/svgs/Trash';
 import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
-import Popover from './Popover';
 
 export type ArtworkProps = {
   data: ArtworkData | MuseumCollectionItem;
@@ -62,26 +62,26 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
       )}
       renderBody={() => (
         <Fragment>
-          <header css={tw`mb-4`}>
-            <h1 css={tw`font-serif text-xl`}>{title}</h1>
-            <p>
+          <header css={tw`mb-2`}>
+            <h1 css={tw`font-serif text-2xl -mb-1`}>{title}</h1>
+            <p css={tw`text-lg -mb-0.5`}>
               <span>{artist ? artist.name : 'Unknown'}</span>,{' '}
               <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
-            <p css={tw`text-sm`}>
+            <p>
               {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
             </p>
           </header>
-          <p css={tw`text-sm`}>{description}</p>
+          <p>{description}</p>
           {(acquiredAt || 'gallery' in data) && (
-            <div css={tw`italic mt-8`}>
+            <div css={tw`italic mt-6`}>
               {acquiredAt && (
                 <p css={tw`text-sm`}>
                   Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
                 </p>
               )}
               {'gallery' in data && (
-                <p css={tw`text-sm`}>
+                <p>
                   Featured in the{' '}
                   <Link
                     css={tw`text-black underline`}
@@ -94,7 +94,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           )}
         </Fragment>
       )}>
-      {({ openPopover, triggerProps }) => (
+      {({ openPopover, isExpanded, triggerProps }) => (
         <Fragment>
           <svg
             id={`artwork-${id}`}
@@ -104,6 +104,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
                 loaded &&
                 css`
                   // TODO: scale shadow with grid
+                  // TODO: change shadow with theme
                   box-shadow: calc(${frameWidth} * 0.3px) calc(${frameHeight} * 0.7px)
                       calc(${frame.depth} * 5px) 1px ${rgba(theme`colors.mint.800`, 0.1)},
                     calc(${frameWidth} * 0.5px) calc(${frameHeight} * 0.75px)
@@ -152,7 +153,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
             title="Expand"
             aria-label={`Expand details for artwork "${title}"`}
             {...triggerProps}
-            onClick={openPopover}
+            onClick={isExpanded ? undefined : openPopover}
           />
         </Fragment>
       )}

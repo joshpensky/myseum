@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, ReactNode, RefObject } from 'react';
 import FocusLock from 'react-focus-lock';
 import tw, { TwStyle } from 'twin.macro';
+import { useTheme } from '@src/providers/ThemeProvider';
 import { BaseProps } from '@src/types';
 
 export type PartialRenderPopoverProps = {
@@ -17,15 +18,15 @@ export type PopoverChildrenProps = PartialRenderPopoverProps & {
   };
 };
 
-type YPosition = 'top' | 'bottom';
-type XPosition = 'left' | 'right';
-
-type PositionAlignment<P extends YPosition | XPosition> = {
+type YDirection = 'top' | 'bottom';
+type XDirection = 'left' | 'right';
+type Direction = YDirection | XDirection;
+type PositionAlignment<P extends Direction> = {
   position: P;
-  align: P extends YPosition ? XPosition : YPosition;
+  align: P extends YDirection ? XDirection : YDirection;
 };
 
-export type PopoverProps<P extends YPosition | XPosition> = BaseProps &
+export type PopoverProps<P extends Direction> = BaseProps &
   PositionAlignment<P> & {
     children(props: PopoverChildrenProps): ReactNode;
     id: string;
@@ -33,7 +34,7 @@ export type PopoverProps<P extends YPosition | XPosition> = BaseProps &
     renderHeader?(props: PartialRenderPopoverProps): ReactNode;
   };
 
-function Popover<P extends YPosition | XPosition>({
+function Popover<P extends Direction>({
   align,
   children,
   className,
@@ -43,6 +44,8 @@ function Popover<P extends YPosition | XPosition>({
   renderBody,
   renderHeader,
 }: PopoverProps<P>) {
+  const theme = useTheme();
+
   const detailsRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -56,6 +59,12 @@ function Popover<P extends YPosition | XPosition>({
       !(detailsRef.current === evt.target || detailsRef.current.contains(evt.target))
     ) {
       setIsExpanded(false);
+      if (evt.target === triggerButtonRef.current) {
+        // Must wait till next tick to workaround FocusLock
+        process.nextTick(() => {
+          triggerButtonRef.current?.focus();
+        });
+      }
     }
   };
 
@@ -65,8 +74,10 @@ function Popover<P extends YPosition | XPosition>({
 
   const closePopover = () => {
     setIsExpanded(false);
-    console.log(triggerButtonRef.current);
-    triggerButtonRef.current?.focus();
+    // Must wait till next tick to workaround FocusLock
+    process.nextTick(() => {
+      triggerButtonRef.current?.focus();
+    });
   };
 
   const onKeyDown = (evt: KeyboardEvent) => {
@@ -75,7 +86,10 @@ function Popover<P extends YPosition | XPosition>({
       case 'Escape': {
         evt.preventDefault();
         setIsExpanded(false);
-        triggerButtonRef.current?.focus();
+        // Must wait till next tick to workaround FocusLock
+        process.nextTick(() => {
+          triggerButtonRef.current?.focus();
+        });
         break;
       }
     }
@@ -93,7 +107,7 @@ function Popover<P extends YPosition | XPosition>({
     }
   }, [isExpanded]);
 
-  const yPositionAlignments: Record<YPosition, Record<XPosition, TwStyle>> = {
+  const yPositionAlignments: Record<YDirection, Record<XDirection, TwStyle>> = {
     top: {
       left: tw`-top-2.5 left-0 origin-bottom-left -translate-y-full`,
       right: tw`-top-2.5 right-0 origin-bottom-right -translate-y-full`,
@@ -103,7 +117,7 @@ function Popover<P extends YPosition | XPosition>({
       right: tw`-bottom-2.5 right-0 origin-top-right translate-y-full`,
     },
   };
-  const xPositionAlignments: Record<XPosition, Record<YPosition, TwStyle>> = {
+  const xPositionAlignments: Record<XDirection, Record<YDirection, TwStyle>> = {
     left: {
       top: tw`top-0 -left-2.5 origin-top-right -translate-x-full`,
       bottom: tw`bottom-0 -left-2.5 origin-bottom-right -translate-x-full`,
@@ -131,18 +145,25 @@ function Popover<P extends YPosition | XPosition>({
           ref={detailsRef}
           id={id}
           css={[
-            tw`absolute bg-white rounded-lg shadow-xl ring-mint-800 transform-gpu w-96 transition-modal-enter ease-out z-popover`,
-            // TODO: auto-choose best alignment based on position on screen
+            {
+              DEFAULT: tw`ring-gray-800`,
+              mint: tw`ring-mint-800`,
+              pink: tw`ring-mint-800`, // TODO: update
+              navy: tw`ring-navy-800`,
+              paper: tw`ring-mint-800`, // TODO: update
+            }[theme?.color ?? 'DEFAULT'],
+            tw`absolute shadow-popover ring-opacity-20 rounded-lg transform-gpu w-96 transition-modal-enter ease-out z-popover`,
+            // TODO: auto-choose best position/alignment based on available space on screen?
             position === 'top' || position === 'bottom'
-              ? yPositionAlignments[position as YPosition][(align as XPosition) ?? 'right']
-              : xPositionAlignments[position as XPosition][(align as YPosition) ?? 'top'],
+              ? yPositionAlignments[position as YDirection][align as XDirection]
+              : xPositionAlignments[position as XDirection][align as YDirection],
             !isExpanded &&
               tw`scale-95 opacity-0 pointer-events-none invisible transition-modal-leave`,
           ]}
           aria-modal={true}
           aria-hidden={!isExpanded}>
           {renderHeader && (
-            <header css={tw`border-b border-mint-300 py-2 px-5`}>
+            <header css={tw`py-2 px-5 bg-white rounded-t-lg mb-px`}>
               {renderHeader({
                 closePopover,
                 isExpanded,
@@ -150,7 +171,8 @@ function Popover<P extends YPosition | XPosition>({
               })}
             </header>
           )}
-          <section css={tw`p-5`}>
+          <section
+            css={[tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`, !renderHeader && tw`rounded-t-lg`]}>
             {renderBody({
               closePopover,
               isExpanded,
