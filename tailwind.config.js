@@ -16,9 +16,10 @@ module.exports = {
       colors: {
         'off-white': '#f8f8f8',
         mint: {
-          400: '#f0f2ea',
-          500: '#dde1d2',
-          600: '#b6bba8',
+          200: '#f0f2ea',
+          300: '#dde1d2',
+          400: '#b6bba8',
+          600: '#8C8E84',
           700: '#6a715c',
           800: '#585f3c',
           900: '#4e533f',
@@ -35,8 +36,14 @@ module.exports = {
       ringWidth: {
         0.5: '0.5px',
       },
+      transitionProperty: {
+        'modal-enter': 'transform, opacity',
+        'modal-leave': 'transform, opacity, visibility',
+      },
       zIndex: {
         '-1': '-1',
+        fab: '100',
+        popover: '110',
       },
     },
   },

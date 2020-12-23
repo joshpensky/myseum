@@ -235,12 +235,12 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
       <div css={tw`mb-6 flex flex-col h-8 justify-center w-full`}>
         <div
           css={[
-            tw`border border-mint-600 rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
+            tw`border border-mint-400 rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
             tw`hover:h-8`,
           ]}>
           <div
             css={[
-              tw`bg-mint-600 bg-opacity-60 cursor-pointer h-full`,
+              tw`bg-mint-400 bg-opacity-60 cursor-pointer h-full`,
               css`
                 margin-left: ${(xPos / gridWidth) * 100}%;
                 width: ${(visibleWidth / gridWidth) * 100}%;

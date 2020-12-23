@@ -1,3 +1,10 @@
+import { CSSProp } from 'styled-components';
+
+export type BaseProps = {
+  className?: string;
+  css?: CSSProp;
+};
+
 export type Id = number;
 
 export type Position = {

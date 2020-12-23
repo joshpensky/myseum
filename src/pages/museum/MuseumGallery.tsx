@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, ChangeEvent, Fragment, useEffect } from 'react';
+import { useState, useLayoutEffect, Fragment, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import tw, { css, theme } from 'twin.macro';
@@ -9,6 +9,10 @@ import Portal from '@src/components/Portal';
 import NotFound from '@src/pages/NotFound';
 import Edit from '@src/svgs/Edit';
 import { Gallery } from '@src/types';
+import Close from '@src/svgs/Close';
+import Cog from '@src/svgs/Cog';
+import Popover from '@src/components/Popover';
+import GallerySettings from '@src/components/GallerySettings';
 
 const MuseumGallery = () => {
   const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();
@@ -19,13 +23,6 @@ const MuseumGallery = () => {
   const [name, setName] = useState<string>(gallery?.name ?? '');
 
   const [wallHeight, setWallHeight] = useState(0);
-  const onHeightChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    let value = evt.target.valueAsNumber;
-    if (Number.isNaN(value)) {
-      value = 0;
-    }
-    setWallHeight(value);
-  };
 
   useEffect(() => {
     if (gallery) {
@@ -58,7 +55,7 @@ const MuseumGallery = () => {
   }, 1);
 
   return (
-    <div css={tw`bg-mint-400 flex flex-col flex-1`}>
+    <div css={tw`bg-mint-200 flex flex-col flex-1`}>
       {isEditing ? (
         <Portal to="nav" prepend>
           <div css={tw`bg-black py-2 px-4 text-white flex flex-col`}>
@@ -115,31 +112,50 @@ const MuseumGallery = () => {
           </Portal>
           <Portal to="nav-center" prepend>
             <Link to={`/museum/${museumId}/gallery/${galleryId}`}>
-              <h1 css={tw`font-serif leading-none text-2xl`}>{gallery.name}</h1>
+              <h1 css={tw`font-serif leading-none text-2xl -mb-1`}>{gallery.name}</h1>
             </Link>
           </Portal>
         </Fragment>
       )}
 
-      <div css={tw`fixed bottom-6 right-6 flex flex-col`}>
-        {!isEditing && (
-          <FloatingActionButton title="Edit" onClick={() => setIsEditing(true)}>
+      <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
+        {isEditing ? (
+          <Fragment>
+            <Popover
+              id="settings-modal"
+              css={tw`mb-4`}
+              position="top"
+              align="right"
+              renderHeader={() => <h1 css={tw`font-serif leading-none text-xl mt-1`}>Settings</h1>}
+              renderBody={() => (
+                <GallerySettings
+                  minWallHeight={minHeight}
+                  wallHeight={wallHeight}
+                  onWallHeightChange={setWallHeight}
+                />
+              )}>
+              {({ openPopover, triggerProps }) => (
+                <FloatingActionButton
+                  title="Open gallery settings"
+                  {...triggerProps}
+                  onClick={openPopover}>
+                  <span css={tw`block transform scale-110`}>
+                    <Cog />
+                  </span>
+                </FloatingActionButton>
+              )}
+            </Popover>
+            <FloatingActionButton title="Add new artwork">
+              <span css={tw`block transform rotate-45`}>
+                <Close />
+              </span>
+            </FloatingActionButton>
+          </Fragment>
+        ) : (
+          <FloatingActionButton title="Edit gallery" onClick={() => setIsEditing(true)}>
             <Edit />
           </FloatingActionButton>
         )}
-      </div>
-
-      <div>
-        <label htmlFor="wallHeight">Wall Height</label>
-        <input
-          id="wallHeight"
-          type="number"
-          step={1}
-          min={minHeight}
-          value={wallHeight === 0 ? '' : wallHeight}
-          onChange={onHeightChange}
-        />
-        in
       </div>
 
       <Grid rows={wallHeight} minColumns={minColumns}>
