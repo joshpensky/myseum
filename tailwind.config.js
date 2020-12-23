@@ -1,4 +1,5 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
+const plugin = require('tailwindcss/plugin');
 const flattenColorPalette = require('tailwindcss/lib/util/flattenColorPalette').default;
 
 module.exports = {
@@ -17,6 +18,8 @@ module.exports = {
         mint: {
           400: '#f0f2ea',
           500: '#dde1d2',
+          600: '#b6bba8',
+          700: '#6a715c',
           800: '#585f3c',
           900: '#4e533f',
         },
@@ -29,6 +32,9 @@ module.exports = {
         sans: ['IBM Plex Sans', ...defaultTheme.fontFamily.sans],
         serif: ['Migra Web', ...defaultTheme.fontFamily.serif],
       },
+      ringWidth: {
+        0.5: '0.5px',
+      },
       zIndex: {
         '-1': '-1',
       },
@@ -39,12 +45,38 @@ module.exports = {
   },
   plugins: [
     require('tailwindcss-interaction-variants'),
+
+    /**
+     * Adds the `size` mixin as a utility, for defining height and width at the same time!
+     *
+     * @example `size-4` === `w-4 h-4`
+     */
+    plugin(function addSizeUtility({ addUtilities, e, theme, variants }) {
+      const widthUtilities = theme('width');
+      const heightUtilities = theme('height');
+
+      const sizeUtilities = {};
+      Object.entries(widthUtilities).map(([key, value]) => {
+        // If utility exists for height and width, add new size utility!
+        if (heightUtilities[key] === value) {
+          sizeUtilities[`.${e(`size-${key}`)}`] = {
+            height: value,
+            width: value,
+          };
+        }
+      });
+
+      const sizeVariants = new Set([...variants('width'), ...variants('height')]);
+
+      addUtilities(sizeUtilities, sizeVariants);
+    }),
+
     /**
      * Adds the ability to set border colors for individual sides.
      *
      * @example 'border-t-blue-100'
      */
-    function addIndividualBorderSideColors({ addUtilities, e, theme, variants }) {
+    plugin(function addIndividualBorderSideColors({ addUtilities, e, theme, variants }) {
       const colors = flattenColorPalette(theme('borderColor'));
       delete colors['DEFAULT'];
 
@@ -57,13 +89,14 @@ module.exports = {
       const utilities = Object.assign({}, ...colorMap);
 
       addUtilities(utilities, variants('borderColor'));
-    },
+    }),
+
     /**
      * Adds the ability to use padding ratios in Tailwind.
      *
      * @example 'ratio-2-3' // will produce a 2:3 ratio
      */
-    function addRatioUtilities({ addUtilities }) {
+    plugin(function addRatioUtilities({ addUtilities }) {
       const ratios = [
         [16, 9],
         [4, 3],
@@ -83,6 +116,6 @@ module.exports = {
       const ratioUtilities = Object.assign({}, ...ratioMap);
 
       addUtilities(ratioUtilities, []);
-    },
+    }),
   ],
 };

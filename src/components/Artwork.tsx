@@ -75,7 +75,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
   const loaded = isFrameLoaded && isArtworkLoaded;
 
   return (
-    <span css={[tw`h-full relative`]}>
+    <span css={tw`h-full relative`}>
       <svg
         id={`artwork-${id}`}
         css={[
@@ -109,7 +109,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           onLoad={() => setIsFrameLoaded(true)}
         />
         <rect
-          css={[tw`fill-current text-mint-400`]}
+          css={tw`fill-current text-mint-400`}
           x={frame.window.position.x}
           y={frame.window.position.y}
           width={windowWidth}
@@ -129,7 +129,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
       </svg>
       <button
         ref={triggerButtonRef}
-        css={[tw`absolute top-0 left-0 w-full h-full cursor-pointer`]}
+        css={tw`absolute inset-0 size-full cursor-pointer`}
         title="Expand"
         aria-label={`Expand details for artwork "${title}"`}
         aria-expanded={areDetailsExpanded}

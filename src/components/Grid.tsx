@@ -168,62 +168,59 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
   }, []);
 
   return (
-    <div css={[tw`flex flex-col flex-1 overflow-hidden`]}>
+    <div css={tw`flex flex-col flex-1 overflow-hidden`}>
       <div
         ref={containerRef}
         css={[
           tw`my-6 flex flex-1 relative`,
-          isDragEnabled && tw`cursor-grab`,
-          isDragging && tw`cursor-grabbing`,
           css`
             --grid-item-size: ${itemSize}px;
             --grid-items: ${columns};
             --scroll-offset: ${-1 * xPos}px;
           `,
+          isDragEnabled && tw`cursor-grab`,
+          isDragging && tw`cursor-grabbing`,
         ]}>
         <div
           ref={gridRef}
           css={[
-            tw`absolute top-0 left-0 w-full h-full`,
+            tw`absolute inset-0 size-full`,
             css`
               transform: translateX(var(--scroll-offset));
             `,
           ]}>
           <div
             css={[
-              tw`opacity-0 transition-opacity h-full relative`,
+              tw`opacity-0 transition-opacity h-full relative ring-1 ring-inset ring-mint-700`,
               css`
-                box-shadow: inset 0 0 0 1px #6a715c;
                 width: calc(var(--grid-item-size) * var(--grid-items));
               `,
               isDragEnabled && tw`opacity-20 transition-none`,
             ]}>
-            <div css={[tw`absolute top-0 left-0 w-full h-full flex flex-col`]}>
+            <div css={tw`absolute inset-0 size-full flex flex-col`}>
               {Array(rows)
                 .fill(null)
                 .map((_, idx) => (
                   <div
                     key={idx}
                     css={[
-                      tw`flex-shrink-0 w-full`,
+                      tw`flex-shrink-0 w-full ring-0.5 ring-inset ring-mint-700`,
                       css`
-                        box-shadow: inset 0 0 0 0.5px #6a715c;
                         height: var(--grid-item-size);
                       `,
                     ]}
                   />
                 ))}
             </div>
-            <div css={[tw`absolute top-0 left-0 w-full h-full flex`]}>
+            <div css={tw`absolute inset-0 size-full flex`}>
               {Array(columns)
                 .fill(null)
                 .map((_, idx) => (
                   <div
                     key={idx}
                     css={[
-                      tw`flex-shrink-0 h-full`,
+                      tw`flex-shrink-0 h-full ring-0.5 ring-inset ring-mint-700`,
                       css`
-                        box-shadow: inset 0 0 0 0.5px #6a715c;
                         width: var(--grid-item-size);
                       `,
                     ]}
@@ -235,19 +232,15 @@ const Grid = ({ children, minColumns, rows }: PropsWithChildren<GridProps>) => {
         </div>
       </div>
 
-      <div css={[tw`mb-6 flex flex-col h-8 justify-center w-screen`]}>
+      <div css={tw`mb-6 flex flex-col h-8 justify-center w-full`}>
         <div
           css={[
-            tw`border rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
-            css`
-              border-color: #b6bba8;
-            `,
+            tw`border border-mint-600 rounded-md h-4 mx-auto overflow-hidden transition-all w-full max-w-2xl`,
             tw`hover:h-8`,
           ]}>
           <div
             css={[
-              // TODO: fix color
-              tw`bg-gray-300 bg-opacity-60 cursor-pointer h-full`,
+              tw`bg-mint-600 bg-opacity-60 cursor-pointer h-full`,
               css`
                 margin-left: ${(xPos / gridWidth) * 100}%;
                 width: ${(visibleWidth / gridWidth) * 100}%;

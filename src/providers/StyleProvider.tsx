@@ -3,6 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 import { GlobalStyles as GlobalTwinStyles, theme } from 'twin.macro';
 
 const GlobalCustomStyles = createGlobalStyle`
+  /* Adding body color */
   body {
     background-color: ${theme`colors.off-white`};
   }
