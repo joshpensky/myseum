@@ -116,7 +116,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
             xmlns="http://www.w3.org/2000/svg"
             aria-labelledby={`artwork-${id}-title`}
             aria-describedby={`artwork-${id}-desc`}
-            viewBox={`0 0 ${frameWidth} ${frameHeight}`}>
+            viewBox={[0, 0, frameWidth, frameHeight].join(' ')}>
             <title id={`artwork-${id}-title`}>{title}</title>
             <desc id={`artwork-${id}-desc`}>{alt}</desc>
             <image

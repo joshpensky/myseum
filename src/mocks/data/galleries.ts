@@ -15,6 +15,13 @@ export const galleries: Gallery<Id>[] = [
           y: 25,
         },
       },
+      {
+        item: 1,
+        position: {
+          x: 36,
+          y: 7,
+        },
+      },
       // {
       //   position: {
       //     x: 36,

@@ -19,13 +19,14 @@ import { Gallery } from '@src/types';
 const MuseumGallery = () => {
   const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();
 
-  const { data: gallery, error } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
+  const { data: gallery, error, mutate } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery?.name ?? '');
   const [wallColor, setWallColor] = useState(gallery?.color ?? 'mint');
   const [wallHeight, setWallHeight] = useState(gallery?.height ?? 0);
 
+  // When gallery updates, update state!
   useLayoutEffect(() => {
     if (gallery) {
       setName(gallery.name);
@@ -40,13 +41,46 @@ const MuseumGallery = () => {
     return <p>Loading...</p>;
   }
 
+  /**
+   * Handler for cancelling updates made in edit mode.
+   */
+  const onCancel = () => {
+    // Reset state
+    setName(gallery.name);
+    setWallColor(gallery.color);
+    setWallHeight(gallery.height);
+    // Exit editing mode
+    setIsEditing(false);
+  };
+
+  /**
+   * Handler for saving updates made in edit mode.
+   */
+  const onSave = async () => {
+    // TODO: validation
+    // Update cached data to reflect updates
+    await mutate(
+      {
+        ...gallery,
+        name,
+        color: wallColor,
+        height: wallHeight,
+      },
+      false,
+    );
+    // Exit editing mode
+    setIsEditing(false);
+  };
+
   const { artworks } = gallery;
 
+  // Generates min height based on the lowest-positioned frame
   const minHeight = artworks.reduce((acc, { item, position }) => {
     const y2 = position.y + Math.ceil(item.frame.dimensions.height);
     return Math.max(acc, y2);
   }, 1);
 
+  // Generates min columns based on the frame positioned furthest to the right
   const minColumns = artworks.reduce((acc, { item, position }) => {
     const x2 = position.x + Math.ceil(item.frame.dimensions.width);
     return Math.max(acc, x2);
@@ -72,7 +106,7 @@ const MuseumGallery = () => {
               </p>
               <div css={tw`flex flex-1`}>
                 <div css={tw`flex flex-1 items-center justify-start`}>
-                  <button onClick={() => setIsEditing(false)}>Cancel</button>
+                  <button onClick={onCancel}>Cancel</button>
                 </div>
                 <div css={tw`flex flex-1 items-center justify-center`}>
                   <div
@@ -110,7 +144,7 @@ const MuseumGallery = () => {
                   </div>
                 </div>
                 <div css={tw`flex flex-1 items-center justify-end`}>
-                  <button onClick={() => setIsEditing(false)}>Save</button>
+                  <button onClick={onSave}>Save</button>
                 </div>
               </div>
             </div>
@@ -155,8 +189,8 @@ const MuseumGallery = () => {
                 )}>
                 {({ openPopover, triggerProps }) => (
                   <FloatingActionButton
-                    title="Open gallery settings"
                     {...triggerProps}
+                    title="Open gallery settings"
                     onClick={openPopover}>
                     <span css={tw`block transform scale-110`}>
                       <Cog />
@@ -177,7 +211,7 @@ const MuseumGallery = () => {
           )}
         </div>
 
-        <Grid rows={wallHeight} minColumns={minColumns}>
+        <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
           {artworks.map(({ item, position }, idx) => (
             <GridItem key={idx} item={item} position={position} />
           ))}
