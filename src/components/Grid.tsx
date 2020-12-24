@@ -112,8 +112,8 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
       rows={rows}
       percentScrolled={gridWidth ? xPos / gridWidth : 0}
       percentVisible={gridWidth ? visibleWidth / gridWidth : 0}>
-      <div css={tw`flex flex-col flex-1 overflow-hidden`}>
-        <div ref={containerRef} css={[tw`my-6 flex flex-1 relative`]}>
+      <div css={tw`flex flex-col flex-1 my-6 overflow-hidden`}>
+        <div ref={containerRef} css={[tw`flex flex-1 relative`]}>
           <div
             ref={dragAreaRef}
             css={[tw`absolute inset-0 size-full cursor-grab active:cursor-grabbing`]}
@@ -130,7 +130,7 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
           </div>
         </div>
 
-        <div css={tw`mb-6 flex flex-col justify-center w-full`}>
+        <div css={tw`mt-6 flex flex-col justify-center w-full`}>
           <GridMap>{children}</GridMap>
         </div>
       </div>

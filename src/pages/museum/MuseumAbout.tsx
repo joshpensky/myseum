@@ -1,13 +1,14 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Portal from '@src/components/Portal';
+import { useMuseum } from '@src/providers/MuseumProvider';
 
 const MuseumAbout = () => {
-  const { museumId } = useParams<{ museumId: string }>();
+  const { museum } = useMuseum();
 
   return (
     <div>
       <Portal to="nav-left" prepend>
-        <Link to={`/museum/${museumId}`}>Back</Link>
+        <Link to={`/museum/${museum.id}`}>Back</Link>
       </Portal>
 
       <h1>About</h1>

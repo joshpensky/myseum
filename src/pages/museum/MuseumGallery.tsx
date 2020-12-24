@@ -15,9 +15,12 @@ import Edit from '@src/svgs/Edit';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
 import { Gallery } from '@src/types';
+import { useMuseum } from '@src/providers/MuseumProvider';
+import Arrow from '@src/svgs/Arrow';
 
 const MuseumGallery = () => {
-  const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();
+  const { museum } = useMuseum();
+  const { galleryId } = useParams<{ galleryId: string }>();
 
   const { data: gallery, error, mutate } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
 
@@ -103,9 +106,7 @@ const MuseumGallery = () => {
         {isEditing ? (
           <Portal to="nav" prepend>
             <div css={tw`bg-black py-2 px-4 text-white flex flex-col`}>
-              <p css={tw`uppercase text-xs tracking-widest font-bold text-center mb-0.5`}>
-                Editing
-              </p>
+              <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
               <div css={tw`flex flex-1`}>
                 <div css={tw`flex flex-1 items-center justify-start`}>
                   <button onClick={onCancel}>Cancel</button>
@@ -113,11 +114,11 @@ const MuseumGallery = () => {
                 <div css={tw`flex flex-1 items-center justify-center`}>
                   <div
                     css={[
-                      tw`px-2 pt-1 pb-0.5 relative bg-white bg-opacity-0 rounded-sm`,
+                      tw`px-2 pt-2 pb-0.5 relative bg-white bg-opacity-0 rounded-sm`,
                       tw`transition-all hover:bg-opacity-20 focus-within:bg-opacity-20`,
                       !name && tw`w-0 overflow-x-hidden`,
                     ]}>
-                    <span css={tw`invisible font-serif leading-none text-2xl`} aria-hidden="true">
+                    <span css={tw`invisible font-serif leading-none text-3xl`} aria-hidden="true">
                       {Array(name.length - name.trimStart().length)
                         .fill(null)
                         .map((_, index) => (
@@ -131,7 +132,7 @@ const MuseumGallery = () => {
                     </span>
                     <input
                       css={[
-                        tw`absolute left-2 top-1 w-full bg-transparent focus:outline-none font-serif leading-none text-2xl`,
+                        tw`absolute left-2 top-2 w-full bg-transparent focus:outline-none font-serif leading-none text-3xl`,
                         css`
                           &::selection {
                             background: ${theme`colors.white`};
@@ -154,14 +155,25 @@ const MuseumGallery = () => {
         ) : (
           <Fragment>
             <Portal to="nav-left" prepend>
-              <Link to={`/museum/${museumId}`}>Back</Link>
+              <Link css={tw`flex items-center`} to={`/museum/${museum.id}`}>
+                <span css={tw`block size-3 mr-1.5`}>
+                  <Arrow />
+                </span>
+                <span>Back to map</span>
+              </Link>
             </Portal>
             <Portal to="nav-center" prepend>
-              <Link to={`/museum/${museumId}/gallery/${galleryId}`}>
-                <h1 css={tw`font-serif leading-none text-2xl -mb-1`}>{name}</h1>
+              <Link to={`/museum/${museum.id}`}>
+                <h1 css={tw`font-serif leading-none -mb-1`}>{museum.name}</h1>
               </Link>
             </Portal>
           </Fragment>
+        )}
+
+        {!isEditing && (
+          <header css={tw`flex justify-center px-4 pt-4 -mb-1.5`}>
+            <h2 css={tw`font-serif leading-none text-3xl`}>{gallery.name}</h2>
+          </header>
         )}
 
         <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>

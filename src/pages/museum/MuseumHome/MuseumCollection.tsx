@@ -1,13 +1,13 @@
-import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import tw from 'twin.macro';
 import Artwork from '@src/components/Artwork';
 import { MuseumCollectionItem } from '@src/types';
+import { useMuseum } from '@src/providers/MuseumProvider';
 
 const MuseumCollection = () => {
-  const { museumId } = useParams<{ museumId: string }>();
+  const { museum } = useMuseum();
 
-  const { data, error } = useSWR<MuseumCollectionItem[]>(`/api/museums/${museumId}/collection`);
+  const { data, error } = useSWR<MuseumCollectionItem[]>(`/api/museums/${museum.id}/collection`);
 
   if (error) {
     return <p>Error :(</p>;

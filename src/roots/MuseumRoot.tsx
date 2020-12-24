@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { useRouteMatch, Link, Route, Switch } from 'react-router-dom';
 import useSWR from 'swr';
 import tw from 'twin.macro';
@@ -7,6 +6,7 @@ import MuseumAbout from '@src/pages/museum/MuseumAbout';
 import MuseumGallery from '@src/pages/museum/MuseumGallery';
 import MuseumHome from '@src/pages/museum/MuseumHome';
 import NotFound from '@src/pages/NotFound';
+import { MuseumProvider } from '@src/providers/MuseumProvider';
 import { Museum } from '@src/types';
 
 const MuseumRoot = () => {
@@ -21,10 +21,10 @@ const MuseumRoot = () => {
   }
 
   return (
-    <Fragment>
+    <MuseumProvider museum={museum}>
       <Portal to="nav-center" prepend>
-        <Link to={`/museum/${museum.id}`}>
-          <h1 css={tw`font-serif leading-none text-2xl`}>{museum.name}</h1>
+        <Link css={tw`flex mt-1.5`} to={`/museum/${museum.id}`}>
+          <h1 css={tw`font-serif leading-none text-3xl`}>{museum.name}</h1>
         </Link>
       </Portal>
       <Portal to="nav-right" className="no-replace" prepend>
@@ -37,7 +37,7 @@ const MuseumRoot = () => {
         <Route path={`${path}/gallery/:galleryId`} exact component={MuseumGallery} />
         <Route path={`${path}/*`} component={NotFound} />
       </Switch>
-    </Fragment>
+    </MuseumProvider>
   );
 };
 
