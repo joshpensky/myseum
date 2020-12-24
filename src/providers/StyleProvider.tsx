@@ -1,4 +1,4 @@
-import { Fragment, PropsWithChildren } from 'react';
+import { Fragment, ReactNode } from 'react';
 import { createGlobalStyle } from 'styled-components';
 import tw, { GlobalStyles as GlobalTwinStyles, theme } from 'twin.macro';
 
@@ -10,8 +10,10 @@ const GlobalCustomStyles = createGlobalStyle`
   }
 `;
 
-export type StyleProviderProps = Record<string, unknown>;
-const StyleProvider = ({ children }: PropsWithChildren<StyleProviderProps>) => (
+export type StyleProviderProps = {
+  children: ReactNode;
+};
+const StyleProvider = ({ children }: StyleProviderProps) => (
   <Fragment>
     <GlobalTwinStyles />
     <GlobalCustomStyles />

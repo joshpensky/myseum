@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 import { SWRConfig, ConfigInterface } from 'swr';
 
 type BaseSWRConfig = ConfigInterface<any, any, (request: RequestInfo, init?: RequestInit) => any>;
@@ -7,8 +7,10 @@ export type SWRConfigContextValue = Omit<BaseSWRConfig, 'fetcher'> &
   Required<Pick<BaseSWRConfig, 'fetcher'>>;
 export const SWRConfigContext = createContext<SWRConfigContextValue | null>(null);
 
-export type SWRProviderProps = Record<string, unknown>;
-export const SWRProvider = ({ children }: PropsWithChildren<SWRProviderProps>) => {
+export type SWRProviderProps = {
+  children: ReactNode;
+};
+export const SWRProvider = ({ children }: SWRProviderProps) => {
   /**
    * A wrapper for the fetch API that throws on error responses (4xx or 5xx).
    *

@@ -6,6 +6,7 @@ import {
   PropsWithChildren,
   createContext,
   useContext,
+  ReactNode,
 } from 'react';
 import FocusLock from 'react-focus-lock';
 import tw from 'twin.macro';
@@ -163,8 +164,10 @@ const Popover = ({
   );
 };
 
-type PopoverBodyProps = Record<string, unknown>;
-Popover.Body = function PopoverContent({ children }: PropsWithChildren<PopoverBodyProps>) {
+type PopoverBodyProps = {
+  children: ReactNode;
+};
+Popover.Body = function PopoverBody({ children }: PopoverBodyProps) {
   const { disabled, id } = useContext(_PopoverContext);
   if (disabled) {
     return null;
