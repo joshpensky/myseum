@@ -49,18 +49,15 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const onDragStart = (evt: MouseEvent) => {
-    evt.preventDefault();
     startXRef.current = evt.clientX;
     setIsDragging(true);
   };
 
-  const onDragEnd = (evt: MouseEvent) => {
-    evt.preventDefault();
+  const onDragEnd = () => {
     setIsDragging(false);
   };
 
   const onDrag = (evt: MouseEvent) => {
-    evt.preventDefault();
     const delta = startXRef.current - evt.clientX;
     startXRef.current = evt.clientX;
     onScroll(delta);
@@ -113,13 +110,13 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
       itemSize={itemSize}
       columns={columns}
       rows={rows}
-      percentScrolled={xPos / gridWidth}
-      percentVisible={visibleWidth / gridWidth}>
+      percentScrolled={gridWidth ? xPos / gridWidth : 0}
+      percentVisible={gridWidth ? visibleWidth / gridWidth : 0}>
       <div css={tw`flex flex-col flex-1 overflow-hidden`}>
         <div ref={containerRef} css={[tw`my-6 flex flex-1 relative`]}>
           <div
             ref={dragAreaRef}
-            css={[tw`absolute inset-0 size-full cursor-grab`, isDragging && tw`cursor-grabbing`]}
+            css={[tw`absolute inset-0 size-full cursor-grab active:cursor-grabbing`]}
           />
           <div
             css={[

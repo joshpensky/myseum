@@ -7,7 +7,7 @@ import GallerySettings from '@src/components/GallerySettings';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
-import Popover from '@src/components/Popover';
+import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
 import NotFound from '@src/pages/NotFound';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
@@ -20,6 +20,8 @@ const MuseumGallery = () => {
   const { museumId, galleryId } = useParams<{ museumId: string; galleryId: string }>();
 
   const { data: gallery, error, mutate } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
+
+  const settingsPopover = usePopover('settings-modal');
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery?.name ?? '');
@@ -165,40 +167,35 @@ const MuseumGallery = () => {
         <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
           {isEditing ? (
             <Fragment>
-              <Popover
-                id="settings-modal"
-                css={tw`mb-4`}
-                position="top"
-                align="right"
-                renderHeader={({ closePopover }) => (
-                  <div css={tw`flex justify-between`}>
+              <Popover {...settingsPopover.wrapperProps} css={tw`mb-4`} origin="top right">
+                <FloatingActionButton
+                  {...settingsPopover.anchorProps}
+                  title="Open gallery settings">
+                  <span css={tw`block transform scale-110`}>
+                    <Cog />
+                  </span>
+                </FloatingActionButton>
+                <Popover.Body>
+                  <header css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex justify-between`}>
                     <h1 css={tw`font-serif leading-none text-xl mt-1 mr-3`}>Settings</h1>
-                    <IconButton title="Close settings" onClick={closePopover}>
+                    <IconButton title="Close settings" onClick={() => settingsPopover.close(true)}>
                       <Close />
                     </IconButton>
-                  </div>
-                )}
-                renderBody={() => (
-                  <GallerySettings
-                    minWallHeight={minHeight}
-                    wallHeight={wallHeight}
-                    onWallHeightChange={setWallHeight}
-                    wallColor={wallColor}
-                    onWallColorChange={setWallColor}
-                  />
-                )}>
-                {({ openPopover, triggerProps }) => (
-                  <FloatingActionButton
-                    {...triggerProps}
-                    title="Open gallery settings"
-                    onClick={openPopover}>
-                    <span css={tw`block transform scale-110`}>
-                      <Cog />
-                    </span>
-                  </FloatingActionButton>
-                )}
+                  </header>
+                  <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
+                    <GallerySettings
+                      minWallHeight={minHeight}
+                      wallHeight={wallHeight}
+                      onWallHeightChange={setWallHeight}
+                      wallColor={wallColor}
+                      onWallColorChange={setWallColor}
+                    />
+                  </section>
+                </Popover.Body>
               </Popover>
-              <FloatingActionButton title="Add new artwork">
+              <FloatingActionButton
+                css={[settingsPopover.isExpanded && tw`transition-opacity opacity-50`]}
+                title="Add new artwork">
                 <span css={tw`block transform rotate-45`}>
                   <Close />
                 </span>

@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 export type PortalProps = {
   className?: string;
   prepend?: boolean;
-  to: string;
+  to: string | HTMLElement;
 };
 
 /**
@@ -30,9 +30,13 @@ const Portal = ({
   const portalRoot = useRef<HTMLElement | null>(null);
   const childRoot = useRef(document.createElement('div'));
 
+  // Get a reference of our portal root point
   useEffect(() => {
-    // Get a reference of our portal root point
-    portalRoot.current = document.querySelector(`#${to}`);
+    if (typeof to === 'string') {
+      portalRoot.current = document.querySelector(`#${to}`);
+    } else {
+      portalRoot.current = to;
+    }
   }, [to]);
 
   useEffect(() => {

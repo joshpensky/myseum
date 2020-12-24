@@ -44,7 +44,7 @@ const GridMap = ({ children }: GridMapProps) => {
             navy: tw`text-navy-800`,
             paper: tw`text-mint-400`, // TODO
           }[theme.color],
-        tw`relative border border-current rounded-md h-6 mx-auto overflow-hidden transition-all max-w-2xl`,
+        tw`relative border border-current rounded-md h-6 mx-auto overflow-hidden max-w-2xl`,
         css`
           width: ${columns * 0.125}rem;
         `,
