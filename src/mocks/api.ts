@@ -1,10 +1,10 @@
 import { setupWorker, rest } from 'msw';
-import { artworks } from './data/artworks';
-import { museums } from './data/museums';
-import { galleries } from './data/galleries';
-import { frames } from './data/frames';
+import { artists } from '@src/mocks/data/artists';
+import { artworks } from '@src/mocks/data/artworks';
+import { frames } from '@src/mocks/data/frames';
+import { galleries } from '@src/mocks/data/galleries';
+import { museums } from '@src/mocks/data/museums';
 import { Artist, Artwork, Gallery, Id, Museum, MuseumCollectionItem } from '@src/types';
-import { artists } from './data/artists';
 
 const getArtwork = (id: Id): Artwork => {
   const work = artworks.find(work => id === work.id);
@@ -77,6 +77,7 @@ const getMuseumCollection = (museum: Museum) => {
     const { artworks, ...gallery } = item;
     artworks.forEach(({ item }) => {
       if (!artworkIdSet.has(item.id)) {
+        artworkIdSet.add(item.id);
         uniqueArtwork.push({
           ...item,
           gallery,
