@@ -82,7 +82,7 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
                 </p>
               )}
               {'gallery' in data && (
-                <p>
+                <p css={tw`text-sm`}>
                   Featured in the{' '}
                   <Link
                     css={tw`text-black underline`}

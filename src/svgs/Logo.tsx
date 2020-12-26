@@ -5,7 +5,6 @@ const Logo = () => (
     id="logo"
     css={tw`block h-full`}
     viewBox="0 0 26 30"
-    vectorEffect="non-scaling-stroke"
     xmlns="http://www.w3.org/2000/svg"
     aria-labelledby="logo-title">
     <title id="logo-title">Museums Logo</title>

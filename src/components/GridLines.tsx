@@ -1,62 +1,33 @@
 import tw, { css } from 'twin.macro';
-import { useTheme } from '@src/providers/ThemeProvider';
 import { useGrid } from '@src/providers/GridProvider';
+import { useTheme } from '@src/providers/ThemeProvider';
 
 const GridLines = () => {
-  const { itemSize, columns, rows } = useGrid();
+  const { columns, itemSize } = useGrid();
   const theme = useTheme();
 
-  const themedRingColor =
+  const themeColor =
     theme &&
     {
-      mint: tw`ring-mint-700`,
-      pink: tw`ring-mint-700`, // TODO
-      navy: tw`ring-navy-800`,
-      paper: tw`ring-mint-700`, // TODO
+      mint: tw`text-mint-700`,
+      pink: tw`text-mint-700`, // TODO: update
+      navy: tw`text-navy-800`,
+      paper: tw`text-mint-700`, // TODO: update
     }[theme.color];
 
   return (
     <div
       css={[
-        themedRingColor,
-        tw`opacity-20 h-full relative ring-1 ring-inset pointer-events-none`,
+        themeColor,
+        tw`opacity-20 h-full relative ring-1 ring-current ring-inset pointer-events-none`,
         css`
+          background-image: repeating-linear-gradient(currentColor 0 1px, transparent 1px 100%),
+            repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 100%);
+          background-size: ${itemSize}px ${itemSize}px;
           width: calc(${itemSize}px * ${columns});
         `,
-      ]}>
-      <div css={tw`absolute inset-0 size-full flex flex-col pointer-events-none`}>
-        {Array(rows)
-          .fill(null)
-          .map((_, idx) => (
-            <div
-              key={idx}
-              css={[
-                themedRingColor,
-                tw`flex-shrink-0 w-full ring-0.5 ring-inset`,
-                css`
-                  height: ${itemSize}px;
-                `,
-              ]}
-            />
-          ))}
-      </div>
-      <div css={tw`absolute inset-0 size-full flex pointer-events-none`}>
-        {Array(columns)
-          .fill(null)
-          .map((_, idx) => (
-            <div
-              key={idx}
-              css={[
-                themedRingColor,
-                tw`flex-shrink-0 h-full ring-0.5 ring-inset`,
-                css`
-                  width: ${itemSize}px;
-                `,
-              ]}
-            />
-          ))}
-      </div>
-    </div>
+      ]}
+    />
   );
 };
 

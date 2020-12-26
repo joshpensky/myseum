@@ -114,7 +114,7 @@ const MuseumGallery = () => {
                 <div css={tw`flex flex-1 items-center justify-center`}>
                   <div
                     css={[
-                      tw`px-2 pt-2 pb-0.5 relative bg-white bg-opacity-0 rounded-sm`,
+                      tw`px-2 pt-2 pb-0.5 relative bg-white bg-opacity-0 rounded`,
                       tw`transition-all hover:bg-opacity-20 focus-within:bg-opacity-20`,
                       !name && tw`w-0 overflow-x-hidden`,
                     ]}>
