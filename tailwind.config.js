@@ -39,6 +39,7 @@ module.exports = {
         },
       },
       cursor: {
+        'ew-resize': 'ew-resize',
         grab: 'grab',
         grabbing: 'grabbing',
       },

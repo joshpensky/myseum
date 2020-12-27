@@ -1,4 +1,5 @@
-import { ChangeEvent, Fragment } from 'react';
+import { ChangeEvent, Fragment, MouseEvent as ReactMouseEvent, useEffect, useState } from 'react';
+import { createGlobalStyle } from 'styled-components';
 import tw, { css, TwStyle } from 'twin.macro';
 import { GalleryColor } from '@src/types';
 
@@ -10,6 +11,15 @@ type GallerySettingsProps = {
   onWallHeightChange(nextWallHeight: number): void;
 };
 
+// Sets the global cursor to "ew-resize" so it remains the same
+// no matter where on the screen the user is dragging
+// TODO: allow for cursor to appear on other side of screen, ala Figma input dragging?
+const GlobalResizeCursor = createGlobalStyle`
+  * {
+    ${tw`cursor-ew-resize!`}
+  }
+`;
+
 const GallerySettings = ({
   wallColor,
   onWallColorChange,
@@ -17,6 +27,8 @@ const GallerySettings = ({
   wallHeight,
   onWallHeightChange,
 }: GallerySettingsProps) => {
+  const [startingDragPosition, setStartingDragPosition] = useState<number | null>(null);
+
   const _onWallHeightChange = (evt: ChangeEvent<HTMLInputElement>) => {
     let value = evt.target.valueAsNumber;
     if (Number.isNaN(value)) {
@@ -24,6 +36,48 @@ const GallerySettings = ({
     }
     onWallHeightChange(value);
   };
+
+  // Starts the drag listening on the wall height input
+  const onInputMouseDown = (evt: ReactMouseEvent<HTMLInputElement>) => {
+    setStartingDragPosition(evt.clientX);
+  };
+
+  // When the mouse drags on the input, resize the wall height accordingly
+  const onInputDrag = (evt: MouseEvent) => {
+    if (startingDragPosition !== null) {
+      evt.preventDefault();
+      const delta = Math.ceil((evt.clientX - startingDragPosition) / 16);
+      onWallHeightChange(Math.max(minWallHeight, wallHeight + delta));
+    }
+  };
+
+  // When the mouse is released, stop the drag listeners
+  const onInputDragRelease = (evt: MouseEvent) => {
+    evt.preventDefault();
+    setStartingDragPosition(null);
+
+    // Stops the Popover component's "click" listener from closing the container
+    // when the mouse is released outside the popover
+    const captureInputClick = (evt: MouseEvent) => {
+      evt.stopPropagation();
+      document.removeEventListener('click', captureInputClick, true);
+    };
+
+    document.addEventListener('click', captureInputClick, true);
+  };
+
+  // Attaches drag and release listeners when drag is detected
+  useEffect(() => {
+    if (startingDragPosition !== null) {
+      document.addEventListener('mousemove', onInputDrag);
+      document.addEventListener('mouseup', onInputDragRelease);
+
+      return () => {
+        document.removeEventListener('mousemove', onInputDrag);
+        document.removeEventListener('mouseup', onInputDragRelease);
+      };
+    }
+  }, [startingDragPosition]);
 
   type WallColorOption = {
     value: GalleryColor;
@@ -94,7 +148,7 @@ const GallerySettings = ({
             </span>
             <input
               css={[
-                tw`absolute left-0 m-0 w-full focus:outline-none`,
+                tw`absolute left-0 m-0 w-full cursor-ew-resize focus:outline-none`,
                 css`
                   /* Chrome, Safari, Edge, Opera */
                   &::-webkit-outer-spin-button,
@@ -113,7 +167,9 @@ const GallerySettings = ({
               min={minWallHeight}
               value={wallHeight === 0 ? '' : wallHeight}
               onChange={_onWallHeightChange}
+              onMouseDown={onInputMouseDown}
             />
+            {startingDragPosition !== null && <GlobalResizeCursor />}
           </div>
           <span css={tw`ml-1 text-mint-600`}>
             in<span css={tw`sr-only`}>ches</span>
