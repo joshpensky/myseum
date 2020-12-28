@@ -9,7 +9,12 @@ export type GridMapProps = {
 };
 
 const GridMap = ({ children }: GridMapProps) => {
-  const { columns, rows, percentScrolled, percentVisible } = useGrid();
+  const gridCtx = useGrid();
+  if (!gridCtx) {
+    throw new Error('Cannot use GridMap outside of GridProvider context');
+  }
+  const { columns, rows, percentScrolled, percentVisible } = gridCtx;
+
   const theme = useTheme();
 
   const scrollbar = (
@@ -46,7 +51,7 @@ const GridMap = ({ children }: GridMapProps) => {
           }[theme.color],
         tw`relative border border-current rounded-md h-6 mx-auto overflow-hidden max-w-2xl`,
         css`
-          width: ${columns * 0.125}rem;
+          width: ${columns * 0.075}rem;
         `,
       ]}>
       <span css={[tw`absolute top-0 left-0 h-full w-full`]}>

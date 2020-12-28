@@ -9,7 +9,11 @@ export type GridItemProps = {
 };
 
 const GridItem = ({ item, position }: GridItemProps) => {
-  const { itemSize } = useGrid();
+  const gridCtx = useGrid();
+  if (!gridCtx) {
+    throw new Error('Cannot use GridItem outside of GridProvider context');
+  }
+  const { itemSize } = gridCtx;
 
   const { dimensions } = item.frame;
   const { width: frameWidth, height: frameHeight } = dimensions;

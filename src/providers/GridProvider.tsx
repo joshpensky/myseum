@@ -23,10 +23,4 @@ export const GridProvider = ({
   </GridContext.Provider>
 );
 
-export const useGrid = () => {
-  const value = useContext(GridContext);
-  if (!value) {
-    throw new Error('Cannot call useGrid outside of GridProvider context.');
-  }
-  return value;
-};
+export const useGrid = () => useContext(GridContext);

@@ -20,4 +20,23 @@ export const frames: Frame[] = [
       },
     },
   },
+  {
+    id: 2,
+    src: '/img/knight-frame.png',
+    dimensions: {
+      width: 17,
+      height: 23,
+    },
+    depth: 1.5,
+    window: {
+      position: {
+        x: 3,
+        y: 3.25,
+      },
+      dimensions: {
+        width: 11,
+        height: 16.5,
+      },
+    },
+  },
 ];

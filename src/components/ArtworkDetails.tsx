@@ -22,7 +22,7 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
 
   const popover = usePopover(`artwork-details-${detailsId}`);
 
-  const { title, artist, description, acquiredAt, createdAt, frame } = data;
+  const { title, artist, description, acquiredAt, createdAt, dimensions } = data;
 
   return (
     <Popover {...popover.wrapperProps} css={tw`h-full`} disabled={disabled} origin="right top">
@@ -70,7 +70,7 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
               <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
             <p>
-              {frame.window.dimensions.width} x {frame.window.dimensions.height} in.
+              {dimensions.width} x {dimensions.height} in.
             </p>
           </div>
           <p>{description}</p>

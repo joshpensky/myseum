@@ -3,7 +3,12 @@ import { useGrid } from '@src/providers/GridProvider';
 import { useTheme } from '@src/providers/ThemeProvider';
 
 const GridLines = () => {
-  const { columns, itemSize } = useGrid();
+  const gridCtx = useGrid();
+  if (!gridCtx) {
+    throw new Error('Cannot use GridLines outside of GridProvider context');
+  }
+  const { columns, itemSize } = gridCtx;
+
   const theme = useTheme();
 
   const themeColor =

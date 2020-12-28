@@ -118,7 +118,7 @@ const Popover = ({
     DEFAULT: tw`text-gray-800`,
     mint: tw`text-mint-800`,
     pink: tw`text-mint-800`, // TODO: update
-    navy: tw`text-navy-800`,
+    navy: tw`text-navy-100`,
     paper: tw`text-mint-800`, // TODO: update
   }[theme?.color ?? 'DEFAULT'];
 

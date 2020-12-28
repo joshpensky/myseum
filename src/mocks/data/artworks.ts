@@ -9,11 +9,11 @@ export const artworks: RawArtwork[] = [
   {
     id: 1,
     title: 'Choose Goose',
-    artistId: 1,
+    artistId: null,
     description:
       'Nullam quis risus eget urna mollis ornare vel eu leo. Curabitur blandit tempus porttitor.',
     src: '/img/choose-goose.png',
-    alt: 'ADD_ALT_TEXT',
+    alt: 'TODO: ADD_ALT_TEXT',
     dimensions: {
       width: 3.5,
       height: 5.5,
@@ -21,5 +21,21 @@ export const artworks: RawArtwork[] = [
     createdAt: new Date('2019-01-01'),
     acquiredAt: new Date('2019-11-01'),
     frameId: 1,
+  },
+  {
+    id: 2,
+    title: 'Golden Knight',
+    artistId: 1,
+    description:
+      'Nullam quis risus eget urna mollis ornare vel eu leo. Curabitur blandit tempus porttitor.',
+    src: '/img/knight.png',
+    alt: 'TODO: ADD_ALT_TEXT',
+    dimensions: {
+      width: 13,
+      height: 19,
+    },
+    createdAt: new Date('2018-07-02'),
+    acquiredAt: new Date('2019-11-21'),
+    frameId: 2,
   },
 ];

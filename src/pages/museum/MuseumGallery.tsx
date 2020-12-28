@@ -47,6 +47,14 @@ const MuseumGallery = () => {
   }
 
   /**
+   * Exits the editing mode, closing any popovers.
+   */
+  const exitEditingMode = () => {
+    settingsPopover.close();
+    setIsEditing(false);
+  };
+
+  /**
    * Handler for cancelling updates made in edit mode.
    */
   const onCancel = () => {
@@ -55,7 +63,7 @@ const MuseumGallery = () => {
     setWallColor(gallery.color);
     setWallHeight(gallery.height);
     // Exit editing mode
-    setIsEditing(false);
+    exitEditingMode();
   };
 
   /**
@@ -74,7 +82,7 @@ const MuseumGallery = () => {
       false,
     );
     // Exit editing mode
-    setIsEditing(false);
+    exitEditingMode();
   };
 
   const { artworks } = gallery;
@@ -172,7 +180,18 @@ const MuseumGallery = () => {
 
         {!isEditing && (
           <header css={tw`flex justify-center px-4 pt-4 -mb-1.5`}>
-            <h2 css={tw`font-serif leading-none text-3xl`}>{gallery.name}</h2>
+            <h2
+              css={[
+                tw`font-serif leading-none text-3xl`,
+                {
+                  mint: tw`text-black`,
+                  pink: tw`text-black`,
+                  navy: tw`text-white`,
+                  paper: tw`text-black`,
+                }[wallColor],
+              ]}>
+              {gallery.name}
+            </h2>
           </header>
         )}
 

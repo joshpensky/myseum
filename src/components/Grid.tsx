@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef, useState, useEffect, ReactElement } from 'react';
 import tw, { css } from 'twin.macro';
-import { GridProvider } from '@src/providers/GridProvider';
 import { GridItemProps } from './GridItem';
 import GridMap from './GridMap';
 import GridLines from './GridLines';
+import { GridProvider } from '@src/providers/GridProvider';
 
 export type GridProps = {
   children: ReactElement<GridItemProps>[]; // force only GridItem children
@@ -112,7 +112,7 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
       rows={rows}
       percentScrolled={gridWidth ? xPos / gridWidth : 0}
       percentVisible={gridWidth ? visibleWidth / gridWidth : 0}>
-      <div css={tw`flex flex-col flex-1 my-6 overflow-hidden`}>
+      <div css={tw`flex flex-col flex-1 py-6 overflow-hidden`}>
         <div ref={containerRef} css={[tw`flex flex-1 relative`]}>
           <div
             ref={dragAreaRef}
