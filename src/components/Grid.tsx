@@ -6,6 +6,7 @@ import GridLines from './GridLines';
 import { GridProvider } from '@src/providers/GridProvider';
 
 export type GridProps = {
+  asPreview?: boolean;
   children: ReactElement<GridItemProps>[]; // force only GridItem children
   minColumns?: number;
   rows: number;
@@ -15,7 +16,7 @@ export type GridProps = {
 // A buffer of columns to display offscreen
 const COLUMN_BUFFER = 10;
 
-const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
+const Grid = ({ asPreview, children, minColumns, rows, showLines }: GridProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragAreaRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +76,7 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
 
   // Add drag start/end listeners on mount
   useEffect(() => {
-    if (dragAreaRef.current) {
+    if (!asPreview && dragAreaRef.current) {
       dragAreaRef.current.addEventListener('mousedown', onDragStart);
       dragAreaRef.current.addEventListener('mouseup', onDragEnd);
       dragAreaRef.current.addEventListener('mouseleave', onDragEnd);
@@ -87,7 +88,7 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
         }
       };
     }
-  }, []);
+  }, [asPreview]);
 
   // On mount, start resize observer for container width + height
   useLayoutEffect(() => {
@@ -107,16 +108,20 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
 
   return (
     <GridProvider
+      asPreview={asPreview ?? false}
       itemSize={itemSize}
       columns={columns}
       rows={rows}
       percentScrolled={gridWidth ? xPos / gridWidth : 0}
       percentVisible={gridWidth ? visibleWidth / gridWidth : 0}>
-      <div css={tw`flex flex-col flex-1 py-6 overflow-hidden`}>
+      <div css={[tw`flex flex-col flex-1 overflow-hidden`, !asPreview && tw`py-6`]}>
         <div ref={containerRef} css={[tw`flex flex-1 relative`]}>
           <div
             ref={dragAreaRef}
-            css={[tw`absolute inset-0 size-full cursor-grab active:cursor-grabbing`]}
+            css={[
+              tw`absolute inset-0 size-full`,
+              !asPreview && tw`cursor-grab active:cursor-grabbing`,
+            ]}
           />
           <div
             css={[
@@ -130,9 +135,11 @@ const Grid = ({ children, minColumns, rows, showLines }: GridProps) => {
           </div>
         </div>
 
-        <div css={tw`mt-6 flex flex-col justify-center w-full`}>
-          <GridMap>{children}</GridMap>
-        </div>
+        {!asPreview && (
+          <div css={tw`mt-6 flex flex-col justify-center w-full`}>
+            <GridMap>{children}</GridMap>
+          </div>
+        )}
       </div>
     </GridProvider>
   );

@@ -38,6 +38,7 @@ module.exports = {
         },
         paper: {
           200: '#f8f8f8',
+          300: '#eaeaea',
         },
       },
       cursor: {

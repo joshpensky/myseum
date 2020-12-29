@@ -18,34 +18,27 @@ export const galleries: Gallery<Id>[] = [
       {
         item: 2,
         position: {
-          x: 36,
+          x: 35,
           y: 0,
         },
       },
-      // {
-      //   position: {
-      //     x: 36,
-      //     y: 3,
-      //   },
-      // },
-      // {
-      //   position: {
-      //     x: 57,
-      //     y: 11,
-      //   },
-      // },
-      // {
-      //   position: {
-      //     x: 48,
-      //     y: 40,
-      //   },
-      // },
-      // {
-      //   position: {
-      //     x: 80,
-      //     y: 52,
-      //   },
-      // },
+    ],
+    createdAt: new Date('2020-12-21'),
+  },
+  {
+    id: 2,
+    slug: 'steven-uni-verse-gallery',
+    name: 'Steven Uni Verse Gallery',
+    color: 'navy',
+    height: 28,
+    artworks: [
+      {
+        item: 1,
+        position: {
+          x: 5,
+          y: 10,
+        },
+      },
     ],
     createdAt: new Date('2020-12-21'),
   },

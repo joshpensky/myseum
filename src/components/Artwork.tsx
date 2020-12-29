@@ -75,10 +75,19 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
     .join(', ');
 
   return (
-    <ArtworkDetails data={data} disabled={!isLoaded}>
+    <ArtworkDetails data={data} disabled={!isLoaded || gridCtx?.asPreview}>
       <svg
         id={`artwork-${id}`}
-        css={[tw`bg-mint-300 h-full`, withShadow && isLoaded && css({ boxShadow })]}
+        css={[
+          tw`h-full`,
+          {
+            mint: tw`bg-mint-300`,
+            pink: tw`bg-mint-300`, // TODO: update
+            navy: tw`bg-navy-100`,
+            paper: tw`bg-mint-300`, // TODO: update
+          }[themeCtx?.color ?? 'mint'],
+          withShadow && isLoaded && css({ boxShadow }),
+        ]}
         xmlns="http://www.w3.org/2000/svg"
         aria-labelledby={`artwork-${id}-title`}
         aria-describedby={`artwork-${id}-desc`}
@@ -118,7 +127,15 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
 
         {/* Render frame window (for loading state) */}
         <rect
-          css={tw`fill-current text-mint-200`}
+          css={[
+            tw`fill-current`,
+            {
+              mint: tw`text-mint-200`,
+              pink: tw`text-pink-200`,
+              navy: tw`text-navy-200`,
+              paper: tw`text-paper-200`,
+            }[themeCtx?.color ?? 'mint'],
+          ]}
           x={frame.window.position.x}
           y={frame.window.position.y}
           width={windowWidth}

@@ -13,6 +13,34 @@ export const museums: Museum<Id>[] = [
           y: 0,
         },
       },
+      {
+        item: 2,
+        position: {
+          x: -1,
+          y: 0,
+        },
+      },
+      // {
+      //   item: 1,
+      //   position: {
+      //     x: 1,
+      //     y: 0,
+      //   },
+      // },
+      // {
+      //   item: 1,
+      //   position: {
+      //     x: 2,
+      //     y: 0,
+      //   },
+      // },
+      // {
+      //   item: 1,
+      //   position: {
+      //     x: 0,
+      //     y: 1,
+      //   },
+      // },
     ],
     createdAt: new Date('2020-12-21'),
   },
