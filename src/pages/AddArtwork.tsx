@@ -2,9 +2,40 @@ import { Dimensions, Position } from '@src/types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import tw, { theme } from 'twin.macro';
 import quickhull from 'quickhull';
+import * as fx from 'glfx-es6';
 
 const POINT_RADIUS = 5;
 const STROKE_WIDTH = 3;
+const INNER_CANVAS_PADDING = POINT_RADIUS + STROKE_WIDTH / 2;
+
+type Measurement = 'inch' | 'cm' | 'mm';
+type Preset = {
+  type: 'custom' | 'a4' | 'poster';
+  display: string;
+  dimensions: Dimensions;
+  measurement: Measurement;
+};
+
+const presets: Preset[] = [
+  {
+    type: 'a4',
+    display: 'A4',
+    dimensions: {
+      width: 210,
+      height: 297,
+    },
+    measurement: 'mm',
+  },
+  {
+    type: 'poster',
+    display: 'Poster',
+    dimensions: {
+      width: 11,
+      height: 17,
+    },
+    measurement: 'inch',
+  },
+];
 
 // https://cdn.tutors.com/assets/images/courses/math/geometry-help/convex-concave-quadrilateral.jpg
 const isQuadrilateralComplex = (points: [Position, Position, Position, Position]) => {
@@ -86,10 +117,10 @@ const isQuadrilateralComplex = (points: [Position, Position, Position, Position]
 const AddArtwork = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [image, setImage] = useState<HTMLImageElement | undefined>();
-
-  const [canvasDimensions, setCanvasDimensions] = useState<Dimensions | undefined>();
+  const [image, setImage] = useState<HTMLImageElement>();
+  const [canvasDimensions, setCanvasDimensions] = useState<Dimensions>();
 
   const [corners, setCorners] = useState<[Position, Position, Position, Position]>([
     { x: 0, y: 0 },
@@ -97,6 +128,16 @@ const AddArtwork = () => {
     { x: 1, y: 1 },
     { x: 0, y: 1 },
   ]);
+
+  const [hoveringIndex, setHoveringIndex] = useState<number>(-1);
+  const [movingIndex, setMovingIndex] = useState<number>(-1);
+
+  const [presetType, setPresetType] = useState<Preset['type']>('custom');
+  const [finalDimensions, setFinalDimensions] = useState<Dimensions>({
+    width: 0,
+    height: 0,
+  });
+  const [measurement, setMeasurement] = useState<Measurement>('inch');
 
   // Checks whether the corners form a valid convex quadrilateral selection
   const isSelectionValid = useMemo(() => {
@@ -120,8 +161,12 @@ const AddArtwork = () => {
    * Gets the dimensions and position of the inner canvas (where the image lies on the
    * canvas).
    */
-  const getInnerCanvas = (image: HTMLImageElement, canvasDimensions: Dimensions) => {
-    const imageRatio = image.naturalWidth / image.naturalHeight;
+  const getInnerCanvas = (
+    imageDimensions: Dimensions,
+    canvasDimensions: Dimensions,
+    padding = 0,
+  ) => {
+    const imageRatio = imageDimensions.width / imageDimensions.height;
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
 
     let height: number;
@@ -130,17 +175,15 @@ const AddArtwork = () => {
     if (canvasRatio < imageRatio) {
       // Scale by canvas width
       width = canvasDimensions.width;
-      height = image.naturalHeight * (canvasDimensions.width / image.naturalWidth);
+      height = imageDimensions.height * (canvasDimensions.width / imageDimensions.width);
     } else {
       // Scale by canvas height
       height = canvasDimensions.height;
-      width = image.naturalWidth * (canvasDimensions.height / image.naturalHeight);
+      width = imageDimensions.width * (canvasDimensions.height / imageDimensions.height);
     }
 
     const x = (canvasDimensions.width - width) / 2;
     const y = (canvasDimensions.height - height) / 2;
-
-    const padding = POINT_RADIUS + STROKE_WIDTH / 2;
 
     return {
       x: x + padding,
@@ -150,8 +193,19 @@ const AddArtwork = () => {
     };
   };
 
-  const [hoveringIndex, setHoveringIndex] = useState<number>(-1);
-  const [movingIndex, setMovingIndex] = useState<number>(-1);
+  // handler for preset updates
+  const onPresetUpdate = (presetType: Preset['type']) => {
+    if (presetType !== 'custom') {
+      const preset = presets.find(preset => preset.type === presetType);
+      if (preset) {
+        setPresetType(preset.type);
+        setFinalDimensions(preset.dimensions);
+        setMeasurement(preset.measurement);
+        return;
+      }
+    }
+    setPresetType('custom');
+  };
 
   const onMouseMove = (evt: MouseEvent) => {
     if (canvasRef.current && image && canvasDimensions) {
@@ -159,7 +213,14 @@ const AddArtwork = () => {
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
 
-      const { width, height, x, y } = getInnerCanvas(image, canvasDimensions);
+      const { width, height, x, y } = getInnerCanvas(
+        {
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+        },
+        canvasDimensions,
+        INNER_CANVAS_PADDING,
+      );
 
       // If there's a moving index, update corner position
       if (movingIndex >= 0) {
@@ -208,6 +269,7 @@ const AddArtwork = () => {
     }
   };
 
+  // Renders the interactive canvas
   const render = () => {
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx && image && canvasDimensions) {
@@ -215,7 +277,14 @@ const AddArtwork = () => {
       // ctx.translate(0.5, 0.5); // fix crisp
       ctx.imageSmoothingEnabled = false;
 
-      const { width, height, x, y } = getInnerCanvas(image, canvasDimensions);
+      const { width, height, x, y } = getInnerCanvas(
+        {
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+        },
+        canvasDimensions,
+        INNER_CANVAS_PADDING,
+      );
 
       // Draw black overlay
       ctx.fillStyle = theme`colors.black`;
@@ -267,6 +336,35 @@ const AddArtwork = () => {
     }
   };
 
+  // Render the final artwork onto the preview canvas
+  useEffect(() => {
+    const ctx = previewCanvasRef.current?.getContext('2d');
+    if (ctx && isSelectionValid && image && movingIndex < 0) {
+      const { width, height, x, y } = getInnerCanvas(finalDimensions, { width: 500, height: 500 });
+
+      const tempCanvas = fx.canvas();
+      const texture = tempCanvas.texture(image);
+      tempCanvas.draw(texture);
+
+      const beforeMatrix = [corners[0], corners[1], corners[3], corners[2]].flatMap(c => [
+        c.x * image.naturalWidth,
+        c.y * image.naturalHeight,
+      ]) as fx.Matrix;
+      const afterMatrix = [
+        ...[0, 0],
+        ...[width, 0],
+        ...[0, height],
+        ...[width, height],
+      ] as fx.Matrix;
+      tempCanvas.perspective(beforeMatrix, afterMatrix);
+
+      tempCanvas.update();
+
+      ctx.clearRect(0, 0, 500, 500);
+      ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+    }
+  }, [image, corners, finalDimensions, movingIndex]);
+
   // Re-render the canvas when corners change
   useEffect(() => {
     render();
@@ -314,16 +412,107 @@ const AddArtwork = () => {
 
   // Load the image
   useEffect(() => {
-    const image = new Image();
-    image.onload = () => {
-      setImage(image);
-    };
-    image.src = '/img/test-add.jpeg';
+    if (!image) {
+      const img = new Image();
+      img.onload = () => {
+        setImage(img);
+        const getDimension = (value: number) => {
+          const inches = value / 72; // px to in, at 72ppi
+          return Math.round(inches * 100) / 100; // rounded to nearest 0.01
+        };
+        setFinalDimensions({
+          width: getDimension(img.naturalWidth),
+          height: getDimension(img.naturalHeight),
+        });
+      };
+      img.src = '/img/test-add.jpeg';
+    }
   }, []);
 
   return (
     <div css={tw`fixed inset-0 bg-black flex flex-1`}>
-      <div css={tw`flex flex-col flex-1 items-center justify-center p-10`}>
+      <div css={tw`flex flex-col flex-1 items-center justify-center p-4`}>
+        <div css={tw`flex flex-col pb-6`}>
+          <label htmlFor="preset" css={tw`text-white`}>
+            Preset
+          </label>
+          <select
+            id="preset"
+            value={presetType}
+            onChange={evt => onPresetUpdate(evt.target.value as Preset['type'])}>
+            <option value="custom">Custom</option>
+            {presets.map(preset => (
+              <option key={preset.type} value={preset.type}>
+                {preset.display}
+              </option>
+            ))}
+          </select>
+          <div css={tw`flex pt-6`}>
+            <div css={tw`flex flex-col mr-4`}>
+              <label htmlFor="width" css={tw`text-white`}>
+                Width
+              </label>
+              <input
+                id="width"
+                type="number"
+                min="0"
+                step="0.1"
+                value={finalDimensions.width}
+                onChange={evt => {
+                  let width = evt.target.valueAsNumber;
+                  if (Number.isNaN(width)) {
+                    width = 0;
+                  }
+                  setPresetType('custom');
+                  setFinalDimensions(dimensions => ({
+                    ...dimensions,
+                    width,
+                  }));
+                }}
+              />
+            </div>
+            <div css={tw`flex flex-col mr-4`}>
+              <label htmlFor="height" css={tw`text-white`}>
+                Height
+              </label>
+              <input
+                id="height"
+                type="number"
+                min="0"
+                step="0.1"
+                value={finalDimensions.height}
+                onChange={evt => {
+                  let height = evt.target.valueAsNumber;
+                  if (Number.isNaN(height)) {
+                    height = 0;
+                  }
+                  setPresetType('custom');
+                  setFinalDimensions(dimensions => ({
+                    ...dimensions,
+                    height,
+                  }));
+                }}
+              />
+            </div>
+            <div css={tw`flex flex-col`}>
+              <label htmlFor="measurement" css={tw`text-white`}>
+                Measurement
+              </label>
+              <select
+                id="measurement"
+                value={measurement}
+                onChange={evt => {
+                  setPresetType('custom');
+                  setMeasurement(evt.target.value as Measurement);
+                }}>
+                <option value="inch">inches</option>
+                <option value="cm">centimeters</option>
+                <option value="mm">millimeters</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div ref={containerRef} css={tw`flex flex-col flex-1 size-full relative`}>
           {canvasDimensions && (
             <canvas
@@ -337,7 +526,19 @@ const AddArtwork = () => {
         </div>
       </div>
 
-      <div css={tw`flex flex-col border-l border-white w-96 p-4`}></div>
+      <div css={[tw`flex flex-col flex-shrink-0 border-l border-white p-4`]}>
+        <div css={[!isSelectionValid && movingIndex < 0 && tw`opacity-50`]}>
+          <canvas ref={previewCanvasRef} width={500} height={500} />
+        </div>
+        {/* <div
+          css={tw`p-4 flex flex-col text-white select-none fixed bottom-0 left-0 bg-black bg-opacity-20`}>
+          {corners.map((c, index) => (
+            <code key={index}>
+              [{c.x}, {c.y}]
+            </code>
+          ))}
+        </div> */}
+      </div>
     </div>
   );
 };
