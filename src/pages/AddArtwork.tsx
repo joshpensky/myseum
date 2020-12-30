@@ -1,5 +1,5 @@
 import { Dimensions, Position } from '@src/types';
-import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import tw, { theme } from 'twin.macro';
 import quickhull from 'quickhull';
 
@@ -153,9 +153,9 @@ const AddArtwork = () => {
   const [hoveringIndex, setHoveringIndex] = useState<number>(-1);
   const [movingIndex, setMovingIndex] = useState<number>(-1);
 
-  const onMouseMove = (evt: MouseEvent<HTMLCanvasElement>) => {
-    if (image && canvasDimensions) {
-      const rect = evt.currentTarget.getBoundingClientRect();
+  const onMouseMove = (evt: MouseEvent) => {
+    if (canvasRef.current && image && canvasDimensions) {
+      const rect = canvasRef.current.getBoundingClientRect();
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
 
@@ -186,7 +186,7 @@ const AddArtwork = () => {
         const cx = corner.x * width + x;
         const cy = corner.y * height + y;
         const radius = POINT_RADIUS + strokeOffset;
-        // Find if mouse is within circular corner target using Pythagorean theorem:
+        // Check if mouse is within circular corner target using Pythagorean theorem:
         // sqrt((x - center_x)^2 + (y - center_y)^2) <= radius
         // https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
         const euclidianDistance = Math.sqrt(Math.pow(mouseX - cx, 2) + Math.pow(mouseY - cy, 2));
@@ -281,6 +281,19 @@ const AddArtwork = () => {
     }
   }, [canvasDimensions]);
 
+  useEffect(() => {
+    if (image && canvasDimensions) {
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mouseup', onMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mousedown', onMouseDown);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+    }
+  }, [image, canvasDimensions, hoveringIndex, movingIndex]);
+
   // Update the canvas dimensions on resize
   useEffect(() => {
     if (image && containerRef.current) {
@@ -319,9 +332,6 @@ const AddArtwork = () => {
                 tw`absolute inset-0 size-full`,
                 movingIndex >= 0 ? tw`cursor-grabbing` : hoveringIndex >= 0 && tw`cursor-grab`,
               ]}
-              onMouseDown={onMouseDown}
-              onMouseUp={onMouseUp}
-              onMouseMove={onMouseMove}
             />
           )}
         </div>
