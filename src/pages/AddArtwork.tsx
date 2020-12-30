@@ -1,7 +1,87 @@
 import { Dimensions, Position } from '@src/types';
-import { MouseEvent, SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import tw, { theme } from 'twin.macro';
 import quickhull from 'quickhull';
+
+const POINT_RADIUS = 5;
+const STROKE_WIDTH = 3;
+
+// https://cdn.tutors.com/assets/images/courses/math/geometry-help/convex-concave-quadrilateral.jpg
+const isQuadrilateralComplex = (points: [Position, Position, Position, Position]) => {
+  enum Orientation {
+    COLINEAR = 0,
+    CLOCKWISE = 1,
+    COUNTER_CLOCKWISE = 2,
+  }
+  const getOrientation = (p1: Position, p2: Position, p3: Position) => {
+    const value = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
+    if (value === 0) {
+      return Orientation.COLINEAR;
+    } else if (value > 0) {
+      return Orientation.CLOCKWISE;
+    }
+    return Orientation.COUNTER_CLOCKWISE;
+  };
+
+  const isPointOnLine = (point: Position, line: [Position, Position]) => {
+    const [l1, l2] = line;
+    const isPointWithinXRange = Math.min(l1.x, l2.x) <= point.x && point.x <= Math.max(l1.x, l2.x);
+    const isPointWithinYRange = Math.min(l1.y, l2.y) <= point.y && point.y <= Math.max(l1.y, l2.y);
+    return isPointWithinXRange && isPointWithinYRange;
+  };
+
+  // Check if line segments p1p2 and p3p4 intersect
+  const doLinesIntersect = (lineAB: [Position, Position], lineXY: [Position, Position]) => {
+    const [a, b] = lineAB;
+    const [x, y] = lineXY;
+
+    // Get the orientation of a and b on line xy
+    const oA_XY = getOrientation(x, y, a);
+    const oB_XY = getOrientation(x, y, b);
+    // Get the orientation of x and y on line ab
+    const oX_AB = getOrientation(a, b, x);
+    const oY_AB = getOrientation(a, b, y);
+
+    // INTERSECTION CHECK
+    // https://algorithmtutor.com/Computational-Geometry/Check-if-two-line-segment-intersect/
+    const abIntersectsXy =
+      (oA_XY === Orientation.CLOCKWISE && oB_XY === Orientation.COUNTER_CLOCKWISE) ||
+      (oA_XY === Orientation.COUNTER_CLOCKWISE && oB_XY === Orientation.CLOCKWISE);
+    const xyIntersectsAb =
+      (oX_AB === Orientation.CLOCKWISE && oY_AB === Orientation.COUNTER_CLOCKWISE) ||
+      (oX_AB === Orientation.COUNTER_CLOCKWISE && oY_AB === Orientation.CLOCKWISE);
+    if (abIntersectsXy && xyIntersectsAb) {
+      return true;
+    }
+
+    // COLLINEAR CHECKS
+    // If a is on line xy, then the lines intersect
+    if (oA_XY === Orientation.COLINEAR && isPointOnLine(a, [x, y])) {
+      return true;
+    }
+    // If b is on line xy, then the lines intersect
+    if (oB_XY === Orientation.COLINEAR && isPointOnLine(b, [x, y])) {
+      return true;
+    }
+    // If x is on line ab, then the lines intersect
+    if (oX_AB === Orientation.COLINEAR && isPointOnLine(x, [a, b])) {
+      return true;
+    }
+    // If y is on line ab, then the lines intersect
+    if (oY_AB === Orientation.COLINEAR && isPointOnLine(y, [a, b])) {
+      return true;
+    }
+
+    // Otherwise, the lines don't intersect
+    return false;
+  };
+
+  const [a, b, x, y] = points;
+  const abIntersectsXy = doLinesIntersect([a, b], [x, y]);
+  const ayIntersectsBx = doLinesIntersect([a, y], [b, x]);
+
+  return abIntersectsXy || ayIntersectsBx;
+};
 
 const AddArtwork = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,23 +91,36 @@ const AddArtwork = () => {
 
   const [canvasDimensions, setCanvasDimensions] = useState<Dimensions | undefined>();
 
-  const [targets, setTargets] = useState<Position[]>([
+  const [corners, setCorners] = useState<[Position, Position, Position, Position]>([
     { x: 0, y: 0 },
     { x: 1, y: 0 },
     { x: 1, y: 1 },
     { x: 0, y: 1 },
   ]);
 
-  // Checks whether the targets form a valid convex quadrilateral selection
+  // Checks whether the corners form a valid convex quadrilateral selection
   const isSelectionValid = useMemo(() => {
-    // Checks the convex hull of the target points
-    const hull = quickhull(targets);
-    // If all points are accounted for in hull, it's valid!
-    // TODO: need to also check if lines intersect OR are colinear
-    return hull.length > targets.length;
-  }, [targets]);
+    // If the quadrilteral is complex (a.k.a, any of the lines intersect or are colinear), it's invalid!
+    if (isQuadrilateralComplex(corners)) {
+      return false;
+    }
 
-  const getImageOnCanvas = (image: HTMLImageElement, canvasDimensions: Dimensions) => {
+    // Checks the convex hull of the corner points
+    // If the quadrilateral is concave (a.k.a, all points aren't accounted for in hull [1-4 and back again]), it's invalid!
+    const hull = quickhull(corners);
+    if (hull.length === corners.length) {
+      return false;
+    }
+
+    // Otherwise, selection is valid!
+    return true;
+  }, [corners]);
+
+  /**
+   * Gets the dimensions and position of the inner canvas (where the image lies on the
+   * canvas).
+   */
+  const getInnerCanvas = (image: HTMLImageElement, canvasDimensions: Dimensions) => {
     const imageRatio = image.naturalWidth / image.naturalHeight;
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
 
@@ -47,11 +140,13 @@ const AddArtwork = () => {
     const x = (canvasDimensions.width - width) / 2;
     const y = (canvasDimensions.height - height) / 2;
 
+    const padding = POINT_RADIUS + STROKE_WIDTH / 2;
+
     return {
-      width,
-      height,
-      x,
-      y,
+      x: x + padding,
+      y: y + padding,
+      width: width - padding * 2,
+      height: height - padding * 2,
     };
   };
 
@@ -64,34 +159,34 @@ const AddArtwork = () => {
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
 
-      const { width, height, x, y } = getImageOnCanvas(image, canvasDimensions);
+      const { width, height, x, y } = getInnerCanvas(image, canvasDimensions);
 
-      // If there's a moving index, update target position
+      // If there's a moving index, update corner position
       if (movingIndex >= 0) {
-        setTargets(targets => {
-          // We calculate canvas position as..... cx = target.x * width + x;
-          // So we inverse for target position... target.x = (cx - x) / width
-          const tx = (mouseX - x) / width;
-          const ty = (mouseY - y) / height;
+        setCorners(corners => {
+          // We calculate canvas position as..... cx = corner.x * width + x;
+          // So we inverse for corner position... corner.x = (cx - x) / width
+          const fx = (mouseX - x) / width;
+          const fy = (mouseY - y) / height;
           return [
-            ...targets.slice(0, movingIndex),
+            ...corners.slice(0, movingIndex),
             {
-              x: Math.min(1, Math.max(0, tx)),
-              y: Math.min(1, Math.max(0, ty)),
+              x: Math.min(1, Math.max(0, fx)),
+              y: Math.min(1, Math.max(0, fy)),
             },
-            ...targets.slice(movingIndex + 1),
-          ];
+            ...corners.slice(movingIndex + 1),
+          ] as [Position, Position, Position, Position];
         });
         return;
       }
 
       // Otherwise, update hovering state
-      const strokeOffset = 1.5;
-      const hoveringIndex = targets.findIndex(target => {
-        const cx = target.x * width + x;
-        const cy = target.y * height + y;
-        const radius = 5 + strokeOffset;
-        // Find if mouse is within circle target using Pythagorean theorem
+      const strokeOffset = STROKE_WIDTH / 2;
+      const hoveringIndex = corners.findIndex(corner => {
+        const cx = corner.x * width + x;
+        const cy = corner.y * height + y;
+        const radius = POINT_RADIUS + strokeOffset;
+        // Find if mouse is within circular corner target using Pythagorean theorem:
         // sqrt((x - center_x)^2 + (y - center_y)^2) <= radius
         // https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
         const euclidianDistance = Math.sqrt(Math.pow(mouseX - cx, 2) + Math.pow(mouseY - cy, 2));
@@ -101,13 +196,13 @@ const AddArtwork = () => {
     }
   };
 
-  const onMouseDown = (evt: MouseEvent<HTMLCanvasElement>) => {
+  const onMouseDown = () => {
     if (hoveringIndex >= 0) {
       setMovingIndex(hoveringIndex);
     }
   };
 
-  const onMouseUp = (evt: MouseEvent<HTMLCanvasElement>) => {
+  const onMouseUp = () => {
     if (movingIndex >= 0) {
       setMovingIndex(-1);
     }
@@ -120,22 +215,7 @@ const AddArtwork = () => {
       // ctx.translate(0.5, 0.5); // fix crisp
       ctx.imageSmoothingEnabled = false;
 
-      const { width, height, x, y } = getImageOnCanvas(image, canvasDimensions);
-
-      if (isSelectionValid) {
-        // The target forms a valid convex quadrilateral!
-        ctx.strokeStyle = '#0989FF';
-      } else {
-        // The target does not form a valid convex quadrilateral
-        ctx.strokeStyle = theme`colors.red.500`;
-      }
-
-      ctx.lineWidth = 3;
-      const strokeOffset = ctx.lineWidth / 2;
-
-      const tempCvs = document.createElement('canvas');
-      tempCvs.width = canvasDimensions.width;
-      tempCvs.height = canvasDimensions.height;
+      const { width, height, x, y } = getInnerCanvas(image, canvasDimensions);
 
       // Draw black overlay
       ctx.fillStyle = theme`colors.black`;
@@ -146,86 +226,70 @@ const AddArtwork = () => {
       // Draw and clip overlay window
       ctx.globalCompositeOperation = 'destination-out';
       const path = new Path2D();
-      targets.forEach((target, idx) => {
+      corners.forEach((corner, idx) => {
         if (idx === 0) {
-          path.moveTo(target.x * width + x, target.y * height + y);
+          path.moveTo(corner.x * width + x, corner.y * height + y);
         } else {
-          path.lineTo(target.x * width + x, target.y * height + y);
+          path.lineTo(corner.x * width + x, corner.y * height + y);
         }
       });
       path.closePath();
       ctx.fill(path);
 
-      // Revert back to regular composition type
+      // Draw the image under the overlay
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.drawImage(image, x, y, width, height);
+
+      // Revert back to regular composition type (drawing atop)
       ctx.globalCompositeOperation = 'source-over';
 
       // Outline frame path
       ctx.fillStyle = theme`colors.white`;
-      ctx.globalAlpha = 1;
+      ctx.lineWidth = STROKE_WIDTH;
+      ctx.lineJoin = 'bevel';
+      if (isSelectionValid) {
+        // The corner forms a valid convex quadrilateral!
+        ctx.strokeStyle = '#0989FF';
+      } else {
+        // The corner does not form a valid convex quadrilateral
+        ctx.strokeStyle = theme`colors.red.500`;
+      }
       ctx.stroke(path);
 
-      // Draw resize targets
-      targets.forEach(target => {
+      // Draw å corners
+      corners.forEach(corner => {
         ctx.beginPath();
-        ctx.arc(target.x * width + x, target.y * height + y, 5, 0, Math.PI * 2);
+        ctx.arc(corner.x * width + x, corner.y * height + y, POINT_RADIUS, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
       });
-
-      // ctx.beginPath();
-      // ctx.arc(x + strokeOffset, y + strokeOffset, 5, 0, Math.PI * 2);
-      // ctx.fill();
-      // ctx.stroke();
-
-      // ctx.beginPath();
-      // ctx.arc(x + width - strokeOffset, y + strokeOffset, 5, 0, Math.PI * 2);
-      // ctx.fill();
-      // ctx.stroke();
-
-      // ctx.beginPath();
-      // ctx.arc(x + width - strokeOffset, y + height - strokeOffset, 5, 0, Math.PI * 2);
-      // ctx.fill();
-      // ctx.stroke();
-
-      // ctx.beginPath();
-      // ctx.arc(x + strokeOffset, y + height - strokeOffset, 5, 0, Math.PI * 2);
-      // ctx.fill();
-      // ctx.stroke();
-
-      // ctx.strokeRect(x, y + ctx.lineWidth / 2, width, height - ctx.lineWidth);
     }
   };
 
-  const resize = () => {
+  // Re-render the canvas when corners change
+  useEffect(() => {
+    render();
+  }, [corners]);
+
+  // Resize the canvas when dimensions change
+  useEffect(() => {
     if (canvasRef.current && canvasDimensions) {
       canvasRef.current.width = canvasDimensions.width;
       canvasRef.current.height = canvasDimensions.height;
       render();
     }
-  };
-
-  useEffect(() => {
-    if (canvasDimensions) {
-      render();
-    }
-  }, [canvasDimensions, targets]);
-
-  useEffect(() => {
-    if (canvasDimensions) {
-      resize();
-    }
   }, [canvasDimensions]);
 
+  // Update the canvas dimensions on resize
   useEffect(() => {
     if (image && containerRef.current) {
       const observer = new ResizeObserver(entries => {
         entries.forEach(entry => {
-          const canvasDimensions = {
+          setCanvasDimensions({
             height: entry.contentRect.height,
             width: entry.contentRect.width,
-          };
-          setCanvasDimensions(canvasDimensions);
+          });
         });
       });
       observer.observe(containerRef.current);
@@ -235,20 +299,19 @@ const AddArtwork = () => {
     }
   }, [image]);
 
-  const onImageLoad = (evt: SyntheticEvent<HTMLImageElement>) => {
-    setImage(evt.currentTarget);
-  };
+  // Load the image
+  useEffect(() => {
+    const image = new Image();
+    image.onload = () => {
+      setImage(image);
+    };
+    image.src = '/img/test-add.jpeg';
+  }, []);
 
   return (
     <div css={tw`fixed inset-0 bg-black flex flex-1`}>
       <div css={tw`flex flex-col flex-1 items-center justify-center p-10`}>
         <div ref={containerRef} css={tw`flex flex-col flex-1 size-full relative`}>
-          <img
-            src="/img/test-add.jpeg"
-            alt=""
-            css={tw`absolute inset-0 object-contain size-full`}
-            onLoad={onImageLoad}
-          />
           {canvasDimensions && (
             <canvas
               ref={canvasRef}
