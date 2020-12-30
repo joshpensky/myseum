@@ -52,6 +52,7 @@ module.exports = {
       },
       ringWidth: {
         0.5: '0.5px',
+        6: '6px',
       },
       transitionProperty: {
         'modal-enter': 'transform, opacity',

@@ -30,7 +30,10 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
       {!disabled && (
         <button
           {...popover.anchorProps}
-          css={tw`absolute inset-0 size-full cursor-pointer`}
+          css={[
+            tw`absolute inset-0 size-full cursor-pointer transition-shadow`,
+            tw`rounded-sm ring-0 ring-white focus:(outline-none) focus-visible:(ring-6)`,
+          ]}
           title="Expand"
           aria-label={`Expand details for artwork "${title}"`}
         />

@@ -1,5 +1,6 @@
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Layout from '@src/components/Layout';
+import AddArtwork from '@src/pages/AddArtwork';
 import Home from '@src/pages/Home';
 import NotFound from '@src/pages/NotFound';
 import StyleProvider from '@src/providers/StyleProvider';
@@ -14,6 +15,7 @@ const App = () => (
           <Switch>
             <Route path="/" exact component={Home} />
             <Route path="/museum/:museumId" component={MuseumRoot} />
+            <Route path="/artwork/add" component={AddArtwork} />
             <Route path="*" component={NotFound} />
           </Switch>
         </Layout>
