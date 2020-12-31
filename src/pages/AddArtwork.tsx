@@ -102,7 +102,7 @@ const AddArtwork = () => {
               </option>
             ))}
           </select>
-          <div css={tw`flex pt-6`}>
+          <div css={tw`flex pt-4`}>
             <div css={tw`flex flex-col mr-4`}>
               <label htmlFor="width" css={tw`text-white`}>
                 Width

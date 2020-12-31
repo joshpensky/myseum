@@ -2,13 +2,25 @@ import { Dimensions } from '@src/types';
 
 export class CanvasUtils {
   /**
+   * Clears the current canvas.
+   *
+   * @param context the canvas's 2D context
+   */
+  static clear(context: CanvasRenderingContext2D) {
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context.imageSmoothingEnabled = false;
+    // context.translate(0.5, 0.5); // fix crisp render
+  }
+
+  /**
    * Scales the object dimensions to be centered and contained within the canvas.
    *
    * @param canvasDimensions the dimensions of the canvas
    * @param objectDimensions the dimensions of the object
    * @param padding optional padding for the object
    */
-  static contain(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
+  static containObject(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
@@ -42,7 +54,7 @@ export class CanvasUtils {
    * @param canvasDimensions the dimensions of the canvas
    * @param objectDimensions the dimensions of the object
    */
-  static cover(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
+  static coverObject(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
