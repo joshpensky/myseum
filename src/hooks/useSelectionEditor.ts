@@ -1,24 +1,25 @@
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Position } from '@src/types';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export type SelectionEditorPoints = [Position, Position, Position, Position];
-export type SelectionEditorState = 'idle' | 'editing';
 
 export type SelectionEditor = {
-  isValid: boolean;
-  onPointsChange: Dispatch<SetStateAction<SelectionEditorPoints>>;
-  onStateChange: Dispatch<SetStateAction<SelectionEditorState>>;
-  points: SelectionEditorPoints;
-  state: SelectionEditorState;
   history: {
     lap(): void;
     redo(): void;
     undo(): void;
   };
+  isValid: boolean;
+  points: SelectionEditorPoints;
+  setPoints(
+    points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+    lap?: boolean,
+  ): void;
 };
 
 export const useSelectionEditor = (): SelectionEditor => {
+  // A log of editor history
   const [history, setHistory] = useState<SelectionEditorPoints[]>([
     [
       { x: 0, y: 0 },
@@ -27,20 +28,35 @@ export const useSelectionEditor = (): SelectionEditor => {
       { x: 0, y: 1 },
     ],
   ]);
-
+  // The current index we're viewing in history ("time travel" state)
   const [historyIndex, setHistoryIndex] = useState(0);
-
+  // The points at our current slice of history
   const points = history[historyIndex];
+  // Checks whether the current points form a valid convex quadrilateral selection
+  const isSelectionValid = useMemo(() => GeometryUtils.isConvexQuadrilateral(points), [points]);
 
-  const onPointsChange = (
+  // Updates the points in history
+  const setPoints = (
     points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+    lap?: boolean,
   ) => {
+    // Get the updated points values
     let newPoints: SelectionEditorPoints;
     if (typeof points === 'function') {
       newPoints = points(history[historyIndex]);
     } else {
       newPoints = points;
     }
+
+    // If lapping, this change will be recorded as a new entry
+    if (lap) {
+      const newHistory = [...history.slice(0, historyIndex + 1), newPoints];
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+      return;
+    }
+
+    // Otherwise, it will override the current entry
     const newHistory = [...history.slice(0, historyIndex), newPoints];
     setHistory(newHistory);
   };
@@ -67,21 +83,14 @@ export const useSelectionEditor = (): SelectionEditor => {
     }
   };
 
-  // Checks whether the points form a valid convex quadrilateral selection
-  const isSelectionValid = useMemo(() => GeometryUtils.isConvexQuadrilateral(points), [points]);
-
-  const [state, setState] = useState<SelectionEditorState>('idle');
-
   return {
-    isValid: isSelectionValid,
-    onPointsChange,
-    onStateChange: setState,
-    points,
-    state,
     history: {
       undo,
       redo,
       lap,
     },
+    isValid: isSelectionValid,
+    points,
+    setPoints,
   };
 };

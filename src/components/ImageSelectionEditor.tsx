@@ -1,14 +1,20 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createGlobalStyle } from 'styled-components';
 import tw, { theme } from 'twin.macro';
 import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
-import { BaseProps, Dimensions } from '@src/types';
+import { BaseProps, Dimensions, Position } from '@src/types';
 
 const POINT_RADIUS = 5;
 const STROKE_WIDTH = 3;
-const INNER_CANVAS_PADDING = POINT_RADIUS + STROKE_WIDTH / 2;
+const INNER_CANVAS_PADDING = POINT_RADIUS + STROKE_WIDTH * 1.5;
 
 const GlobalGrabbingCursor = createGlobalStyle`
   * {
@@ -27,8 +33,9 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
 
   const [canvasDimensions, setCanvasDimensions] = useState<Dimensions>();
 
-  const [hoveringIndex, setHoveringIndex] = useState<number>(-1);
-  const [movingIndex, setMovingIndex] = useState<number>(-1);
+  const [hoveringIndex, setHoveringIndex] = useState(-1);
+  const [movingIndex, setMovingIndex] = useState(-1);
+  const [focusIndex, setFocusIndex] = useState(-1);
 
   // Tracks mouse movements on the canvas
   // If the user is currently hovering a target, the hovering state will accordingly update
@@ -60,7 +67,7 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
     // If there's a moving index, update corner position
     if (movingIndex >= 0) {
       evt.preventDefault();
-      editor.onPointsChange(points => {
+      editor.setPoints(points => {
         // We calculate canvas position as..... cx = corner.x * width + x;
         // So we inverse for corner position... corner.x = (cx - x) / width
         const fx = (mouseX - x) / width;
@@ -101,6 +108,7 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
       evt.preventDefault();
       editor.history.lap();
       setMovingIndex(hoveringIndex);
+      canvasRef.current?.querySelectorAll('button')[hoveringIndex].focus();
     }
   };
 
@@ -112,7 +120,7 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
   };
 
   // Key handler for undo and redo actions
-  const onKeyDown = (evt: KeyboardEvent) => {
+  const onGlobalKeyDown = (evt: KeyboardEvent) => {
     // Normalizes the Cmd/Ctrl key across platforms
     const isOSX = /(Mac OS X)/gi.test(navigator.userAgent);
     const withCmdModifier = (isOSX ? evt.metaKey : evt.ctrlKey) && !evt.altKey;
@@ -128,7 +136,75 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
     }
   };
 
-  // Renders the interactive canvas
+  /**
+   * Key handler for the accessible button targets. Handles moving the points using
+   * arrow keys.
+   *
+   * @param evt the keyboard event
+   * @param pointIndex the index of points to move
+   */
+  const onPointKeyDown = (evt: ReactKeyboardEvent<HTMLButtonElement>, pointIndex: number) => {
+    // If user is actively dragging handle, don't update state
+    if (movingIndex >= 0) {
+      return;
+    }
+
+    // Helper function to update the point at the focused index using the given callback function
+    const updatePoint = (updateCallback: (point: Position) => Position) => {
+      editor.setPoints(points => {
+        const newPoint = updateCallback(points[pointIndex]);
+        return [
+          ...points.slice(0, pointIndex),
+          {
+            x: Math.min(1, Math.max(0, newPoint.x)),
+            y: Math.min(1, Math.max(0, newPoint.y)),
+          },
+          ...points.slice(pointIndex + 1),
+        ] as SelectionEditorPoints;
+      }, !evt.repeat); // Create a new entry in history, if key is being held down repeatedly
+    };
+
+    // Position should change 10x faster when shift key is held
+    let delta = 0.005;
+    if (evt.shiftKey) {
+      delta *= 10;
+    }
+
+    switch (evt.key) {
+      case 'ArrowUp':
+      case 'Up': {
+        return updatePoint(point => ({
+          x: point.x,
+          y: point.y - delta,
+        }));
+      }
+      case 'ArrowDown':
+      case 'Down': {
+        return updatePoint(point => ({
+          x: point.x,
+          y: point.y + delta,
+        }));
+      }
+      case 'ArrowLeft':
+      case 'Left': {
+        return updatePoint(point => ({
+          x: point.x - delta,
+          y: point.y,
+        }));
+      }
+      case 'ArrowRight':
+      case 'Right': {
+        return updatePoint(point => ({
+          x: point.x + delta,
+          y: point.y,
+        }));
+      }
+    }
+  };
+
+  /**
+   * Renders the interactive canvas, including image, path, overlay, and points (with focus).
+   */
   const render = () => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!(ctx && canvasDimensions)) {
@@ -182,28 +258,33 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
     ctx.stroke(path);
 
     // Draw point targets
-    editor.points.forEach(point => {
+    editor.points.forEach((point, index) => {
       ctx.beginPath();
       ctx.arc(point.x * width + x, point.y * height + y, POINT_RADIUS, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
       ctx.closePath();
+      if (focusIndex === index) {
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.arc(
+          point.x * width + x,
+          point.y * height + y,
+          POINT_RADIUS + STROKE_WIDTH * 0.8,
+          0,
+          Math.PI * 2,
+        );
+        ctx.stroke();
+        ctx.closePath();
+        ctx.globalAlpha = 1;
+      }
     });
   };
-
-  // Update editor state
-  useEffect(() => {
-    if (movingIndex >= 0) {
-      editor.onStateChange('editing');
-    } else {
-      editor.onStateChange('idle');
-    }
-  }, [movingIndex]);
 
   // Re-render the canvas when points (and their validity) change
   useEffect(() => {
     render();
-  }, [editor.isValid, editor.points]);
+  }, [editor.isValid, focusIndex, editor.points]);
 
   // Resize the canvas when dimensions change
   useEffect(() => {
@@ -213,14 +294,6 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
       render();
     }
   }, [canvasDimensions]);
-
-  // Attach the undo/redo key listener
-  useEffect(() => {
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
 
   // Attach event listeners
   useEffect(() => {
@@ -235,6 +308,14 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
       };
     }
   }, [canvasDimensions, editor, hoveringIndex, movingIndex]);
+
+  // Attach the undo/redo key listener
+  useEffect(() => {
+    window.addEventListener('keydown', onGlobalKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onGlobalKeyDown);
+    };
+  }, [onGlobalKeyDown]);
 
   // Update the canvas dimensions on resize
   useLayoutEffect(() => {
@@ -254,13 +335,34 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
     }
   }, []);
 
+  // _DEV_
+  // Reset focus/hover/moving index on Fast Refresh
+  useEffect(
+    () => () => {
+      setFocusIndex(-1);
+      setHoveringIndex(-1);
+      setMovingIndex(-1);
+    },
+    [],
+  );
+
   return (
     <div ref={containerRef} className={className} css={[tw`size-full relative`, css]}>
       {canvasDimensions && (
         <canvas
           ref={canvasRef}
-          css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}
-        />
+          css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}>
+          {/* Adds tabbable button controls for each of the point targets */}
+          {editor.points.map((point, index) => (
+            <button
+              key={index}
+              onKeyDown={evt => onPointKeyDown(evt, index)}
+              onFocus={() => setFocusIndex(index)}
+              onBlur={() => setFocusIndex(-1)}>
+              Point {index + 1}
+            </button>
+          ))}
+        </canvas>
       )}
       {movingIndex >= 0 && <GlobalGrabbingCursor />}
     </div>

@@ -64,7 +64,13 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
 
   return (
     <div css={[tw`relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
-      <canvas ref={canvasRef} width={canvasDimensions.width} height={canvasDimensions.height} />
+      <canvas
+        ref={canvasRef}
+        role="img"
+        aria-label="A preview of the selected image"
+        width={canvasDimensions.width}
+        height={canvasDimensions.height}
+      />
     </div>
   );
 };

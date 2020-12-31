@@ -10,7 +10,13 @@
     "no-empty-function": "off",
     "promise/prefer-await-to-then": "error",
     "react/react-in-jsx-scope": "off",
-    "jsx-a11y/no-onchange": "off"
+    "jsx-a11y/no-onchange": "off",
+    "jsx-a11y/no-interactive-element-to-noninteractive-role": [
+      "error",
+      {
+        "canvas": ["none", "img"]
+      }
+    ]
   },
   "overrides": [
     {
