@@ -264,44 +264,40 @@ const ImageSelectionEditor = ({
     ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
     ctx.stroke(path);
 
+    // _DEV_
     // Draws the average rectangle formed by the selection points
     // This will later be used to download/upload the straightened image at the highest quality
-    if (editor.isValid) {
-      const [a, b, c, d] = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
+    // if (editor.isValid) {
+    //   const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
+    //   const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
+    //   const avgScaledRect = {
+    //     x: avgRect.x * width + x,
+    //     y: avgRect.y * height + y,
+    //     width: avgRect.width * width,
+    //     height: avgRect.height * height,
+    //   };
 
-      const avgX = (a.x + d.x) / 2; // X avg of leftmost two points
-      const avgY = (a.y + b.y) / 2; // Y avg of topmost two points
+    //   ctx.globalAlpha = 0.5;
+    //   ctx.strokeStyle = theme`colors.green.400`;
+    //   ctx.strokeRect(avgScaledRect.x, avgScaledRect.y, avgScaledRect.width, avgScaledRect.height);
 
-      const avgWidth = (b.x + c.x) / 2 - avgX; // X avg of rightmost two points, minus avg of leftmost
-      const avgHeight = (c.y + d.y) / 2 - avgY; // X avg of bottommost two points, minus avg of topmost
+    //   // Draws the biggest rectangle within the average that shares the same dimensions as the actual artwork
+    //   // This is the size to download/upload the straightened image at the highest quality possible
+    //   const resizedRect = CanvasUtils.containObject(avgScaledRect, actualDimensions);
+    //   ctx.strokeStyle = theme`colors.yellow.400`;
+    //   ctx.strokeRect(
+    //     resizedRect.x + avgScaledRect.x,
+    //     resizedRect.y + avgScaledRect.y,
+    //     resizedRect.width,
+    //     resizedRect.height,
+    //   );
 
-      const avgRect = {
-        x: avgX * width + x,
-        y: avgY * height + y,
-        width: avgWidth * width,
-        height: avgHeight * height,
-      };
-
-      ctx.globalAlpha = 0.5;
-      ctx.strokeStyle = theme`colors.green.400`;
-      ctx.strokeRect(avgRect.x, avgRect.y, avgRect.width, avgRect.height);
-
-      // Draws the biggest rectangle within the average that shares the same dimensions as the actual artwork
-      // This is the size to download/upload the straightened image at the highest quality possible
-      const scaledRect = CanvasUtils.containObject(avgRect, actualDimensions);
-      ctx.strokeStyle = theme`colors.yellow.400`;
-      ctx.strokeRect(
-        scaledRect.x + avgRect.x,
-        scaledRect.y + avgRect.y,
-        scaledRect.width,
-        scaledRect.height,
-      );
-
-      ctx.globalAlpha = 1;
-    }
+    //   // Reset styles
+    //   ctx.globalAlpha = 1;
+    //   ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
+    // }
 
     // Draw point targets
-    ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
     editor.points.forEach((point, index) => {
       ctx.beginPath();
       ctx.arc(point.x * width + x, point.y * height + y, POINT_RADIUS, 0, Math.PI * 2);

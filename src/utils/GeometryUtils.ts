@@ -154,4 +154,30 @@ export class GeometryUtils {
     // Return the final hull of points
     return hull as SelectionEditorPoints;
   }
+
+  /**
+   * Gets the position and dimensions of a rectangle averaged from the given points of a
+   * convex quadrilateral.
+   *
+   * NOTE: you SHOULD check that the points form a convex quadrilateral before running!
+   *
+   * @param points the points that form a convex quadrilateral
+   */
+  static getAverageRectangle(points: SelectionEditorPoints) {
+    const beforePoints = this.sortConvexQuadrilateralPoints(points);
+    const [a, b, c, d] = beforePoints;
+
+    const x = (a.x + d.x) / 2; // X avg of leftmost two points
+    const y = (a.y + b.y) / 2; // Y avg of topmost two points
+
+    const width = (b.x + c.x) / 2 - x; // X avg of rightmost two points, minus avg of leftmost
+    const height = (c.y + d.y) / 2 - y; // X avg of bottommost two points, minus avg of topmost
+
+    return {
+      x,
+      y,
+      width,
+      height,
+    };
+  }
 }

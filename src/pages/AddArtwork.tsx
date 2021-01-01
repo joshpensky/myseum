@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import tw from 'twin.macro';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { SelectionEditorPoints, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions } from '@src/types';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
+import * as fx from 'glfx-es6';
 
 type Measurement = 'inch' | 'cm' | 'mm';
 type Preset = {
@@ -77,6 +80,60 @@ const AddArtwork = () => {
       img.src = '/img/test-add.jpeg';
     }
   }, []);
+
+  // Downloads the resized/straightened image as a PNG
+  const downloadResizedImage = (evt: MouseEvent<HTMLAnchorElement>) => {
+    if (!image) {
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+
+    // Get the dimensions of the final image, at the highest possible quality
+    const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points).map(c => ({
+      x: c.x * image.naturalWidth,
+      y: c.y * image.naturalHeight,
+    })) as SelectionEditorPoints;
+    const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
+    const imgRect = CanvasUtils.containObject(avgRect, actualDimensions);
+
+    // Matrix warp the image selection into the straightened version
+    const webglCanvas = fx.canvas();
+    const texture = webglCanvas.texture(image);
+    const beforeMatrix = sortedPoints.flatMap(c => [c.x, c.y]) as fx.Matrix;
+    const afterMatrix = [
+      ...[0, 0],
+      ...[imgRect.width, 0],
+      ...[imgRect.width, imgRect.height],
+      ...[0, imgRect.height],
+    ] as fx.Matrix;
+    webglCanvas.draw(texture);
+    webglCanvas.perspective(beforeMatrix, afterMatrix);
+    webglCanvas.update();
+
+    // Draw the straightened image onto the canvas
+    ctx.canvas.width = imgRect.width;
+    ctx.canvas.height = imgRect.height;
+    ctx.drawImage(
+      webglCanvas,
+      0,
+      0,
+      imgRect.width,
+      imgRect.height,
+      0,
+      0,
+      imgRect.width,
+      imgRect.height,
+    );
+
+    // Generate the URL and update the href (which the browser will use to download immediately)
+    const dataImageUrl = ctx.canvas.toDataURL('image/png');
+    evt.currentTarget.href = dataImageUrl;
+  };
 
   return (
     <div css={tw`fixed inset-0 bg-black flex flex-1`}>
@@ -179,6 +236,12 @@ const AddArtwork = () => {
             actualDimensions={actualDimensions}
             image={image}
           />
+        )}
+
+        {editor.isValid && (
+          <a css={tw`bg-white`} download="resized.png" href=" " onClick={downloadResizedImage}>
+            Download
+          </a>
         )}
       </div>
     </div>
