@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as fx from 'glfx-es6';
 import tw from 'twin.macro';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
@@ -14,13 +14,15 @@ export type ImageSelectionPreviewProps = {
 };
 
 const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelectionPreviewProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [webglCanvas] = useState(() => fx.canvas());
   const [texture, setTexture] = useState<fx.Texture>();
 
-  const [canvasDimensions] = useState<Dimensions>({
-    width: 500,
-    height: 500,
+  const [canvasDimensions, setCanvasDimensions] = useState<Dimensions>({
+    width: 0,
+    height: 0,
   });
 
   // Render the final artwork onto the preview canvas
@@ -73,13 +75,32 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   useEffect(() => {
     if (canvasRef.current) {
       CanvasUtils.resize(canvasRef.current, canvasDimensions);
-      console.log('resize');
       render();
     }
   }, [canvasDimensions]);
 
+  // Update the canvas dimensions on resize
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const observer = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+          setCanvasDimensions({
+            height: entry.contentRect.height,
+            width: entry.contentRect.width,
+          });
+        });
+      });
+      observer.observe(containerRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
+
   return (
-    <div css={[tw`relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
+    <div
+      ref={containerRef}
+      css={[tw`size-full relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
       <canvas ref={canvasRef} role="img" aria-label="A preview of the selected image" />
     </div>
   );

@@ -62,6 +62,7 @@ module.exports = {
         '-1': '-1',
         fab: '100',
         popover: '110',
+        modal: '200',
       },
     },
   },

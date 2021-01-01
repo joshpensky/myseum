@@ -17,6 +17,7 @@ import Cog from '@src/svgs/Cog';
 import { Gallery } from '@src/types';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Arrow from '@src/svgs/Arrow';
+import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 
 const MuseumGallery = () => {
   const { museum } = useMuseum();
@@ -25,6 +26,8 @@ const MuseumGallery = () => {
   const { data: gallery, error, mutate } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
 
   const settingsPopover = usePopover('settings-modal');
+
+  const [isAddingArtwork, setIsAddingArtwork] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery?.name ?? '');
@@ -226,11 +229,13 @@ const MuseumGallery = () => {
               </Popover>
               <FloatingActionButton
                 css={[settingsPopover.isExpanded && tw`transition-opacity opacity-50`]}
+                onClick={() => setIsAddingArtwork(true)}
                 title="Add new artwork">
                 <span css={tw`block transform rotate-45`}>
                   <Close />
                 </span>
               </FloatingActionButton>
+              {isAddingArtwork && <AddArtworkRoot onClose={() => setIsAddingArtwork(false)} />}
             </Fragment>
           ) : (
             <FloatingActionButton title="Edit gallery" onClick={() => setIsEditing(true)}>
