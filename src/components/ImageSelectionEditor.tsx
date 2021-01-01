@@ -23,11 +23,18 @@ const GlobalGrabbingCursor = createGlobalStyle`
 `;
 
 export type ImageSelectionEditorProps = BaseProps & {
+  actualDimensions: Dimensions;
   editor: SelectionEditor;
   image: HTMLImageElement;
 };
 
-const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionEditorProps) => {
+const ImageSelectionEditor = ({
+  actualDimensions,
+  className,
+  css,
+  editor,
+  image,
+}: ImageSelectionEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -257,15 +264,52 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
     ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
     ctx.stroke(path);
 
+    // Draws the average rectangle formed by the selection points
+    // This will later be used to download/upload the straightened image at the highest quality
+    if (editor.isValid) {
+      const [a, b, c, d] = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
+
+      const avgX = (a.x + d.x) / 2; // X avg of leftmost two points
+      const avgY = (a.y + b.y) / 2; // Y avg of topmost two points
+
+      const avgWidth = (b.x + c.x) / 2 - avgX; // X avg of rightmost two points, minus avg of leftmost
+      const avgHeight = (c.y + d.y) / 2 - avgY; // X avg of bottommost two points, minus avg of topmost
+
+      const avgRect = {
+        x: avgX * width + x,
+        y: avgY * height + y,
+        width: avgWidth * width,
+        height: avgHeight * height,
+      };
+
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = theme`colors.green.400`;
+      ctx.strokeRect(avgRect.x, avgRect.y, avgRect.width, avgRect.height);
+
+      // Draws the biggest rectangle within the average that shares the same dimensions as the actual artwork
+      // This is the size to download/upload the straightened image at the highest quality possible
+      const scaledRect = CanvasUtils.containObject(avgRect, actualDimensions);
+      ctx.strokeStyle = theme`colors.yellow.400`;
+      ctx.strokeRect(
+        scaledRect.x + avgRect.x,
+        scaledRect.y + avgRect.y,
+        scaledRect.width,
+        scaledRect.height,
+      );
+
+      ctx.globalAlpha = 1;
+    }
+
     // Draw point targets
+    ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
     editor.points.forEach((point, index) => {
       ctx.beginPath();
       ctx.arc(point.x * width + x, point.y * height + y, POINT_RADIUS, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
       ctx.closePath();
+      // Draw focus ring, if any are focused
       if (focusIndex === index) {
-        ctx.globalAlpha = 1;
         ctx.beginPath();
         ctx.arc(
           point.x * width + x,
@@ -276,7 +320,6 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
         );
         ctx.stroke();
         ctx.closePath();
-        ctx.globalAlpha = 1;
       }
     });
   };
@@ -284,13 +327,12 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
   // Re-render the canvas when points (and their validity) change
   useEffect(() => {
     render();
-  }, [editor.isValid, focusIndex, editor.points]);
+  }, [actualDimensions, editor.isValid, focusIndex, editor.points]);
 
   // Resize the canvas when dimensions change
   useEffect(() => {
     if (canvasRef.current && canvasDimensions) {
-      canvasRef.current.width = canvasDimensions.width;
-      canvasRef.current.height = canvasDimensions.height;
+      CanvasUtils.resize(canvasRef.current, canvasDimensions);
       render();
     }
   }, [canvasDimensions]);
@@ -359,7 +401,7 @@ const ImageSelectionEditor = ({ className, css, editor, image }: ImageSelectionE
               onKeyDown={evt => onPointKeyDown(evt, index)}
               onFocus={() => setFocusIndex(index)}
               onBlur={() => setFocusIndex(-1)}>
-              Point {index + 1}
+              Point {['A', 'B', 'C', 'D'][index]}
             </button>
           ))}
         </canvas>

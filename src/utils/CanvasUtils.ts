@@ -2,15 +2,44 @@ import { Dimensions } from '@src/types';
 
 export class CanvasUtils {
   /**
+   * The current device's pixel ratio. This can differ for displays with higher
+   * pixel density (e.g., retina displays have a DPR of 2).
+   */
+  static get devicePixelRatio() {
+    return window.devicePixelRatio || 1;
+  }
+
+  /**
    * Clears the current canvas.
    *
    * @param context the canvas's 2D context
    */
   static clear(context: CanvasRenderingContext2D) {
+    // Reset any transforms
     context.setTransform(1, 0, 0, 1, 0, 0);
+    // Clear the canvas
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    // Adjust for the upscaled canvas
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=277205#c20
+    context.scale(this.devicePixelRatio, this.devicePixelRatio);
+    // Disable image smoothing for upscaled photos
     context.imageSmoothingEnabled = false;
-    // context.translate(0.5, 0.5); // fix crisp render
+  }
+
+  /**
+   * Resizes the canvas to the given dimensions.
+   *
+   * @param canvas the canvas to resize
+   * @param dimensions the dimensions to resize the canvas to
+   */
+  static resize(canvas: HTMLCanvasElement, dimensions: Dimensions) {
+    // Set the canvas dimensions, scaled to the correct pixel ratio
+    canvas.width = dimensions.width * this.devicePixelRatio;
+    canvas.height = dimensions.height * this.devicePixelRatio;
+    // Override the actual canvas's DOM dimensions to the given ones
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=277205#c20
+    canvas.style.width = `${dimensions.width}px`;
+    canvas.style.height = `${dimensions.height}px`;
   }
 
   /**

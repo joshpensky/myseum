@@ -4,7 +4,7 @@ import { Position } from '@src/types';
 
 export type Line = [Position, Position];
 
-enum Orientation {
+export enum Orientation {
   COLINEAR = 0,
   CLOCKWISE = 1,
   COUNTER_CLOCKWISE = 2,
@@ -40,7 +40,7 @@ export class GeometryUtils {
     return euclidianDistance <= circle.radius;
   }
 
-  // // Checks if the given lines intersect or are colinear
+  // Checks if the given lines intersect or are colinear
   static doLinesIntersect(lineAB: Line, lineXY: Line) {
     const [a, b] = lineAB;
     const [x, y] = lineXY;
@@ -103,5 +103,55 @@ export class GeometryUtils {
 
   static isConvexQuadrilateral(points: SelectionEditorPoints) {
     return !this.isComplexQuadrilateral(points) && !this.isConcaveQuadrilateral(points);
+  }
+
+  /**
+   * Sorts the given points starting at the top-left-most point and clockwise around.
+   *
+   * NOTE: you SHOULD check that the points form a convex quadrilateral before running!
+   *
+   * ```
+   *  (1)------(2)
+   *   |        |
+   *   |        |
+   *  (4)------(3)
+   * ```
+   *
+   * @param points the points that form the convex quadrilateral
+   */
+  static sortConvexQuadrilateralPoints(points: SelectionEditorPoints): SelectionEditorPoints {
+    // Sort points left to right
+    const sortedPoints = [...points].sort((a, b) => a.x - b.x);
+
+    let leftIndex = 0;
+    // Check the two leftmost points for the lowest Y value
+    if (sortedPoints[1].y < sortedPoints[0].y) {
+      leftIndex = 1;
+    }
+
+    // Trace the convex hull to arrange the points into a quadrilateral
+    const hull: Position[] = [];
+    let p = leftIndex;
+    let q: number;
+    do {
+      hull.push(sortedPoints[p]);
+      q = (p + 1) % sortedPoints.length;
+
+      for (let i = 0; i < sortedPoints.length; i++) {
+        if (
+          GeometryUtils.getOrientation(sortedPoints[p], sortedPoints[i], sortedPoints[q]) ===
+          Orientation.COUNTER_CLOCKWISE
+        ) {
+          // Get the next counter clockwise point around the polygon
+          q = i;
+        }
+      }
+
+      // Restart loop with the next index
+      p = q;
+    } while (p !== leftIndex);
+
+    // Return the final hull of points
+    return hull as SelectionEditorPoints;
   }
 }

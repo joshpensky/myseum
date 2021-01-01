@@ -4,6 +4,7 @@ import tw from 'twin.macro';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { Dimensions } from '@src/types';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
@@ -22,19 +23,8 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
     height: 500,
   };
 
-  // Update texture when image changes
-  useEffect(() => {
-    const texture = webglCanvas.texture(image);
-    setTexture(texture);
-
-    return () => {
-      setTexture(undefined);
-      texture.destroy();
-    };
-  }, [image]);
-
   // Render the final artwork onto the preview canvas
-  useEffect(() => {
+  const render = () => {
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx && texture && editor.isValid) {
       const { width, height, x, y } = CanvasUtils.containObject(canvasDimensions, actualDimensions);
@@ -42,7 +32,8 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
       // Draw the image on the WebGL canvas
       webglCanvas.draw(texture);
       // Perform the perspective transformation to straighten the image
-      const beforeMatrix = editor.points.flatMap(c => [
+      const beforePoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
+      const beforeMatrix = beforePoints.flatMap(c => [
         c.x * image.naturalWidth,
         c.y * image.naturalHeight,
       ]) as fx.Matrix;
@@ -60,17 +51,35 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
       CanvasUtils.clear(ctx);
       ctx.drawImage(webglCanvas, 0, 0, width, height, x, y, width, height);
     }
-  }, [actualDimensions, canvasDimensions, editor, texture, webglCanvas]);
+  };
+
+  // Update texture when image changes
+  useEffect(() => {
+    const texture = webglCanvas.texture(image);
+    setTexture(texture);
+
+    return () => {
+      setTexture(undefined);
+      texture.destroy();
+    };
+  }, [image]);
+
+  // Render canvas
+  useEffect(() => {
+    render();
+  }, [actualDimensions, editor, texture, webglCanvas]);
+
+  // Resize and re-render canvas when dimensions change
+  useEffect(() => {
+    if (canvasRef.current) {
+      CanvasUtils.resize(canvasRef.current, canvasDimensions);
+      render();
+    }
+  }, [canvasDimensions]);
 
   return (
     <div css={[tw`relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
-      <canvas
-        ref={canvasRef}
-        role="img"
-        aria-label="A preview of the selected image"
-        width={canvasDimensions.width}
-        height={canvasDimensions.height}
-      />
+      <canvas ref={canvasRef} role="img" aria-label="A preview of the selected image" />
     </div>
   );
 };

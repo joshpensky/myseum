@@ -39,7 +39,7 @@ const AddArtwork = () => {
   const [image, setImage] = useState<HTMLImageElement>();
 
   const [presetType, setPresetType] = useState<Preset['type']>('custom');
-  const [finalDimensions, setFinalDimensions] = useState<Dimensions>({
+  const [actualDimensions, setActualDimensions] = useState<Dimensions>({
     width: 0,
     height: 0,
   });
@@ -51,7 +51,7 @@ const AddArtwork = () => {
       const preset = presets.find(preset => preset.type === presetType);
       if (preset) {
         setPresetType(preset.type);
-        setFinalDimensions(preset.dimensions);
+        setActualDimensions(preset.dimensions);
         setMeasurement(preset.measurement);
         return;
       }
@@ -69,7 +69,7 @@ const AddArtwork = () => {
           const inches = value / 72; // px to in, at 72ppi
           return Math.round(inches * 100) / 100; // rounded to nearest 0.01
         };
-        setFinalDimensions({
+        setActualDimensions({
           width: getDimension(img.naturalWidth),
           height: getDimension(img.naturalHeight),
         });
@@ -82,7 +82,13 @@ const AddArtwork = () => {
     <div css={tw`fixed inset-0 bg-black flex flex-1`}>
       <div css={tw`flex flex-col flex-1 items-center justify-center p-4`}>
         <div css={tw`flex flex-col flex-1 size-full`}>
-          {image && <ImageSelectionEditor editor={editor} image={image} />}
+          {image && (
+            <ImageSelectionEditor
+              editor={editor}
+              actualDimensions={actualDimensions}
+              image={image}
+            />
+          )}
         </div>
       </div>
 
@@ -112,14 +118,14 @@ const AddArtwork = () => {
                 type="number"
                 min="0"
                 step="0.1"
-                value={finalDimensions.width}
+                value={actualDimensions.width}
                 onChange={evt => {
                   let width = evt.target.valueAsNumber;
                   if (Number.isNaN(width)) {
                     width = 0;
                   }
                   setPresetType('custom');
-                  setFinalDimensions(dimensions => ({
+                  setActualDimensions(dimensions => ({
                     ...dimensions,
                     width,
                   }));
@@ -135,14 +141,14 @@ const AddArtwork = () => {
                 type="number"
                 min="0"
                 step="0.1"
-                value={finalDimensions.height}
+                value={actualDimensions.height}
                 onChange={evt => {
                   let height = evt.target.valueAsNumber;
                   if (Number.isNaN(height)) {
                     height = 0;
                   }
                   setPresetType('custom');
-                  setFinalDimensions(dimensions => ({
+                  setActualDimensions(dimensions => ({
                     ...dimensions,
                     height,
                   }));
@@ -168,7 +174,11 @@ const AddArtwork = () => {
           </div>
         </div>
         {image && (
-          <ImageSelectionPreview editor={editor} actualDimensions={finalDimensions} image={image} />
+          <ImageSelectionPreview
+            editor={editor}
+            actualDimensions={actualDimensions}
+            image={image}
+          />
         )}
       </div>
     </div>
