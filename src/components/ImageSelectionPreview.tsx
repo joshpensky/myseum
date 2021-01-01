@@ -18,10 +18,10 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   const [webglCanvas] = useState(() => fx.canvas());
   const [texture, setTexture] = useState<fx.Texture>();
 
-  const canvasDimensions: Dimensions = {
+  const [canvasDimensions] = useState<Dimensions>({
     width: 500,
     height: 500,
-  };
+  });
 
   // Render the final artwork onto the preview canvas
   const render = () => {
@@ -73,6 +73,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   useEffect(() => {
     if (canvasRef.current) {
       CanvasUtils.resize(canvasRef.current, canvasDimensions);
+      console.log('resize');
       render();
     }
   }, [canvasDimensions]);
