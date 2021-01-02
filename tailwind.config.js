@@ -50,6 +50,9 @@ module.exports = {
         sans: ['IBM Plex Sans', ...defaultTheme.fontFamily.sans],
         serif: ['Migra Web', ...defaultTheme.fontFamily.serif],
       },
+      maxHeight: {
+        '3xl': '48rem',
+      },
       ringWidth: {
         0.5: '0.5px',
         6: '6px',

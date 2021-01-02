@@ -1,7 +1,7 @@
 import tw from 'twin.macro';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { useAddArtworkContext } from './AddArtworkProvider';
+import { useAddArtworkContext } from './AddArtworkContext';
 import { AddArtworkStep } from './types';
 
 const ResizeArtwork: AddArtworkStep = {

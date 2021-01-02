@@ -3,7 +3,7 @@ import FocusLock from 'react-focus-lock';
 import Portal from '@src/components/Portal';
 import { useEffect, useRef, useState } from 'react';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
-import { AddArtworkContext } from './AddArtworkProvider';
+import { AddArtworkContext } from './AddArtworkContext';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions } from '@src/types';
 import MeasureArtwork from './MeasureArtwork';
@@ -125,11 +125,11 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                   )}
                 </div>
               </header>
-              <div css={tw`flex flex-col flex-1 overflow-auto px-6 py-5`}>
+              <div css={tw`flex flex-col flex-1 overflow-auto px-6 py-5 relative`}>
                 <StepComponent.Rail />
               </div>
             </div>
-            <div css={tw`flex flex-1 px-6 py-5`}>
+            <div css={tw`flex flex-1 px-6 py-5 relative`}>
               <StepComponent.Main />
             </div>
           </div>

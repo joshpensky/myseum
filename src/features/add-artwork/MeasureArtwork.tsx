@@ -1,5 +1,5 @@
 import tw from 'twin.macro';
-import { useAddArtworkContext } from './AddArtworkProvider';
+import { useAddArtworkContext } from './AddArtworkContext';
 import { AddArtworkStep, Measurement, Preset } from './types';
 import { useState } from 'react';
 
