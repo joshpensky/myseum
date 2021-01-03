@@ -1,15 +1,15 @@
-import tw from 'twin.macro';
-import FocusLock from 'react-focus-lock';
-import Portal from '@src/components/Portal';
 import { useEffect, useRef, useState } from 'react';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
-import { AddArtworkContext } from './AddArtworkContext';
+import FocusLock from 'react-focus-lock';
+import tw from 'twin.macro';
+import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
-import { Dimensions } from '@src/types';
+import { AddArtworkContext } from './AddArtworkContext';
 import MeasureArtwork from './MeasureArtwork';
 import ResizeArtwork from './ResizeArtwork';
-import { Measurement } from './types';
 import UploadArtwork from './UploadArtwork';
+import { Measurement } from './types';
+import { Dimensions } from '@src/types';
 
 export type AddArtworkRootProps = {
   onClose(): void;
@@ -20,9 +20,6 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
 
   const editor = useSelectionEditor();
   const [image, setImage] = useState<HTMLImageElement>();
-
-  const [isNextDisabled, setIsNextDisabled] = useState(false);
-
   const [actualDimensions, setActualDimensions] = useState<Dimensions>({
     width: 0,
     height: 0,
@@ -30,9 +27,12 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   const [measurement, setMeasurement] = useState<Measurement>('inch');
 
   const steps = [UploadArtwork, MeasureArtwork, ResizeArtwork];
-
   const [stepIndex, setStepIndex] = useState(0);
+  const [isNextDisabled, setIsNextDisabled] = useState(false);
 
+  /**
+   * Key handler. Closes the modal form on escape key.
+   */
   const onKeyDown = (evt: KeyboardEvent) => {
     switch (evt.key) {
       case 'Escape':
@@ -48,14 +48,15 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
     onClose();
   };
 
+  // Adds the key handler
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
-
     return () => {
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [onClose]);
 
+  // Disables/enables body scroll on mount/unmount, respectively
   useEffect(() => {
     if (rootRef.current) {
       disableBodyScroll(rootRef.current);
@@ -97,6 +98,9 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                   )}
                 </div>
                 <div css={tw`flex flex-1 justify-center`}>
+                  <p css={tw`sr-only`}>
+                    Step {stepIndex + 1} of {steps.length}
+                  </p>
                   {steps.map((_, index) => (
                     <div
                       key={index}

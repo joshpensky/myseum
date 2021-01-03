@@ -29,7 +29,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   const render = () => {
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx && texture && editor.isValid) {
-      const { width, height, x, y } = CanvasUtils.containObject(canvasDimensions, actualDimensions);
+      const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
 
       // Draw the image on the WebGL canvas
       webglCanvas.draw(texture);

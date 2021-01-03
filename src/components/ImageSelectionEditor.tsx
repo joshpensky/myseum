@@ -62,7 +62,7 @@ const ImageSelectionEditor = ({
       return;
     }
 
-    const { width, height, x, y } = CanvasUtils.containObject(
+    const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
       {
         width: image.naturalWidth,
@@ -222,7 +222,7 @@ const ImageSelectionEditor = ({
     CanvasUtils.clear(ctx);
 
     // Get inner canvas dimensions/position
-    const { width, height, x, y } = CanvasUtils.containObject(
+    const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
       {
         width: image.naturalWidth,
@@ -283,7 +283,7 @@ const ImageSelectionEditor = ({
 
     //   // Draws the biggest rectangle within the average that shares the same dimensions as the actual artwork
     //   // This is the size to download/upload the straightened image at the highest quality possible
-    //   const resizedRect = CanvasUtils.containObject(avgScaledRect, actualDimensions);
+    //   const resizedRect = CanvasUtils.objectContain(avgScaledRect, actualDimensions);
     //   ctx.strokeStyle = theme`colors.yellow.400`;
     //   ctx.strokeRect(
     //     resizedRect.x + avgScaledRect.x,

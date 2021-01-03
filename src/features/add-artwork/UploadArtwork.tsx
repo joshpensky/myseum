@@ -103,6 +103,10 @@ const UploadArtwork: AddArtworkStep = {
     // Disable the next button if image is not available
     useLayoutEffect(() => {
       setIsNextDisabled(!image);
+      // _DEV_ TODO: remove
+      if (!image) {
+        loadImage('/img/test-add.jpeg');
+      }
     }, [image]);
 
     return (
@@ -155,7 +159,10 @@ const UploadArtwork: AddArtworkStep = {
         {/* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
         {(canDragDropUpload || !image) && (
           <label
-            css={tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center p-6`}
+            css={[
+              tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center p-6`,
+              !image && tw`cursor-pointer`,
+            ]}
             onClick={evt => {
               // Prevent clicking to upload for replace
               if (image) {

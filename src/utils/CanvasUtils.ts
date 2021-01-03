@@ -1,4 +1,5 @@
 import { Dimensions } from '@src/types';
+import { canvas } from 'glfx-es6';
 
 export class CanvasUtils {
   /**
@@ -49,7 +50,7 @@ export class CanvasUtils {
    * @param objectDimensions the dimensions of the object
    * @param padding optional padding for the object
    */
-  static containObject(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
+  static objectContain(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
@@ -77,13 +78,29 @@ export class CanvasUtils {
     };
   }
 
+  static objectScaleDown(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
+    if (
+      objectDimensions.width > canvasDimensions.width ||
+      objectDimensions.height > canvasDimensions.height
+    ) {
+      return this.objectContain(canvasDimensions, objectDimensions);
+    }
+
+    return {
+      x: (canvasDimensions.width - objectDimensions.width) / 2,
+      y: (canvasDimensions.height - objectDimensions.height) / 2,
+      width: objectDimensions.width,
+      height: objectDimensions.height,
+    };
+  }
+
   /**
    * Scales the object dimensions to be centered and fully cover the canvas.
    *
    * @param canvasDimensions the dimensions of the canvas
    * @param objectDimensions the dimensions of the object
    */
-  static coverObject(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
+  static objectCover(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
