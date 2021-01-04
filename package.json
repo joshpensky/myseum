@@ -9,6 +9,7 @@
     "test": "craco test"
   },
   "dependencies": {
+    "animejs": "^3.2.1",
     "body-scroll-lock": "^3.1.5",
     "dayjs": "^1.9.7",
     "glfx-es6": "^0.0.3",
@@ -33,6 +34,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/animejs": "^3.1.2",
     "@types/body-scroll-lock": "^2.6.1",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",

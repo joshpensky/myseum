@@ -23,7 +23,7 @@ const ResizeArtwork: AddArtworkStep = {
       <div css={tw`flex flex-col flex-1`}>
         <p>Drag the handles to match the size of the artwork.</p>
         <div css={tw`flex flex-col flex-1 justify-end mt-6`}>
-          <p css={tw`text-sm mb-2`}>Preview</p>
+          <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
           <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
             {image && (
               <ImageSelectionPreview

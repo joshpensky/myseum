@@ -27,6 +27,9 @@ module.exports = {
         blue: {
           500: '#0989FF',
         },
+        yellow: {
+          500: '#FFAF37',
+        },
         mint: {
           200: '#f0f2ea',
           300: '#dde1d2',
