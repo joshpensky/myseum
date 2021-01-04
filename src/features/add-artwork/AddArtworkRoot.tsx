@@ -11,6 +11,8 @@ import UploadArtwork from './UploadArtwork';
 import { Measurement } from './types';
 import { Dimensions } from '@src/types';
 
+const NavButton = tw.button`px-2 py-1 -mx-2 -my-1 rounded bg-white bg-opacity-0 ring-0 ring-white ring-opacity-20 disabled:opacity-50 hocus:(bg-opacity-20) focus:(outline-none transition-shadow ring-2)`;
+
 export type AddArtworkRootProps = {
   onClose(): void;
 };
@@ -92,9 +94,9 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
               <header css={tw`flex items-center px-6 py-5`}>
                 <div css={tw`flex flex-1 justify-start`}>
                   {stepIndex > 0 ? (
-                    <button onClick={() => setStepIndex(stepIndex - 1)}>Back</button>
+                    <NavButton onClick={() => setStepIndex(stepIndex - 1)}>Back</NavButton>
                   ) : (
-                    <button onClick={onClose}>Cancel</button>
+                    <NavButton onClick={onClose}>Cancel</NavButton>
                   )}
                 </div>
                 <div css={tw`flex flex-1 justify-center`}>
@@ -113,23 +115,24 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                 </div>
                 <div css={tw`flex flex-1 justify-end`}>
                   {stepIndex < steps.length - 1 ? (
-                    <button
+                    <NavButton
                       css={tw`disabled:opacity-50`}
                       disabled={isNextDisabled}
                       onClick={() => setStepIndex(stepIndex + 1)}>
                       Next
-                    </button>
+                    </NavButton>
                   ) : (
-                    <button
+                    <NavButton
                       css={tw`disabled:opacity-50`}
                       disabled={isNextDisabled}
                       onClick={onFinish}>
                       Finish
-                    </button>
+                    </NavButton>
                   )}
                 </div>
               </header>
-              <div css={tw`flex flex-col flex-1 overflow-auto px-6 py-5 relative`}>
+              <div
+                css={tw`flex flex-col flex-1 overflow-x-hidden overflow-y-auto px-6 py-5 relative`}>
                 <StepComponent.Rail />
               </div>
             </div>

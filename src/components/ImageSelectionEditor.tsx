@@ -12,13 +12,14 @@ import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
 
-const POINT_RADIUS = 5;
 const STROKE_WIDTH = 3;
-const INNER_CANVAS_PADDING = POINT_RADIUS + STROKE_WIDTH * 1.5;
+const POINT_RADIUS = 5;
+const MAGNIFIED_POINT_RADIUS = 20;
+const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
 
-const GlobalGrabbingCursor = createGlobalStyle`
+const GlobalMovingCursor = createGlobalStyle`
   * {
-    ${tw`cursor-grabbing!`}
+    ${tw`cursor-none!`}
   }
 `;
 
@@ -259,9 +260,9 @@ const ImageSelectionEditor = ({
 
     // Outline frame path
     ctx.fillStyle = theme`colors.white`;
-    ctx.lineWidth = STROKE_WIDTH;
     ctx.lineJoin = 'bevel';
-    ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
+    ctx.lineWidth = STROKE_WIDTH;
+    ctx.strokeStyle = editor.isValid ? theme`colors.blue.500` : theme`colors.red.500`;
     ctx.stroke(path);
 
     // _DEV_
@@ -299,21 +300,70 @@ const ImageSelectionEditor = ({
 
     // Draw point targets
     editor.points.forEach((point, index) => {
+      const px = point.x * width + x;
+      const py = point.y * height + y;
       ctx.beginPath();
-      ctx.arc(point.x * width + x, point.y * height + y, POINT_RADIUS, 0, Math.PI * 2);
+      ctx.arc(px, py, POINT_RADIUS, 0, Math.PI * 2);
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
-      ctx.closePath();
-      // Draw focus ring, if any are focused
-      if (focusIndex === index) {
+
+      // If moving, render magnifying glass with crosshairs
+      if (movingIndex === index) {
+        // Clip out a circle for the magnified area
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = theme`colors.black`;
         ctx.beginPath();
-        ctx.arc(
-          point.x * width + x,
-          point.y * height + y,
-          POINT_RADIUS + STROKE_WIDTH * 0.8,
-          0,
-          Math.PI * 2,
+        ctx.arc(px, py, MAGNIFIED_POINT_RADIUS, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw the magnified image area
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.drawImage(
+          image,
+          point.x * image.naturalWidth - MAGNIFIED_POINT_RADIUS / 2,
+          point.y * image.naturalHeight - MAGNIFIED_POINT_RADIUS / 2,
+          MAGNIFIED_POINT_RADIUS,
+          MAGNIFIED_POINT_RADIUS,
+          px - MAGNIFIED_POINT_RADIUS,
+          py - MAGNIFIED_POINT_RADIUS,
+          MAGNIFIED_POINT_RADIUS * 2,
+          MAGNIFIED_POINT_RADIUS * 2,
         );
+
+        // Draw crosshairs over magnified image
+        ctx.globalCompositeOperation = 'source-over';
+        const crosshair = new Path2D();
+        crosshair.moveTo(px - MAGNIFIED_POINT_RADIUS, py);
+        crosshair.lineTo(px + MAGNIFIED_POINT_RADIUS, py);
+        crosshair.moveTo(px, py - MAGNIFIED_POINT_RADIUS);
+        crosshair.lineTo(px, py + MAGNIFIED_POINT_RADIUS);
+        // Stroke a transparent white version (for dark backgrounds)
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = theme`colors.white`;
+        ctx.lineWidth = 3;
+        ctx.stroke(crosshair);
+        // Stroke the actual crosshairs
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = theme`colors.black`;
+        ctx.lineWidth = 1;
+        ctx.stroke(crosshair);
+
+        // Reset styles
+        ctx.fillStyle = theme`colors.white`;
+        ctx.lineWidth = STROKE_WIDTH;
+        ctx.strokeStyle = editor.isValid ? theme`colors.blue.500` : theme`colors.red.500`;
+      }
+
+      // Draw focus ring, if point is focused
+      if (focusIndex === index) {
+        let focusRingRadius = POINT_RADIUS + STROKE_WIDTH * 0.8;
+        if (movingIndex === index) {
+          focusRingRadius = MAGNIFIED_POINT_RADIUS;
+        }
+        ctx.beginPath();
+        ctx.arc(px, py, focusRingRadius, 0, Math.PI * 2);
         ctx.stroke();
         ctx.closePath();
       }
@@ -323,7 +373,7 @@ const ImageSelectionEditor = ({
   // Re-render the canvas when points (and their validity) change
   useEffect(() => {
     render();
-  }, [actualDimensions, editor.isValid, focusIndex, editor.points]);
+  }, [actualDimensions, editor.isValid, movingIndex, focusIndex, editor.points]);
 
   // Resize the canvas when dimensions change
   useEffect(() => {
@@ -396,13 +446,20 @@ const ImageSelectionEditor = ({
               key={index}
               onKeyDown={evt => onPointKeyDown(evt, index)}
               onFocus={() => setFocusIndex(index)}
-              onBlur={() => setFocusIndex(-1)}>
+              onBlur={() => {
+                // Unfocus the point
+                setFocusIndex(-1);
+                // Stop moving the point if unfocused
+                if (movingIndex === index) {
+                  setMovingIndex(-1);
+                }
+              }}>
               Point {['A', 'B', 'C', 'D'][index]}
             </button>
           ))}
         </canvas>
       )}
-      {movingIndex >= 0 && <GlobalGrabbingCursor />}
+      {movingIndex >= 0 && <GlobalMovingCursor />}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect, Fragment } from 'react';
+import { rgba } from 'polished';
 import { Link, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import tw, { css, theme } from 'twin.macro';
@@ -146,7 +147,7 @@ const MuseumGallery = () => {
                         tw`absolute left-2 top-2 w-full bg-transparent focus:outline-none font-serif leading-none text-3xl`,
                         css`
                           &::selection {
-                            background: ${theme`colors.white`};
+                            background: ${rgba(theme`colors.white`, 0.35)};
                           }
                         `,
                       ]}

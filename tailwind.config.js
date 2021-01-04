@@ -18,6 +18,15 @@ module.exports = {
       },
       colors: {
         'off-white': '#f8f8f8',
+        gray: {
+          300: '#cacaca',
+        },
+        red: {
+          500: '#FF3737',
+        },
+        blue: {
+          500: '#0989FF',
+        },
         mint: {
           200: '#f0f2ea',
           300: '#dde1d2',
@@ -45,6 +54,7 @@ module.exports = {
         'ew-resize': 'ew-resize',
         grab: 'grab',
         grabbing: 'grabbing',
+        none: 'none',
       },
       fontFamily: {
         sans: ['IBM Plex Sans', ...defaultTheme.fontFamily.sans],

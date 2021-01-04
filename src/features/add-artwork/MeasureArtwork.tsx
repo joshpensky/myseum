@@ -4,6 +4,9 @@ import { AddArtworkStep, Measurement, Preset } from './types';
 import { useEffect, useRef, useState } from 'react';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { Dimensions } from '@src/types';
+import Select from './Select';
+import NumberInput from './NumberInput';
+import Close from '@src/svgs/Close';
 
 const presets: Preset[] = [
   {
@@ -26,8 +29,25 @@ const presets: Preset[] = [
   },
 ];
 
-const cmToInch = (cm: number) => cm / 2.54;
-const mmToInch = (mm: number) => cmToInch(mm / 10);
+class MeasureUtils {
+  static inchToCm(inch: number) {
+    return inch * 2.54;
+  }
+  static inchToMm(inch: number) {
+    return this.cmToMm(this.inchToCm(inch));
+  }
+
+  static cmToInch(cm: number) {
+    return cm / 2.54;
+  }
+  static cmToMm(cm: number) {
+    return cm * 10;
+  }
+
+  static mmToInch(mm: number) {
+    return this.cmToInch(mm / 10);
+  }
+}
 
 const MeasurePreview = () => {
   const { actualDimensions, measurement } = useAddArtworkContext();
@@ -36,8 +56,16 @@ const MeasurePreview = () => {
   const heightLabelRef = useRef<HTMLParagraphElement>(null);
   const widthLabelRef = useRef<HTMLParagraphElement>(null);
 
-  const [innerRect, setInnerRect] = useState({ width: 0, height: 0, x: 0, y: 0 });
+  const [innerRect, setInnerRect] = useState({
+    x: -1,
+    y: -1,
+    width: 0,
+    height: 0,
+  });
 
+  /**
+   * Updates the calculations based on the resize.
+   */
   const onResize = () => {
     if (containerRef.current && heightLabelRef.current && widthLabelRef.current) {
       const xOffset = heightLabelRef.current.clientWidth;
@@ -60,13 +88,13 @@ const MeasurePreview = () => {
         };
       } else if (measurement === 'cm') {
         objectDimensions = {
-          width: cmToInch(actualDimensions.width),
-          height: cmToInch(actualDimensions.height),
+          width: MeasureUtils.cmToInch(actualDimensions.width),
+          height: MeasureUtils.cmToInch(actualDimensions.height),
         };
       } else if (measurement === 'mm') {
         objectDimensions = {
-          width: mmToInch(actualDimensions.width),
-          height: mmToInch(actualDimensions.height),
+          width: MeasureUtils.mmToInch(actualDimensions.width),
+          height: MeasureUtils.mmToInch(actualDimensions.height),
         };
       } else {
         throw new Error('Invalid measurement!');
@@ -114,24 +142,27 @@ const MeasurePreview = () => {
     mm: 'mm',
   }[measurement];
 
+  // The width/height of a single unit of measurement
+  const unitSize = innerRect.width / actualDimensions.width;
+
   return (
-    <div
-      css={[
-        tw`flex flex-col size-full relative`,
-        (innerRect.width === 0 || innerRect.height === 0) && tw`opacity-0`,
-      ]}>
-      <p
-        ref={widthLabelRef}
+    <div css={tw`flex flex-col size-full`}>
+      <div
         css={[
-          tw`absolute top-0 left-0 pb-2`,
-          css`
-            transform: translate(${innerRect.x + innerRect.width / 2}px, ${innerRect.y}px)
-              translate(-50%, -100%);
-          `,
+          tw`flex flex-col size-full relative`,
+          (innerRect.x < 0 || innerRect.y < 0) && tw`opacity-0`,
         ]}>
-        {actualDimensions.width} {measurementShorthand}
-      </p>
-      <div css={tw`flex flex-1 items-center relative`}>
+        <p
+          ref={widthLabelRef}
+          css={[
+            tw`absolute top-0 left-0 pb-2`,
+            css`
+              transform: translate(${innerRect.x + innerRect.width / 2}px, ${innerRect.y}px)
+                translate(-50%, -100%);
+            `,
+          ]}>
+          {actualDimensions.width} {measurementShorthand}
+        </p>
         <p
           ref={heightLabelRef}
           css={[
@@ -156,20 +187,29 @@ const MeasurePreview = () => {
           />
         </div>
       </div>
+      <div css={tw`flex flex-shrink-0 items-center justify-end mt-4 opacity-70`}>
+        <div css={[tw`border border-white`, css({ width: unitSize, height: unitSize })]} />
+        <p css={tw`ml-2 text-sm`}>1 {measurementShorthand}</p>
+      </div>
     </div>
   );
 };
 
 const MeasureArtwork: AddArtworkStep = {
+  /**
+   * Renders the Main view.
+   */
   Main: function MeasureArtworkMain() {
     const { image } = useAddArtworkContext();
-
     return (
       <div css={tw`flex flex-col flex-1 size-full`}>
         {image && <img css={tw`size-full object-contain`} src={image.src} alt="" />}
       </div>
     );
   },
+  /**
+   * Renders the form rail.
+   */
   Rail: function MeasureArtworkRail() {
     const {
       actualDimensions,
@@ -199,80 +239,86 @@ const MeasureArtwork: AddArtworkStep = {
         <p>Enter the physical dimensions of the artwork.</p>
 
         <div css={tw`flex flex-col mt-6`}>
-          <div css={tw`flex`}>
-            <label htmlFor="preset">Preset</label>
-            <select
+          <div css={tw`flex items-center`}>
+            <label css={tw`text-sm text-gray-300 mr-2`} htmlFor="preset">
+              Preset
+            </label>
+            <Select
               id="preset"
-              css={tw`bg-black hocus:(outline-none bg-white bg-opacity-10)`}
               value={presetType}
-              onChange={evt => onPresetUpdate(evt.target.value as Preset['type'])}>
-              <option value="custom">Custom</option>
-              {presets.map(preset => (
-                <option key={preset.type} value={preset.type}>
-                  {preset.display}
-                </option>
-              ))}
-            </select>
+              onChange={value => onPresetUpdate(value as Preset['type'])}
+              options={[
+                { value: 'custom', display: 'Custom' },
+                ...presets.map(preset => ({ value: preset.type, display: preset.display })),
+              ]}
+            />
           </div>
-          <div css={tw`flex pt-4`}>
-            <div css={tw`flex flex-col mr-4`}>
-              <label htmlFor="width">Width</label>
-              <input
+          <div css={tw`flex items-end -ml-2 pt-4`}>
+            <div css={tw`flex flex-1 flex-col mr-4`}>
+              <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="width">
+                Width
+              </label>
+              <NumberInput
                 id="width"
-                css={tw`bg-black hocus:(outline-none bg-white bg-opacity-10)`}
-                type="number"
-                min="1"
-                step="1"
+                min={1}
+                step={1}
                 value={actualDimensions.width}
-                onChange={evt => {
-                  let width = evt.target.valueAsNumber;
-                  if (Number.isNaN(width)) {
-                    width = 0;
-                  }
+                onChange={value => {
                   setPresetType('custom');
                   setActualDimensions(dimensions => ({
                     ...dimensions,
-                    width,
+                    width: value,
                   }));
                 }}
               />
             </div>
-            <div css={tw`flex flex-col mr-4`}>
-              <label htmlFor="height">Height</label>
-              <input
+            <div css={tw`block flex-shrink-0 size-4 mb-2`}>
+              <Close />
+            </div>
+            <div css={tw`flex flex-1 flex-col items-start mx-4`}>
+              <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="height">
+                Height
+              </label>
+              <NumberInput
                 id="height"
-                css={tw`bg-black hocus:(outline-none bg-white bg-opacity-10)`}
-                type="number"
-                min="1"
-                step="1"
+                min={1}
+                step={1}
                 value={actualDimensions.height}
-                onChange={evt => {
-                  let height = evt.target.valueAsNumber;
-                  if (Number.isNaN(height)) {
-                    height = 0;
-                  }
+                onChange={value => {
                   setPresetType('custom');
                   setActualDimensions(dimensions => ({
                     ...dimensions,
-                    height,
+                    height: value,
                   }));
                 }}
               />
             </div>
-            <div css={tw`flex flex-col`}>
-              <label htmlFor="measurement">Measurement</label>
-              <select
+            <div css={[tw`flex flex-1 flex-col`, css({ width: 1000 })]}>
+              <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="measurement">
+                Measurement
+              </label>
+              <Select
                 id="measurement"
-                css={tw`bg-black hocus:(outline-none bg-white bg-opacity-10)`}
                 value={measurement}
-                onChange={evt => {
+                onChange={value => {
                   setPresetType('custom');
-                  setMeasurement(evt.target.value as Measurement);
-                }}>
-                <option value="inch">inches</option>
-                <option value="cm">centimeters</option>
-                <option value="mm">millimeters</option>
-              </select>
+                  setMeasurement(value as Measurement);
+                }}
+                options={[
+                  {
+                    value: 'inch',
+                    display: 'inches',
+                  },
+                  {
+                    value: 'cm',
+                    display: 'centimeters',
+                  },
+                  {
+                    value: 'mm',
+                    display: 'millimeters',
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
