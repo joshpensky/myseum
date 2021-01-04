@@ -1,12 +1,12 @@
 import tw, { css } from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
 import { AddArtworkStep, Measurement, Preset } from './types';
-import { useEffect, useRef, useState } from 'react';
-import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { Dimensions } from '@src/types';
+import { useEffect, useState } from 'react';
 import Select from './Select';
 import NumberInput from './NumberInput';
 import Close from '@src/svgs/Close';
+import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
+import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 
 const presets: Preset[] = [
   {
@@ -29,181 +29,23 @@ const presets: Preset[] = [
   },
 ];
 
-class MeasureUtils {
-  static inchToCm(inch: number) {
-    return inch * 2.54;
-  }
-  static inchToMm(inch: number) {
-    return this.cmToMm(this.inchToCm(inch));
-  }
-
-  static cmToInch(cm: number) {
-    return cm / 2.54;
-  }
-  static cmToMm(cm: number) {
-    return cm * 10;
-  }
-
-  static mmToInch(mm: number) {
-    return this.cmToInch(mm / 10);
-  }
-}
-
-const MeasurePreview = () => {
-  const { actualDimensions, measurement } = useAddArtworkContext();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const heightLabelRef = useRef<HTMLParagraphElement>(null);
-  const widthLabelRef = useRef<HTMLParagraphElement>(null);
-
-  const [innerRect, setInnerRect] = useState({
-    x: -1,
-    y: -1,
-    width: 0,
-    height: 0,
-  });
-
-  /**
-   * Updates the calculations based on the resize.
-   */
-  const onResize = () => {
-    if (containerRef.current && heightLabelRef.current && widthLabelRef.current) {
-      const xOffset = heightLabelRef.current.clientWidth;
-      const yOffset = widthLabelRef.current.clientHeight;
-
-      const maxWidth = containerRef.current.clientWidth;
-      const maxHeight = containerRef.current.clientHeight;
-
-      const canvasDimensions = {
-        width: maxWidth - xOffset,
-        height: maxHeight - yOffset,
-      };
-
-      // Convert the object dimensions to inches
-      let objectDimensions: Dimensions;
-      if (measurement === 'inch') {
-        objectDimensions = {
-          width: actualDimensions.width,
-          height: actualDimensions.height,
-        };
-      } else if (measurement === 'cm') {
-        objectDimensions = {
-          width: MeasureUtils.cmToInch(actualDimensions.width),
-          height: MeasureUtils.cmToInch(actualDimensions.height),
-        };
-      } else if (measurement === 'mm') {
-        objectDimensions = {
-          width: MeasureUtils.mmToInch(actualDimensions.width),
-          height: MeasureUtils.mmToInch(actualDimensions.height),
-        };
-      } else {
-        throw new Error('Invalid measurement!');
-      }
-
-      // Convert object dimension inches to pixels
-      const pixelsPerInch = 16; // 16 ppi
-      objectDimensions.width *= pixelsPerInch;
-      objectDimensions.height *= pixelsPerInch;
-
-      // Scale the object dimensions to fit within the max width/height
-      const innerRect = CanvasUtils.objectScaleDown(canvasDimensions, objectDimensions);
-
-      const startX = maxWidth / 2;
-      const endX = xOffset;
-      // From 0->1, what percentage is the inner rect width taking up of the available width?
-      const percFilledX = 1 - innerRect.width / canvasDimensions.width;
-      // Calculate X so that it falls in the range [startX, endX] based on the percFilledX
-      innerRect.x = endX + (startX - endX) * percFilledX;
-
-      const startY = maxHeight / 2;
-      const endY = yOffset;
-      // From 0->1, what percentage is the inner rect height taking up of the available height?
-      const percFilledY = 1 - innerRect.height / canvasDimensions.height;
-      // Calculate Y so that it falls in the range [startY, endY] based on the percFilledY
-      innerRect.y = endY + (startY - endY) * percFilledY;
-
-      setInnerRect(innerRect);
-    }
-  };
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const observer = new ResizeObserver(onResize);
-      observer.observe(containerRef.current);
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, [actualDimensions, measurement]);
-
-  const measurementShorthand = {
-    inch: 'in',
-    cm: 'cm',
-    mm: 'mm',
-  }[measurement];
-
-  // The width/height of a single unit of measurement
-  const unitSize = innerRect.width / actualDimensions.width;
-
-  return (
-    <div css={tw`flex flex-col size-full`}>
-      <div
-        css={[
-          tw`flex flex-col size-full relative`,
-          (innerRect.x < 0 || innerRect.y < 0) && tw`opacity-0`,
-        ]}>
-        <p
-          ref={widthLabelRef}
-          css={[
-            tw`absolute top-0 left-0 pb-2`,
-            css`
-              transform: translate(${innerRect.x + innerRect.width / 2}px, ${innerRect.y}px)
-                translate(-50%, -100%);
-            `,
-          ]}>
-          {actualDimensions.width} {measurementShorthand}
-        </p>
-        <p
-          ref={heightLabelRef}
-          css={[
-            tw`absolute top-0 left-0 pr-3`,
-            css`
-              transform: translate(${innerRect.x}px, ${innerRect.y + innerRect.height / 2}px)
-                translate(-100%, -50%);
-            `,
-          ]}>
-          {actualDimensions.height} {measurementShorthand}
-        </p>
-        <div ref={containerRef} css={tw`flex relative size-full`}>
-          <div
-            css={[
-              tw`absolute top-0 left-0 border border-white`,
-              css`
-                transform: translate(${innerRect.x}px, ${innerRect.y}px);
-                width: ${innerRect.width}px;
-                height: ${innerRect.height}px;
-              `,
-            ]}
-          />
-        </div>
-      </div>
-      <div css={tw`flex flex-shrink-0 items-center justify-end mt-4 opacity-70`}>
-        <div css={[tw`border border-white`, css({ width: unitSize, height: unitSize })]} />
-        <p css={tw`ml-2 text-sm`}>1 {measurementShorthand}</p>
-      </div>
-    </div>
-  );
-};
-
 const MeasureArtwork: AddArtworkStep = {
   /**
    * Renders the Main view.
    */
   Main: function MeasureArtworkMain() {
-    const { image } = useAddArtworkContext();
+    const { actualDimensions, editor, image, setIsNextDisabled } = useAddArtworkContext();
+
+    // Disable the next button when selection is invalid
+    useEffect(() => {
+      setIsNextDisabled(!editor.isValid);
+    }, [editor.isValid]);
+
     return (
       <div css={tw`flex flex-col flex-1 size-full`}>
-        {image && <img css={tw`size-full object-contain`} src={image.src} alt="" />}
+        {image && (
+          <ImageSelectionEditor editor={editor} actualDimensions={actualDimensions} image={image} />
+        )}
       </div>
     );
   },
@@ -213,6 +55,8 @@ const MeasureArtwork: AddArtworkStep = {
   Rail: function MeasureArtworkRail() {
     const {
       actualDimensions,
+      editor,
+      image,
       measurement,
       setActualDimensions,
       setMeasurement,
@@ -237,8 +81,9 @@ const MeasureArtwork: AddArtworkStep = {
     return (
       <div css={tw`flex flex-col flex-1`}>
         <p>Enter the physical dimensions of the artwork.</p>
+        <p>Then, drag the handles to match the size of the piece.</p>
 
-        <div css={tw`flex flex-col mt-6`}>
+        <div css={tw`flex flex-col my-6`}>
           <div css={tw`flex items-center`}>
             <label css={tw`text-sm text-gray-300 mr-2`} htmlFor="preset">
               Preset
@@ -325,8 +170,14 @@ const MeasureArtwork: AddArtworkStep = {
 
         <div css={tw`flex flex-col flex-1 justify-end mt-6`}>
           <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
-          <div css={tw`w-full h-72 bg-white bg-opacity-10 rounded-md p-4`}>
-            <MeasurePreview />
+          <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
+            {image && (
+              <ImageSelectionPreview
+                editor={editor}
+                actualDimensions={actualDimensions}
+                image={image}
+              />
+            )}
           </div>
         </div>
       </div>

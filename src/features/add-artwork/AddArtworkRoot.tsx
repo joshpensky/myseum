@@ -6,7 +6,6 @@ import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from './AddArtworkContext';
 import MeasureArtwork from './MeasureArtwork';
-import ResizeArtwork from './ResizeArtwork';
 import UploadArtwork from './UploadArtwork';
 import { Measurement } from './types';
 import { Dimensions } from '@src/types';
@@ -28,7 +27,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   });
   const [measurement, setMeasurement] = useState<Measurement>('inch');
 
-  const steps = [UploadArtwork, MeasureArtwork, ResizeArtwork];
+  const steps = [UploadArtwork, MeasureArtwork];
   const [stepIndex, setStepIndex] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(false);
 
