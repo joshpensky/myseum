@@ -10,6 +10,10 @@ export type Preset = {
   measurement: Measurement;
 };
 
+export type ArtworkDetails = {
+  title: string;
+};
+
 export type AddArtworkStep = {
   Main: ComponentType;
   Rail: ComponentType;

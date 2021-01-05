@@ -5,13 +5,7 @@ import { AddArtworkStep } from './types';
 
 const UploadArtwork: AddArtworkStep = {
   Main: function UploadArtworkMain() {
-    const {
-      image,
-      setActualDimensions,
-      setMeasurement,
-      setImage,
-      setIsNextDisabled,
-    } = useAddArtworkContext();
+    const { image, setActualDimensions, setMeasurement, setImage } = useAddArtworkContext();
 
     // Whether drag/drop upload feature is available for the browser
     const [canDragDropUpload] = useState(() => {
@@ -102,7 +96,7 @@ const UploadArtwork: AddArtworkStep = {
 
     // Disable the next button if image is not available
     useLayoutEffect(() => {
-      setIsNextDisabled(!image);
+      // setIsNextDisabled(!image);
       // _DEV_ TODO: remove
       if (!image) {
         loadImage('/img/test-add.jpeg');
@@ -120,73 +114,37 @@ const UploadArtwork: AddArtworkStep = {
         onDragEnter={onDropEnter}
         onDragLeave={onDropLeave}
         onDragEnd={onDropLeave}>
-        {image ? (
-          <div css={tw`flex flex-col flex-1 items-center justify-center max-w-full size-full`}>
-            <div css={[tw`max-w-3xl max-h-3xl`, isDropping ? tw`pointer-events-none` : tw`z-10`]}>
-              <img css={tw`size-full object-contain`} src={image.src} alt="" />
-            </div>
-            <div css={tw`mt-4`}>
-              <input
-                css={[tw`sr-only`, tw`focus:sibling:(ring-4)`]}
-                id="artworkReplace"
-                type="file"
-                accept={accept.join(', ')}
-                onChange={evt => onFileUpload(evt.target.files)}
-              />
-              <label
-                css={[
-                  tw`relative flex items-center px-4 py-1.5 border cursor-pointer border-current rounded-full`,
-                  tw`transition-shadow ring-0 ring-white ring-opacity-50`,
-                  isDropping ? tw`pointer-events-none` : tw`z-10`,
-                ]}
-                htmlFor="artworkReplace">
-                Replace<span css={tw`sr-only`}> Artwork</span>
-              </label>
-            </div>
-          </div>
-        ) : (
-          <div css={tw`sr-only`}>
-            <label htmlFor="artworkUpload">Upload artwork</label>
-            <input
-              id="artworkUpload"
-              type="file"
-              accept={accept.join(', ')}
-              onChange={evt => onFileUpload(evt.target.files)}
-            />
-          </div>
-        )}
+        <div css={tw`sr-only`}>
+          <label htmlFor="artworkUpload">Upload artwork</label>
+          <input
+            id="artworkUpload"
+            type="file"
+            accept={accept.join(', ')}
+            onChange={evt => onFileUpload(evt.target.files)}
+          />
+        </div>
 
-        {/* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
-        {(canDragDropUpload || !image) && (
-          <label
-            css={[
-              tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center p-6`,
-              !image && tw`cursor-pointer`,
-            ]}
-            onClick={evt => {
-              // Prevent clicking to upload for replace
-              if (image) {
-                evt.preventDefault();
-              }
-            }}
-            htmlFor={image ? 'artworkReplace' : 'artworkUpload'}
-            onDrop={onDrop}>
-            {/* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
-            <span css={[image && tw`sr-only`]}>
-              {isUploading ? (
-                <span>Uploading...</span>
-              ) : isDropping ? (
-                <span>Release to upload</span>
-              ) : (
-                <span>
-                  {canDragDropUpload
-                    ? 'Drag and drop anywhere to upload'
-                    : 'Click anywhere to upload'}
-                </span>
-              )}
-            </span>
-          </label>
-        )}
+        <label
+          css={[
+            tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center p-6`,
+            !image && tw`cursor-pointer`,
+          ]}
+          htmlFor="artworkUpload"
+          onDrop={onDrop}>
+          <span>
+            {isUploading ? (
+              <span>Uploading...</span>
+            ) : isDropping ? (
+              <span>Release to upload</span>
+            ) : (
+              <span>
+                {canDragDropUpload
+                  ? 'Drag and drop anywhere to upload'
+                  : 'Click anywhere to upload'}
+              </span>
+            )}
+          </span>
+        </label>
       </div>
     );
   },

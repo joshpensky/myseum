@@ -9,6 +9,8 @@ export type SelectionEditor = {
     lap(): void;
     redo(): void;
     undo(): void;
+    squash(): void;
+    restart(): void;
   };
   isValid: boolean;
   points: SelectionEditorPoints;
@@ -69,6 +71,18 @@ export const useSelectionEditor = (): SelectionEditor => {
     setHistoryIndex(newHistory.length - 1);
   };
 
+  // Squashes history back to one entry
+  const squash = () => {
+    setHistory([history[historyIndex]]);
+    setHistoryIndex(0);
+  };
+
+  // Removes all entries except the first
+  const restart = () => {
+    setHistory([history[0]]);
+    setHistoryIndex(0);
+  };
+
   // Goes back to the previous entry in history, if available
   const undo = () => {
     if (historyIndex > 0) {
@@ -88,6 +102,8 @@ export const useSelectionEditor = (): SelectionEditor => {
       undo,
       redo,
       lap,
+      squash,
+      restart,
     },
     isValid: isSelectionValid,
     points,
