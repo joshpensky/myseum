@@ -23,14 +23,14 @@ const Select = ({ className, css: customCss, id, options, value, onChange }: Sel
   return (
     <div
       css={[
-        tw`flex items-center rounded relative bg-white bg-opacity-0`,
-        tw`hover:(bg-opacity-20) focus-within:(bg-opacity-20)`,
+        tw`flex items-center rounded relative border border-white border-opacity-20 bg-white bg-opacity-0`,
+        tw`hover:(bg-opacity-10) focus-within:(bg-opacity-20)`,
       ]}>
       <select
         id={id}
         className={className}
         css={[
-          tw`flex flex-1 bg-transparent py-1 pl-2 pr-7 appearance-none cursor-pointer focus:outline-none`,
+          tw`flex flex-1 bg-transparent py-2 pl-3 pr-8 appearance-none cursor-pointer focus:outline-none`,
           customCss,
         ]}
         value={value}

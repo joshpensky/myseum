@@ -34,7 +34,7 @@ export type ImageSelectionEditorProps = BaseProps & {
 const ImageSelectionEditor = ({
   actualDimensions,
   className,
-  css,
+  css: customCss,
   editor,
   image,
 }: ImageSelectionEditorProps) => {
@@ -529,7 +529,7 @@ const ImageSelectionEditor = ({
   ];
 
   return (
-    <div ref={containerRef} className={className} css={[tw`size-full relative`, css]}>
+    <div ref={containerRef} className={className} css={[tw`size-full relative`, customCss]}>
       {canvasDimensions && (
         <canvas
           ref={canvasRef}

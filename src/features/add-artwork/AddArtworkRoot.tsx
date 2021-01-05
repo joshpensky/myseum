@@ -10,9 +10,12 @@ import UploadArtwork from './UploadArtwork';
 import { ArtworkDetails, Measurement } from './types';
 import { Dimensions } from '@src/types';
 import Button from '@src/components/Button';
-import MeasureArtwork from './MeasureArtwork';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
+import Panel from './Panel';
+import DimensionsPanel from './DimensionsPanel';
+import DetailsPanel from './DetailsPanel';
+import FramePanel from './FramePanel';
 
 const NavButton = styled.button(() => [
   tw`px-2 py-1 -mx-2 rounded bg-white bg-opacity-0 ring-0 ring-white ring-opacity-20`,
@@ -36,13 +39,14 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   const [measurement, setMeasurement] = useState<Measurement>('inch');
   const [details, setDetails] = useState<ArtworkDetails>({
     title: '',
+    artist: '',
+    description: '',
+    createdAt: 2020,
+    acquiredAt: 2020,
   });
+  const [frameId, setFrameId] = useState<number>();
 
   const [isEditingSelection, setIsEditingSelection] = useState(false);
-
-  // const steps = [UploadArtwork, MeasureArtwork];
-  // const [stepIndex, setStepIndex] = useState(0);
-  // const [isNextDisabled, setIsNextDisabled] = useState(false);
 
   /**
    * Key handler. Closes the modal form on escape key.
@@ -88,10 +92,12 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
         actualDimensions,
         details,
         editor,
+        frameId,
         image,
         measurement,
         setActualDimensions,
         setDetails,
+        setFrameId,
         setImage,
         setMeasurement,
       }}>
@@ -105,7 +111,9 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
             aria-modal="true">
             <header css={tw`flex items-center border-b border-white px-6 py-5`}>
               <div css={tw`flex flex-1 justify-start`}>
-                <NavButton onClick={onClose}>Cancel</NavButton>
+                <NavButton disabled={isEditingSelection} onClick={onClose}>
+                  Cancel
+                </NavButton>
               </div>
               {image && (
                 <Fragment>
@@ -113,9 +121,9 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                     <h1
                       css={[
                         tw`leading-none text-3xl font-serif transform translate-y-1`,
-                        !details.title && tw`opacity-50`,
+                        !details.title.trim() && tw`opacity-50`,
                       ]}>
-                      {details.title || 'Unknown'}
+                      {details.title.trim() || 'Unknown'}
                     </h1>
                   </div>
                   <div css={tw`flex flex-1 justify-end`}></div>
@@ -125,8 +133,8 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
             <div css={tw`flex flex-1 relative divide-x divide-white`}>
               {image ? (
                 <Fragment>
-                  <div css={tw`flex flex-1 px-6 py-5 relative`}>
-                    <div css={tw`flex flex-col flex-1 size-full`}></div>
+                  <div
+                    css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative`}>
                     {isEditingSelection ? (
                       <ImageSelectionEditor
                         editor={editor}
@@ -134,77 +142,69 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                         image={image}
                       />
                     ) : (
-                      <ImageSelectionPreview
-                        editor={editor}
-                        actualDimensions={actualDimensions}
-                        image={image}
-                      />
+                      <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
+                        <ImageSelectionPreview
+                          editor={editor}
+                          actualDimensions={actualDimensions}
+                          image={image}
+                        />
+                      </div>
                     )}
                   </div>
-                  <div
-                    css={tw`flex flex-col max-w-lg w-full overflow-x-hidden overflow-y-auto divide-y divide-white`}>
+                  <div css={tw`relative flex flex-col flex-shrink-0 max-w-lg w-full`}>
                     <div
-                      css={[
-                        tw`flex flex-col px-6 pt-5 pb-6 items-start`,
-                        isEditingSelection && tw`flex-1`,
-                      ]}>
-                      <h2 css={[tw`font-medium mb-1`]}>Selection</h2>
-                      {isEditingSelection ? (
-                        <Fragment>
-                          <p css={tw`mb-4`}>Drag the handles to match the size of the artwork.</p>
-                          <div css={tw`flex items-center`}>
-                            <Button
-                              css={tw`mr-5`}
-                              disabled={!editor.isValid}
-                              onClick={() => {
-                                editor.history.squash();
-                                setIsEditingSelection(false);
-                              }}>
-                              Save
-                            </Button>
-                            <NavButton
-                              onClick={() => {
-                                editor.history.restart();
-                                setIsEditingSelection(false);
-                              }}>
-                              Cancel
-                            </NavButton>
-                          </div>
-                          <div css={tw`flex flex-col flex-1 w-full justify-end mt-6`}>
-                            <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
-                            <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
-                              <ImageSelectionPreview
-                                editor={editor}
-                                actualDimensions={actualDimensions}
-                                image={image}
-                              />
+                      css={tw`absolute inset-0 size-full overflow-x-hidden overflow-y-auto divide-y divide-white`}>
+                      <Panel css={[isEditingSelection && tw`flex-1`]} title="Selection">
+                        {isEditingSelection ? (
+                          <Fragment>
+                            <p css={tw`mb-4`}>Drag the handles to match the size of the artwork.</p>
+                            <div css={tw`flex items-center`}>
+                              <Button
+                                css={tw`mr-5`}
+                                disabled={!editor.isValid}
+                                onClick={() => {
+                                  editor.history.squash();
+                                  setIsEditingSelection(false);
+                                }}>
+                                Save
+                              </Button>
+                              <NavButton
+                                onClick={() => {
+                                  editor.history.restart();
+                                  setIsEditingSelection(false);
+                                }}>
+                                Cancel
+                              </NavButton>
                             </div>
-                          </div>
+                            <div css={tw`flex flex-col flex-1 w-full justify-end mt-6`}>
+                              <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
+                              <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
+                                <ImageSelectionPreview
+                                  editor={editor}
+                                  actualDimensions={actualDimensions}
+                                  image={image}
+                                />
+                              </div>
+                            </div>
+                          </Fragment>
+                        ) : (
+                          <Button css={tw`mt-2`} onClick={() => setIsEditingSelection(true)}>
+                            Edit selection
+                          </Button>
+                        )}
+                      </Panel>
+                      {!isEditingSelection && (
+                        <Fragment>
+                          <DimensionsPanel />
+                          <DetailsPanel />
+                          <FramePanel />
                         </Fragment>
-                      ) : (
-                        <Button css={tw`mt-2`} onClick={() => setIsEditingSelection(true)}>
-                          Edit selection
-                        </Button>
                       )}
                     </div>
-                    {!isEditingSelection && (
-                      <Fragment>
-                        <div css={tw`flex flex-col px-6 pt-5 pb-6 items-start`}>
-                          <h2 css={tw`font-medium mb-3`}>Dimensions</h2>
-                          <MeasureArtwork.Rail />
-                        </div>
-                        <div css={tw`flex flex-col px-6 pt-5 pb-6 items-start`}>
-                          <h2 css={tw`font-medium mb-3`}>Details</h2>
-                        </div>
-                        <div css={tw`flex flex-col px-6 pt-5 pb-6 items-start`}>
-                          <h2 css={tw`font-medium mb-3`}>Frame</h2>
-                        </div>
-                      </Fragment>
-                    )}
                   </div>
                 </Fragment>
               ) : (
-                <UploadArtwork.Main />
+                <UploadArtwork />
               )}
             </div>
             {image && (
@@ -215,7 +215,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                     top: math(`${theme`padding.6`} + (${theme`fontSize.3xl`} / 2)`),
                   }),
                 ]}
-                disabled
+                disabled={!details.title.trim()}
                 onClick={onFinish}>
                 Save
               </NavButton>

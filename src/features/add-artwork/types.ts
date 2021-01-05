@@ -1,5 +1,4 @@
 import { Dimensions } from '@src/types';
-import { ComponentType } from 'react';
 
 export type Measurement = 'inch' | 'cm' | 'mm';
 
@@ -12,9 +11,8 @@ export type Preset = {
 
 export type ArtworkDetails = {
   title: string;
-};
-
-export type AddArtworkStep = {
-  Main: ComponentType;
-  Rail: ComponentType;
+  artist: string;
+  description: string;
+  createdAt: number;
+  acquiredAt: number;
 };

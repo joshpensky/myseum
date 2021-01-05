@@ -101,7 +101,12 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
     <div
       ref={containerRef}
       css={[tw`size-full relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
-      <canvas ref={canvasRef} role="img" aria-label="A preview of the selected image" />
+      <canvas
+        ref={canvasRef}
+        css={tw`absolute inset-0 size-full`}
+        role="img"
+        aria-label="A preview of the selected image"
+      />
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import tw from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
-import { AddArtworkStep, Measurement, Preset } from './types';
+import { Measurement, Preset } from './types';
 import { useState } from 'react';
 import Select from './Select';
-import NumberInput from './NumberInput';
 import Close from '@src/svgs/Close';
-import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
+import Panel from './Panel';
+import TextField from './TextField';
 
 const presets: Preset[] = [
   {
@@ -28,57 +28,35 @@ const presets: Preset[] = [
   },
 ];
 
-const MeasureArtwork: AddArtworkStep = {
-  /**
-   * Renders the Main view.
-   */
-  Main: function MeasureArtworkMain() {
-    const { actualDimensions, editor, image } = useAddArtworkContext();
+const DimensionsPanel = () => {
+  const {
+    actualDimensions,
+    measurement,
+    setActualDimensions,
+    setMeasurement,
+  } = useAddArtworkContext();
 
-    // Disable the next button when selection is invalid
-    // useEffect(() => {
-    //   setIsNextDisabled(!editor.isValid);
-    // }, [editor.isValid]);
+  const [presetType, setPresetType] = useState<Preset['type']>('custom');
 
-    return (
-      <div css={tw`flex flex-col flex-1 size-full`}>
-        {image && (
-          <ImageSelectionEditor editor={editor} actualDimensions={actualDimensions} image={image} />
-        )}
-      </div>
-    );
-  },
-  /**
-   * Renders the form rail.
-   */
-  Rail: function MeasureArtworkRail() {
-    const {
-      actualDimensions,
-      measurement,
-      setActualDimensions,
-      setMeasurement,
-    } = useAddArtworkContext();
-
-    const [presetType, setPresetType] = useState<Preset['type']>('custom');
-
-    // handler for preset updates
-    const onPresetUpdate = (presetType: Preset['type']) => {
-      if (presetType !== 'custom') {
-        const preset = presets.find(preset => preset.type === presetType);
-        if (preset) {
-          setPresetType(preset.type);
-          setActualDimensions(preset.dimensions);
-          setMeasurement(preset.measurement);
-          return;
-        }
+  // handler for preset updates
+  const onPresetUpdate = (presetType: Preset['type']) => {
+    if (presetType !== 'custom') {
+      const preset = presets.find(preset => preset.type === presetType);
+      if (preset) {
+        setPresetType(preset.type);
+        setActualDimensions(preset.dimensions);
+        setMeasurement(preset.measurement);
+        return;
       }
-      setPresetType('custom');
-    };
+    }
+    setPresetType('custom');
+  };
 
-    return (
-      <div css={tw`flex flex-col`}>
+  return (
+    <Panel title="Dimensions">
+      <div css={tw`flex flex-col mt-2`}>
         <div css={tw`flex items-center`}>
-          <label css={tw`text-sm text-gray-300 mr-2`} htmlFor="preset">
+          <label css={tw`mr-3 text-sm text-gray-300`} htmlFor="preset">
             Preset
           </label>
           <Select
@@ -91,13 +69,14 @@ const MeasureArtwork: AddArtworkStep = {
             ]}
           />
         </div>
-        <div css={tw`flex items-end -ml-2 pt-4`}>
+        <div css={tw`flex items-end pt-4`}>
           <div css={tw`flex flex-1 flex-col mr-4`}>
-            <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="width">
+            <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="width">
               Width
             </label>
-            <NumberInput
+            <TextField
               id="width"
+              type="number"
               min={1}
               step={1}
               value={actualDimensions.width}
@@ -110,15 +89,16 @@ const MeasureArtwork: AddArtworkStep = {
               }}
             />
           </div>
-          <div css={tw`block flex-shrink-0 size-4 mb-2`}>
+          <div css={tw`block flex-shrink-0 size-4 mb-3`}>
             <Close />
           </div>
-          <div css={tw`flex flex-1 flex-col items-start mx-4`}>
-            <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="height">
+          <div css={tw`flex flex-1 flex-col mx-4`}>
+            <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="height">
               Height
             </label>
-            <NumberInput
+            <TextField
               id="height"
+              type="number"
               min={1}
               step={1}
               value={actualDimensions.height}
@@ -132,7 +112,7 @@ const MeasureArtwork: AddArtworkStep = {
             />
           </div>
           <div css={tw`flex flex-1 flex-col`}>
-            <label css={tw`ml-2 mb-1 text-sm text-gray-300`} htmlFor="measurement">
+            <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="measurement">
               Measurement
             </label>
             <Select
@@ -160,8 +140,8 @@ const MeasureArtwork: AddArtworkStep = {
           </div>
         </div>
       </div>
-    );
-  },
+    </Panel>
+  );
 };
 
-export default MeasureArtwork;
+export default DimensionsPanel;
