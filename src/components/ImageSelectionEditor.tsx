@@ -307,6 +307,10 @@ const ImageSelectionEditor = ({
 
     // Draw a single point
     const renderPoint = (point: Position, index: number) => {
+      // Reset styles
+      setPointsStyle();
+
+      // Draw target
       const px = point.x * width + x;
       const py = point.y * height + y;
       ctx.beginPath();
@@ -377,10 +381,16 @@ const ImageSelectionEditor = ({
 
       // Draw focus ring, if point is focused
       if (focusIndex === index || showMagnifiedVersion) {
-        let focusRingRadius = POINT_RADIUS + STROKE_WIDTH * 0.8;
+        let focusRingRadius: number;
         if (showMagnifiedVersion) {
+          ctx.globalAlpha = 1;
           focusRingRadius = magnifiedRadius;
+        } else {
+          ctx.globalAlpha = 0.5;
+          ctx.lineWidth = 5;
+          focusRingRadius = POINT_RADIUS + STROKE_WIDTH;
         }
+
         ctx.beginPath();
         ctx.arc(px, py, focusRingRadius, 0, Math.PI * 2);
         ctx.stroke();
@@ -540,6 +550,7 @@ const ImageSelectionEditor = ({
             <button
               key={index}
               id={`editor-point-${index}`}
+              type="button"
               onKeyDown={evt => onPointKeyDown(evt, index)}
               onFocus={() => setFocusIndex(index)}
               onBlur={() => {

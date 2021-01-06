@@ -30,7 +30,7 @@ const Select = ({ className, css: customCss, id, options, value, onChange }: Sel
         id={id}
         className={className}
         css={[
-          tw`flex flex-1 bg-transparent py-2 pl-3 pr-8 appearance-none cursor-pointer focus:outline-none`,
+          tw`flex flex-1 bg-transparent py-2 pl-3 pr-9 appearance-none cursor-pointer focus:outline-none`,
           customCss,
         ]}
         value={value}
@@ -42,7 +42,7 @@ const Select = ({ className, css: customCss, id, options, value, onChange }: Sel
         ))}
       </select>
       <span
-        css={tw`absolute top-1/2 right-2 size-3 transform -translate-y-1/2 pointer-events-none`}>
+        css={tw`absolute top-1/2 right-3 size-3 transform -translate-y-1/2 pointer-events-none`}>
         <Caret />
       </span>
     </div>

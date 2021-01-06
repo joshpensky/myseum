@@ -3,12 +3,13 @@ import { forwardRef, MouseEvent, PropsWithChildren } from 'react';
 import tw from 'twin.macro';
 
 export type ButtonProps = BaseProps & {
+  type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   onClick?(evt: MouseEvent<HTMLButtonElement>): void;
 };
 
 const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(function Button(
-  { children, className, css, disabled, onClick },
+  { children, className, css, disabled, onClick, type },
   ref,
 ) {
   return (
@@ -21,6 +22,7 @@ const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(fun
         tw`ring-0 ring-current ring-opacity-40 not-disabled:hocus:(bg-black text-white outline-none) not-disabled:focus:(ring)`,
         css,
       ]}
+      type={type}
       disabled={disabled}
       onClick={onClick}>
       {children}

@@ -3,6 +3,7 @@ import Close from '@src/svgs/Close';
 import { Dimensions } from '@src/types';
 import tw, { css, theme } from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
+import IconButton from './IconButton';
 import Panel from './Panel';
 
 type Frame = {
@@ -33,17 +34,22 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
   return (
     <div css={tw`flex flex-col mr-5 mb-5`}>
       <input
-        css={tw`sr-only`}
+        css={tw`sr-only focus-visible:sibling:(ring-1)`}
         id={id}
         type="radio"
         checked={isChecked}
         name="frame"
         onChange={() => setFrameId(value?.id)}
       />
-      <label css={tw`flex cursor-pointer relative`} htmlFor={id}>
+      <label
+        css={[
+          tw`relative flex cursor-pointer rounded-sm`,
+          tw`ring-0 ring-white ring-opacity-40 ring-offset-4 ring-offset-black`,
+        ]}
+        htmlFor={id}>
         <span css={tw`sr-only`}>{label}</span>
         {value ? (
-          <span css={[frameCss, tw`bg-white bg-opacity-20`]} />
+          <span css={[frameCss, tw`bg-white rounded-sm bg-opacity-20`]} />
         ) : (
           <span
             css={[
@@ -81,18 +87,11 @@ const FramePanel = () => {
     <Panel
       title="Frame"
       headerAction={
-        <button
-          css={[
-            tw`p-1.5 -m-1.5 rounded bg-white bg-opacity-0 ring-0 ring-white ring-opacity-20`,
-            tw`disabled:(opacity-50 cursor-not-allowed)`,
-            tw`not-disabled:hocus:(bg-opacity-20) not-disabled:focus:(outline-none transition-shadow ring-2)`,
-          ]}
-          onClick={onCreateFrame}>
-          <span css={tw`sr-only`}>Create frame</span>
-          <span css={tw`block size-4 transform rotate-45`}>
+        <IconButton type="button" title="Create frame" onClick={onCreateFrame}>
+          <span css={tw`block transform rotate-45`}>
             <Close />
           </span>
-        </button>
+        </IconButton>
       }>
       <ul css={tw`flex flex-col mt-3`}>
         <li css={tw`flex flex-col not-last:mb-6`}>

@@ -9,13 +9,11 @@ export type AddArtworkContextValue = {
   editor: SelectionEditor;
   frameId?: number;
   image?: HTMLImageElement;
-  // isNextDisabled: boolean;
   measurement: Measurement;
   setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
   setDetails: Dispatch<SetStateAction<ArtworkDetails>>;
   setFrameId: Dispatch<SetStateAction<number | undefined>>;
   setImage: Dispatch<SetStateAction<HTMLImageElement | undefined>>;
-  // setIsNextDisabled: Dispatch<SetStateAction<boolean>>;
   setMeasurement: Dispatch<SetStateAction<Measurement>>;
 };
 

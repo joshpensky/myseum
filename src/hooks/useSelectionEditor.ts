@@ -20,16 +20,21 @@ export type SelectionEditor = {
   ): void;
 };
 
-export const useSelectionEditor = (): SelectionEditor => {
+export const useSelectionEditor = (initialState?: SelectionEditor): SelectionEditor => {
   // A log of editor history
-  const [history, setHistory] = useState<SelectionEditorPoints[]>([
-    [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 1, y: 1 },
-      { x: 0, y: 1 },
-    ],
-  ]);
+  const [history, setHistory] = useState<SelectionEditorPoints[]>(() => {
+    if (initialState) {
+      return [initialState.points];
+    }
+    return [
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+        { x: 0, y: 1 },
+      ],
+    ];
+  });
   // The current index we're viewing in history ("time travel" state)
   const [historyIndex, setHistoryIndex] = useState(0);
   // The points at our current slice of history
