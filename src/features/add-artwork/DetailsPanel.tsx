@@ -5,7 +5,7 @@ import Panel from './Panel';
 import TextField from './TextField';
 
 const DetailsPanel = () => {
-  const { details, setDetails } = useAddArtworkContext();
+  const { details, isSubmitting, setDetails } = useAddArtworkContext();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mounted = useRef(false);
@@ -49,6 +49,8 @@ const DetailsPanel = () => {
             type="text"
             autoComplete="off"
             placeholder="Unknown"
+            required
+            disabled={isSubmitting}
             value={details.title}
             onChange={value =>
               setDetails(details => ({
@@ -66,6 +68,7 @@ const DetailsPanel = () => {
             id="artist"
             type="text"
             placeholder="Unknown"
+            disabled={isSubmitting}
             value={details.artist}
             onChange={value =>
               setDetails(details => ({
@@ -84,6 +87,8 @@ const DetailsPanel = () => {
             type="text"
             grow
             placeholder="Unknown"
+            required
+            disabled={isSubmitting}
             value={details.description}
             onChange={value =>
               setDetails(details => ({
@@ -102,6 +107,7 @@ const DetailsPanel = () => {
               id="createdAt"
               type="number"
               min={0}
+              disabled={isSubmitting}
               value={details.createdAt}
               onChange={value =>
                 setDetails(details => ({
@@ -119,6 +125,7 @@ const DetailsPanel = () => {
               id="acquiredAt"
               type="number"
               min={0}
+              disabled={isSubmitting}
               value={details.acquiredAt}
               onChange={value =>
                 setDetails(details => ({

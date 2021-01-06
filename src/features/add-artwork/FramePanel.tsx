@@ -16,35 +16,40 @@ type FrameInputProps = {
   value: Frame | undefined;
 };
 const FrameInput = ({ label, value }: FrameInputProps) => {
-  const { actualDimensions, frameId, setFrameId } = useAddArtworkContext();
+  const { actualDimensions, frameId, isSubmitting, setFrameId } = useAddArtworkContext();
 
   const id = `frame-${value?.id ?? 'none'}`;
+  const isChecked = frameId === value?.id;
 
   let sizeRatio = actualDimensions.width / actualDimensions.height;
   if (value) {
     sizeRatio = value.dimensions.width / value.dimensions.height;
   }
-  const frameCss = css`
-    height: ${theme`height.24`};
-    width: calc(${theme`height.24`} * ${sizeRatio});
-  `;
 
-  const isChecked = frameId === value?.id;
+  const frameCss = [
+    isSubmitting && tw`opacity-50`,
+    css`
+      height: ${theme`height.24`};
+      width: calc(${theme`height.24`} * ${sizeRatio});
+    `,
+  ];
 
   return (
     <div css={tw`flex flex-col mr-5 mb-5`}>
       <input
-        css={tw`sr-only focus-visible:sibling:(ring-1)`}
+        css={tw`sr-only not-disabled:focus-visible:sibling:(ring-1)`}
         id={id}
         type="radio"
-        checked={isChecked}
         name="frame"
+        disabled={isSubmitting}
+        checked={isChecked}
         onChange={() => setFrameId(value?.id)}
       />
       <label
         css={[
-          tw`relative flex cursor-pointer rounded-sm`,
+          tw`relative flex rounded-sm`,
           tw`ring-0 ring-white ring-opacity-40 ring-offset-4 ring-offset-black`,
+          isSubmitting ? tw`cursor-not-allowed` : tw`cursor-pointer`,
         ]}
         htmlFor={id}>
         <span css={tw`sr-only`}>{label}</span>
@@ -77,7 +82,7 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
 };
 
 const FramePanel = () => {
-  const { actualDimensions } = useAddArtworkContext();
+  const { actualDimensions, isSubmitting } = useAddArtworkContext();
 
   const onCreateFrame = () => {
     // do stuff
@@ -87,7 +92,11 @@ const FramePanel = () => {
     <Panel
       title="Frame"
       headerAction={
-        <IconButton type="button" title="Create frame" onClick={onCreateFrame}>
+        <IconButton
+          type="button"
+          title="Create frame"
+          disabled={isSubmitting}
+          onClick={onCreateFrame}>
           <span css={tw`block transform rotate-45`}>
             <Close />
           </span>
@@ -96,14 +105,12 @@ const FramePanel = () => {
       <ul css={tw`flex flex-col mt-3`}>
         <li css={tw`flex flex-col not-last:mb-6`}>
           <p css={tw`text-sm text-gray-300 mb-3`}>No frame</p>
-
           <div css={tw`flex flex-wrap -mb-5`}>
             <FrameInput value={undefined} label="No frame" />
           </div>
         </li>
         <li css={tw`flex flex-col not-last:mb-6`}>
           <p css={tw`text-sm text-gray-300 mb-3`}>Compatible frames</p>
-
           <div css={tw`flex flex-wrap -mb-5`}>
             <FrameInput value={{ id: 1, dimensions: actualDimensions }} label="1 frame" />
             <FrameInput value={{ id: 2, dimensions: actualDimensions }} label="2 frame" />

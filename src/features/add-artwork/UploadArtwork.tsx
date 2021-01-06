@@ -94,7 +94,6 @@ const UploadArtwork = () => {
 
   // Disable the next button if image is not available
   useLayoutEffect(() => {
-    // setIsNextDisabled(!image);
     // _DEV_ TODO: remove
     if (!image) {
       loadImage('/img/test-add.jpeg');

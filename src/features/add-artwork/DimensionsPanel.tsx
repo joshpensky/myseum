@@ -31,6 +31,7 @@ const presets: Preset[] = [
 const DimensionsPanel = () => {
   const {
     actualDimensions,
+    isSubmitting,
     measurement,
     setActualDimensions,
     setMeasurement,
@@ -61,6 +62,7 @@ const DimensionsPanel = () => {
           </label>
           <Select
             id="preset"
+            disabled={isSubmitting}
             value={presetType}
             onChange={value => onPresetUpdate(value as Preset['type'])}
             options={[
@@ -78,7 +80,7 @@ const DimensionsPanel = () => {
               id="width"
               type="number"
               min={1}
-              step={1}
+              disabled={isSubmitting}
               value={actualDimensions.width}
               onChange={value => {
                 setPresetType('custom');
@@ -100,7 +102,7 @@ const DimensionsPanel = () => {
               id="height"
               type="number"
               min={1}
-              step={1}
+              disabled={isSubmitting}
               value={actualDimensions.height}
               onChange={value => {
                 setPresetType('custom');
@@ -117,6 +119,7 @@ const DimensionsPanel = () => {
             </label>
             <Select
               id="measurement"
+              disabled={isSubmitting}
               value={measurement}
               onChange={value => {
                 setPresetType('custom');

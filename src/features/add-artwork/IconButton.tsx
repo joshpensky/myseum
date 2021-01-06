@@ -1,5 +1,5 @@
 import { BaseProps } from '@src/types';
-import { MouseEvent, PropsWithChildren, ReactNode } from 'react';
+import { MouseEvent, PropsWithChildren } from 'react';
 import tw from 'twin.macro';
 
 export type IconButtonProps = BaseProps & {

@@ -44,6 +44,9 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
 
   const [isEditingSelection, setIsEditingSelection] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitDisabled = isSubmitting || isEditingSelection || !details.title.trim();
+
   /**
    * Key handler. Closes the modal form on escape key.
    */
@@ -57,14 +60,18 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
     }
   };
 
-  const isSubmitDisabled = isEditingSelection || !details.title.trim();
-
-  const onFinish = (evt: FormEvent<HTMLFormElement>) => {
+  /**
+   * Callback handler for when the form submits. Validates and saves data
+   * to the API, then closes the modal.
+   */
+  const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     if (isSubmitDisabled) {
       return;
     }
-    // TODO: save data to API
+    setIsSubmitting(true);
+    // TODO: validate and save data to API
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -76,7 +83,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
     };
   }, [onClose]);
 
-  // Disables/enables body scroll on mount/unmount, respectively
+  // Disables/enables body scroll on mount/unmount, respetively
   useEffect(() => {
     if (rootRef.current) {
       disableBodyScroll(rootRef.current);
@@ -96,6 +103,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
         editor,
         frameId,
         image,
+        isSubmitting,
         measurement,
         setActualDimensions,
         setDetails,
@@ -117,25 +125,23 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                   <IconButton
                     css={tw`mr-4`}
                     title="Cancel"
-                    disabled={isEditingSelection}
+                    disabled={isSubmitting || isEditingSelection}
                     onClick={onClose}>
                     <Close />
                   </IconButton>
                   <h1 css={[isEditingSelection && tw`opacity-50`]}>
                     <span css={tw`font-medium`}>Creating: </span>
-                    <span css={[!details.title.trim() && tw`opacity-50`]}>
+                    <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
                       {details.title.trim() || 'Unknown'}
                     </span>
                   </h1>
                 </Fragment>
               ) : (
-                <SubtleButton disabled={isEditingSelection} onClick={onClose}>
-                  Cancel
-                </SubtleButton>
+                <SubtleButton onClick={onClose}>Cancel</SubtleButton>
               )}
             </header>
             <div css={tw`flex flex-1 relative`}>
-              <form css={tw`flex flex-1`} onSubmit={onFinish}>
+              <form css={tw`flex flex-1`} onSubmit={onSubmit}>
                 {!image && <UploadArtwork />}
                 {image && (
                   <Fragment>
@@ -172,6 +178,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                           <Button
                             css={tw`mt-2`}
                             type="button"
+                            disabled={isSubmitting}
                             onClick={() => setIsEditingSelection(true)}
                             aria-controls="artwork-edit-selection-modal">
                             Edit selection

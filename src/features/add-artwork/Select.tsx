@@ -9,13 +9,24 @@ export type SelectOption = {
 };
 
 export type SelectProps = BaseProps & {
+  disabled?: boolean;
   id?: string;
-  options: SelectOption[];
   onChange(value: string): void;
+  options: SelectOption[];
+  required?: boolean;
   value: string;
 };
 
-const Select = ({ className, css: customCss, id, options, value, onChange }: SelectProps) => {
+const Select = ({
+  className,
+  css: customCss,
+  disabled,
+  id,
+  onChange,
+  options,
+  required,
+  value,
+}: SelectProps) => {
   const _onChange = (evt: ChangeEvent<HTMLSelectElement>) => {
     onChange(evt.target.value);
   };
@@ -24,15 +35,18 @@ const Select = ({ className, css: customCss, id, options, value, onChange }: Sel
     <div
       css={[
         tw`flex items-center rounded relative border border-white border-opacity-20 bg-white bg-opacity-0`,
-        tw`hover:(bg-opacity-10) focus-within:(bg-opacity-20)`,
+        !disabled && tw`hover:(bg-opacity-10) focus-within:(bg-opacity-20)`,
       ]}>
       <select
         id={id}
         className={className}
         css={[
-          tw`flex flex-1 bg-transparent py-2 pl-3 pr-9 appearance-none cursor-pointer focus:outline-none`,
+          tw`flex flex-1 bg-transparent py-2 pl-3 pr-9 appearance-none cursor-pointer opacity-100`,
+          tw`disabled:(text-gray-300 text-opacity-70 cursor-not-allowed) focus:outline-none`,
           customCss,
         ]}
+        required={required}
+        disabled={disabled}
         value={value}
         onChange={_onChange}>
         {options.map(option => (

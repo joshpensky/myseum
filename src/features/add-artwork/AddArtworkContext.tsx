@@ -9,6 +9,7 @@ export type AddArtworkContextValue = {
   editor: SelectionEditor;
   frameId?: number;
   image?: HTMLImageElement;
+  isSubmitting: boolean;
   measurement: Measurement;
   setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
   setDetails: Dispatch<SetStateAction<ArtworkDetails>>;

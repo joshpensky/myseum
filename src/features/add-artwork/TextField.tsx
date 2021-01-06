@@ -87,8 +87,11 @@ const TextField = ({
 
   const commonStyles = [
     tw`bg-transparent min-w-0 w-full py-2 px-3 border border-white border-opacity-20 bg-white bg-opacity-0 rounded`,
-    tw`hover:(bg-opacity-10) focus:(outline-none bg-opacity-20)`,
     tw`placeholder-gray-300 placeholder-opacity-70`,
+    [
+      tw`disabled:(text-gray-300 text-opacity-70 placeholder-opacity-50 cursor-not-allowed)`,
+      tw`not-disabled:hover:(bg-opacity-10) not-disabled:focus:(outline-none bg-opacity-20)`,
+    ],
     css`
       &::selection {
         background: ${rgba(theme`colors.white`, 0.35)};
