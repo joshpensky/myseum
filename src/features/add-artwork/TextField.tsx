@@ -1,7 +1,6 @@
-import { BaseProps } from '@src/types';
-import { rgba } from 'polished';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef } from 'react';
-import tw, { css, theme } from 'twin.macro';
+import tw, { css } from 'twin.macro';
+import { BaseProps } from '@src/types';
 
 type BaseTextFieldProps = BaseProps & {
   autoComplete?: 'off' | undefined;
@@ -90,13 +89,8 @@ const TextField = ({
     tw`placeholder-gray-300 placeholder-opacity-70`,
     [
       tw`disabled:(text-gray-300 text-opacity-70 placeholder-opacity-50 cursor-not-allowed)`,
-      tw`not-disabled:hover:(bg-opacity-10) not-disabled:focus:(outline-none bg-opacity-20)`,
+      tw`not-disabled:hover:(bg-opacity-10) not-disabled:focus:(outline-none bg-opacity-15)`,
     ],
-    css`
-      &::selection {
-        background: ${rgba(theme`colors.white`, 0.35)};
-      }
-    `,
     customCss,
   ];
 

@@ -1,23 +1,23 @@
 import { FormEvent, Fragment, useEffect, useRef, useState } from 'react';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
+import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
-import tw from 'twin.macro';
+import tw, { css, theme } from 'twin.macro';
+import Button from '@src/components/Button';
+import IconButton from '@src/components/IconButton';
+import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from './AddArtworkContext';
+import DetailsPanel from './DetailsPanel';
+import DimensionsPanel from './DimensionsPanel';
+import EditSelectionModal from './EditSelectionModal';
+import FramePanel from './FramePanel';
+import Panel from './Panel';
 import UploadArtwork from './UploadArtwork';
 import { ArtworkDetails, Measurement } from './types';
-import { Dimensions } from '@src/types';
-import Button from '@src/components/Button';
-import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import Panel from './Panel';
-import DimensionsPanel from './DimensionsPanel';
-import DetailsPanel from './DetailsPanel';
-import FramePanel from './FramePanel';
-import IconButton from './IconButton';
 import Close from '@src/svgs/Close';
-import SubtleButton from './SubtleButton';
-import EditSelectionModal from './EditSelectionModal';
+import { Dimensions } from '@src/types';
 
 export type AddArtworkRootProps = {
   onClose(): void;
@@ -115,30 +115,32 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
         <FocusLock returnFocus>
           <div
             ref={rootRef}
-            css={tw`fixed inset-0 bg-black text-white flex flex-col flex-1 z-modal`}
+            css={[
+              tw`fixed inset-0 bg-black text-white flex flex-col flex-1 z-modal`,
+              css`
+                & *::selection {
+                  background: ${rgba(theme`colors.white`, 0.35)};
+                }
+              `,
+            ]}
             role="dialog"
             aria-label="Create Artwork Modal"
             aria-modal="true">
             <header css={tw`flex items-center border-b border-white px-6 py-5`}>
-              {image ? (
-                <Fragment>
-                  <IconButton
-                    css={tw`mr-4`}
-                    title="Cancel"
-                    disabled={isSubmitting || isEditingSelection}
-                    onClick={onClose}>
-                    <Close />
-                  </IconButton>
-                  <h1 css={[isEditingSelection && tw`opacity-50`]}>
-                    <span css={tw`font-medium`}>Creating: </span>
-                    <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
-                      {details.title.trim() || 'Unknown'}
-                    </span>
-                  </h1>
-                </Fragment>
-              ) : (
-                <SubtleButton onClick={onClose}>Cancel</SubtleButton>
-              )}
+              <IconButton
+                title="Cancel"
+                disabled={isSubmitting || isEditingSelection}
+                onClick={onClose}>
+                <Close />
+              </IconButton>
+              <h1 css={[tw`ml-5`, isEditingSelection && tw`opacity-50`]}>
+                <span css={tw`font-medium`}>Creating{image ? ': ' : ' artwork'}</span>
+                {image && (
+                  <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
+                    {details.title.trim() || 'Unknown'}
+                  </span>
+                )}
+              </h1>
             </header>
             <div css={tw`flex flex-1 relative`}>
               <form css={tw`flex flex-1`} onSubmit={onSubmit}>
@@ -157,8 +159,8 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                       {/* TODO: add actual logic for showing this alert */}
                       <p
                         css={[
-                          tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black bg-opacity-90 text-yellow-500`,
-                          tw`before:(content absolute inset-0 rounded-full bg-yellow-500 bg-opacity-20 pointer-events-none)`,
+                          tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-yellow-500`,
+                          tw`before:(content absolute inset-0 rounded-3xl bg-yellow-500 bg-opacity-20 pointer-events-none)`,
                           [
                             tw`transition-all ease-out`,
                             (!frameId || frameId < 9) &&
@@ -194,12 +196,13 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
 
                 {/* Render Save button in top right corner, last in tab order */}
                 {image && (
-                  <SubtleButton
-                    css={tw`fixed right-6 top-5`}
+                  <Button
+                    css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
                     disabled={isSubmitDisabled}
+                    filled
                     type="submit">
                     Save
-                  </SubtleButton>
+                  </Button>
                 )}
               </form>
 

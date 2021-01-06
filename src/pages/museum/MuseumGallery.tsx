@@ -211,7 +211,8 @@ const MuseumGallery = () => {
                   </span>
                 </FloatingActionButton>
                 <Popover.Body>
-                  <header css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex justify-between`}>
+                  <header
+                    css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex items-center justify-between`}>
                     <h1 css={tw`font-serif leading-none text-xl mt-1 mr-3`}>Settings</h1>
                     <IconButton title="Close settings" onClick={() => settingsPopover.close(true)}>
                       <Close />

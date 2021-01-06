@@ -1,10 +1,10 @@
+import tw, { css, theme } from 'twin.macro';
+import IconButton from '@src/components/IconButton';
+import { useAddArtworkContext } from './AddArtworkContext';
+import Panel from './Panel';
 import Checkmark from '@src/svgs/Checkmark';
 import Close from '@src/svgs/Close';
 import { Dimensions } from '@src/types';
-import tw, { css, theme } from 'twin.macro';
-import { useAddArtworkContext } from './AddArtworkContext';
-import IconButton from './IconButton';
-import Panel from './Panel';
 
 type Frame = {
   id: number;
@@ -48,7 +48,7 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
       <label
         css={[
           tw`relative flex rounded-sm`,
-          tw`ring-0 ring-white ring-opacity-40 ring-offset-4 ring-offset-black`,
+          tw`ring-0 ring-white ring-opacity-50 ring-offset-4 ring-offset-black`,
           isSubmitting ? tw`cursor-not-allowed` : tw`cursor-pointer`,
         ]}
         htmlFor={id}>

@@ -66,6 +66,9 @@ module.exports = {
       maxHeight: {
         '3xl': '48rem',
       },
+      opacity: {
+        15: '0.15',
+      },
       ringWidth: {
         0.5: '0.5px',
         6: '6px',
@@ -76,6 +79,7 @@ module.exports = {
       },
       zIndex: {
         '-1': '-1',
+        1: '1',
         fab: '100',
         popover: '110',
         modal: '200',

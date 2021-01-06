@@ -1,7 +1,7 @@
-import Caret from '@src/svgs/Caret';
-import { BaseProps } from '@src/types';
 import { ChangeEvent } from 'react';
 import tw from 'twin.macro';
+import Caret from '@src/svgs/Caret';
+import { BaseProps } from '@src/types';
 
 export type SelectOption = {
   value: string;
@@ -35,7 +35,7 @@ const Select = ({
     <div
       css={[
         tw`flex items-center rounded relative border border-white border-opacity-20 bg-white bg-opacity-0`,
-        !disabled && tw`hover:(bg-opacity-10) focus-within:(bg-opacity-20)`,
+        !disabled && tw`hover:(bg-opacity-10) focus-within:(bg-opacity-15)`,
       ]}>
       <select
         id={id}

@@ -569,8 +569,8 @@ const ImageSelectionEditor = ({
       )}
       <p
         css={[
-          tw`absolute bottom-0 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black bg-opacity-90 text-red-500`,
-          tw`before:(content absolute inset-0 rounded-full bg-red-500 bg-opacity-20 pointer-events-none)`,
+          tw`absolute bottom-0 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-red-500`,
+          tw`before:(content absolute inset-0 rounded-3xl bg-red-500 bg-opacity-20 pointer-events-none)`,
           [
             tw`transition-all ease-out`,
             editor.isValid && tw`opacity-0 translate-y-1 pointer-events-none`,

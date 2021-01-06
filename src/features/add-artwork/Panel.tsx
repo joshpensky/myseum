@@ -1,6 +1,6 @@
-import { BaseProps } from '@src/types';
 import { PropsWithChildren, ReactNode } from 'react';
 import tw from 'twin.macro';
+import { BaseProps } from '@src/types';
 
 type PanelProps = BaseProps & {
   headerAction?: ReactNode;

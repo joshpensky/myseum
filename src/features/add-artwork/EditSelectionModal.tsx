@@ -1,13 +1,12 @@
+import { FormEvent, useEffect } from 'react';
+import FocusLock from 'react-focus-lock';
+import tw from 'twin.macro';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import { SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
-import { Dimensions } from '@src/types';
-import { FormEvent, useEffect } from 'react';
-import FocusLock from 'react-focus-lock';
-import tw from 'twin.macro';
 import Panel from './Panel';
-import SubtleButton from './SubtleButton';
+import { Dimensions } from '@src/types';
 
 type EditSelectionModalProps = {
   actualDimensions: Dimensions;
@@ -72,12 +71,12 @@ const EditSelectionModal = ({
               <Panel css={tw`flex-1`} title="Selection">
                 <p css={tw`mb-5`}>Drag the handles to match the size of the artwork.</p>
                 <div css={tw`flex items-center`}>
-                  <Button css={tw`mr-5`} type="submit" disabled={!modalEditor.isValid}>
-                    Save
+                  <Button css={tw`mr-3`} type="submit" filled disabled={!modalEditor.isValid}>
+                    Update
                   </Button>
-                  <SubtleButton type="button" onClick={() => onClose()}>
+                  <Button type="button" onClick={() => onClose()}>
                     Cancel
-                  </SubtleButton>
+                  </Button>
                 </div>
                 <div css={tw`flex flex-col flex-1 w-full justify-end mt-6`}>
                   <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>

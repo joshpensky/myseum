@@ -93,10 +93,14 @@ const DetailsPanel = () => {
             onChange={value =>
               setDetails(details => ({
                 ...details,
-                description: value,
+                description: value.slice(0, 128),
               }))
             }
           />
+          <p css={tw`pt-1 text-xs text-gray-300 self-end`}>
+            <span css={tw`sr-only`}>Word count: </span>
+            <span>{details.description.length} / 128</span>
+          </p>
         </div>
         <div css={tw`flex flex-1`}>
           <div css={tw`flex flex-col flex-1 mr-4`}>

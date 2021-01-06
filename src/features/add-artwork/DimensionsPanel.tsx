@@ -1,11 +1,11 @@
+import { useState } from 'react';
 import tw from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
-import { Measurement, Preset } from './types';
-import { useState } from 'react';
-import Select from './Select';
-import Close from '@src/svgs/Close';
 import Panel from './Panel';
+import Select from './Select';
 import TextField from './TextField';
+import { Measurement, Preset } from './types';
+import Close from '@src/svgs/Close';
 
 const presets: Preset[] = [
   {
@@ -56,8 +56,8 @@ const DimensionsPanel = () => {
   return (
     <Panel title="Dimensions">
       <div css={tw`flex flex-col mt-2`}>
-        <div css={tw`flex items-center`}>
-          <label css={tw`mr-3 text-sm text-gray-300`} htmlFor="preset">
+        <div css={tw`flex flex-1 flex-col`}>
+          <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="preset">
             Preset
           </label>
           <Select

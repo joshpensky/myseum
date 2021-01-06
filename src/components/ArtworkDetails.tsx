@@ -39,31 +39,27 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
         />
       )}
       <Popover.Body>
-        <header css={tw`py-2 px-5 bg-white rounded-t-lg mb-px`}>
-          <div css={tw`flex justify-between`}>
-            <div css={tw`flex mr-3`}>
-              <div css={tw`mr-3`}>
-                <IconButton title="Expand artwork">
-                  <Fullscreen />
-                </IconButton>
-              </div>
-              <div css={tw`mr-3`}>
-                <IconButton title="Edit artwork">
-                  <Edit />
-                </IconButton>
-              </div>
-              <div>
-                <IconButton title="Delete artwork">
-                  <Trash />
-                </IconButton>
-              </div>
+        <header css={tw`py-4 px-5 bg-white flex items-center justify-between rounded-t-lg mb-px`}>
+          <div css={tw`flex items-center`}>
+            <div css={tw`flex mr-5`}>
+              <IconButton title="Expand artwork">
+                <Fullscreen />
+              </IconButton>
             </div>
-            <div>
-              <IconButton title="Close" onClick={() => popover.close(true)}>
-                <Close />
+            <div css={tw`flex mr-5`}>
+              <IconButton title="Edit artwork">
+                <Edit />
+              </IconButton>
+            </div>
+            <div css={tw`flex mr-5`}>
+              <IconButton title="Delete artwork">
+                <Trash />
               </IconButton>
             </div>
           </div>
+          <IconButton title="Close" onClick={() => popover.close(true)}>
+            <Close />
+          </IconButton>
         </header>
         <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
           <div css={tw`mb-2`}>
