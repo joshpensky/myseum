@@ -36,15 +36,16 @@ const EditSelectionModal = ({
       case 'Escape':
       case 'Esc': {
         evt.preventDefault();
+        evt.stopPropagation();
         onClose();
       }
     }
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown, true);
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', onKeyDown, true);
     };
   }, []);
 

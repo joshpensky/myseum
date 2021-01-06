@@ -98,7 +98,8 @@ const DetailsPanel = () => {
             }
           />
           <p css={tw`pt-1 text-xs text-gray-300 self-end`}>
-            <span css={tw`sr-only`}>Word count: </span>
+            {/* TODO: a11y (e.g., https://github.com/rikschennink/short-and-sweet/blob/master/src/short-and-sweet.js) */}
+            <span css={tw`sr-only`}>Character count: </span>
             <span>{details.description.length} / 128</span>
           </p>
         </div>

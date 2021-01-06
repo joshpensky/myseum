@@ -57,8 +57,9 @@ const UploadArtwork = () => {
     reader.onload = async () => {
       if (typeof reader.result === 'string') {
         await loadImage(reader.result);
+      } else {
+        setIsUploading(false);
       }
-      setIsUploading(false);
     };
     reader.readAsDataURL(imageFile);
   };
@@ -92,9 +93,9 @@ const UploadArtwork = () => {
     onFileUpload(evt.dataTransfer.files);
   };
 
-  // Disable the next button if image is not available
+  // _DEV_ TODO: remove
+  // Loads an image immediately
   useLayoutEffect(() => {
-    // _DEV_ TODO: remove
     if (!image) {
       loadImage('/img/test-add.jpeg');
     }

@@ -1,4 +1,5 @@
 import { FormEvent, Fragment, useEffect, useRef, useState } from 'react';
+import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
@@ -25,6 +26,7 @@ export type AddArtworkRootProps = {
 
 const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const editor = useSelectionEditor();
   const [image, setImage] = useState<HTMLImageElement>();
@@ -47,6 +49,68 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmitDisabled = isSubmitting || isEditingSelection || !details.title.trim();
 
+  const ModalAnimations = {
+    enter() {
+      const scalePadding = 24; // # of pixels to end smaller
+      const scaleXStart = (window.innerWidth - scalePadding) / window.innerWidth;
+      const scaleYStart = (window.innerHeight - scalePadding) / window.innerHeight;
+      const t = anime
+        .timeline()
+        .add({
+          targets: rootRef.current,
+          scaleX: [scaleXStart, 1],
+          scaleY: [scaleYStart, 1],
+          opacity: [0, 1],
+          duration: 300,
+          easing: 'easeOutQuint',
+        })
+        .add(
+          {
+            targets: contentRef.current,
+            opacity: [0, 1],
+            duration: 150,
+            easing: 'easeOutQuad',
+          },
+          50,
+        );
+      return t.finished;
+    },
+    leave() {
+      const scalePadding = 24; // # of pixels to start smaller
+      const scaleXEnd = (window.innerWidth - scalePadding) / window.innerWidth;
+      const scaleYEnd = (window.innerHeight - scalePadding) / window.innerHeight;
+      const t = anime
+        .timeline()
+        .add({
+          targets: contentRef.current,
+          opacity: [1, 0],
+          duration: 150,
+          easing: 'easeOutSine',
+        })
+        .add(
+          {
+            targets: rootRef.current,
+            scaleX: [1, scaleXEnd],
+            scaleY: [1, scaleYEnd],
+            opacity: [1, 0],
+            duration: 300,
+            easing: 'easeOutQuint',
+          },
+          50,
+        );
+      return t.finished;
+    },
+  };
+
+  /**
+   * Wrapper for the close handler. Plays the close animation, then calls the
+   * passed handler.
+   */
+  const _onClose = async () => {
+    await ModalAnimations.leave();
+    onClose();
+  };
+
   /**
    * Key handler. Closes the modal form on escape key.
    */
@@ -55,7 +119,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
       case 'Escape':
       case 'Esc': {
         evt.preventDefault();
-        onClose();
+        _onClose();
       }
     }
   };
@@ -72,7 +136,7 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
     setIsSubmitting(true);
     // TODO: validate and save data to API
     setIsSubmitting(false);
-    onClose();
+    _onClose();
   };
 
   // Adds the key handler
@@ -83,9 +147,10 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
     };
   }, [onClose]);
 
-  // Disables/enables body scroll on mount/unmount, respetively
+  // Disables/enables body scroll on mount/unmount, respectively
   useEffect(() => {
     if (rootRef.current) {
+      ModalAnimations.enter();
       disableBodyScroll(rootRef.current);
     }
     return () => {
@@ -115,9 +180,12 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
         <FocusLock returnFocus>
           <div
             ref={rootRef}
+            id="add-artwork-modal"
             css={[
-              tw`fixed inset-0 bg-black text-white flex flex-col flex-1 z-modal`,
+              tw`fixed inset-0 bg-black text-white z-modal overflow-hidden`,
+              tw`opacity-0`,
               css`
+                box-shadow: 0 0 70px 0 ${rgba(theme`colors.white`, 0.5)};
                 & *::selection {
                   background: ${rgba(theme`colors.white`, 0.35)};
                 }
@@ -126,99 +194,104 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
             role="dialog"
             aria-label="Create Artwork Modal"
             aria-modal="true">
-            <header css={tw`flex items-center border-b border-white px-6 py-5`}>
-              <IconButton
-                title="Cancel"
-                disabled={isSubmitting || isEditingSelection}
-                onClick={onClose}>
-                <Close />
-              </IconButton>
-              <h1 css={[tw`ml-5`, isEditingSelection && tw`opacity-50`]}>
-                <span css={tw`font-medium`}>Creating{image ? ': ' : ' artwork'}</span>
-                {image && (
-                  <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
-                    {details.title.trim() || 'Unknown'}
-                  </span>
-                )}
-              </h1>
-            </header>
-            <div css={tw`flex flex-1 relative`}>
-              <form css={tw`flex flex-1`} onSubmit={onSubmit}>
-                {!image && <UploadArtwork />}
-                {image && (
-                  <Fragment>
-                    <div
-                      css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative border-r border-white`}>
-                      <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
-                        <ImageSelectionPreview
-                          editor={editor}
-                          actualDimensions={actualDimensions}
-                          image={image}
-                        />
-                      </div>
-                      {/* TODO: add actual logic for showing this alert */}
-                      <p
-                        css={[
-                          tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-yellow-500`,
-                          tw`before:(content absolute inset-0 rounded-3xl bg-yellow-500 bg-opacity-20 pointer-events-none)`,
-                          [
-                            tw`transition-all ease-out`,
-                            (!frameId || frameId < 9) &&
-                              tw`opacity-0 translate-y-1 pointer-events-none`,
-                          ],
-                        ]}
-                        role="region"
-                        aria-live="assertive"
-                        aria-hidden={!frameId || frameId < 9}>
-                        Artwork may be cropped in this frame.
-                      </p>
-                    </div>
-                    <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
+            <div
+              ref={contentRef}
+              id="add-artwork-modal-content"
+              css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
+              <header css={tw`flex items-center border-b border-white px-6 py-5`}>
+                <IconButton
+                  title="Cancel"
+                  disabled={isSubmitting || isEditingSelection}
+                  onClick={_onClose}>
+                  <Close />
+                </IconButton>
+                <h1 css={[tw`ml-5`, isEditingSelection && tw`opacity-50`]}>
+                  <span css={tw`font-medium`}>Creating{image ? ': ' : ' artwork'}</span>
+                  {image && (
+                    <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
+                      {details.title.trim() || 'Unknown'}
+                    </span>
+                  )}
+                </h1>
+              </header>
+              <div css={tw`flex flex-1 relative`}>
+                <form css={tw`flex flex-1`} onSubmit={onSubmit}>
+                  {!image && <UploadArtwork />}
+                  {image && (
+                    <Fragment>
                       <div
-                        css={tw`absolute inset-0 size-full flex flex-col overflow-x-hidden overflow-y-auto divide-y divide-white`}>
-                        <Panel css={[isEditingSelection && tw`flex-1`]} title="Selection">
-                          <Button
-                            css={tw`mt-2`}
-                            type="button"
-                            disabled={isSubmitting}
-                            onClick={() => setIsEditingSelection(true)}
-                            aria-controls="artwork-edit-selection-modal">
-                            Edit selection
-                          </Button>
-                        </Panel>
-                        <DimensionsPanel />
-                        <DetailsPanel />
-                        <FramePanel />
+                        css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative border-r border-white`}>
+                        <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
+                          <ImageSelectionPreview
+                            editor={editor}
+                            actualDimensions={actualDimensions}
+                            image={image}
+                          />
+                        </div>
+                        {/* TODO: add actual logic for showing this alert */}
+                        <p
+                          css={[
+                            tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-yellow-500`,
+                            tw`before:(content absolute inset-0 rounded-3xl bg-yellow-500 bg-opacity-20 pointer-events-none)`,
+                            [
+                              tw`transition-all ease-out`,
+                              (!frameId || frameId < 9) &&
+                                tw`opacity-0 translate-y-1 pointer-events-none`,
+                            ],
+                          ]}
+                          role="region"
+                          aria-live="assertive"
+                          aria-hidden={!frameId || frameId < 9}>
+                          Artwork may be cropped in this frame.
+                        </p>
                       </div>
-                    </div>
-                  </Fragment>
-                )}
+                      <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
+                        <div
+                          css={tw`absolute inset-0 size-full flex flex-col overflow-x-hidden overflow-y-auto divide-y divide-white`}>
+                          <Panel css={[isEditingSelection && tw`flex-1`]} title="Selection">
+                            <Button
+                              css={tw`mt-2`}
+                              type="button"
+                              disabled={isSubmitting}
+                              onClick={() => setIsEditingSelection(true)}
+                              aria-controls="artwork-edit-selection-modal">
+                              Edit selection
+                            </Button>
+                          </Panel>
+                          <DimensionsPanel />
+                          <DetailsPanel />
+                          <FramePanel />
+                        </div>
+                      </div>
+                    </Fragment>
+                  )}
 
-                {/* Render Save button in top right corner, last in tab order */}
-                {image && (
-                  <Button
-                    css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
-                    disabled={isSubmitDisabled}
-                    filled
-                    type="submit">
-                    Save
-                  </Button>
-                )}
-              </form>
+                  {/* Render Save button in top right corner, last in tab order */}
+                  {image && (
+                    <Button
+                      css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
+                      disabled={isSubmitDisabled}
+                      filled
+                      type="submit">
+                      Save
+                    </Button>
+                  )}
+                </form>
 
-              {isEditingSelection && image && (
-                <EditSelectionModal
-                  editor={editor}
-                  actualDimensions={actualDimensions}
-                  image={image}
-                  onClose={modalEditor => {
-                    if (modalEditor) {
-                      editor.setPoints(modalEditor.points); // Save the latest state, if available
-                    }
-                    setIsEditingSelection(false); // Close the editor
-                  }}
-                />
-              )}
+                {isEditingSelection && image && (
+                  <EditSelectionModal
+                    editor={editor}
+                    actualDimensions={actualDimensions}
+                    image={image}
+                    onClose={modalEditor => {
+                      if (modalEditor) {
+                        editor.setPoints(modalEditor.points); // Save the latest state, if available
+                      }
+                      setIsEditingSelection(false); // Close the editor
+                    }}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </FocusLock>
