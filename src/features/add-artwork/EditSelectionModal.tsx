@@ -21,7 +21,7 @@ const EditSelectionModal = ({
   image,
   onClose,
 }: EditSelectionModalProps) => {
-  const modalEditor = useSelectionEditor(editor);
+  const modalEditor = useSelectionEditor(editor.layers);
 
   const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();

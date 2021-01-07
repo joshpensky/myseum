@@ -4,6 +4,11 @@ import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export type SelectionEditorPoints = [Position, Position, Position, Position];
 
+export type SelectionEditorLayer = {
+  name?: string;
+  points: SelectionEditorPoints;
+};
+
 export type SelectionEditor = {
   history: {
     lap(): void;
@@ -12,59 +17,70 @@ export type SelectionEditor = {
     squash(): void;
     restart(): void;
   };
-  isValid: boolean;
-  points: SelectionEditorPoints;
-  setPoints(
-    points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+  isValid: boolean[];
+  layers: SelectionEditorLayer[];
+  setLayers(
+    layers:
+      | SelectionEditorLayer[]
+      | ((currLayers: SelectionEditorLayer[]) => SelectionEditorLayer[]),
     lap?: boolean,
   ): void;
 };
 
-export const useSelectionEditor = (initialState?: SelectionEditor): SelectionEditor => {
+export const useSelectionEditor = (initialState?: SelectionEditorLayer[]): SelectionEditor => {
   // A log of editor history
-  const [history, setHistory] = useState<SelectionEditorPoints[]>(() => {
+  const [history, setHistory] = useState<SelectionEditorLayer[][]>(() => {
     if (initialState) {
-      return [initialState.points];
+      return [initialState];
     }
     return [
       [
-        { x: 0, y: 0 },
-        { x: 1, y: 0 },
-        { x: 1, y: 1 },
-        { x: 0, y: 1 },
+        {
+          points: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 0, y: 1 },
+          ],
+        },
       ],
     ];
   });
   // The current index we're viewing in history ("time travel" state)
   const [historyIndex, setHistoryIndex] = useState(0);
   // The points at our current slice of history
-  const points = history[historyIndex];
+  const layers = history[historyIndex];
   // Checks whether the current points form a valid convex quadrilateral selection
-  const isSelectionValid = useMemo(() => GeometryUtils.isConvexQuadrilateral(points), [points]);
+  const isSelectionValid = useMemo(
+    () => layers.map(layer => GeometryUtils.isConvexQuadrilateral(layer.points)),
+    [layers],
+  );
 
-  // Updates the points in history
-  const setPoints = (
-    points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+  // Updates the layers in history
+  const setLayers = (
+    layers:
+      | SelectionEditorLayer[]
+      | ((currLayers: SelectionEditorLayer[]) => SelectionEditorLayer[]),
     lap?: boolean,
   ) => {
-    // Get the updated points values
-    let newPoints: SelectionEditorPoints;
-    if (typeof points === 'function') {
-      newPoints = points(history[historyIndex]);
+    // Get the updated layers' values
+    let newLayers: SelectionEditorLayer[];
+    if (typeof layers === 'function') {
+      newLayers = layers(history[historyIndex]);
     } else {
-      newPoints = points;
+      newLayers = layers;
     }
 
     // If lapping, this change will be recorded as a new entry
     if (lap) {
-      const newHistory = [...history.slice(0, historyIndex + 1), newPoints];
+      const newHistory = [...history.slice(0, historyIndex + 1), newLayers];
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
       return;
     }
 
     // Otherwise, it will override the current entry
-    const newHistory = [...history.slice(0, historyIndex), newPoints];
+    const newHistory = [...history.slice(0, historyIndex), newLayers];
     setHistory(newHistory);
   };
 
@@ -111,7 +127,7 @@ export const useSelectionEditor = (initialState?: SelectionEditor): SelectionEdi
       restart,
     },
     isValid: isSelectionValid,
-    points,
-    setPoints,
+    layers,
+    setLayers,
   };
 };

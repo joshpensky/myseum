@@ -1,7 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useContext } from 'react';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
-import { ArtworkDetails, Measurement } from './types';
-import { Dimensions } from '@src/types';
+import { ArtworkDetails } from './types';
+import { Dimensions, Measurement } from '@src/types';
 
 export type AddArtworkContextValue = {
   actualDimensions: Dimensions;
@@ -9,11 +9,13 @@ export type AddArtworkContextValue = {
   editor: SelectionEditor;
   frameId?: number;
   image?: HTMLImageElement;
+  isEscapeDisabled: boolean;
   isSubmitting: boolean;
   measurement: Measurement;
   setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
   setDetails: Dispatch<SetStateAction<ArtworkDetails>>;
   setFrameId: Dispatch<SetStateAction<number | undefined>>;
+  setIsEscapeDisabled: Dispatch<SetStateAction<boolean>>;
   setImage: Dispatch<SetStateAction<HTMLImageElement | undefined>>;
   setMeasurement: Dispatch<SetStateAction<Measurement>>;
 };

@@ -5,6 +5,8 @@ import Panel from './Panel';
 import Checkmark from '@src/svgs/Checkmark';
 import Close from '@src/svgs/Close';
 import { Dimensions } from '@src/types';
+import { useEffect, useState } from 'react';
+import AddFrameRoot from '@src/features/add-frame/AddFrameRoot';
 
 type Frame = {
   id: number;
@@ -82,11 +84,23 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
 };
 
 const FramePanel = () => {
-  const { actualDimensions, isSubmitting } = useAddArtworkContext();
+  const {
+    actualDimensions,
+    isEscapeDisabled,
+    isSubmitting,
+    setIsEscapeDisabled,
+  } = useAddArtworkContext();
 
-  const onCreateFrame = () => {
-    // do stuff
-  };
+  const [isAddingFrame, setIsAddingFrame] = useState(false);
+
+  useEffect(() => {
+    if (isAddingFrame) {
+      setIsEscapeDisabled(true);
+      return () => {
+        setIsEscapeDisabled(isEscapeDisabled);
+      };
+    }
+  }, [isAddingFrame]);
 
   return (
     <Panel
@@ -96,12 +110,13 @@ const FramePanel = () => {
           type="button"
           title="Create frame"
           disabled={isSubmitting}
-          onClick={onCreateFrame}>
+          onClick={() => setIsAddingFrame(true)}>
           <span css={tw`block transform rotate-45`}>
             <Close />
           </span>
         </IconButton>
       }>
+      {isAddingFrame && <AddFrameRoot onClose={() => setIsAddingFrame(false)} />}
       <ul css={tw`flex flex-col mt-3`}>
         <li css={tw`flex flex-col not-last:mb-6`}>
           <p css={tw`text-sm text-gray-300 mb-3`}>No frame</p>

@@ -1,4 +1,4 @@
-import { FormEvent, Fragment, useEffect, useRef, useState } from 'react';
+import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
@@ -6,50 +6,64 @@ import FocusLock from 'react-focus-lock';
 import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
-import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
+// import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
-import { AddArtworkContext } from './AddArtworkContext';
-import DetailsPanel from './DetailsPanel';
-import DimensionsPanel from './DimensionsPanel';
-import EditSelectionModal from './EditSelectionModal';
-import FramePanel from './FramePanel';
-import Panel from './Panel';
-import UploadImage from './UploadImage';
-import { ArtworkDetails } from './types';
+import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
+import Panel from '@src/features/add-artwork/Panel';
+import UploadImage from '@src/features/add-artwork/UploadImage';
+import { AddFrameContext } from './AddFrameContext';
+import UploadToast from './UploadToast';
 import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
+import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 
-export type AddArtworkRootProps = {
+export type AddFrameRootProps = {
   onClose(): void;
 };
 
-const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
+const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
 
-  const editor = useSelectionEditor();
+  const addArtworkContext = useContext(AddArtworkContext);
+  const [isUploadToastHidden, setIsUploadToastHidden] = useState(() => !addArtworkContext?.image);
+
+  const editor = useSelectionEditor([
+    {
+      name: 'Frame',
+      points: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+        { x: 0, y: 1 },
+      ],
+    },
+    {
+      name: 'Window',
+      points: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+        { x: 0, y: 1 },
+      ],
+    },
+  ]);
+  const [activeLayer, setActiveLayer] = useState(0);
+
   const [image, setImage] = useState<HTMLImageElement>();
   const [actualDimensions, setActualDimensions] = useState<Dimensions>({
     width: 0,
     height: 0,
   });
   const [measurement, setMeasurement] = useState<Measurement>('inch');
-  const [details, setDetails] = useState<ArtworkDetails>({
-    title: '',
-    artist: '',
-    description: '',
-    createdAt: 2020,
-    acquiredAt: 2020,
-  });
-  const [frameId, setFrameId] = useState<number>();
-
-  const [isEscapeDisabled, setIsEscapeDisabled] = useState(false);
+  const [description, setDescription] = useState('');
 
   const [isEditingSelection, setIsEditingSelection] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isSubmitDisabled = isSubmitting || isEditingSelection || !details.title.trim();
+  const isSubmitDisabled = isSubmitting || isEditingSelection || !description.trim();
 
   const ModalAnimations = {
     enter() {
@@ -121,7 +135,11 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
       case 'Escape':
       case 'Esc': {
         evt.preventDefault();
-        _onClose();
+        if (!isUploadToastHidden) {
+          setIsUploadToastHidden(true);
+        } else {
+          _onClose();
+        }
       }
     }
   };
@@ -143,13 +161,11 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
 
   // Adds the key handler
   useEffect(() => {
-    if (!isEscapeDisabled) {
-      window.addEventListener('keydown', onKeyDown);
-      return () => {
-        window.removeEventListener('keydown', onKeyDown);
-      };
-    }
-  }, [isEscapeDisabled, onKeyDown]);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
 
   // Disables/enables body scroll on mount/unmount, respectively
   useEffect(() => {
@@ -165,28 +181,24 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
   }, []);
 
   return (
-    <AddArtworkContext.Provider
+    <AddFrameContext.Provider
       value={{
         actualDimensions,
-        details,
+        description,
         editor,
-        frameId,
         image,
-        isEscapeDisabled,
         isSubmitting,
         measurement,
         setActualDimensions,
-        setDetails,
-        setFrameId,
+        setDescription,
         setImage,
-        setIsEscapeDisabled,
         setMeasurement,
       }}>
       <Portal to="modal-root">
         <FocusLock returnFocus>
           <div
             ref={rootRef}
-            id="add-artwork-modal"
+            id="add-frame-modal"
             css={[
               tw`fixed inset-0 bg-black text-white z-modal overflow-hidden`,
               tw`opacity-0`,
@@ -198,63 +210,64 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
               `,
             ]}
             role="dialog"
-            aria-label="Create Artwork Modal"
+            aria-label="Create Frame Modal"
             aria-modal="true">
             <div
               ref={contentRef}
-              id="add-artwork-modal-content"
+              id="add-frame-modal-content"
               css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
               <header css={tw`flex items-center border-b border-white px-6 py-5`}>
                 <IconButton
+                  ref={cancelBtnRef}
                   title="Cancel"
-                  disabled={isSubmitting || isEditingSelection || isEscapeDisabled}
+                  disabled={isSubmitting || isEditingSelection}
                   onClick={_onClose}>
                   <Close />
                 </IconButton>
-                <h1 css={[tw`ml-5`, isEditingSelection && tw`opacity-50`]}>
-                  <span css={tw`font-medium`}>Creating{image ? ': ' : ' artwork'}</span>
-                  {image && (
-                    <span css={[!details.title.trim() && tw`text-gray-300 text-opacity-70`]}>
-                      {details.title.trim() || 'Unknown'}
-                    </span>
-                  )}
+                <h1 css={[tw`ml-5 font-medium`, isEditingSelection && tw`opacity-50`]}>
+                  Creating frame
                 </h1>
               </header>
               <div css={tw`flex flex-1 relative`}>
-                <form css={tw`flex flex-1`} onSubmit={onSubmit}>
+                <form css={tw`flex flex-1 overflow-hidden`} onSubmit={onSubmit}>
                   {!image ? (
-                    <UploadImage
-                      setActualDimensions={setActualDimensions}
-                      setImage={setImage}
-                      setMeasurement={setMeasurement}
-                    />
+                    <Fragment>
+                      <UploadImage
+                        setActualDimensions={setActualDimensions}
+                        setImage={setImage}
+                        setMeasurement={setMeasurement}
+                      />
+                      {addArtworkContext?.image && (
+                        <FocusLock
+                          disabled={isUploadToastHidden}
+                          onDeactivation={() => {
+                            process.nextTick(() => cancelBtnRef.current?.focus());
+                          }}>
+                          <UploadToast
+                            image={addArtworkContext.image}
+                            hidden={isUploadToastHidden}
+                            onClose={() => setIsUploadToastHidden(true)}
+                          />
+                        </FocusLock>
+                      )}
+                    </Fragment>
                   ) : (
                     <Fragment>
                       <div
                         css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative border-r border-white`}>
-                        <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
+                        <ImageSelectionEditor
+                          activeLayer={activeLayer}
+                          editor={editor}
+                          actualDimensions={actualDimensions}
+                          image={image}
+                        />
+                        {/* <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
                           <ImageSelectionPreview
                             editor={editor}
                             actualDimensions={actualDimensions}
                             image={image}
                           />
-                        </div>
-                        {/* TODO: add actual logic for showing this alert */}
-                        <p
-                          css={[
-                            tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-yellow-500`,
-                            tw`before:(content absolute inset-0 rounded-3xl bg-yellow-500 bg-opacity-20 pointer-events-none)`,
-                            [
-                              tw`transition-all ease-out`,
-                              (!frameId || frameId < 9) &&
-                                tw`opacity-0 translate-y-1 pointer-events-none`,
-                            ],
-                          ]}
-                          role="region"
-                          aria-live="assertive"
-                          aria-hidden={!frameId || frameId < 9}>
-                          Artwork may be cropped in this frame.
-                        </p>
+                        </div> */}
                       </div>
                       <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
                         <div
@@ -264,17 +277,15 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                               css={tw`mt-2`}
                               type="button"
                               disabled={isSubmitting}
-                              onClick={() => {
-                                setIsEditingSelection(true);
-                                setIsEscapeDisabled(true);
-                              }}
-                              aria-controls="artwork-edit-selection-modal">
+                              onClick={() => setIsEditingSelection(true)}
+                              aria-controls="edit-selection-modal">
                               Edit selection
                             </Button>
                           </Panel>
-                          <DimensionsPanel />
-                          <DetailsPanel />
-                          <FramePanel />
+                          <Panel title="Layers">
+                            <Button onClick={() => setActiveLayer(0)}>Frame</Button>
+                            <Button onClick={() => setActiveLayer(1)}>Window</Button>
+                          </Panel>
                         </div>
                       </div>
                     </Fragment>
@@ -291,28 +302,13 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
                     </Button>
                   )}
                 </form>
-
-                {isEditingSelection && image && (
-                  <EditSelectionModal
-                    editor={editor}
-                    actualDimensions={actualDimensions}
-                    image={image}
-                    onClose={modalEditor => {
-                      if (modalEditor) {
-                        editor.setLayers(modalEditor.layers); // Save the latest state, if available
-                      }
-                      setIsEditingSelection(false); // Close the editor
-                      setIsEscapeDisabled(false);
-                    }}
-                  />
-                )}
               </div>
             </div>
           </div>
         </FocusLock>
       </Portal>
-    </AddArtworkContext.Provider>
+    </AddFrameContext.Provider>
   );
 };
 
-export default AddArtworkRoot;
+export default AddFrameRoot;

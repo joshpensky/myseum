@@ -12,6 +12,8 @@ export type Position = {
   y: number;
 };
 
+export type Measurement = 'inch' | 'cm' | 'mm';
+
 export type Dimensions = {
   width: number;
   height: number;

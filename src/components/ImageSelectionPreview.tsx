@@ -30,28 +30,27 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx && texture && editor.isValid) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
+      if (width && height) {
+        // Draw the image on the WebGL canvas
+        webglCanvas.draw(texture, width, height);
+        // Perform the perspective transformation to straighten the image
+        const beforePoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points);
+        const beforeMatrix = beforePoints.flatMap(c => [c.x * width, c.y * height]) as fx.Matrix;
+        // BROKEN: final width and height are larger than the image width and height
+        const afterMatrix = [
+          ...[0, 0],
+          ...[width, 0],
+          ...[width, height],
+          ...[0, height],
+        ] as fx.Matrix;
+        webglCanvas.perspective(beforeMatrix, afterMatrix);
+        // Update the WebGL canvas with the latest draw
+        webglCanvas.update();
 
-      // Draw the image on the WebGL canvas
-      webglCanvas.draw(texture);
-      // Perform the perspective transformation to straighten the image
-      const beforePoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
-      const beforeMatrix = beforePoints.flatMap(c => [
-        c.x * image.naturalWidth,
-        c.y * image.naturalHeight,
-      ]) as fx.Matrix;
-      const afterMatrix = [
-        ...[0, 0],
-        ...[width, 0],
-        ...[width, height],
-        ...[0, height],
-      ] as fx.Matrix;
-      webglCanvas.perspective(beforeMatrix, afterMatrix);
-      // Update the WebGL canvas with the latest draw
-      webglCanvas.update();
-
-      // Reset the canvas and draw the final image in the center
-      CanvasUtils.clear(ctx);
-      ctx.drawImage(webglCanvas, 0, 0, width, height, x, y, width, height);
+        // Reset the canvas and draw the final image in the center
+        CanvasUtils.clear(ctx);
+        ctx.drawImage(webglCanvas, 0, 0, width, height, x, y, width, height);
+      }
     }
   };
 
@@ -101,6 +100,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
     <div
       ref={containerRef}
       css={[tw`size-full relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
+      {/* <img src={image.src} alt="" /> */}
       <canvas
         ref={canvasRef}
         css={tw`absolute inset-0 size-full`}

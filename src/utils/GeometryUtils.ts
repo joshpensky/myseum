@@ -11,6 +11,17 @@ export enum Orientation {
 }
 
 export class GeometryUtils {
+  static getSlopeIntercept(a: Position, b: Position) {
+    // m = (y1 - y2) / (x1 - x2);
+    const slope = a.x === b.x ? undefined : (a.y - b.y) / (a.x - b.x);
+
+    // y = mx + b
+    // y - mx = b
+    const intercept = a.y - (slope ?? 0) * a.x;
+
+    return { slope, intercept };
+  }
+
   // Gets the orientation of three points
   static getOrientation(p1: Position, p2: Position, p3: Position) {
     const value = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
@@ -179,5 +190,107 @@ export class GeometryUtils {
       width,
       height,
     };
+  }
+
+  /**
+   *
+   * https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
+   *
+   * @param point
+   * @param polygon
+   */
+  static isPointInConvexQuadrilateral(point: Position, quadrilateral: SelectionEditorPoints) {
+    const { x, y } = point;
+
+    let inside = false;
+
+    for (let i = 0, j = quadrilateral.length - 1; i < quadrilateral.length; j = i++) {
+      const pointA = quadrilateral[i];
+      const pointB = quadrilateral[j];
+
+      const intersect =
+        pointA.y > y !== pointB.y > y &&
+        x < ((pointB.x - pointA.x) * (y - pointA.y)) / (pointB.y - pointA.y) + pointA.x;
+
+      if (intersect) {
+        inside = !inside;
+      }
+    }
+
+    return inside;
+  }
+
+  static getClosestPointToPolygon(point: Position, polygon: Position[]) {
+    if (polygon.length < 3 || polygon.length > 4) {
+      return undefined;
+    }
+
+    let centerPoint: Position | undefined;
+    if (polygon.length === 3) {
+      const centerX = (polygon[0].x + polygon[1].x + polygon[2].x) / 3;
+      const centerY = (polygon[0].y + polygon[1].y + polygon[2].y) / 3;
+      centerPoint = { x: centerX, y: centerY };
+    } else if (polygon.length === 4) {
+      const lineAX = GeometryUtils.getSlopeIntercept(polygon[0], polygon[2]);
+      const lineBY = GeometryUtils.getSlopeIntercept(polygon[1], polygon[3]);
+      // https://www.mathopenref.com/coordintersection.html
+      if (lineAX.slope !== undefined && lineBY.slope !== undefined) {
+        const intersectX = (lineAX.intercept - lineBY.intercept) / (lineBY.slope - lineAX.slope);
+        const intersectY = lineAX.slope * intersectX + lineAX.intercept;
+        centerPoint = { x: intersectX, y: intersectY };
+      }
+    }
+
+    if (centerPoint) {
+      const lineMB = GeometryUtils.getSlopeIntercept(point, centerPoint);
+      const intersectionPts: Position[] = [];
+      for (let i = 0; i < polygon.length; i++) {
+        const basePointA = polygon[i];
+        const basePointB = polygon[(i + 1) % polygon.length];
+        const baseLineMB = GeometryUtils.getSlopeIntercept(basePointA, basePointB);
+
+        let intersectPoint: Position | undefined;
+
+        if (lineMB.slope === baseLineMB.slope) {
+          // pass, both lines are parallel
+        } else if (lineMB.slope === undefined && baseLineMB.slope !== undefined) {
+          intersectPoint = {
+            x: point.x,
+            y: baseLineMB.slope * point.x + baseLineMB.intercept,
+          };
+        } else if (lineMB.slope !== undefined && baseLineMB.slope === undefined) {
+          intersectPoint = {
+            x: basePointA.x,
+            y: lineMB.slope * basePointA.x + lineMB.intercept,
+          };
+        } else if (lineMB.slope !== undefined && baseLineMB.slope !== undefined) {
+          // https://www.mathopenref.com/coordintersection.html
+          const intersectX =
+            (baseLineMB.intercept - lineMB.intercept) / (lineMB.slope - baseLineMB.slope);
+          const intersectY = baseLineMB.slope * intersectX + baseLineMB.intercept;
+          intersectPoint = { x: intersectX, y: intersectY };
+        }
+
+        if (
+          intersectPoint &&
+          GeometryUtils.isPointOnLine(intersectPoint, [basePointA, basePointB])
+        ) {
+          intersectionPts.push(intersectPoint);
+        }
+      }
+
+      const shortestDistance = intersectionPts.reduce(
+        (acc, pt, index) => {
+          const d = Math.sqrt(Math.pow(pt.x - point.x, 2) + Math.pow(pt.y - point.y, 2));
+          if (acc.index < 0 || d <= acc.distance) {
+            return { distance: d, index };
+          }
+          return acc;
+        },
+        { distance: 0, index: -1 },
+      );
+      const shortestPt = intersectionPts[shortestDistance.index];
+      return shortestPt;
+    }
   }
 }

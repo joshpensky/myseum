@@ -1,6 +1,4 @@
-import { Dimensions } from '@src/types';
-
-export type Measurement = 'inch' | 'cm' | 'mm';
+import { Dimensions, Measurement } from '@src/types';
 
 export type Preset = {
   type: 'custom' | 'a4' | 'poster';

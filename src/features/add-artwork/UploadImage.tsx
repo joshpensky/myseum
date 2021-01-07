@@ -1,10 +1,14 @@
-import { DragEvent, useLayoutEffect, useState } from 'react';
+import { Dispatch, DragEvent, SetStateAction, useLayoutEffect, useState } from 'react';
 import tw from 'twin.macro';
-import { useAddArtworkContext } from './AddArtworkContext';
+import { Dimensions, Measurement } from '@src/types';
 
-const UploadArtwork = () => {
-  const { image, setActualDimensions, setMeasurement, setImage } = useAddArtworkContext();
+export type UploadImageProps = {
+  setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
+  setImage: Dispatch<SetStateAction<HTMLImageElement | undefined>>;
+  setMeasurement: Dispatch<SetStateAction<Measurement>>;
+};
 
+const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadImageProps) => {
   // Whether drag/drop upload feature is available for the browser
   const [canDragDropUpload] = useState(() => {
     const div = document.createElement('div');
@@ -54,13 +58,13 @@ const UploadArtwork = () => {
       return;
     }
     const reader = new FileReader();
-    reader.onload = async () => {
+    reader.addEventListener('load', async () => {
       if (typeof reader.result === 'string') {
         await loadImage(reader.result);
       } else {
         setIsUploading(false);
       }
-    };
+    });
     reader.readAsDataURL(imageFile);
   };
 
@@ -95,17 +99,15 @@ const UploadArtwork = () => {
 
   // _DEV_ TODO: remove
   // Loads an image immediately
-  useLayoutEffect(() => {
-    if (!image) {
-      loadImage('/img/test-add.jpeg');
-    }
-  }, [image]);
+  // useLayoutEffect(() => {
+  //   loadImage('/img/test-add.jpeg');
+  // }, []);
 
   return (
     <div
       css={[
         tw`absolute inset-0 size-full transition-colors px-6 py-5`,
-        !image && tw`focus-within:(bg-white bg-opacity-10)`,
+        tw`focus-within:(bg-white bg-opacity-10)`,
         isDropping && tw`bg-white bg-opacity-10`,
       ]}
       onDragOver={onDropEnter}
@@ -123,10 +125,7 @@ const UploadArtwork = () => {
       </div>
 
       <label
-        css={[
-          tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center p-6`,
-          !image && tw`cursor-pointer`,
-        ]}
+        css={tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center cursor-pointer p-6`}
         htmlFor="artworkUpload"
         onDrop={onDrop}>
         <span>
@@ -145,4 +144,4 @@ const UploadArtwork = () => {
   );
 };
 
-export default UploadArtwork;
+export default UploadImage;

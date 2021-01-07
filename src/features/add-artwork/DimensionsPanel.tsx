@@ -4,8 +4,9 @@ import { useAddArtworkContext } from './AddArtworkContext';
 import Panel from './Panel';
 import Select from './Select';
 import TextField from './TextField';
-import { Measurement, Preset } from './types';
+import { Preset } from './types';
 import Close from '@src/svgs/Close';
+import { Measurement } from '@src/types';
 
 const presets: Preset[] = [
   {
