@@ -45,15 +45,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
         { x: 0, y: 1 },
       ],
     },
-    {
-      name: 'Window',
-      points: [
-        { x: 0, y: 0 },
-        { x: 1, y: 0 },
-        { x: 1, y: 1 },
-        { x: 0, y: 1 },
-      ],
-    },
   ]);
   const [activeLayer, setActiveLayer] = useState(0);
 
@@ -212,7 +203,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
       destCanvas,
       webglCanvas,
       texture,
-      image,
       layers: editor.layers,
       dimensions: { width: imgRect.width, height: imgRect.height },
       position: { x: 0, y: 0 },
@@ -328,14 +318,26 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                             </Button>
                           </Panel>
                           <Panel title="Layers">
-                            {editor.layers.map((layer, index) => (
-                              <Button
-                                key={layer.name}
-                                type="button"
-                                onClick={() => setActiveLayer(index)}>
-                                {layer.name}
-                              </Button>
-                            ))}
+                            <Button type="button" onClick={() => setActiveLayer(0)}>
+                              Frame
+                            </Button>
+
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                if (editor.layers.length === 1) {
+                                  editor.setLayers(layers => [
+                                    layers[0],
+                                    {
+                                      name: 'Window',
+                                      points: layers[0].points,
+                                    },
+                                  ]);
+                                }
+                                setActiveLayer(1);
+                              }}>
+                              Window
+                            </Button>
                             <p css={tw`text-sm mt-6 mb-2 text-gray-300`}>Preview</p>
                             <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
                               <ImageSelectionPreview

@@ -3,11 +3,11 @@ import { SelectionEditorLayer } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Position } from '@src/types';
 import { CanvasUtils } from './CanvasUtils';
 import { GeometryUtils } from './GeometryUtils';
+import PerspT from 'perspective-transform';
 
 type RenderPreviewOptions = {
   destCanvas: HTMLCanvasElement;
   dimensions: Dimensions;
-  image: HTMLImageElement;
   layers: SelectionEditorLayer[];
   position: Position;
   texture: fx.Texture;
@@ -17,66 +17,32 @@ type RenderPreviewOptions = {
 export const renderPreview = ({
   destCanvas,
   dimensions,
-  image,
   layers,
   position,
   texture,
   webglCanvas,
 }: RenderPreviewOptions) => {
-  const imgCtx = document.createElement('canvas').getContext('2d');
   const destCtx = destCanvas.getContext('2d');
 
   if (!destCtx || dimensions.width <= 0 || dimensions.height <= 0) {
     return;
   }
 
-  if (imgCtx && layers[1]) {
-    // Clear and ready the image context
-    CanvasUtils.clear(imgCtx);
-    CanvasUtils.resize(imgCtx.canvas, {
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-    });
-    // Draw the image at full size on canvas
-    imgCtx.drawImage(image, 0, 0, imgCtx.canvas.width, imgCtx.canvas.height);
-    // Cut the inner window out of the image
-    imgCtx.globalCompositeOperation = 'destination-out';
-    const cuttingPoints = GeometryUtils.sortConvexQuadrilateralPoints(layers[1].points).map(
-      point => ({
-        x: point.x * imgCtx.canvas.width,
-        y: point.y * imgCtx.canvas.height,
-      }),
-    );
-    imgCtx.beginPath();
-    imgCtx.moveTo(cuttingPoints[0].x, cuttingPoints[0].y);
-    imgCtx.lineTo(cuttingPoints[1].x, cuttingPoints[1].y);
-    imgCtx.lineTo(cuttingPoints[2].x, cuttingPoints[2].y);
-    imgCtx.lineTo(cuttingPoints[3].x, cuttingPoints[3].y);
-    imgCtx.closePath();
-    imgCtx.fill();
-    // Reset composition operation
-    imgCtx.globalCompositeOperation = 'source-over';
-    // Load the new image on the canvas
-    texture.loadContentsOf(imgCtx.canvas);
-  } else {
-    texture.loadContentsOf(image);
-  }
-
   // Draw the image on the WebGL canvas
   webglCanvas.draw(texture, dimensions.width, dimensions.height);
   // Perform the perspective transformation to straighten the image
-  const beforePoints = GeometryUtils.sortConvexQuadrilateralPoints(layers[0].points);
-  const beforeMatrix = beforePoints.flatMap(c => [
+  const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(layers[0].points);
+  const srcMatrix = srcPoints.flatMap(c => [
     c.x * dimensions.width,
     c.y * dimensions.height,
   ]) as fx.Matrix;
-  const afterMatrix = [
+  const destMatrix = [
     ...[0, 0],
     ...[dimensions.width, 0],
     ...[dimensions.width, dimensions.height],
     ...[0, dimensions.height],
   ] as fx.Matrix;
-  webglCanvas.perspective(beforeMatrix, afterMatrix);
+  webglCanvas.perspective(srcMatrix, destMatrix);
   // Update the WebGL canvas with the latest draw
   webglCanvas.update();
 
@@ -93,4 +59,39 @@ export const renderPreview = ({
     dimensions.width,
     dimensions.height,
   );
+
+  if (layers[1]) {
+    // Get perspective matrix
+    const perspective = PerspT(srcMatrix, destMatrix);
+
+    // For each subsequent layer, cut out the window from the transformed image
+    layers.slice(1).forEach(layer => {
+      const windowPoints = layer.points.map(point => {
+        // Transform point from source matrix to projected position on destination matrix
+        const [x, y] = perspective.transform(
+          point.x * dimensions.width,
+          point.y * dimensions.height,
+        );
+        // Return points, positioned correctly on canvas
+        return {
+          x: position.x + x,
+          y: position.y + y,
+        };
+      });
+
+      // Cut out the window from the final canvas
+      destCtx.globalCompositeOperation = 'destination-out';
+      destCtx.beginPath();
+      windowPoints.forEach((point, index) => {
+        if (index === 0) {
+          destCtx.moveTo(point.x, point.y);
+        } else {
+          destCtx.lineTo(point.x, point.y);
+        }
+      });
+      destCtx.closePath();
+      destCtx.fill();
+      destCtx.globalCompositeOperation = 'source-over';
+    });
+  }
 };

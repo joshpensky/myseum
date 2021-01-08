@@ -18,6 +18,8 @@ const POINT_RADIUS = 5;
 const MAGNIFIED_POINT_RADIUS = 20;
 const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
 
+const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
+
 // Disable cursor when moving point
 const GlobalDisableCursor = createGlobalStyle`
   * {
@@ -379,20 +381,18 @@ const ImageSelectionEditor = ({
       return pointsPath;
     };
 
-    // const activePointsPath = getPointsPath(editor.layers[activeLayer].points);
-
-    const setPointsStyle = () => {
+    const setPointsStyle = (layerIndex: number) => {
       ctx.fillStyle = theme`colors.white`;
       ctx.lineJoin = 'bevel';
       ctx.lineWidth = STROKE_WIDTH;
-      ctx.strokeStyle = theme`colors.blue.500`;
+      ctx.strokeStyle = LAYER_COLORS[layerIndex % LAYER_COLORS.length];
       ctx.globalAlpha = 1;
     };
 
     const renderImageAndOverlays = () => {
       // Draw semi-transparent black overlay
       ctx.fillStyle = theme`colors.black`;
-      ctx.globalAlpha = 0.8;
+      ctx.globalAlpha = 0.9;
       ctx.fillRect(0, 0, canvasDimensions.width, canvasDimensions.height);
       ctx.globalAlpha = 1;
 
@@ -409,27 +409,25 @@ const ImageSelectionEditor = ({
       // Revert back to regular composition type (drawing atop)
       ctx.globalCompositeOperation = 'source-over';
 
-      // TODO: render all overlays overlays always
-      // TODO: add the second window layer WHEN window button is first pressed
-      if (activeLayer > 0) {
-        ctx.fillStyle = theme`colors.black`;
-        ctx.globalAlpha = 0.8;
-        const layerPath = getPointsPath(editor.layers[activeLayer].points);
+      // Render the window layers over top
+      ctx.globalAlpha = 0.9;
+      editor.layers.slice(1).map(layer => {
+        const layerPath = getPointsPath(layer.points);
         ctx.fill(layerPath);
-        ctx.globalAlpha = 1;
-      }
+      });
+      ctx.globalAlpha = 1;
     };
 
     // Outline points path
-    const renderPointsPath = (pointsPath: Path2D) => {
-      setPointsStyle();
+    const renderPointsPath = (layerIndex: number, pointsPath: Path2D) => {
+      setPointsStyle(layerIndex);
       ctx.stroke(pointsPath);
     };
 
     // Draw a single point
-    const renderPoint = (point: Position, index: number) => {
+    const renderPoint = (layerIndex: number, point: Position, index: number) => {
       // Reset styles
-      setPointsStyle();
+      setPointsStyle(layerIndex);
 
       // Draw target
       const px = point.x * width + x;
@@ -497,7 +495,7 @@ const ImageSelectionEditor = ({
         ctx.stroke(crosshair);
 
         // Reset styles
-        setPointsStyle();
+        setPointsStyle(layerIndex);
       }
 
       // Draw focus ring, if point is focused
@@ -523,17 +521,20 @@ const ImageSelectionEditor = ({
     renderImageAndOverlays();
 
     // Renders the active path
-    const activePoints = editor.layers[activeLayer].points;
-    const activePath = getPointsPath(activePoints);
-    renderPointsPath(activePath);
+    // const activePoints = editor.layers[activeLayer].points;
+    editor.layers.forEach((layer, index) => {
+      const activePath = getPointsPath(layer.points);
+      renderPointsPath(index, activePath);
+    });
 
     // Sort editor points by their magnification (magnified = higher z-index)
     const sortedPointsByZIndex = [0, 1, 2, 3].sort(
       (aIndex, bIndex) => magnifyAnimationProgress[aIndex] - magnifyAnimationProgress[bIndex],
     );
     // Then, render each active point
+    const activePoints = editor.layers[activeLayer].points;
     sortedPointsByZIndex.forEach(pointIndex => {
-      renderPoint(activePoints[pointIndex], pointIndex);
+      renderPoint(activeLayer, activePoints[pointIndex], pointIndex);
     });
   };
 
