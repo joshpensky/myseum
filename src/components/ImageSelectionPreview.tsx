@@ -28,7 +28,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   // Render the final artwork onto the preview canvas
   const render = () => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx && texture && editor.isValid) {
+    if (ctx && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
       if (width && height) {
         // Draw the image on the WebGL canvas
@@ -97,10 +97,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      css={[tw`size-full relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
-      {/* <img src={image.src} alt="" /> */}
+    <div ref={containerRef} css={tw`size-full relative transition-opacity`}>
       <canvas
         ref={canvasRef}
         css={tw`absolute inset-0 size-full`}

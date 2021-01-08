@@ -10,7 +10,7 @@ import { createGlobalStyle } from 'styled-components';
 import tw, { theme } from 'twin.macro';
 import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { GeometryUtils, Line } from '@src/utils/GeometryUtils';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
 
 const STROKE_WIDTH = 3;
@@ -81,75 +81,24 @@ const ImageSelectionEditor = ({
       let isDraggingOutside = false;
 
       const isPathValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
+
+      // Show cursor if user is dragging in invalid area
       if (options.isDragging) {
-        // Show cursor if user is dragging in invalid area
         isDraggingOutside = !isPathValid;
       }
 
       if (!isPathValid) {
-        /**
-         * We have point E which represents the moving quadrilateral vertex. We want to find
-         * the point closest to the polygon that still forms a valid convex quadrilateral.
-         *
-         * ```
-         *           . . . A
-         *       . .       |
-         *    . .          |
-         *  D      C  NC---N--X   E
-         *    . .          |
-         *       . .       |
-         *           . . . B
-         * ```
-         */
-
-        // 1) Disregard point E and form triangle ABD.
-        const numPoints = newActivePoints.length;
-        const triangle = [
-          newActivePoints[(numPoints + (activePointIndex - 1)) % numPoints], // A
-          newActivePoints[(activePointIndex + 1) % numPoints], // B
-          newActivePoints[(activePointIndex + 2) % numPoints], // D
-        ];
-        // 2) Form a line between the surrounding points of E (line AB)
-        const lineAB: Line = [triangle[0], triangle[1]];
-        // 3) Find the nearest projection of point E on line AB (point N)
-        const nearestPointOnLine = GeometryUtils.findNearestPointOnLine(
-          newActivePoints[activePointIndex],
-          lineAB,
+        // Offset the invalidating point to reform a convex quadrilateral
+        newActivePoints[activePointIndex] = GeometryUtils.fixConvexQuadrilateral(
+          newActivePoints,
+          activePointIndex,
+          0.0025, // Offset by 0.0025
         );
-
-        // 4) Find the slope of the line perpendicular to AB. This will serve as our vector
-        const { slope } = GeometryUtils.getSlopeIntercept(triangle[0], triangle[1]);
-        const perpSlope = GeometryUtils.getPerpendicularSlope(slope) ?? 0;
-        const perpIntercept = nearestPointOnLine.y - perpSlope * nearestPointOnLine.x;
-        const perpVector: Line = [
-          { x: 0, y: perpIntercept },
-          { x: 1, y: perpSlope + perpIntercept },
-        ];
-
-        // 5) Find the center point of triangle ABD (point C)
-        const centerPoint = {
-          x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
-          y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
-        };
-        // 6) Find the projection of the center onto the perpendicular vector (point NC)
-        const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
-          centerPoint,
-          perpVector,
-        );
-
-        // 7) Invert the direction of vector N->NC by the magnitude of 0.0025 to find the offset point (point X)
-        const offsetPoint = GeometryUtils.findPointOnVector(
-          nearestPointOnLine,
-          nearestCenterPointOnPerpLine,
-          -0.0025,
-        );
-
-        // 8) Set the new point
-        newActivePoints[activePointIndex] = offsetPoint;
       }
 
-      // Show cursor is user is dragging in invalid area
+      // HANDLE FRAME LAYER (index 0)
       if (activeLayer === 0) {
+        // Show cursor if user is dragging in outside image area
         if (options.isDragging && !isDraggingOutside) {
           isDraggingOutside =
             unboundedPoint.x < 0 ||
@@ -157,26 +106,46 @@ const ImageSelectionEditor = ({
             unboundedPoint.y < 0 ||
             unboundedPoint.y > 1;
         }
-        // TODO: if frame point is moved within window, shrink window to fit inside frame again
-        // layers.slice(1).forEach(points => points.forEach(point => { if (point is outside frame) { point = nearestPointOnPolygon } }))
+
+        setIsDraggingOutside(isDraggingOutside);
+
+        return [
+          {
+            ...layers[0],
+            points: newActivePoints,
+          },
+          // Prevent the frame path from being smaller than the window
+          ...layers.slice(1).map(layer => ({
+            ...layer,
+            points: layer.points.map(point => {
+              // If window layer point is outside frame layer path...
+              if (!GeometryUtils.isPointInPolygon(point, newActivePoints)) {
+                // Assign the nearest point that fits within the frame layer path
+                return GeometryUtils.findNearestPointOnPolygon(point, newActivePoints);
+              }
+              return point;
+            }) as SelectionEditorPoints,
+          })),
+        ];
       }
 
-      // Limit the size of other layers to fit within the shape of the first
-      if (activeLayer > 0) {
-        const activePoint = newActivePoints[activePointIndex];
-        const basePath = editor.layers[0].points;
-        const isPointInsideBaseShape = GeometryUtils.isPointInPolygon(activePoint, basePath);
+      // HANDLE WINDOW LAYER(S) (index 1+)
+      // Limit the size of other layers to fit within the frame
+      const activePoint = newActivePoints[activePointIndex];
+      const framePath = editor.layers[0].points;
+      const isPointInsideFrame = GeometryUtils.isPointInPolygon(activePoint, framePath);
 
-        if (options.isDragging && !isDraggingOutside) {
-          // Update the cursor if the user is dragging outside shape
-          isDraggingOutside = !isPointInsideBaseShape;
-        }
+      // Show the cursor if the user is dragging outside frame
+      if (options.isDragging && !isDraggingOutside) {
+        isDraggingOutside = !isPointInsideFrame;
+      }
 
-        if (!isPointInsideBaseShape) {
-          // If dragging and point is outside, find closest point to map to
-          const intersectionPt = GeometryUtils.findNearestPointOnPolygon(activePoint, basePath);
-          newActivePoints[activePointIndex] = intersectionPt;
-        }
+      // If dragging and point is outside, find closest point to map to
+      if (!isPointInsideFrame) {
+        newActivePoints[activePointIndex] = GeometryUtils.findNearestPointOnPolygon(
+          activePoint,
+          framePath,
+        );
       }
 
       setIsDraggingOutside(isDraggingOutside);
@@ -546,56 +515,6 @@ const ImageSelectionEditor = ({
         ctx.stroke();
         ctx.closePath();
       }
-
-      // if (movingIndex === index) {
-      //   const newActivePoints = editor.layers[activeLayer].points;
-      //   const numPoints = newActivePoints.length;
-      //   const triangle = [
-      //     newActivePoints[(numPoints + (movingIndex - 1)) % numPoints], // a
-      //     newActivePoints[(movingIndex + 1) % numPoints], // b
-      //     newActivePoints[(movingIndex + 2) % numPoints], // c
-      //   ];
-      //   const nearestPointOnLine = GeometryUtils.findNearestPointOnLine(
-      //     newActivePoints[movingIndex],
-      //     [triangle[0], triangle[1]],
-      //   );
-
-      //   const { slope } = GeometryUtils.getSlopeIntercept(triangle[0], triangle[1]);
-      //   const perpSlope = GeometryUtils.getPerpendicularSlope(slope) ?? 0;
-      //   const perpIntercept = nearestPointOnLine.y - perpSlope * nearestPointOnLine.x;
-      //   const perpLine: Line = [
-      //     { x: 0, y: perpIntercept },
-      //     { x: 1, y: perpSlope + perpIntercept },
-      //   ];
-
-      //   const centerPoint = {
-      //     x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
-      //     y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
-      //   };
-      //   const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
-      //     centerPoint,
-      //     perpLine,
-      //   );
-
-      //   // Find point 0.0025 in the OPPOSITE direction of the vector from nearest point -> nearest center point
-      //   const offsetPoint = GeometryUtils.findPointOnVector(
-      //     nearestPointOnLine,
-      //     nearestCenterPointOnPerpLine,
-      //     -0.01,
-      //   );
-
-      //   [nearestPointOnLine, nearestCenterPointOnPerpLine, offsetPoint].forEach((point, i) => {
-      //     const updatedPt = {
-      //       x: x + point.x * width,
-      //       y: y + point.y * height,
-      //     };
-      //     ctx.beginPath();
-      //     ctx.arc(updatedPt.x, updatedPt.y, 5, 0, Math.PI * 2);
-      //     ctx.closePath();
-      //     ctx.fillStyle = i === 2 ? 'yellow' : 'green';
-      //     ctx.fill();
-      //   });
-      // }
     };
 
     // Renders the image and layer overlays

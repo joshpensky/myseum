@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Position } from '@src/types';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export type SelectionEditorPoints = [Position, Position, Position, Position];
 
@@ -17,7 +16,6 @@ export type SelectionEditor = {
     squash(): void;
     restart(): void;
   };
-  isValid: boolean[];
   layers: SelectionEditorLayer[];
   setLayers(
     layers:
@@ -50,11 +48,6 @@ export const useSelectionEditor = (initialState?: SelectionEditorLayer[]): Selec
   const [historyIndex, setHistoryIndex] = useState(0);
   // The points at our current slice of history
   const layers = history[historyIndex];
-  // Checks whether the current points form a valid convex quadrilateral selection
-  const isSelectionValid = useMemo(
-    () => layers.map(layer => GeometryUtils.isConvexQuadrilateral(layer.points)),
-    [layers],
-  );
 
   // Updates the layers in history
   const setLayers = (
@@ -126,7 +119,6 @@ export const useSelectionEditor = (initialState?: SelectionEditorLayer[]): Selec
       squash,
       restart,
     },
-    isValid: isSelectionValid,
     layers,
     setLayers,
   };

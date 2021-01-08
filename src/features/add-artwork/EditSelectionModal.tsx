@@ -25,9 +25,6 @@ const EditSelectionModal = ({
 
   const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    if (!modalEditor.isValid) {
-      return;
-    }
     onClose(modalEditor);
   };
 
@@ -72,7 +69,7 @@ const EditSelectionModal = ({
               <Panel css={tw`flex-1`} title="Selection">
                 <p css={tw`mb-5`}>Drag the handles to match the size of the artwork.</p>
                 <div css={tw`flex items-center`}>
-                  <Button css={tw`mr-3`} type="submit" filled disabled={!modalEditor.isValid}>
+                  <Button css={tw`mr-3`} type="submit" filled>
                     Update
                   </Button>
                   <Button type="button" onClick={() => onClose()}>

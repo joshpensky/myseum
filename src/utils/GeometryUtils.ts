@@ -202,11 +202,12 @@ export class GeometryUtils {
   }
 
   /**
+   * Checks where the given point exists within the given polygon.
    *
-   * https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
+   * Algorithm taken from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
    *
-   * @param point
-   * @param polygon
+   * @param point the point to check
+   * @param polygon the polygon to check if the point resides within
    */
   static isPointInPolygon(
     point: Position,
@@ -232,11 +233,19 @@ export class GeometryUtils {
     return inside;
   }
 
-  static findNearestPointOnLine(p: Position, line: Line) {
+  /**
+   * Finds the nearest projection of the given point on the line.
+   *
+   * Algorithm taken from https://jsfiddle.net/shishirraven/4dmjh0sa/
+   *
+   * @param p the point to project on the line
+   * @param line the line to project onto
+   */
+  static findNearestPointOnLine(point: Position, line: Line) {
     const [a, b] = line;
     // https://www.mathsisfun.com/algebra/vectors-dot-product.html
     const vectorAB = { x: b.x - a.x, y: b.y - a.y };
-    const vectorAP = { x: p.x - a.x, y: p.y - a.y };
+    const vectorAP = { x: point.x - a.x, y: point.y - a.y };
     const magnitudeAB = Math.pow(vectorAB.x, 2) + Math.pow(vectorAB.y, 2);
     const dotProduct = vectorAP.x * vectorAB.x + vectorAP.y * vectorAB.y;
     const theta = Math.min(1, Math.max(0, dotProduct / magnitudeAB));
@@ -246,6 +255,12 @@ export class GeometryUtils {
     };
   }
 
+  /**
+   * Finds the nearest projection of the given point on the polygon's edges.
+   *
+   * @param point the point to project on the polygon
+   * @param polygon the polygon whose edges to project onto
+   */
   static findNearestPointOnPolygon(
     point: Position,
     polygon: { 0: Position; 1: Position; 2: Position } & Position[],
@@ -270,6 +285,13 @@ export class GeometryUtils {
     return nearestPoints[shortestDistance.index];
   }
 
+  /**
+   * Finds a point on the vector formed by the given points, at the given magnitude.
+   *
+   * @param initialPoint the starting point of the vector
+   * @param terminalPoint the ending point of the vector (determines direction)
+   * @param magnitude the magnitude, or length, along the vector at which the point should be
+   */
   static findPointOnVector(initialPoint: Position, terminalPoint: Position, magnitude: number) {
     const direction = Math.sqrt(
       Math.pow(terminalPoint.x - initialPoint.x, 2) + Math.pow(terminalPoint.y - initialPoint.y, 2),
@@ -279,5 +301,79 @@ export class GeometryUtils {
       x: (1 - theta) * initialPoint.x + theta * terminalPoint.x,
       y: (1 - theta) * initialPoint.y + theta * terminalPoint.y,
     };
+  }
+
+  /**
+   * In the editor, there is a case where the validity of the convex quadrilateral path may
+   * be questioned when a point is moved inward toward the center.
+   *
+   * This method offsets an invalid point in a path to ensure that a convex quadrilateral will
+   * ALWAYS be formed.
+   *
+   * For example, we have point E which represents the invalid quadrilateral vertex. We want to find
+   * the point closest to the polygon that still forms a valid convex quadrilateral.
+   *
+   * ```
+   *           . . . A
+   *       . .       |
+   *    . .          |
+   *  D      C  NC---N--X   E
+   *    . .          |
+   *       . .       |
+   *           . . . B
+   * ```
+   *
+   * @param path the points that make up the quadrilateral
+   * @param invalidPointIndex the index of the point that invalidates the convexity of the quadrilateral
+   * @param offset a positive offset representing the distance to place the corrected point (distance from N->X)
+   */
+  static fixConvexQuadrilateral(
+    path: SelectionEditorPoints,
+    invalidPointIndex: number,
+    offset: number,
+  ) {
+    // 1) Disregard point E and form triangle ABD.
+    const numPoints = path.length;
+    const triangle = [
+      path[(numPoints + (invalidPointIndex - 1)) % numPoints], // A
+      path[(invalidPointIndex + 1) % numPoints], // B
+      path[(invalidPointIndex + 2) % numPoints], // D
+    ];
+    // 2) Form a line between the surrounding points of E (line AB)
+    const lineAB: Line = [triangle[0], triangle[1]];
+    // 3) Find the nearest projection of point E on line AB (point N)
+    const nearestPointOnLine = GeometryUtils.findNearestPointOnLine(
+      path[invalidPointIndex],
+      lineAB,
+    );
+
+    // 4) Find the slope of the line perpendicular to AB. This will serve as our vector
+    const { slope } = GeometryUtils.getSlopeIntercept(triangle[0], triangle[1]);
+    const perpSlope = GeometryUtils.getPerpendicularSlope(slope) ?? 0;
+    const perpIntercept = nearestPointOnLine.y - perpSlope * nearestPointOnLine.x;
+    const perpVector: Line = [
+      { x: 0, y: perpIntercept },
+      { x: 1, y: perpSlope + perpIntercept },
+    ];
+
+    // 5) Find the center point of triangle ABD (point C)
+    const centerPoint = {
+      x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
+      y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
+    };
+    // 6) Find the projection of the center onto the perpendicular vector (point NC)
+    const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
+      centerPoint,
+      perpVector,
+    );
+
+    // 7) Invert the direction of vector N->NC by the given magnitude to find the offset point (point X)
+    const offsetPoint = GeometryUtils.findPointOnVector(
+      nearestPointOnLine,
+      nearestCenterPointOnPerpLine,
+      -1 * Math.abs(offset),
+    );
+
+    return offsetPoint;
   }
 }
