@@ -1,4 +1,5 @@
-import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from 'react';
+import * as fx from 'glfx-es6';
+import { FormEvent, Fragment, MouseEvent, useContext, useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
@@ -8,7 +9,7 @@ import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
-import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { SelectionEditorPoints, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import Panel from '@src/features/add-artwork/Panel';
 import UploadImage from '@src/features/add-artwork/UploadImage';
@@ -18,6 +19,9 @@ import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import TextField from '../add-artwork/TextField';
+import { renderPreview } from '@src/utils/renderPreview';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -58,6 +62,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     width: 0,
     height: 0,
   });
+  const [depth, setDepth] = useState(0);
   const [measurement, setMeasurement] = useState<Measurement>('inch');
   const [description, setDescription] = useState('');
 
@@ -181,16 +186,55 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     };
   }, []);
 
+  // Downloads the resized/straightened image as a PNG
+  const downloadResizedImage = (evt: MouseEvent<HTMLAnchorElement>) => {
+    if (!image) {
+      return;
+    }
+
+    // Get the dimensions of the final image, at the highest possible quality
+    const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points).map(
+      c => ({
+        x: c.x * image.naturalWidth,
+        y: c.y * image.naturalHeight,
+      }),
+    ) as SelectionEditorPoints;
+    const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
+    const imgRect = CanvasUtils.objectContain(avgRect, actualDimensions);
+
+    // Matrix warp the image selection into the straightened version
+    const webglCanvas = fx.canvas();
+    const texture = webglCanvas.texture(image);
+
+    const destCanvas = document.createElement('canvas');
+    CanvasUtils.resize(destCanvas, { width: imgRect.width, height: imgRect.height });
+    renderPreview({
+      destCanvas,
+      webglCanvas,
+      texture,
+      image,
+      layers: editor.layers,
+      dimensions: { width: imgRect.width, height: imgRect.height },
+      position: { x: 0, y: 0 },
+    });
+
+    // Generate the URL and update the href (which the browser will use to download immediately)
+    const dataImageUrl = destCanvas.toDataURL('image/png');
+    evt.currentTarget.href = dataImageUrl;
+  };
+
   return (
     <AddFrameContext.Provider
       value={{
         actualDimensions,
+        depth,
         description,
         editor,
         image,
         isSubmitting,
         measurement,
         setActualDimensions,
+        setDepth,
         setDescription,
         setImage,
         setMeasurement,
@@ -285,7 +329,10 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                           </Panel>
                           <Panel title="Layers">
                             {editor.layers.map((layer, index) => (
-                              <Button key={layer.name} onClick={() => setActiveLayer(index)}>
+                              <Button
+                                key={layer.name}
+                                type="button"
+                                onClick={() => setActiveLayer(index)}>
                                 {layer.name}
                               </Button>
                             ))}
@@ -297,6 +344,9 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                                 image={image}
                               />
                             </div>
+                            <a href=" " download="frame.png" onClick={downloadResizedImage}>
+                              Download
+                            </a>
                           </Panel>
                           <Panel title="Dimensions">
                             <TextField
@@ -312,7 +362,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                                 }));
                               }}
                             />
-
                             <TextField
                               id="height"
                               type="number"
@@ -325,6 +374,14 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                                   height: value,
                                 }));
                               }}
+                            />
+                            <TextField
+                              id="depth"
+                              type="number"
+                              min={0}
+                              disabled={isSubmitting}
+                              value={depth}
+                              onChange={value => setDepth(value)}
                             />
                           </Panel>
                         </div>

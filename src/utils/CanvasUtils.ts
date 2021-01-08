@@ -1,5 +1,4 @@
 import { Dimensions } from '@src/types';
-import { canvas } from 'glfx-es6';
 
 export class CanvasUtils {
   /**

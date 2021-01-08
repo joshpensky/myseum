@@ -11,22 +11,39 @@ export enum Orientation {
 }
 
 export class GeometryUtils {
+  /**
+   * Calculates the slope and intercept of the line formed by the given points.
+   *
+   * This is based on the formula y = mx + b, where m=slope and b=intercept.
+   *
+   * @param a the initial point
+   * @param b the terminal point
+   */
   static getSlopeIntercept(a: Position, b: Position) {
     // m = (y1 - y2) / (x1 - x2);
-    const slope = a.x === b.x ? undefined : (a.y - b.y) / (a.x - b.x);
+    let slope: number | undefined;
+    if (a.x === b.x) {
+      slope = undefined; // the line is vertical, so no slope
+    } else {
+      slope = (a.y - b.y) / (a.x - b.x);
+    }
 
-    // y = mx + b
-    // y - mx = b
+    // y = mx + b  --->  b = y - mx
     const intercept = a.y - (slope ?? 0) * a.x;
 
     return { slope, intercept };
   }
 
+  /**
+   * Calculates the slope of a line perpendicular to one with the given slope.
+   *
+   * @param slope the slope to calculate
+   */
   static getPerpendicularSlope(slope: number | undefined) {
     if (slope === undefined) {
-      return 0;
+      return 0; // convert vertical to horizontal slope
     } else if (slope === 0) {
-      return undefined;
+      return undefined; // convert horizontal to vertical slope
     }
     return -1 / slope;
   }

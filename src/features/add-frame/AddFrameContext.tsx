@@ -4,12 +4,14 @@ import { Dimensions, Measurement } from '@src/types';
 
 export type AddFrameContextValue = {
   actualDimensions: Dimensions;
+  depth: number;
   description: string;
   editor: SelectionEditor;
   image?: HTMLImageElement;
   isSubmitting: boolean;
   measurement: Measurement;
   setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
+  setDepth: Dispatch<SetStateAction<number>>;
   setDescription: Dispatch<SetStateAction<string>>;
   setImage: Dispatch<SetStateAction<HTMLImageElement | undefined>>;
   setMeasurement: Dispatch<SetStateAction<Measurement>>;
