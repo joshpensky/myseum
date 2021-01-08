@@ -22,6 +22,15 @@ export class GeometryUtils {
     return { slope, intercept };
   }
 
+  static getPerpendicularSlope(slope: number | undefined) {
+    if (slope === undefined) {
+      return 0;
+    } else if (slope === 0) {
+      return undefined;
+    }
+    return -1 / slope;
+  }
+
   // Gets the orientation of three points
   static getOrientation(p1: Position, p2: Position, p3: Position) {
     const value = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
@@ -199,14 +208,17 @@ export class GeometryUtils {
    * @param point
    * @param polygon
    */
-  static isPointInConvexQuadrilateral(point: Position, quadrilateral: SelectionEditorPoints) {
+  static isPointInPolygon(
+    point: Position,
+    polygon: { 0: Position; 1: Position; 2: Position } & Position[],
+  ) {
     const { x, y } = point;
 
     let inside = false;
 
-    for (let i = 0, j = quadrilateral.length - 1; i < quadrilateral.length; j = i++) {
-      const pointA = quadrilateral[i];
-      const pointB = quadrilateral[j];
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const pointA = polygon[i];
+      const pointB = polygon[j];
 
       const intersect =
         pointA.y > y !== pointB.y > y &&
@@ -220,77 +232,52 @@ export class GeometryUtils {
     return inside;
   }
 
-  static getClosestPointToPolygon(point: Position, polygon: Position[]) {
-    if (polygon.length < 3 || polygon.length > 4) {
-      return undefined;
+  static findNearestPointOnLine(p: Position, line: Line) {
+    const [a, b] = line;
+    // https://www.mathsisfun.com/algebra/vectors-dot-product.html
+    const vectorAB = { x: b.x - a.x, y: b.y - a.y };
+    const vectorAP = { x: p.x - a.x, y: p.y - a.y };
+    const magnitudeAB = Math.pow(vectorAB.x, 2) + Math.pow(vectorAB.y, 2);
+    const dotProduct = vectorAP.x * vectorAB.x + vectorAP.y * vectorAB.y;
+    const theta = Math.min(1, Math.max(0, dotProduct / magnitudeAB));
+    return {
+      x: a.x + vectorAB.x * theta,
+      y: a.y + vectorAB.y * theta,
+    };
+  }
+
+  static findNearestPointOnPolygon(
+    point: Position,
+    polygon: { 0: Position; 1: Position; 2: Position } & Position[],
+  ) {
+    const nearestPoints: Position[] = [];
+    for (let i = 0; i < polygon.length; i++) {
+      const line = [polygon[i], polygon[(i + 1) % polygon.length]] as Line;
+      nearestPoints.push(this.findNearestPointOnLine(point, line));
     }
 
-    let centerPoint: Position | undefined;
-    if (polygon.length === 3) {
-      const centerX = (polygon[0].x + polygon[1].x + polygon[2].x) / 3;
-      const centerY = (polygon[0].y + polygon[1].y + polygon[2].y) / 3;
-      centerPoint = { x: centerX, y: centerY };
-    } else if (polygon.length === 4) {
-      const lineAX = GeometryUtils.getSlopeIntercept(polygon[0], polygon[2]);
-      const lineBY = GeometryUtils.getSlopeIntercept(polygon[1], polygon[3]);
-      // https://www.mathopenref.com/coordintersection.html
-      if (lineAX.slope !== undefined && lineBY.slope !== undefined) {
-        const intersectX = (lineAX.intercept - lineBY.intercept) / (lineBY.slope - lineAX.slope);
-        const intersectY = lineAX.slope * intersectX + lineAX.intercept;
-        centerPoint = { x: intersectX, y: intersectY };
-      }
-    }
-
-    if (centerPoint) {
-      const lineMB = GeometryUtils.getSlopeIntercept(point, centerPoint);
-      const intersectionPts: Position[] = [];
-      for (let i = 0; i < polygon.length; i++) {
-        const basePointA = polygon[i];
-        const basePointB = polygon[(i + 1) % polygon.length];
-        const baseLineMB = GeometryUtils.getSlopeIntercept(basePointA, basePointB);
-
-        let intersectPoint: Position | undefined;
-
-        if (lineMB.slope === baseLineMB.slope) {
-          // pass, both lines are parallel
-        } else if (lineMB.slope === undefined && baseLineMB.slope !== undefined) {
-          intersectPoint = {
-            x: point.x,
-            y: baseLineMB.slope * point.x + baseLineMB.intercept,
-          };
-        } else if (lineMB.slope !== undefined && baseLineMB.slope === undefined) {
-          intersectPoint = {
-            x: basePointA.x,
-            y: lineMB.slope * basePointA.x + lineMB.intercept,
-          };
-        } else if (lineMB.slope !== undefined && baseLineMB.slope !== undefined) {
-          // https://www.mathopenref.com/coordintersection.html
-          const intersectX =
-            (baseLineMB.intercept - lineMB.intercept) / (lineMB.slope - baseLineMB.slope);
-          const intersectY = baseLineMB.slope * intersectX + baseLineMB.intercept;
-          intersectPoint = { x: intersectX, y: intersectY };
+    const shortestDistance = nearestPoints.reduce(
+      (acc, pt, index) => {
+        const d = Math.sqrt(Math.pow(pt.x - point.x, 2) + Math.pow(pt.y - point.y, 2));
+        if (acc.index < 0 || d <= acc.distance) {
+          return { distance: d, index };
         }
+        return acc;
+      },
+      { distance: 0, index: -1 },
+    );
 
-        if (
-          intersectPoint &&
-          GeometryUtils.isPointOnLine(intersectPoint, [basePointA, basePointB])
-        ) {
-          intersectionPts.push(intersectPoint);
-        }
-      }
+    return nearestPoints[shortestDistance.index];
+  }
 
-      const shortestDistance = intersectionPts.reduce(
-        (acc, pt, index) => {
-          const d = Math.sqrt(Math.pow(pt.x - point.x, 2) + Math.pow(pt.y - point.y, 2));
-          if (acc.index < 0 || d <= acc.distance) {
-            return { distance: d, index };
-          }
-          return acc;
-        },
-        { distance: 0, index: -1 },
-      );
-      const shortestPt = intersectionPts[shortestDistance.index];
-      return shortestPt;
-    }
+  static findPointOnVector(initialPoint: Position, terminalPoint: Position, magnitude: number) {
+    const direction = Math.sqrt(
+      Math.pow(terminalPoint.x - initialPoint.x, 2) + Math.pow(terminalPoint.y - initialPoint.y, 2),
+    );
+    const theta = magnitude / direction;
+    return {
+      x: (1 - theta) * initialPoint.x + theta * terminalPoint.x,
+      y: (1 - theta) * initialPoint.y + theta * terminalPoint.y,
+    };
   }
 }

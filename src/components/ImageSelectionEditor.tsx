@@ -21,7 +21,12 @@ const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
 // Disable cursor when moving point
 const GlobalDisableCursor = createGlobalStyle`
   * {
-    /* ${tw`cursor-none!`} */
+    ${tw`cursor-none!`}
+  }
+`;
+const GlobalGrabbingCursor = createGlobalStyle`
+  * {
+    ${tw`cursor-grabbing!`}
   }
 `;
 
@@ -50,9 +55,142 @@ const ImageSelectionEditor = ({
 
   const [movingIndex, setMovingIndex] = useState(-1);
   const [isDragging, setIsDragging] = useState(false); // Tracks whether moving by mouse drag or keyboard
+  const [isDraggingOutside, setIsDraggingOutside] = useState(false); // Tracks whether mouse is dragging outside valid bounds
   const keyboardMovingTimeoutRef = useRef<NodeJS.Timeout>(); // Timeout for unsetting keyboard moving state
 
   const [magnifyAnimationProgress, setMagnifyAnimationProgress] = useState([0, 0, 0, 0]);
+
+  const updateLayerPoint = (
+    activeLayer: number,
+    activePointIndex: number,
+    updateCallback: (point: Position) => Position,
+    options: { isDragging?: boolean; lap?: boolean },
+  ) => {
+    editor.setLayers(layers => {
+      const activePoints = layers[activeLayer].points;
+      const unboundedPoint = updateCallback(activePoints[activePointIndex]);
+      const newActivePoints = [
+        ...activePoints.slice(0, activePointIndex),
+        {
+          x: Math.min(1, Math.max(0, unboundedPoint.x)),
+          y: Math.min(1, Math.max(0, unboundedPoint.y)),
+        },
+        ...activePoints.slice(activePointIndex + 1),
+      ] as SelectionEditorPoints;
+
+      let isDraggingOutside = false;
+
+      const isPathValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
+      if (options.isDragging) {
+        // Show cursor if user is dragging in invalid area
+        isDraggingOutside = !isPathValid;
+      }
+
+      if (!isPathValid) {
+        /**
+         * We have point E which represents the moving quadrilateral vertex. We want to find
+         * the point closest to the polygon that still forms a valid convex quadrilateral.
+         *
+         * ```
+         *           . . . A
+         *       . .       |
+         *    . .          |
+         *  D      C  NC---N--X   E
+         *    . .          |
+         *       . .       |
+         *           . . . B
+         * ```
+         */
+
+        // 1) Disregard point E and form triangle ABD.
+        const numPoints = newActivePoints.length;
+        const triangle = [
+          newActivePoints[(numPoints + (activePointIndex - 1)) % numPoints], // A
+          newActivePoints[(activePointIndex + 1) % numPoints], // B
+          newActivePoints[(activePointIndex + 2) % numPoints], // D
+        ];
+        // 2) Form a line between the surrounding points of E (line AB)
+        const lineAB: Line = [triangle[0], triangle[1]];
+        // 3) Find the nearest projection of point E on line AB (point N)
+        const nearestPointOnLine = GeometryUtils.findNearestPointOnLine(
+          newActivePoints[activePointIndex],
+          lineAB,
+        );
+
+        // 4) Find the slope of the line perpendicular to AB. This will serve as our vector
+        const { slope } = GeometryUtils.getSlopeIntercept(triangle[0], triangle[1]);
+        const perpSlope = GeometryUtils.getPerpendicularSlope(slope) ?? 0;
+        const perpIntercept = nearestPointOnLine.y - perpSlope * nearestPointOnLine.x;
+        const perpVector: Line = [
+          { x: 0, y: perpIntercept },
+          { x: 1, y: perpSlope + perpIntercept },
+        ];
+
+        // 5) Find the center point of triangle ABD (point C)
+        const centerPoint = {
+          x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
+          y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
+        };
+        // 6) Find the projection of the center onto the perpendicular vector (point NC)
+        const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
+          centerPoint,
+          perpVector,
+        );
+
+        // 7) Invert the direction of vector N->NC by the magnitude of 0.0025 to find the offset point (point X)
+        const offsetPoint = GeometryUtils.findPointOnVector(
+          nearestPointOnLine,
+          nearestCenterPointOnPerpLine,
+          -0.0025,
+        );
+
+        // 8) Set the new point
+        newActivePoints[activePointIndex] = offsetPoint;
+      }
+
+      // Show cursor is user is dragging in invalid area
+      if (activeLayer === 0) {
+        if (options.isDragging && !isDraggingOutside) {
+          isDraggingOutside =
+            unboundedPoint.x < 0 ||
+            unboundedPoint.x > 1 ||
+            unboundedPoint.y < 0 ||
+            unboundedPoint.y > 1;
+        }
+        // TODO: if frame point is moved within window, shrink window to fit inside frame again
+        // layers.slice(1).forEach(points => points.forEach(point => { if (point is outside frame) { point = nearestPointOnPolygon } }))
+      }
+
+      // Limit the size of other layers to fit within the shape of the first
+      if (activeLayer > 0) {
+        const activePoint = newActivePoints[activePointIndex];
+        const basePath = editor.layers[0].points;
+        const isPointInsideBaseShape = GeometryUtils.isPointInPolygon(activePoint, basePath);
+
+        if (options.isDragging && !isDraggingOutside) {
+          // Update the cursor if the user is dragging outside shape
+          isDraggingOutside = !isPointInsideBaseShape;
+        }
+
+        if (!isPointInsideBaseShape) {
+          // If dragging and point is outside, find closest point to map to
+          const intersectionPt = GeometryUtils.findNearestPointOnPolygon(activePoint, basePath);
+          newActivePoints[activePointIndex] = intersectionPt;
+        }
+      }
+
+      setIsDraggingOutside(isDraggingOutside);
+
+      return [
+        ...layers.slice(0, activeLayer),
+        {
+          ...layers[activeLayer],
+          points: newActivePoints,
+        },
+        ...layers.slice(activeLayer + 1),
+      ];
+    });
+  };
 
   // Tracks mouse movements on the canvas
   // If the user is currently hovering a target, the hovering state will accordingly update
@@ -84,52 +222,23 @@ const ImageSelectionEditor = ({
     // If there's a moving index, update corner position
     if (isDragging && movingIndex >= 0) {
       evt.preventDefault();
-      editor.setLayers(layers => {
-        // We calculate canvas position as..... cx = corner.x * width + x;
-        // So we inverse for corner position... corner.x = (cx - x) / width
-        const fx = (mouseX - x) / width;
-        const fy = (mouseY - y) / height;
-
-        const activePoints = layers[activeLayer].points;
-        const newActivePoints = [
-          ...activePoints.slice(0, movingIndex),
-          {
-            x: Math.min(1, Math.max(0, fx)),
-            y: Math.min(1, Math.max(0, fy)),
-          },
-          ...activePoints.slice(movingIndex + 1),
-        ] as SelectionEditorPoints;
-
-        // If not a valid convex quadrilateral, don't allow for edit
-        const isValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
-        if (!isValid) {
-          return layers;
-        }
-
-        if (activeLayer > 0) {
-          const activePoint = newActivePoints[movingIndex];
-          const basePath = editor.layers[0].points;
-          const isPointInsideBaseShape = GeometryUtils.isPointInConvexQuadrilateral(
-            activePoint,
-            basePath,
-          );
-          if (!isPointInsideBaseShape) {
-            const intersectionPt = GeometryUtils.getClosestPointToPolygon(activePoint, basePath);
-            if (intersectionPt) {
-              newActivePoints[movingIndex] = intersectionPt;
-            }
-          }
-        }
-
-        return [
-          ...layers.slice(0, activeLayer),
-          {
-            ...layers[activeLayer],
-            points: newActivePoints,
-          },
-          ...layers.slice(activeLayer + 1),
-        ];
-      });
+      updateLayerPoint(
+        activeLayer,
+        movingIndex,
+        () => {
+          // We calculate canvas position as..... cx = corner.x * width + x;
+          // So we inverse for corner position... corner.x = (cx - x) / width
+          const fx = (mouseX - x) / width;
+          const fy = (mouseY - y) / height;
+          return {
+            x: fx,
+            y: fy,
+          };
+        },
+        {
+          isDragging: true,
+        },
+      );
       return;
     }
 
@@ -173,6 +282,7 @@ const ImageSelectionEditor = ({
     if (isDragging && movingIndex >= 0) {
       setMovingIndex(-1);
       setIsDragging(false);
+      setIsDraggingOutside(false);
     }
   };
 
@@ -222,25 +332,9 @@ const ImageSelectionEditor = ({
         setMovingIndex(-1);
       }, 500);
 
-      editor.setLayers(layers => {
-        const points = layers[activeLayer].points;
-        const newPoint = updateCallback(points[pointIndex]);
-        return [
-          ...layers.slice(0, activeLayer),
-          {
-            ...layers[activeLayer],
-            points: [
-              ...points.slice(0, pointIndex),
-              {
-                x: Math.min(1, Math.max(0, newPoint.x)),
-                y: Math.min(1, Math.max(0, newPoint.y)),
-              },
-              ...points.slice(pointIndex + 1),
-            ] as SelectionEditorPoints,
-          },
-          ...layers.slice(activeLayer + 1),
-        ];
-      }, !evt.repeat); // Create a new entry in history, if key is being held down repeatedly
+      updateLayerPoint(activeLayer, pointIndex, updateCallback, {
+        lap: true, // Create a new entry in history, if key is being held down repeatedly
+      });
     };
 
     // Position should change 10x faster when shift key is held
@@ -322,7 +416,7 @@ const ImageSelectionEditor = ({
       ctx.fillStyle = theme`colors.white`;
       ctx.lineJoin = 'bevel';
       ctx.lineWidth = STROKE_WIDTH;
-      ctx.strokeStyle = editor.isValid ? theme`colors.blue.500` : theme`colors.red.500`;
+      ctx.strokeStyle = theme`colors.blue.500`;
       ctx.globalAlpha = 1;
     };
 
@@ -454,111 +548,53 @@ const ImageSelectionEditor = ({
       }
 
       // if (movingIndex === index) {
-      //   if (activeLayer > 0) {
-      //     const activePoint = {
+      //   const newActivePoints = editor.layers[activeLayer].points;
+      //   const numPoints = newActivePoints.length;
+      //   const triangle = [
+      //     newActivePoints[(numPoints + (movingIndex - 1)) % numPoints], // a
+      //     newActivePoints[(movingIndex + 1) % numPoints], // b
+      //     newActivePoints[(movingIndex + 2) % numPoints], // c
+      //   ];
+      //   const nearestPointOnLine = GeometryUtils.findNearestPointOnLine(
+      //     newActivePoints[movingIndex],
+      //     [triangle[0], triangle[1]],
+      //   );
+
+      //   const { slope } = GeometryUtils.getSlopeIntercept(triangle[0], triangle[1]);
+      //   const perpSlope = GeometryUtils.getPerpendicularSlope(slope) ?? 0;
+      //   const perpIntercept = nearestPointOnLine.y - perpSlope * nearestPointOnLine.x;
+      //   const perpLine: Line = [
+      //     { x: 0, y: perpIntercept },
+      //     { x: 1, y: perpSlope + perpIntercept },
+      //   ];
+
+      //   const centerPoint = {
+      //     x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
+      //     y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
+      //   };
+      //   const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
+      //     centerPoint,
+      //     perpLine,
+      //   );
+
+      //   // Find point 0.0025 in the OPPOSITE direction of the vector from nearest point -> nearest center point
+      //   const offsetPoint = GeometryUtils.findPointOnVector(
+      //     nearestPointOnLine,
+      //     nearestCenterPointOnPerpLine,
+      //     -0.01,
+      //   );
+
+      //   [nearestPointOnLine, nearestCenterPointOnPerpLine, offsetPoint].forEach((point, i) => {
+      //     const updatedPt = {
       //       x: x + point.x * width,
       //       y: y + point.y * height,
       //     };
-
-      //     const basePath = editor.layers[0].points.map(position => ({
-      //       x: x + position.x * width,
-      //       y: y + position.y * height,
-      //     })) as SelectionEditorPoints;
-
-      //     const lineAX = GeometryUtils.getSlopeIntercept(basePath[0], basePath[2]);
-      //     const lineBY = GeometryUtils.getSlopeIntercept(basePath[1], basePath[3]);
-      //     let centerPoint: Position | undefined;
-      //     // https://www.mathopenref.com/coordintersection.html
-      //     if (lineAX.slope !== undefined && lineBY.slope !== undefined) {
-      //       const intersectX =
-      //         (lineAX.intercept - lineBY.intercept) / (lineBY.slope - lineAX.slope);
-      //       const intersectY = lineAX.slope * intersectX + lineAX.intercept;
-      //       centerPoint = { x: intersectX, y: intersectY };
-      //     }
-
-      //     if (centerPoint) {
-      //       ctx.fillStyle = 'yellow';
-      //       ctx.strokeStyle = 'green';
-      //       ctx.lineWidth = 2;
-
-      //       ctx.beginPath();
-      //       ctx.arc(centerPoint.x, centerPoint.y, 5, 0, Math.PI * 2);
-      //       ctx.closePath();
-      //       ctx.fill();
-
-      //       ctx.beginPath();
-      //       ctx.moveTo(centerPoint.x, centerPoint.y);
-      //       ctx.lineTo(activePoint.x, activePoint.y);
-      //       ctx.closePath();
-      //       ctx.stroke();
-      //     } else {
-      //       return;
-      //     }
-
-      //     const pts: Position[] = [];
-
-      //     const lineMB = GeometryUtils.getSlopeIntercept(activePoint, centerPoint);
-
-      //     // const intersect = false;
-      //     for (let i = 0; i < basePath.length; i++) {
-      //       const basePointA = basePath[i];
-      //       const basePointB = basePath[(i + 1) % basePath.length];
-      //       const baseLineMB = GeometryUtils.getSlopeIntercept(basePointA, basePointB);
-
-      //       let intersectPoint: Position | undefined;
-
-      //       if (lineMB.slope === baseLineMB.slope) {
-      //         // pass, both lines are parallel
-      //       } else if (lineMB.slope === undefined && baseLineMB.slope !== undefined) {
-      //         intersectPoint = {
-      //           x: activePoint.x,
-      //           y: baseLineMB.slope * activePoint.x + baseLineMB.intercept,
-      //         };
-      //       } else if (lineMB.slope !== undefined && baseLineMB.slope === undefined) {
-      //         intersectPoint = {
-      //           x: basePointA.x,
-      //           y: lineMB.slope * basePointA.x + lineMB.intercept,
-      //         };
-      //       } else if (lineMB.slope !== undefined && baseLineMB.slope !== undefined) {
-      //         // https://www.mathopenref.com/coordintersection.html
-      //         const intersectX =
-      //           (baseLineMB.intercept - lineMB.intercept) / (lineMB.slope - baseLineMB.slope);
-      //         const intersectY = baseLineMB.slope * intersectX + baseLineMB.intercept;
-      //         intersectPoint = { x: intersectX, y: intersectY };
-      //       }
-
-      //       if (
-      //         intersectPoint &&
-      //         GeometryUtils.isPointOnLine(intersectPoint, [basePointA, basePointB])
-      //       ) {
-      //         pts.push(intersectPoint);
-      //       }
-      //     }
-
-      //     // console.log(pts);
-
-      //     const shortestDistance = pts.reduce(
-      //       (acc, pt, index) => {
-      //         const d = Math.sqrt(
-      //           Math.pow(pt.x - activePoint.x, 2) + Math.pow(pt.y - activePoint.y, 2),
-      //         );
-      //         if (acc.index < 0 || d <= acc.distance) {
-      //           return { distance: d, index };
-      //         }
-      //         return acc;
-      //       },
-      //       { distance: 0, index: -1 },
-      //     );
-      //     console.log('DRAW', pts[shortestDistance.index]);
-
-      //     pts.forEach((pt, index) => {
-      //       ctx.fillStyle = shortestDistance.index === index ? 'purple' : 'green';
-      //       ctx.beginPath();
-      //       ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
-      //       ctx.closePath();
-      //       ctx.fill();
-      //     });
-      //   }
+      //     ctx.beginPath();
+      //     ctx.arc(updatedPt.x, updatedPt.y, 5, 0, Math.PI * 2);
+      //     ctx.closePath();
+      //     ctx.fillStyle = i === 2 ? 'yellow' : 'green';
+      //     ctx.fill();
+      //   });
       // }
     };
 
@@ -611,7 +647,6 @@ const ImageSelectionEditor = ({
     render();
   }, [
     actualDimensions,
-    editor.isValid,
     movingIndex,
     magnifyAnimationProgress,
     focusIndex,
@@ -737,21 +772,9 @@ const ImageSelectionEditor = ({
           ))}
         </canvas>
       )}
-      <p
-        css={[
-          tw`absolute bottom-0 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-3xl bg-black bg-opacity-90 text-red-500`,
-          tw`before:(content absolute inset-0 rounded-3xl bg-red-500 bg-opacity-20 pointer-events-none)`,
-          [
-            tw`transition-all ease-out`,
-            editor.isValid && tw`opacity-0 translate-y-1 pointer-events-none`,
-          ],
-        ]}
-        role="region"
-        aria-live="assertive"
-        aria-hidden={editor.isValid[activeLayer]}>
-        Invalid shape
-      </p>
-      {movingIndex >= 0 && isDragging && <GlobalDisableCursor />}
+      {movingIndex >= 0 &&
+        isDragging &&
+        (isDraggingOutside ? <GlobalGrabbingCursor /> : <GlobalDisableCursor />)}
     </div>
   );
 };
