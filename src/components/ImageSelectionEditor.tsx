@@ -409,6 +409,8 @@ const ImageSelectionEditor = ({
       // Revert back to regular composition type (drawing atop)
       ctx.globalCompositeOperation = 'source-over';
 
+      // TODO: render all overlays overlays always
+      // TODO: add the second window layer WHEN window button is first pressed
       if (activeLayer > 0) {
         ctx.fillStyle = theme`colors.black`;
         ctx.globalAlpha = 0.8;

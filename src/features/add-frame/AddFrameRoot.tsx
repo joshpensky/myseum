@@ -6,7 +6,7 @@ import FocusLock from 'react-focus-lock';
 import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
-// import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
+import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
@@ -17,6 +17,7 @@ import UploadToast from './UploadToast';
 import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
+import TextField from '../add-artwork/TextField';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -283,8 +284,48 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                             </Button>
                           </Panel>
                           <Panel title="Layers">
-                            <Button onClick={() => setActiveLayer(0)}>Frame</Button>
-                            <Button onClick={() => setActiveLayer(1)}>Window</Button>
+                            {editor.layers.map((layer, index) => (
+                              <Button key={layer.name} onClick={() => setActiveLayer(index)}>
+                                {layer.name}
+                              </Button>
+                            ))}
+                            <p css={tw`text-sm mt-6 mb-2 text-gray-300`}>Preview</p>
+                            <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
+                              <ImageSelectionPreview
+                                editor={editor}
+                                actualDimensions={actualDimensions}
+                                image={image}
+                              />
+                            </div>
+                          </Panel>
+                          <Panel title="Dimensions">
+                            <TextField
+                              id="width"
+                              type="number"
+                              min={1}
+                              disabled={isSubmitting}
+                              value={actualDimensions.width}
+                              onChange={value => {
+                                setActualDimensions(dimensions => ({
+                                  ...dimensions,
+                                  width: value,
+                                }));
+                              }}
+                            />
+
+                            <TextField
+                              id="height"
+                              type="number"
+                              min={1}
+                              disabled={isSubmitting}
+                              value={actualDimensions.height}
+                              onChange={value => {
+                                setActualDimensions(dimensions => ({
+                                  ...dimensions,
+                                  height: value,
+                                }));
+                              }}
+                            />
                           </Panel>
                         </div>
                       </div>
