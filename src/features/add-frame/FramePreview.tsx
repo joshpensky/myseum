@@ -2,8 +2,8 @@ import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { darken, rgb } from 'polished';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import tw, { css, theme } from 'twin.macro';
+import { useLayoutEffect, useRef, useState } from 'react';
+import tw, { css } from 'twin.macro';
 import { useAddFrameContext } from './AddFrameContext';
 import PerspT from 'perspective-transform';
 import type { Matrix } from 'glfx-es6';
@@ -151,15 +151,27 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            /* background-color: var(--color); */
           `}>
           {image && (
-            <ImageSelectionPreview
-              editor={editor}
-              actualDimensions={actualDimensions}
-              image={image}
-              onRender={onPreviewRender}
-            />
+            <div
+              css={css`
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: ${image.naturalWidth}px;
+                height: ${image.naturalHeight}px;
+                transform-origin: 0% 0%;
+                // Prevent re-renders by using transform scale (uses GPU)
+                transform: scaleX(${previewDimensions.width / image.naturalWidth})
+                  scaleY(${previewDimensions.height / image.naturalHeight});
+              `}>
+              <ImageSelectionPreview
+                editor={editor}
+                actualDimensions={{ width: image.naturalWidth, height: image.naturalHeight }}
+                image={image}
+                onRender={onPreviewRender}
+              />
+            </div>
           )}
         </div>
 
@@ -179,7 +191,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
           `}
         />
 
-        {bottomInnerLength && (
+        {bottomInnerLength > 0 && (
           <div
             id="bottom-inner"
             css={css`
@@ -211,7 +223,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
           `}
         />
 
-        {rightInnerLength && (
+        {rightInnerLength > 0 && (
           <div
             id="right-inner"
             css={css`

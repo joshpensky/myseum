@@ -36,7 +36,9 @@ const ImageSelectionPreview = ({
     const imgCtx = document.createElement('canvas').getContext('2d');
     if (imgCtx && canvasRef.current && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
+      // console.log('render');
       // Render the preview onto the destination canvas
+      // TODO: separate transform render onto separate canvas to speed up?
       renderPreview({
         destCanvas: canvasRef.current,
         webglCanvas,
@@ -65,7 +67,7 @@ const ImageSelectionPreview = ({
   // Render canvas
   useEffect(() => {
     render();
-  }, [actualDimensions, editor.layers, texture, webglCanvas]);
+  }, [actualDimensions.height, actualDimensions.width, editor.layers, texture, webglCanvas]);
 
   // Resize and re-render canvas when dimensions change
   useEffect(() => {
