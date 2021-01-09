@@ -520,19 +520,22 @@ const ImageSelectionEditor = ({
     // Renders the image and layer overlays
     renderImageAndOverlays();
 
-    // Renders the active path
-    // const activePoints = editor.layers[activeLayer].points;
+    // Renders the other layer paths
     editor.layers.forEach((layer, index) => {
-      const activePath = getPointsPath(layer.points);
-      renderPointsPath(index, activePath);
+      if (activeLayer !== index) {
+        renderPointsPath(index, getPointsPath(layer.points));
+      }
     });
+
+    // Render the active layer path on top
+    const activePoints = editor.layers[activeLayer].points;
+    renderPointsPath(activeLayer, getPointsPath(activePoints));
 
     // Sort editor points by their magnification (magnified = higher z-index)
     const sortedPointsByZIndex = [0, 1, 2, 3].sort(
       (aIndex, bIndex) => magnifyAnimationProgress[aIndex] - magnifyAnimationProgress[bIndex],
     );
     // Then, render each active point
-    const activePoints = editor.layers[activeLayer].points;
     sortedPointsByZIndex.forEach(pointIndex => {
       renderPoint(activeLayer, activePoints[pointIndex], pointIndex);
     });

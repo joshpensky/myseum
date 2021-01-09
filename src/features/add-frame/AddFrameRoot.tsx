@@ -1,5 +1,4 @@
-import * as fx from 'glfx-es6';
-import { FormEvent, Fragment, MouseEvent, useContext, useEffect, useRef, useState } from 'react';
+import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
@@ -9,19 +8,16 @@ import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
-import { SelectionEditorPoints, useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import Panel from '@src/features/add-artwork/Panel';
+import TextField from '@src/features/add-artwork/TextField';
 import UploadImage from '@src/features/add-artwork/UploadImage';
 import { AddFrameContext } from './AddFrameContext';
 import UploadToast from './UploadToast';
 import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
-import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
-import TextField from '../add-artwork/TextField';
-import { renderPreview } from '@src/utils/renderPreview';
-import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
+import EditSelectionModal from './EditSelectionModal';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -46,7 +42,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
       ],
     },
   ]);
-  const [activeLayer, setActiveLayer] = useState(0);
 
   const [image, setImage] = useState<HTMLImageElement>();
   const [actualDimensions, setActualDimensions] = useState<Dimensions>({
@@ -56,6 +51,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const [depth, setDepth] = useState(0);
   const [measurement, setMeasurement] = useState<Measurement>('inch');
   const [description, setDescription] = useState('');
+
+  const [isEscapeDisabled, setIsEscapeDisabled] = useState(false);
 
   const [isEditingSelection, setIsEditingSelection] = useState(false);
 
@@ -131,10 +128,11 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     switch (evt.key) {
       case 'Escape':
       case 'Esc': {
-        evt.preventDefault();
         if (!isUploadToastHidden) {
+          evt.preventDefault();
           setIsUploadToastHidden(true);
-        } else {
+        } else if (!isEscapeDisabled) {
+          evt.preventDefault();
           _onClose();
         }
       }
@@ -177,41 +175,41 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     };
   }, []);
 
-  // Downloads the resized/straightened image as a PNG
-  const downloadResizedImage = (evt: MouseEvent<HTMLAnchorElement>) => {
-    if (!image) {
-      return;
-    }
+  // // Downloads the resized/straightened image as a PNG
+  // const downloadResizedImage = (evt: MouseEvent<HTMLAnchorElement>) => {
+  //   if (!image) {
+  //     return;
+  //   }
 
-    // Get the dimensions of the final image, at the highest possible quality
-    const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points).map(
-      c => ({
-        x: c.x * image.naturalWidth,
-        y: c.y * image.naturalHeight,
-      }),
-    ) as SelectionEditorPoints;
-    const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
-    const imgRect = CanvasUtils.objectContain(avgRect, actualDimensions);
+  //   // Get the dimensions of the final image, at the highest possible quality
+  //   const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points).map(
+  //     c => ({
+  //       x: c.x * image.naturalWidth,
+  //       y: c.y * image.naturalHeight,
+  //     }),
+  //   ) as SelectionEditorPoints;
+  //   const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
+  //   const imgRect = CanvasUtils.objectContain(avgRect, actualDimensions);
 
-    // Matrix warp the image selection into the straightened version
-    const webglCanvas = fx.canvas();
-    const texture = webglCanvas.texture(image);
+  //   // Matrix warp the image selection into the straightened version
+  //   const webglCanvas = fx.canvas();
+  //   const texture = webglCanvas.texture(image);
 
-    const destCanvas = document.createElement('canvas');
-    CanvasUtils.resize(destCanvas, { width: imgRect.width, height: imgRect.height });
-    renderPreview({
-      destCanvas,
-      webglCanvas,
-      texture,
-      layers: editor.layers,
-      dimensions: { width: imgRect.width, height: imgRect.height },
-      position: { x: 0, y: 0 },
-    });
+  //   const destCanvas = document.createElement('canvas');
+  //   CanvasUtils.resize(destCanvas, { width: imgRect.width, height: imgRect.height });
+  //   renderPreview({
+  //     destCanvas,
+  //     webglCanvas,
+  //     texture,
+  //     layers: editor.layers,
+  //     dimensions: { width: imgRect.width, height: imgRect.height },
+  //     position: { x: 0, y: 0 },
+  //   });
 
-    // Generate the URL and update the href (which the browser will use to download immediately)
-    const dataImageUrl = destCanvas.toDataURL('image/png');
-    evt.currentTarget.href = dataImageUrl;
-  };
+  //   // Generate the URL and update the href (which the browser will use to download immediately)
+  //   const dataImageUrl = destCanvas.toDataURL('image/png');
+  //   evt.currentTarget.href = dataImageUrl;
+  // };
 
   return (
     <AddFrameContext.Provider
@@ -255,7 +253,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                 <IconButton
                   ref={cancelBtnRef}
                   title="Cancel"
-                  disabled={isSubmitting || isEditingSelection}
+                  disabled={isSubmitting || isEditingSelection || isEscapeDisabled}
                   onClick={_onClose}>
                   <Close />
                 </IconButton>
@@ -290,19 +288,13 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                     <Fragment>
                       <div
                         css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative border-r border-white`}>
-                        <ImageSelectionEditor
-                          activeLayer={activeLayer}
-                          editor={editor}
-                          actualDimensions={actualDimensions}
-                          image={image}
-                        />
-                        {/* <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
+                        <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
                           <ImageSelectionPreview
                             editor={editor}
                             actualDimensions={actualDimensions}
                             image={image}
                           />
-                        </div> */}
+                        </div>
                       </div>
                       <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
                         <div
@@ -312,43 +304,13 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                               css={tw`mt-2`}
                               type="button"
                               disabled={isSubmitting}
-                              onClick={() => setIsEditingSelection(true)}
+                              onClick={() => {
+                                setIsEditingSelection(true);
+                                setIsEscapeDisabled(true);
+                              }}
                               aria-controls="edit-selection-modal">
                               Edit selection
                             </Button>
-                          </Panel>
-                          <Panel title="Layers">
-                            <Button type="button" onClick={() => setActiveLayer(0)}>
-                              Frame
-                            </Button>
-
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                if (editor.layers.length === 1) {
-                                  editor.setLayers(layers => [
-                                    layers[0],
-                                    {
-                                      name: 'Window',
-                                      points: layers[0].points,
-                                    },
-                                  ]);
-                                }
-                                setActiveLayer(1);
-                              }}>
-                              Window
-                            </Button>
-                            <p css={tw`text-sm mt-6 mb-2 text-gray-300`}>Preview</p>
-                            <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-md p-4`}>
-                              <ImageSelectionPreview
-                                editor={editor}
-                                actualDimensions={actualDimensions}
-                                image={image}
-                              />
-                            </div>
-                            <a href=" " download="frame.png" onClick={downloadResizedImage}>
-                              Download
-                            </a>
                           </Panel>
                           <Panel title="Dimensions">
                             <TextField
@@ -402,6 +364,21 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                     </Button>
                   )}
                 </form>
+
+                {isEditingSelection && image && (
+                  <EditSelectionModal
+                    editor={editor}
+                    actualDimensions={actualDimensions}
+                    image={image}
+                    onClose={modalEditor => {
+                      if (modalEditor) {
+                        editor.setLayers(modalEditor.layers); // Save the latest state, if available
+                      }
+                      setIsEditingSelection(false); // Close the editor
+                      setIsEscapeDisabled(false);
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import PerspT from 'perspective-transform';
 type RenderPreviewOptions = {
   destCanvas: HTMLCanvasElement;
   dimensions: Dimensions;
+  image: HTMLImageElement;
   layers: SelectionEditorLayer[];
   position: Position;
   texture: fx.Texture;
@@ -17,6 +18,7 @@ type RenderPreviewOptions = {
 export const renderPreview = ({
   destCanvas,
   dimensions,
+  image,
   layers,
   position,
   texture,
@@ -24,25 +26,31 @@ export const renderPreview = ({
 }: RenderPreviewOptions) => {
   const destCtx = destCanvas.getContext('2d');
 
-  if (!destCtx || dimensions.width <= 0 || dimensions.height <= 0) {
+  if (!destCtx || dimensions.width <= 0 || dimensions.height <= 0 || !image.complete) {
     return;
   }
 
+  const imgDimensions = {
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+  };
+
   // Draw the image on the WebGL canvas
-  webglCanvas.draw(texture, dimensions.width, dimensions.height);
+  webglCanvas.draw(texture, imgDimensions.width, imgDimensions.height);
   // Perform the perspective transformation to straighten the image
+  // We use image dimensions to ensure it's drawn at the highest quality possible
   const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(layers[0].points);
-  const srcMatrix = srcPoints.flatMap(c => [
-    c.x * dimensions.width,
-    c.y * dimensions.height,
+  const imgSrcMatrix = srcPoints.flatMap(c => [
+    c.x * imgDimensions.width,
+    c.y * imgDimensions.height,
   ]) as fx.Matrix;
-  const destMatrix = [
+  const imgDestMatrix = [
     ...[0, 0],
-    ...[dimensions.width, 0],
-    ...[dimensions.width, dimensions.height],
-    ...[0, dimensions.height],
+    ...[imgDimensions.width, 0],
+    ...[imgDimensions.width, imgDimensions.height],
+    ...[0, imgDimensions.height],
   ] as fx.Matrix;
-  webglCanvas.perspective(srcMatrix, destMatrix);
+  webglCanvas.perspective(imgSrcMatrix, imgDestMatrix);
   // Update the WebGL canvas with the latest draw
   webglCanvas.update();
 
@@ -52,17 +60,27 @@ export const renderPreview = ({
     webglCanvas,
     0,
     0,
-    dimensions.width,
-    dimensions.height,
+    imgDimensions.width,
+    imgDimensions.height,
     position.x,
     position.y,
     dimensions.width,
     dimensions.height,
   );
 
-  if (layers[1]) {
+  if (layers.length > 1) {
     // Get perspective matrix
-    const perspective = PerspT(srcMatrix, destMatrix);
+    const canvasSrcMatrix = srcPoints.flatMap(c => [
+      c.x * dimensions.width,
+      c.y * dimensions.height,
+    ]) as fx.Matrix;
+    const canvasDestMatrix = [
+      ...[0, 0],
+      ...[dimensions.width, 0],
+      ...[dimensions.width, dimensions.height],
+      ...[0, dimensions.height],
+    ] as fx.Matrix;
+    const perspective = PerspT(canvasSrcMatrix, canvasDestMatrix);
 
     // For each subsequent layer, cut out the window from the transformed image
     layers.slice(1).forEach(layer => {

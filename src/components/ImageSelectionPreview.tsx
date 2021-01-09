@@ -36,6 +36,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
         destCanvas: canvasRef.current,
         webglCanvas,
         texture,
+        image,
         layers: editor.layers,
         dimensions: { width, height },
         position: { x, y },
