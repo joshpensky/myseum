@@ -11,9 +11,15 @@ export type ImageSelectionPreviewProps = {
   actualDimensions: Dimensions;
   editor: SelectionEditor;
   image: HTMLImageElement;
+  onRender?(canvas: HTMLCanvasElement): void;
 };
 
-const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelectionPreviewProps) => {
+const ImageSelectionPreview = ({
+  actualDimensions,
+  editor,
+  image,
+  onRender,
+}: ImageSelectionPreviewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -28,8 +34,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   // Render the final artwork onto the preview canvas
   const render = () => {
     const imgCtx = document.createElement('canvas').getContext('2d');
-    const ctx = canvasRef.current?.getContext('2d');
-    if (imgCtx && ctx && canvasRef.current && texture) {
+    if (imgCtx && canvasRef.current && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
       // Render the preview onto the destination canvas
       renderPreview({
@@ -41,6 +46,8 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
         dimensions: { width, height },
         position: { x, y },
       });
+
+      onRender?.(canvasRef.current);
     }
   };
 
@@ -66,7 +73,7 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
       CanvasUtils.resize(canvasRef.current, canvasDimensions);
       render();
     }
-  }, [canvasDimensions]);
+  }, [canvasDimensions.height, canvasDimensions.width]);
 
   // Update the canvas dimensions on resize
   useLayoutEffect(() => {

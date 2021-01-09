@@ -11,6 +11,20 @@ export enum Orientation {
 }
 
 export class GeometryUtils {
+  static getLineLength(a: Position, b: Position) {
+    return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  }
+
+  /**
+   * Gets the angle of the line, with the range [-180deg, 180deg].
+   *
+   * // https://stackoverflow.com/a/9614122
+   */
+  static getLineAngle(a: Position, b: Position) {
+    const theta = Math.atan2(b.y - a.y, b.x - a.x);
+    return theta * (180 / Math.PI);
+  }
+
   /**
    * Calculates the slope and intercept of the line formed by the given points.
    *
@@ -67,14 +81,10 @@ export class GeometryUtils {
     return isPointWithinXRange && isPointWithinYRange;
   }
 
+  // https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
   static isPointWithinCircle(point: Position, circle: Position & { radius: number }) {
-    // Check if point is within circular target using Pythagorean theorem:
-    // sqrt((x - center_x)^2 + (y - center_y)^2) <= radius
-    // https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
-    const euclidianDistance = Math.sqrt(
-      Math.pow(point.x - circle.x, 2) + Math.pow(point.y - circle.y, 2),
-    );
-    return euclidianDistance <= circle.radius;
+    const pointToCenterLength = this.getLineLength(point, circle);
+    return pointToCenterLength <= circle.radius;
   }
 
   // Checks if the given lines intersect or are colinear
@@ -289,10 +299,10 @@ export class GeometryUtils {
     }
 
     const shortestDistance = nearestPoints.reduce(
-      (acc, pt, index) => {
-        const d = Math.sqrt(Math.pow(pt.x - point.x, 2) + Math.pow(pt.y - point.y, 2));
-        if (acc.index < 0 || d <= acc.distance) {
-          return { distance: d, index };
+      (acc, nearPoint, index) => {
+        const distance = this.getLineLength(nearPoint, point);
+        if (acc.index < 0 || distance <= acc.distance) {
+          return { distance, index };
         }
         return acc;
       },
@@ -310,9 +320,7 @@ export class GeometryUtils {
    * @param magnitude the magnitude, or length, along the vector at which the point should be
    */
   static findPointOnVector(initialPoint: Position, terminalPoint: Position, magnitude: number) {
-    const direction = Math.sqrt(
-      Math.pow(terminalPoint.x - initialPoint.x, 2) + Math.pow(terminalPoint.y - initialPoint.y, 2),
-    );
+    const direction = this.getLineLength(initialPoint, terminalPoint);
     const theta = magnitude / direction;
     return {
       x: (1 - theta) * initialPoint.x + theta * terminalPoint.x,
