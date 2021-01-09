@@ -6,6 +6,8 @@ type BaseTextFieldProps = BaseProps & {
   autoComplete?: 'off' | undefined;
   disabled?: boolean;
   id?: string;
+  onBlur?(): void;
+  onFocus?(): void;
   placeholder?: string;
   required?: boolean;
 };
@@ -44,6 +46,8 @@ const TextField = ({
   id,
   min,
   grow,
+  onBlur,
+  onFocus,
   placeholder,
   required,
   step,
@@ -107,11 +111,13 @@ const TextField = ({
         required={required}
         placeholder={placeholder}
         value={typedProps.value}
+        onBlur={onBlur}
         onChange={evt => {
           const { value } = evt.target;
           typedProps.onChange(value.replace(/(\r\n|\n|\r)/gm, ''));
           updateGrowingHeight();
         }}
+        onFocus={onFocus}
         onKeyDown={evt => {
           if (evt.key === 'Enter') {
             evt.preventDefault();
@@ -168,7 +174,9 @@ const TextField = ({
       required={required}
       placeholder={placeholder}
       value={typedProps.value}
+      onBlur={onBlur}
       onChange={_onChange}
+      onFocus={onFocus}
       onKeyDown={typedProps.type === 'number' ? onNumberKeyDown : undefined}
     />
   );

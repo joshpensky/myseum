@@ -6,7 +6,6 @@ import FocusLock from 'react-focus-lock';
 import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
-import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
@@ -18,6 +17,7 @@ import UploadToast from './UploadToast';
 import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
 import EditSelectionModal from './EditSelectionModal';
+import FramePreview from './FramePreview';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -51,6 +51,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const [depth, setDepth] = useState(0);
   const [measurement, setMeasurement] = useState<Measurement>('inch');
   const [description, setDescription] = useState('');
+
+  const [isPreviewRotated, setIsPreviewRotated] = useState(false);
 
   const [isEscapeDisabled, setIsEscapeDisabled] = useState(false);
 
@@ -287,14 +289,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                   ) : (
                     <Fragment>
                       <div
-                        css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative border-r border-white`}>
-                        <div css={[tw`max-w-3xl max-h-3xl size-full`]}>
-                          <ImageSelectionPreview
-                            editor={editor}
-                            actualDimensions={actualDimensions}
-                            image={image}
-                          />
-                        </div>
+                        css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full overflow-hidden border-r border-white`}>
+                        <FramePreview rotate={isPreviewRotated} />
                       </div>
                       <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
                         <div
@@ -346,6 +342,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                               disabled={isSubmitting}
                               value={depth}
                               onChange={value => setDepth(value)}
+                              onFocus={() => setIsPreviewRotated(true)}
+                              onBlur={() => setIsPreviewRotated(false)}
                             />
                           </Panel>
                         </div>
