@@ -12,10 +12,11 @@ import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionE
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
+import { MathUtils } from '@src/utils/MathUtilts';
 
 const STROKE_WIDTH = 3;
 const POINT_RADIUS = 5;
-const MAGNIFIED_POINT_RADIUS = 20;
+const MAGNIFIED_POINT_RADIUS = 30;
 const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
 
 const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
@@ -439,8 +440,10 @@ const ImageSelectionEditor = ({
       ctx.stroke();
 
       const showMagnifiedVersion = magnifyAnimationProgress[index] > 0;
-      const magnifiedRadius =
-        POINT_RADIUS + (MAGNIFIED_POINT_RADIUS - POINT_RADIUS) * magnifyAnimationProgress[index]; // https://www.d3indepth.com/scales/
+      const magnifiedRadius = MathUtils.scaleLinear(magnifyAnimationProgress[index], [
+        POINT_RADIUS,
+        MAGNIFIED_POINT_RADIUS,
+      ]);
 
       // If moving, render magnifying glass with crosshairs
       if (showMagnifiedVersion) {
@@ -454,12 +457,13 @@ const ImageSelectionEditor = ({
 
         // Draw the magnified image area
         ctx.globalCompositeOperation = 'destination-over';
+        const imagePixelRadius = Math.max(image.naturalWidth, image.naturalHeight) / 100;
         ctx.drawImage(
           image,
-          point.x * image.naturalWidth - magnifiedRadius / 2,
-          point.y * image.naturalHeight - magnifiedRadius / 2,
-          magnifiedRadius,
-          magnifiedRadius,
+          point.x * image.naturalWidth - imagePixelRadius,
+          point.y * image.naturalHeight - imagePixelRadius,
+          imagePixelRadius * 2,
+          imagePixelRadius * 2,
           px - magnifiedRadius,
           py - magnifiedRadius,
           magnifiedRadius * 2,

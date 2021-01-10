@@ -30,10 +30,16 @@ export const renderPreview = ({
     return;
   }
 
-  const imgDimensions = {
-    width: image.naturalWidth,
-    height: image.naturalHeight,
-  };
+  // Cap the max image resolution to 2000px
+  const imgDimensions = CanvasUtils.objectContain(
+    { width: 2000, height: 2000 },
+    {
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+    },
+  );
+
+  console.log(imgDimensions);
 
   // Draw the image on the WebGL canvas
   webglCanvas.draw(texture, imgDimensions.width, imgDimensions.height);

@@ -288,8 +288,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                     </Fragment>
                   ) : (
                     <Fragment>
-                      <div
-                        css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full overflow-hidden border-r border-white`}>
+                      <div css={tw`flex-1 border-r border-white`}>
                         <FramePreview rotate={isPreviewRotated} />
                       </div>
                       <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
