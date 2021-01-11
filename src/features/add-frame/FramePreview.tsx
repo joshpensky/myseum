@@ -2,12 +2,13 @@ import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { darken, rgb } from 'polished';
-import { useLayoutEffect, useRef, useState } from 'react';
-import tw, { css } from 'twin.macro';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import tw, { css, theme } from 'twin.macro';
 import { useAddFrameContext } from './AddFrameContext';
 import PerspT from 'perspective-transform';
 import type { Matrix } from 'glfx-es6';
 import { Position } from '@src/types';
+import { CommonUtils } from '@src/utils/CommonUtils';
 
 type FramePreviewProps = {
   rotate?: boolean;
@@ -21,39 +22,32 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [wrapperDimensions, setWrapperDimensions] = useState({ width: 0, height: 0 });
 
-  const [lightMode, setLightMode] = useState(false);
+  const [lightMode, setLightMode] = useState<boolean>();
   const [depthRgb, setDepthRgb] = useState({ r: 255, g: 255, b: 255 });
   const depthColor = rgb(depthRgb.r, depthRgb.g, depthRgb.b);
 
   const onPreviewRender = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
     if (ctx && canvas.height) {
-      const colorData: ImageData[] = [];
-      try {
-        colorData.push(ctx.getImageData(0, 0, 5, canvas.height));
-      } catch {
-        return;
-      }
-      const rgb = { r: 0, g: 0, b: 0 };
-      const blockSize = 5; // only visit every 5 pixels
-      let count = 0;
-      colorData.forEach(({ data }) => {
-        const length = data.length;
-        let i = -4;
-        while ((i += blockSize * 4) < length) {
-          ++count;
-          rgb.r += data[i];
-          rgb.g += data[i + 1];
-          rgb.b += data[i + 2];
-        }
-      });
-      rgb.r = Math.floor(rgb.r / count);
-      rgb.g = Math.floor(rgb.g / count);
-      rgb.b = Math.floor(rgb.b / count);
-      setDepthRgb(rgb);
+      const depthRgb = CanvasUtils.getAverageColor(
+        ctx,
+        { x: 0, y: 0 },
+        { width: 5, height: canvas.height },
+      );
+      setDepthRgb(depthRgb);
     }
   };
 
+  // _DEV_
+  // Fix light mode animation on fast refresh
+  useEffect(
+    () => () => {
+      setLightMode(mode => mode || undefined);
+    },
+    [],
+  );
+
+  // Track wrapper dimensions on resize
   useLayoutEffect(() => {
     if (wrapperRef.current) {
       const observer = new ResizeObserver(entries => {
@@ -123,72 +117,103 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
     windowRightAngle = GeometryUtils.getLineAngle(windowPoints[0], windowPoints[1]);
   }
 
+  const imageDimensions = image && CommonUtils.getImageDimensions(image);
+
   return (
     <div
       css={[
         tw`px-6 py-5 flex flex-col items-center justify-center size-full overflow-hidden`,
-        [tw`transition-colors`, lightMode && tw`bg-white`],
+        [tw`transition-colors duration-200`, lightMode && tw`bg-white`],
       ]}>
       <button
         css={[
-          lightMode ? tw`bg-black border-white ring-black` : tw`bg-white border-black ring-white`,
-          tw`absolute bottom-5 left-6 size-6 rounded-full transition-all border-2`,
-          tw`ring-1 outline-none focus:(outline-none ring-opacity-50 ring)`,
+          lightMode ? tw`border-black ring-black` : tw`border-white ring-white`,
+          tw`absolute bottom-5 left-6 size-6 rounded-full overflow-hidden border-2`,
+          tw`ring-0 outline-none focus:(outline-none ring-opacity-50 ring)`,
+          css`
+            transition: border-color ${theme`transitionTimingFunction.DEFAULT`} 200ms,
+              box-shadow ${theme`transitionTimingFunction.DEFAULT`} 200ms,
+              transform cubic-bezier(0.85, 0, 0.15, 1) 300ms;
+          `,
+          // Don't animate when lightMode is undefined
+          lightMode !== undefined &&
+            (lightMode
+              ? css`
+                  transform: rotate(180deg);
+                `
+              : css`
+                  animation: finish-rotation 300ms 1;
+                  @keyframes finish-rotation {
+                    0% {
+                      transform: rotate(180deg);
+                    }
+                    100% {
+                      transform: rotate(360deg); // Finish full rotation
+                      // Will auto-set to 0deg after animation is complete
+                    }
+                  }
+                `),
         ]}
         type="button"
-        aria-pressed={lightMode}
+        aria-pressed={!!lightMode}
         title="Toggle preview light mode"
         onClick={() => setLightMode(!lightMode)}>
         <span css={tw`sr-only`}>Toggle preview light mode</span>
+        <span css={tw`absolute top-0 left-0 w-1/2 h-full bg-black`} />
+        <span css={tw`absolute top-0 left-1/2 w-1/2 h-full bg-white`} />
       </button>
+
       <div ref={wrapperRef} css={[tw`max-w-3xl max-h-3xl relative size-full`]}>
         <div
           css={css`
-            --depth: ${Math.max(depth, 0) * previewUnitSize};
             --width: ${previewDimensions.width};
             --height: ${previewDimensions.height};
-            --rotate: ${rotate ? 30 : 0};
+            --depth: ${depth * previewUnitSize};
+            --angle: ${rotate ? 30 : 0};
             --color: ${depthColor};
             --color-shade: ${darken(0.1, depthColor)};
 
+            position: absolute;
+            top: 50%;
+            left: 50%;
             width: calc(var(--width, 0) * 1px);
             height: calc(var(--height, 0) * 1px);
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform-style: preserve-3d;
             transition: transform 300ms ease;
-            transform: translate(-50%, -50%) rotateX(calc(-1deg * var(--rotate, 0)))
-              rotateY(calc(1deg * var(--rotate, 0)))
-              translate3d(0, 0, calc(0.5px * var(--depth, 0)));
+            // In order: centers the frame on X/Y, rotates frame on 30deg axis (isometrics), then centers the frame on Z axis with changing depth
+            transform: translate(-50%, -50%) rotateX(calc(var(--angle, 0) * -1deg))
+              rotateY(calc(var(--angle, 0) * 1deg)) translate3d(0, 0, calc(0.5px * var(--depth, 0)));
+
+            &,
+            > * {
+              transform-style: preserve-3d;
+            }
           `}>
           {/* Draws the front face of the frame, a.k.a the preview */}
           <div
-            id="front"
+            id="front-face"
             css={css`
               position: absolute;
               top: 0;
               left: 0;
               width: 100%;
               height: 100%;
-              transform-style: preserve-3d;
             `}>
-            {image && (
+            {image && imageDimensions && (
               <div
                 css={css`
                   position: absolute;
                   top: 0;
                   left: 0;
-                  width: ${image.naturalWidth}px;
-                  height: ${image.naturalHeight}px;
+                  width: ${imageDimensions.width}px;
+                  height: ${imageDimensions.height}px;
                   transform-origin: top left;
-                  // Prevent canvas re-renders on dimension change by using transform scale (uses GPU)
-                  transform: scaleX(${previewDimensions.width / image.naturalWidth})
-                    scaleY(${previewDimensions.height / image.naturalHeight});
+                  // Prevent canvas re-renders on dimension change by using transform scale instead (utilizes GPU)
+                  transform: scaleX(${previewDimensions.width / imageDimensions.width})
+                    scaleY(${previewDimensions.height / imageDimensions.height});
                 `}>
                 <ImageSelectionPreview
                   editor={editor}
-                  actualDimensions={{ width: image.naturalWidth, height: image.naturalHeight }}
+                  actualDimensions={imageDimensions}
                   image={image}
                   onRender={onPreviewRender}
                 />
@@ -198,15 +223,14 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
 
           {/* Draws the top face of the outer frame */}
           <div
-            id="top"
+            id="top-face"
             css={css`
+              background-color: var(--color);
               position: absolute;
               top: 50%;
               left: 50%;
-              width: 100%;
               height: calc(var(--depth, 0) * 1px);
-              background-color: var(--color);
-              transform-style: preserve-3d;
+              width: 100%;
               transform-origin: center center;
               transform: translate(-50%, -50%) rotateX(-90deg) rotateY(180deg)
                 translate3d(0, calc(var(--depth, 0) * 0.5px), calc(var(--height, 0) * 0.5px));
@@ -215,15 +239,14 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
 
           {/* Draws the left face of the outer frame */}
           <div
-            id="left-side"
+            id="left-face"
             css={css`
+              background-color: var(--color-shade);
               position: absolute;
               top: 50%;
               left: 50%;
               width: calc(var(--depth, 0) * 1px);
               height: 100%;
-              background-color: var(--color-shade);
-              transform-style: preserve-3d;
               transform-origin: center center;
               transform: translate(-50%, -50%) rotateX(0) rotateY(90deg)
                 translate3d(calc(var(--depth, 0) * 0.5px), 0, calc(var(--width, 0) * -0.5px));
@@ -233,16 +256,15 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
           {/* Draws the bottom face of the inner window */}
           {windowBottomLength > 0 && (
             <div
-              id="window-bottom-side"
+              id="window-bottom-face"
               css={css`
+                background-color: var(--color);
                 position: absolute;
                 top: ${windowPoints[2].y}px;
                 left: ${windowPoints[2].x}px;
                 height: ${windowBottomLength}px;
                 width: calc(var(--depth, 0) * 1px);
-                background-color: var(--color);
                 transform-origin: top left;
-                transform-style: preserve-3d;
                 transform: rotateZ(${windowBottomAngle - 90}deg) rotateY(90deg);
               `}
             />
@@ -251,16 +273,15 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
           {/* Draws the right face of the inner window */}
           {windowRightLength > 0 && (
             <div
-              id="window-right-side"
+              id="window-right-face"
               css={css`
+                background-color: var(--color-shade);
                 position: absolute;
                 top: ${windowPoints[0].y}px;
                 left: ${windowPoints[0].x}px;
                 height: ${windowRightLength}px;
                 width: calc(var(--depth, 0) * 1px);
-                background-color: var(--color-shade);
                 transform-origin: top left;
-                transform-style: preserve-3d;
                 transform: rotateZ(${windowRightAngle - 90}deg) rotateY(90deg);
               `}
             />

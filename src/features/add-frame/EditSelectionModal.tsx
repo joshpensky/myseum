@@ -4,10 +4,15 @@ import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import {
+  SelectionEditor,
+  SelectionEditorPoints,
+  useSelectionEditor,
+} from '@src/hooks/useSelectionEditor';
 import Panel from '@src/features/add-artwork/Panel';
 import { Dimensions } from '@src/types';
 import Layer from '@src/svgs/Layer';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
 
@@ -128,13 +133,28 @@ const EditSelectionModal = ({
                       activeLayer={activeLayer}
                       onChange={() => {
                         if (modalEditor.layers.length === 1) {
-                          modalEditor.setLayers(layers => [
-                            layers[0],
-                            {
-                              name: 'Window',
-                              points: layers[0].points,
-                            },
-                          ]);
+                          modalEditor.setLayers(layers => {
+                            const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
+                              layers[0].points,
+                            );
+
+                            const scaleDelta = 0.025;
+                            const windowPoints = sortedFramePoints.map((point, index) =>
+                              GeometryUtils.findPointOnVector(
+                                point,
+                                sortedFramePoints[(index + 2) % sortedFramePoints.length],
+                                scaleDelta,
+                              ),
+                            ) as SelectionEditorPoints;
+
+                            return [
+                              layers[0],
+                              {
+                                name: 'Window',
+                                points: windowPoints,
+                              },
+                            ];
+                          });
                         }
                         setActiveLayer(1);
                       }}

@@ -1,4 +1,4 @@
-import { Dimensions } from '@src/types';
+import { Dimensions, Position } from '@src/types';
 
 export class CanvasUtils {
   /**
@@ -14,7 +14,7 @@ export class CanvasUtils {
    *
    * @param context the canvas's 2D context
    */
-  static clear(context: CanvasRenderingContext2D) {
+  static clear(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
     // Reset any transforms
     context.setTransform(1, 0, 0, 1, 0, 0);
     // Clear the canvas
@@ -125,5 +125,38 @@ export class CanvasUtils {
       width: width,
       height: height,
     };
+  }
+
+  static getAverageColor(
+    context: CanvasRenderingContext2D,
+    position: Position,
+    dimensions: Dimensions,
+  ) {
+    const rgb = { r: 0, g: 0, b: 0 };
+
+    let colorData: ImageData;
+    try {
+      colorData = context.getImageData(position.x, position.y, dimensions.width, dimensions.height);
+    } catch {
+      return rgb;
+    }
+
+    const blockSize = 5; // only visit every 5 pixels
+    let count = 0;
+
+    const length = colorData.data.length;
+    let i = -4;
+    while ((i += blockSize * 4) < length) {
+      ++count;
+      rgb.r += colorData.data[i];
+      rgb.g += colorData.data[i + 1];
+      rgb.b += colorData.data[i + 2];
+    }
+
+    rgb.r = Math.floor(rgb.r / count);
+    rgb.g = Math.floor(rgb.g / count);
+    rgb.b = Math.floor(rgb.b / count);
+
+    return rgb;
   }
 }

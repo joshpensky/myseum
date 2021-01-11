@@ -4,6 +4,7 @@ import { Dimensions, Position } from '@src/types';
 import { CanvasUtils } from './CanvasUtils';
 import { GeometryUtils } from './GeometryUtils';
 import PerspT from 'perspective-transform';
+import { CommonUtils } from './CommonUtils';
 
 type RenderPreviewOptions = {
   destCanvas: HTMLCanvasElement;
@@ -33,13 +34,8 @@ export const renderPreview = ({
   // Cap the max image resolution to 2000px
   const imgDimensions = CanvasUtils.objectContain(
     { width: 2000, height: 2000 },
-    {
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-    },
+    CommonUtils.getImageDimensions(image),
   );
-
-  console.log(imgDimensions);
 
   // Draw the image on the WebGL canvas
   webglCanvas.draw(texture, imgDimensions.width, imgDimensions.height);

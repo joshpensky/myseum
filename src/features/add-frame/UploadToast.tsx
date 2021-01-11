@@ -1,6 +1,7 @@
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import Close from '@src/svgs/Close';
+import { CommonUtils } from '@src/utils/CommonUtils';
 import tw from 'twin.macro';
 import { useAddFrameContext } from './AddFrameContext';
 
@@ -12,6 +13,8 @@ type UploadToastProps = {
 
 const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
   const { setImage, setActualDimensions, setMeasurement } = useAddFrameContext();
+
+  const imageDimensions = CommonUtils.getImageDimensions(image);
 
   return (
     <div
@@ -41,8 +44,8 @@ const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
         onClick={() => {
           setImage(image);
           setActualDimensions({
-            width: Math.round((image.naturalWidth / 72) * 100) / 100,
-            height: Math.round((image.naturalHeight / 72) * 100) / 100,
+            width: Math.round((imageDimensions.width / 72) * 100) / 100,
+            height: Math.round((imageDimensions.height / 72) * 100) / 100,
           });
           setMeasurement('inch');
         }}>

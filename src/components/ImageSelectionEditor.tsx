@@ -13,6 +13,7 @@ import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
 import { MathUtils } from '@src/utils/MathUtilts';
+import { CommonUtils } from '@src/utils/CommonUtils';
 
 const STROKE_WIDTH = 3;
 const POINT_RADIUS = 5;
@@ -184,10 +185,7 @@ const ImageSelectionEditor = ({
 
     const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
-      {
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      },
+      CommonUtils.getImageDimensions(image),
       INNER_CANVAS_PADDING,
     );
 
@@ -362,10 +360,7 @@ const ImageSelectionEditor = ({
     // Get inner canvas dimensions/position
     const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
-      {
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      },
+      CommonUtils.getImageDimensions(image),
       INNER_CANVAS_PADDING,
     );
 
@@ -457,11 +452,12 @@ const ImageSelectionEditor = ({
 
         // Draw the magnified image area
         ctx.globalCompositeOperation = 'destination-over';
-        const imagePixelRadius = Math.max(image.naturalWidth, image.naturalHeight) / 100;
+        const imgDimensions = CommonUtils.getImageDimensions(image);
+        const imagePixelRadius = Math.max(imgDimensions.width, imgDimensions.height) / 100;
         ctx.drawImage(
           image,
-          point.x * image.naturalWidth - imagePixelRadius,
-          point.y * image.naturalHeight - imagePixelRadius,
+          point.x * imgDimensions.width - imagePixelRadius,
+          point.y * imgDimensions.height - imagePixelRadius,
           imagePixelRadius * 2,
           imagePixelRadius * 2,
           px - magnifiedRadius,

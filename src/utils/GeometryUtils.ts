@@ -319,7 +319,11 @@ export class GeometryUtils {
    * @param terminalPoint the ending point of the vector (determines direction)
    * @param magnitude the magnitude, or length, along the vector at which the point should be
    */
-  static findPointOnVector(initialPoint: Position, terminalPoint: Position, magnitude: number) {
+  static findPointOnVector(
+    initialPoint: Position,
+    terminalPoint: Position,
+    magnitude: number,
+  ): Position {
     const direction = this.getLineLength(initialPoint, terminalPoint);
     const theta = magnitude / direction;
     return {

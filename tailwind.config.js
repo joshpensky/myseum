@@ -76,6 +76,9 @@ module.exports = {
         0.5: '0.5px',
         6: '6px',
       },
+      rotate: {
+        360: '360deg',
+      },
       transitionProperty: {
         'modal-enter': 'transform, opacity',
         'modal-leave': 'transform, opacity, visibility',

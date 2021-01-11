@@ -36,9 +36,8 @@ const ImageSelectionPreview = ({
     const imgCtx = document.createElement('canvas').getContext('2d');
     if (imgCtx && canvasRef.current && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
-      // console.log('render');
-      // Render the preview onto the destination canvas
       // TODO: separate transform render onto separate canvas to speed up?
+      // Render the preview onto the destination canvas
       renderPreview({
         destCanvas: canvasRef.current,
         webglCanvas,

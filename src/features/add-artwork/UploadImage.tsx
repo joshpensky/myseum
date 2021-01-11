@@ -1,6 +1,7 @@
-import { Dispatch, DragEvent, SetStateAction, useLayoutEffect, useState } from 'react';
+import { Dispatch, DragEvent, SetStateAction, useState } from 'react';
 import tw from 'twin.macro';
 import { Dimensions, Measurement } from '@src/types';
+import { CommonUtils } from '@src/utils/CommonUtils';
 
 export type UploadImageProps = {
   setActualDimensions: Dispatch<SetStateAction<Dimensions>>;
@@ -36,9 +37,10 @@ const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadIm
           const inches = value / 72; // px to in, at 72ppi
           return Math.round(inches * 100) / 100; // rounded to nearest 0.01
         };
+        const imageDimensions = CommonUtils.getImageDimensions(img);
         setActualDimensions({
-          width: getDimension(img.naturalWidth),
-          height: getDimension(img.naturalHeight),
+          width: getDimension(imageDimensions.width),
+          height: getDimension(imageDimensions.height),
         });
         setMeasurement('inch');
         resolve();
