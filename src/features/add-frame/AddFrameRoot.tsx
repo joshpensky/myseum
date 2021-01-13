@@ -8,7 +8,7 @@ import UploadImage from '@src/features/add-artwork/UploadImage';
 import { AddFrameContext } from './AddFrameContext';
 import UploadToast from './UploadToast';
 import { Dimensions, Measurement } from '@src/types';
-import EditSelectionModal from './EditSelectionModal';
+import EditSelectionModal from '../EditSelectionModal';
 import FramePreview from './FramePreview';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
@@ -161,6 +161,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
               editor={editor}
               actualDimensions={actualDimensions}
               image={image}
+              withLayers
               onClose={modalEditor => {
                 if (modalEditor) {
                   editor.setLayers(modalEditor.layers); // Save the latest state, if available

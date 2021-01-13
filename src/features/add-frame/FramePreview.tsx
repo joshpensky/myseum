@@ -207,6 +207,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
                   transform: scaleX(${previewDimensions.width / imageDimensions.width})
                     scaleY(${previewDimensions.height / imageDimensions.height});
                 `}>
+                {/* TODO: improve performance by rendering image if only 1 layer and points are set to [00, 10, 11, 01] */}
                 <ImageSelectionPreview
                   editor={editor}
                   actualDimensions={imageDimensions}

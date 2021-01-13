@@ -12,7 +12,7 @@ import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionE
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
-import { MathUtils } from '@src/utils/MathUtilts';
+import { MathUtils } from '@src/utils/MathUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 
 const STROKE_WIDTH = 3;
@@ -125,6 +125,7 @@ const ImageSelectionEditor = ({
               // If window layer point is outside frame layer path...
               if (!GeometryUtils.isPointInPolygon(point, newActivePoints)) {
                 // Assign the nearest point that fits within the frame layer path
+                // TODO: FIX, this can cause the inner polygon to be concave! perhaps we just scale??
                 return GeometryUtils.findNearestPointOnPolygon(point, newActivePoints);
               }
               return point;

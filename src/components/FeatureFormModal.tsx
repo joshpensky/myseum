@@ -233,7 +233,7 @@ const FeatureFormModal = ({
 
 type FeatureFormModalMainProps = { ''?: unknown };
 const FeatureFormModalMain = ({ children }: PropsWithChildren<FeatureFormModalMainProps>) => (
-  <div css={tw`flex-1`}>{children}</div>
+  <div css={tw`flex flex-col flex-1`}>{children}</div>
 );
 
 type FeatureFormModalSidebarProps = { ''?: unknown };

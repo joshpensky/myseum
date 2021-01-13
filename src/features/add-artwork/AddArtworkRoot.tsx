@@ -6,7 +6,7 @@ import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from './AddArtworkContext';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
-import EditSelectionModal from './EditSelectionModal';
+import EditSelectionModal from '../EditSelectionModal';
 import FramePanel from './FramePanel';
 import UploadImage from './UploadImage';
 import { ArtworkDetails } from './types';

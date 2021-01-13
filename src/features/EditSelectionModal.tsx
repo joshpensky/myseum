@@ -56,6 +56,7 @@ type EditSelectionModalProps = {
   editor: SelectionEditor;
   image: HTMLImageElement;
   onClose(newState?: SelectionEditor): void;
+  withLayers?: boolean;
 };
 
 const EditSelectionModal = ({
@@ -63,6 +64,7 @@ const EditSelectionModal = ({
   editor,
   image,
   onClose,
+  withLayers,
 }: EditSelectionModalProps) => {
   const modalEditor = useSelectionEditor(editor.layers);
 
@@ -100,65 +102,72 @@ const EditSelectionModal = ({
         role="dialog"
         aria-modal="true">
         <form css={tw`flex flex-1 size-full`} onSubmit={onSubmit}>
-          <div
-            css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative`}>
-            <ImageSelectionEditor
-              activeLayer={activeLayer}
-              editor={modalEditor}
-              actualDimensions={actualDimensions}
-              image={image}
-            />
-          </div>
+          <FeatureFormModal.Main>
+            <div css={tw`px-6 py-5 size-full relative`}>
+              <ImageSelectionEditor
+                activeLayer={activeLayer}
+                editor={modalEditor}
+                actualDimensions={actualDimensions}
+                image={image}
+              />
+            </div>
+          </FeatureFormModal.Main>
           <FeatureFormModal.Sidebar>
             <FeatureFormModal.SidebarPanel css={tw`flex-1`} title="Selection">
-              <p css={tw`mb-5`}>Drag the handles to match the size of the artwork.</p>
+              <p css={tw`mb-5`}>
+                {withLayers
+                  ? 'Drag the handles to match the size of the frame and frame window.'
+                  : 'Drag the handles to match the size of the artwork.'}
+              </p>
 
-              <fieldset css={tw`flex flex-col w-full mb-5`}>
-                <legend css={tw`text-sm mb-2 text-gray-300`}>Layers</legend>
-                <div
-                  css={[
-                    tw`flex flex-col rounded-lg overflow-hidden`,
-                    tw`border border-white border-opacity-20 divide-y divide-white divide-opacity-20`,
-                    tw`transition-colors focus-within:(border-opacity-100)`,
-                  ]}>
-                  <LayerInput
-                    layerIndex={0}
-                    activeLayer={activeLayer}
-                    onChange={() => setActiveLayer(0)}
-                  />
-                  <LayerInput
-                    layerIndex={1}
-                    activeLayer={activeLayer}
-                    onChange={() => {
-                      if (modalEditor.layers.length === 1) {
-                        modalEditor.setLayers(layers => {
-                          const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
-                            layers[0].points,
-                          );
+              {withLayers && (
+                <fieldset css={tw`flex flex-col w-full mb-5`}>
+                  <legend css={tw`text-sm mb-2 text-gray-300`}>Layers</legend>
+                  <div
+                    css={[
+                      tw`flex flex-col rounded-lg overflow-hidden`,
+                      tw`border border-white border-opacity-20 divide-y divide-white divide-opacity-20`,
+                      tw`transition-colors focus-within:(border-opacity-100)`,
+                    ]}>
+                    <LayerInput
+                      layerIndex={0}
+                      activeLayer={activeLayer}
+                      onChange={() => setActiveLayer(0)}
+                    />
+                    <LayerInput
+                      layerIndex={1}
+                      activeLayer={activeLayer}
+                      onChange={() => {
+                        if (modalEditor.layers.length === 1) {
+                          modalEditor.setLayers(layers => {
+                            const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
+                              layers[0].points,
+                            );
 
-                          const scaleDelta = 0.025;
-                          const windowPoints = sortedFramePoints.map((point, index) =>
-                            GeometryUtils.findPointOnVector(
-                              point,
-                              sortedFramePoints[(index + 2) % sortedFramePoints.length],
-                              scaleDelta,
-                            ),
-                          ) as SelectionEditorPoints;
+                            const scaleDelta = 0.025;
+                            const windowPoints = sortedFramePoints.map((point, index) =>
+                              GeometryUtils.findPointOnVector(
+                                point,
+                                sortedFramePoints[(index + 2) % sortedFramePoints.length],
+                                scaleDelta,
+                              ),
+                            ) as SelectionEditorPoints;
 
-                          return [
-                            layers[0],
-                            {
-                              name: 'Window',
-                              points: windowPoints,
-                            },
-                          ];
-                        });
-                      }
-                      setActiveLayer(1);
-                    }}
-                  />
-                </div>
-              </fieldset>
+                            return [
+                              layers[0],
+                              {
+                                name: 'Window',
+                                points: windowPoints,
+                              },
+                            ];
+                          });
+                        }
+                        setActiveLayer(1);
+                      }}
+                    />
+                  </div>
+                </fieldset>
+              )}
 
               <div css={tw`flex items-center`}>
                 <Button css={tw`mr-3`} type="submit" filled>
