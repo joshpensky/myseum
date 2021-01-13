@@ -1,13 +1,13 @@
 import tw from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
-import Panel from './Panel';
-import TextField from './TextField';
+import TextField from '@src/components/TextField';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 const DetailsPanel = () => {
   const { details, isSubmitting, setDetails } = useAddArtworkContext();
 
   return (
-    <Panel title="Details">
+    <FeatureFormModal.SidebarPanel title="Details">
       <div css={tw`flex flex-col w-full mt-3`}>
         <div css={tw`flex flex-col flex-1 not-last:mb-4`}>
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="title">
@@ -111,7 +111,7 @@ const DetailsPanel = () => {
           </div>
         </div>
       </div>
-    </Panel>
+    </FeatureFormModal.SidebarPanel>
   );
 };
 

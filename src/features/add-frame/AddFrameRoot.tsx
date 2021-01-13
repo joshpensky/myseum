@@ -1,35 +1,27 @@
 import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from 'react';
-import anime from 'animejs';
-import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
-import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
-import tw, { css, theme } from 'twin.macro';
+import tw from 'twin.macro';
 import Button from '@src/components/Button';
-import IconButton from '@src/components/IconButton';
-import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
-import Panel from '@src/features/add-artwork/Panel';
 import UploadImage from '@src/features/add-artwork/UploadImage';
 import { AddFrameContext } from './AddFrameContext';
 import UploadToast from './UploadToast';
-import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
 import EditSelectionModal from './EditSelectionModal';
 import FramePreview from './FramePreview';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 export type AddFrameRootProps = {
   onClose(): void;
 };
 
 const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const cancelBtnRef = useRef<HTMLButtonElement>(null);
-
   const addArtworkContext = useContext(AddArtworkContext);
+
+  const uploadInputRef = useRef<HTMLInputElement>(null);
   const [isUploadToastHidden, setIsUploadToastHidden] = useState(() => !addArtworkContext?.image);
 
   const editor = useSelectionEditor([
@@ -54,75 +46,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const [description, setDescription] = useState('');
 
   const [isPreviewRotated, setIsPreviewRotated] = useState(false);
-
-  const [isEscapeDisabled, setIsEscapeDisabled] = useState(false);
-
   const [isEditingSelection, setIsEditingSelection] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isSubmitDisabled = isSubmitting || isEditingSelection || !description.trim();
-
-  const ModalAnimations = {
-    enter() {
-      const scalePadding = 24; // # of pixels to end smaller
-      const scaleXStart = (window.innerWidth - scalePadding) / window.innerWidth;
-      const scaleYStart = (window.innerHeight - scalePadding) / window.innerHeight;
-      const t = anime
-        .timeline()
-        .add({
-          targets: rootRef.current,
-          scaleX: [scaleXStart, 1],
-          scaleY: [scaleYStart, 1],
-          opacity: [0, 1],
-          duration: 300,
-          easing: 'easeOutQuint',
-        })
-        .add(
-          {
-            targets: contentRef.current,
-            opacity: [0, 1],
-            duration: 150,
-            easing: 'easeOutQuad',
-          },
-          50,
-        );
-      return t.finished;
-    },
-    leave() {
-      const scalePadding = 24; // # of pixels to start smaller
-      const scaleXEnd = (window.innerWidth - scalePadding) / window.innerWidth;
-      const scaleYEnd = (window.innerHeight - scalePadding) / window.innerHeight;
-      const t = anime
-        .timeline()
-        .add({
-          targets: contentRef.current,
-          opacity: [1, 0],
-          duration: 150,
-          easing: 'easeOutSine',
-        })
-        .add(
-          {
-            targets: rootRef.current,
-            scaleX: [1, scaleXEnd],
-            scaleY: [1, scaleYEnd],
-            opacity: [1, 0],
-            duration: 300,
-            easing: 'easeOutQuint',
-          },
-          50,
-        );
-      return t.finished;
-    },
-  };
-
-  /**
-   * Wrapper for the close handler. Plays the close animation, then calls the
-   * passed handler.
-   */
-  const _onClose = async () => {
-    await ModalAnimations.leave();
-    onClose();
-  };
 
   /**
    * Key handler. Closes the modal form on escape key.
@@ -131,13 +56,8 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     switch (evt.key) {
       case 'Escape':
       case 'Esc': {
-        if (!isUploadToastHidden) {
-          evt.preventDefault();
-          setIsUploadToastHidden(true);
-        } else if (!isEscapeDisabled) {
-          evt.preventDefault();
-          _onClose();
-        }
+        evt.preventDefault();
+        setIsUploadToastHidden(true);
       }
     }
   };
@@ -147,36 +67,24 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
    * to the API, then closes the modal.
    */
   const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    if (isSubmitDisabled) {
-      return;
+    try {
+      setIsSubmitting(true);
+      // TODO: validate and save data to API
+      console.log(evt);
+      return false;
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(true);
-    // TODO: validate and save data to API
-    setIsSubmitting(false);
-    _onClose();
   };
 
-  // Adds the key handler
   useEffect(() => {
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
-
-  // Disables/enables body scroll on mount/unmount, respectively
-  useEffect(() => {
-    if (rootRef.current) {
-      ModalAnimations.enter();
-      disableBodyScroll(rootRef.current);
+    if (!isUploadToastHidden) {
+      window.addEventListener('keydown', onKeyDown);
+      return () => {
+        window.removeEventListener('keydown', onKeyDown);
+      };
     }
-    return () => {
-      if (rootRef.current) {
-        enableBodyScroll(rootRef.current);
-      }
-    };
-  }, []);
+  }, [isUploadToastHidden]);
 
   return (
     <AddFrameContext.Provider
@@ -194,124 +102,75 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
         setImage,
         setMeasurement,
       }}>
-      <Portal to="modal-root">
-        <FocusLock returnFocus>
-          <div
-            ref={rootRef}
-            id="add-frame-modal"
-            css={[
-              tw`fixed inset-0 bg-black text-white z-modal overflow-hidden`,
-              tw`opacity-0`,
-              css`
-                box-shadow: 0 0 70px 0 ${rgba(theme`colors.white`, 0.5)};
-                & *::selection {
-                  background: ${rgba(theme`colors.white`, 0.35)};
+      <FeatureFormModal
+        id="add-frame-modal"
+        aria-label="Create Frame Modal"
+        title={<h1 css={tw`font-medium`}>Creating frame</h1>}
+        disabledClose={isEditingSelection || isUploadToastHidden}
+        disabledSubmit={isSubmitting || isEditingSelection || !description.trim()}
+        hideSubmit={!image}
+        onClose={onClose}
+        onSubmit={onSubmit}>
+        {!image ? (
+          <FeatureFormModal.Main>
+            <UploadImage
+              ref={uploadInputRef}
+              setActualDimensions={setActualDimensions}
+              setImage={setImage}
+              setMeasurement={setMeasurement}
+            />
+            {addArtworkContext?.image && (
+              <FocusLock
+                disabled={isUploadToastHidden}
+                onDeactivation={() => {
+                  process.nextTick(() => uploadInputRef.current?.focus());
+                }}>
+                <UploadToast
+                  image={addArtworkContext.image}
+                  hidden={isUploadToastHidden}
+                  onClose={() => setIsUploadToastHidden(true)}
+                />
+              </FocusLock>
+            )}
+          </FeatureFormModal.Main>
+        ) : (
+          <Fragment>
+            <FeatureFormModal.Main>
+              <FramePreview rotate={isPreviewRotated} />
+            </FeatureFormModal.Main>
+            <FeatureFormModal.Sidebar>
+              <FeatureFormModal.SidebarPanel title="Selection">
+                <Button
+                  css={tw`mt-2`}
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => setIsEditingSelection(true)}
+                  aria-controls="edit-selection-modal">
+                  Edit selection
+                </Button>
+              </FeatureFormModal.SidebarPanel>
+              <DimensionsPanel onDepthFocusChange={isFocused => setIsPreviewRotated(isFocused)} />
+              <DetailsPanel />
+            </FeatureFormModal.Sidebar>
+          </Fragment>
+        )}
+
+        {isEditingSelection && image && (
+          <FeatureFormModal.OutsideForm>
+            <EditSelectionModal
+              editor={editor}
+              actualDimensions={actualDimensions}
+              image={image}
+              onClose={modalEditor => {
+                if (modalEditor) {
+                  editor.setLayers(modalEditor.layers); // Save the latest state, if available
                 }
-              `,
-            ]}
-            role="dialog"
-            aria-label="Create Frame Modal"
-            aria-modal="true">
-            <div
-              ref={contentRef}
-              id="add-frame-modal-content"
-              css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
-              <header css={tw`flex items-center border-b border-white px-6 py-5`}>
-                <IconButton
-                  ref={cancelBtnRef}
-                  title="Cancel"
-                  disabled={isSubmitting || isEditingSelection || isEscapeDisabled}
-                  onClick={_onClose}>
-                  <Close />
-                </IconButton>
-                <h1 css={[tw`ml-5 font-medium`, isEditingSelection && tw`opacity-50`]}>
-                  Creating frame
-                </h1>
-              </header>
-              <div css={tw`flex flex-1 relative`}>
-                <form css={tw`flex flex-1 overflow-hidden`} onSubmit={onSubmit}>
-                  {!image ? (
-                    <Fragment>
-                      <UploadImage
-                        setActualDimensions={setActualDimensions}
-                        setImage={setImage}
-                        setMeasurement={setMeasurement}
-                      />
-                      {addArtworkContext?.image && (
-                        <FocusLock
-                          disabled={isUploadToastHidden}
-                          onDeactivation={() => {
-                            process.nextTick(() => cancelBtnRef.current?.focus());
-                          }}>
-                          <UploadToast
-                            image={addArtworkContext.image}
-                            hidden={isUploadToastHidden}
-                            onClose={() => setIsUploadToastHidden(true)}
-                          />
-                        </FocusLock>
-                      )}
-                    </Fragment>
-                  ) : (
-                    <Fragment>
-                      <div css={tw`flex-1 border-r border-white`}>
-                        <FramePreview rotate={isPreviewRotated} />
-                      </div>
-                      <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
-                        <div
-                          css={tw`absolute inset-0 size-full flex flex-col overflow-x-hidden overflow-y-auto divide-y divide-white`}>
-                          <Panel css={[isEditingSelection && tw`flex-1`]} title="Selection">
-                            <Button
-                              css={tw`mt-2`}
-                              type="button"
-                              disabled={isSubmitting}
-                              onClick={() => {
-                                setIsEditingSelection(true);
-                                setIsEscapeDisabled(true);
-                              }}
-                              aria-controls="edit-selection-modal">
-                              Edit selection
-                            </Button>
-                          </Panel>
-                          <DimensionsPanel
-                            onDepthFocusChange={isFocused => setIsPreviewRotated(isFocused)}
-                          />
-                          <DetailsPanel />
-                        </div>
-                      </div>
-                    </Fragment>
-                  )}
-
-                  {/* Render Save button in top right corner, last in tab order */}
-                  {image && (
-                    <Button
-                      css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
-                      disabled={isSubmitDisabled}
-                      filled
-                      type="submit">
-                      Save
-                    </Button>
-                  )}
-                </form>
-
-                {isEditingSelection && image && (
-                  <EditSelectionModal
-                    editor={editor}
-                    actualDimensions={actualDimensions}
-                    image={image}
-                    onClose={modalEditor => {
-                      if (modalEditor) {
-                        editor.setLayers(modalEditor.layers); // Save the latest state, if available
-                      }
-                      setIsEditingSelection(false); // Close the editor
-                      setIsEscapeDisabled(false);
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </FocusLock>
-      </Portal>
+                setIsEditingSelection(false); // Close the editor
+              }}
+            />
+          </FeatureFormModal.OutsideForm>
+        )}
+      </FeatureFormModal>
     </AddFrameContext.Provider>
   );
 };

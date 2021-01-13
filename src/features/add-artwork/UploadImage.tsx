@@ -1,4 +1,4 @@
-import { Dispatch, DragEvent, SetStateAction, useState } from 'react';
+import { Dispatch, DragEvent, forwardRef, SetStateAction, useState } from 'react';
 import tw from 'twin.macro';
 import { Dimensions, Measurement } from '@src/types';
 import { CommonUtils } from '@src/utils/CommonUtils';
@@ -9,7 +9,10 @@ export type UploadImageProps = {
   setMeasurement: Dispatch<SetStateAction<Measurement>>;
 };
 
-const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadImageProps) => {
+const UploadImage = forwardRef<HTMLInputElement, UploadImageProps>(function UploadImage(
+  { setActualDimensions, setMeasurement, setImage },
+  ref,
+) {
   // Whether drag/drop upload feature is available for the browser
   const [canDragDropUpload] = useState(() => {
     const div = document.createElement('div');
@@ -117,9 +120,10 @@ const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadIm
       onDragLeave={onDropLeave}
       onDragEnd={onDropLeave}>
       <div css={tw`sr-only`}>
-        <label htmlFor="artworkUpload">Upload artwork</label>
+        <label htmlFor="artworkUpload">Upload image</label>
         <input
-          id="artworkUpload"
+          ref={ref}
+          id="imageUpload"
           type="file"
           accept={accept.join(', ')}
           onChange={evt => onFileUpload(evt.target.files)}
@@ -128,7 +132,7 @@ const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadIm
 
       <label
         css={tw`absolute inset-0 flex flex-col flex-1 items-center justify-center size-full text-center cursor-pointer p-6`}
-        htmlFor="artworkUpload"
+        htmlFor="imageUpload"
         onDrop={onDrop}>
         <span>
           {isUploading ? (
@@ -144,6 +148,6 @@ const UploadImage = ({ setActualDimensions, setMeasurement, setImage }: UploadIm
       </label>
     </div>
   );
-};
+});
 
 export default UploadImage;

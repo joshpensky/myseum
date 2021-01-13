@@ -1,12 +1,12 @@
 import tw, { css, theme } from 'twin.macro';
 import IconButton from '@src/components/IconButton';
 import { useAddArtworkContext } from './AddArtworkContext';
-import Panel from './Panel';
 import Checkmark from '@src/svgs/Checkmark';
 import Close from '@src/svgs/Close';
 import { Dimensions } from '@src/types';
 import { useEffect, useState } from 'react';
 import AddFrameRoot from '@src/features/add-frame/AddFrameRoot';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 type Frame = {
   id: number;
@@ -103,7 +103,7 @@ const FramePanel = () => {
   }, [isAddingFrame]);
 
   return (
-    <Panel
+    <FeatureFormModal.SidebarPanel
       title="Frame"
       headerAction={
         <IconButton
@@ -157,7 +157,7 @@ const FramePanel = () => {
           </div>
         </li>
       </ul>
-    </Panel>
+    </FeatureFormModal.SidebarPanel>
   );
 };
 

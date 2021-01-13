@@ -1,13 +1,13 @@
 import tw from 'twin.macro';
-import Panel from '@src/features/add-artwork/Panel';
-import TextField from '@src/features/add-artwork/TextField';
+import TextField from '@src/components/TextField';
 import { useAddFrameContext } from './AddFrameContext';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 const DetailsPanel = () => {
   const { description, isSubmitting, setDescription } = useAddFrameContext();
 
   return (
-    <Panel title="Details">
+    <FeatureFormModal.SidebarPanel title="Details">
       <div css={tw`flex flex-col w-full mt-3`}>
         <div css={tw`flex flex-col flex-1 not-last:mb-4`}>
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="description">
@@ -30,7 +30,7 @@ const DetailsPanel = () => {
           </p>
         </div>
       </div>
-    </Panel>
+    </FeatureFormModal.SidebarPanel>
   );
 };
 

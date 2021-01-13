@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import tw from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
-import Panel from './Panel';
-import Select from './Select';
-import TextField from './TextField';
+import Select from '@src/components/Select';
+import TextField from '@src/components/TextField';
 import { Preset } from './types';
 import Close from '@src/svgs/Close';
 import { Measurement } from '@src/types';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 const presets: Preset[] = [
   {
@@ -55,7 +55,7 @@ const DimensionsPanel = () => {
   };
 
   return (
-    <Panel title="Dimensions">
+    <FeatureFormModal.SidebarPanel title="Dimensions">
       <div css={tw`flex flex-col mt-2`}>
         <div css={tw`flex flex-1 flex-col`}>
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="preset">
@@ -144,7 +144,7 @@ const DimensionsPanel = () => {
           </div>
         </div>
       </div>
-    </Panel>
+    </FeatureFormModal.SidebarPanel>
   );
 };
 

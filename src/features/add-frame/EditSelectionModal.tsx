@@ -9,10 +9,10 @@ import {
   SelectionEditorPoints,
   useSelectionEditor,
 } from '@src/hooks/useSelectionEditor';
-import Panel from '@src/features/add-artwork/Panel';
 import { Dimensions } from '@src/types';
 import Layer from '@src/svgs/Layer';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
 
@@ -94,12 +94,12 @@ const EditSelectionModal = ({
   return (
     <FocusLock returnFocus>
       <div
-        id="artwork-edit-selection-modal"
+        id="frame-edit-selection-modal"
         css={tw`absolute inset-0 size-full bg-black`}
-        aria-label="Selection Editor"
+        aria-label="Frame Selection Editor"
         role="dialog"
         aria-modal="true">
-        <form css={tw`flex flex-1 size-full divide-x divide-white`} onSubmit={onSubmit}>
+        <form css={tw`flex flex-1 size-full`} onSubmit={onSubmit}>
           <div
             css={tw`flex flex-col flex-1 px-6 py-5 items-center justify-center size-full relative`}>
             <ImageSelectionEditor
@@ -109,81 +109,78 @@ const EditSelectionModal = ({
               image={image}
             />
           </div>
-          <div css={tw`relative flex-shrink-0 max-w-lg w-full`}>
-            <div
-              css={tw`absolute inset-0 size-full flex flex-col overflow-x-hidden overflow-y-auto`}>
-              <Panel css={tw`flex-1`} title="Selection">
-                <p css={tw`mb-5`}>Drag the handles to match the size of the artwork.</p>
+          <FeatureFormModal.Sidebar>
+            <FeatureFormModal.SidebarPanel css={tw`flex-1`} title="Selection">
+              <p css={tw`mb-5`}>Drag the handles to match the size of the artwork.</p>
 
-                <fieldset css={tw`flex flex-col w-full mb-5`}>
-                  <legend css={tw`text-sm mb-2 text-gray-300`}>Layers</legend>
-                  <div
-                    css={[
-                      tw`flex flex-col rounded-lg overflow-hidden`,
-                      tw`border border-white border-opacity-20 divide-y divide-white divide-opacity-20`,
-                      tw`transition-colors focus-within:(border-opacity-100)`,
-                    ]}>
-                    <LayerInput
-                      layerIndex={0}
-                      activeLayer={activeLayer}
-                      onChange={() => setActiveLayer(0)}
-                    />
-                    <LayerInput
-                      layerIndex={1}
-                      activeLayer={activeLayer}
-                      onChange={() => {
-                        if (modalEditor.layers.length === 1) {
-                          modalEditor.setLayers(layers => {
-                            const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
-                              layers[0].points,
-                            );
+              <fieldset css={tw`flex flex-col w-full mb-5`}>
+                <legend css={tw`text-sm mb-2 text-gray-300`}>Layers</legend>
+                <div
+                  css={[
+                    tw`flex flex-col rounded-lg overflow-hidden`,
+                    tw`border border-white border-opacity-20 divide-y divide-white divide-opacity-20`,
+                    tw`transition-colors focus-within:(border-opacity-100)`,
+                  ]}>
+                  <LayerInput
+                    layerIndex={0}
+                    activeLayer={activeLayer}
+                    onChange={() => setActiveLayer(0)}
+                  />
+                  <LayerInput
+                    layerIndex={1}
+                    activeLayer={activeLayer}
+                    onChange={() => {
+                      if (modalEditor.layers.length === 1) {
+                        modalEditor.setLayers(layers => {
+                          const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
+                            layers[0].points,
+                          );
 
-                            const scaleDelta = 0.025;
-                            const windowPoints = sortedFramePoints.map((point, index) =>
-                              GeometryUtils.findPointOnVector(
-                                point,
-                                sortedFramePoints[(index + 2) % sortedFramePoints.length],
-                                scaleDelta,
-                              ),
-                            ) as SelectionEditorPoints;
+                          const scaleDelta = 0.025;
+                          const windowPoints = sortedFramePoints.map((point, index) =>
+                            GeometryUtils.findPointOnVector(
+                              point,
+                              sortedFramePoints[(index + 2) % sortedFramePoints.length],
+                              scaleDelta,
+                            ),
+                          ) as SelectionEditorPoints;
 
-                            return [
-                              layers[0],
-                              {
-                                name: 'Window',
-                                points: windowPoints,
-                              },
-                            ];
-                          });
-                        }
-                        setActiveLayer(1);
-                      }}
-                    />
-                  </div>
-                </fieldset>
-
-                <div css={tw`flex items-center`}>
-                  <Button css={tw`mr-3`} type="submit" filled>
-                    Update
-                  </Button>
-                  <Button type="button" onClick={() => onClose()}>
-                    Cancel
-                  </Button>
+                          return [
+                            layers[0],
+                            {
+                              name: 'Window',
+                              points: windowPoints,
+                            },
+                          ];
+                        });
+                      }
+                      setActiveLayer(1);
+                    }}
+                  />
                 </div>
+              </fieldset>
 
-                <div css={tw`flex flex-col flex-1 w-full justify-end mt-6`}>
-                  <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
-                  <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-lg p-4`}>
-                    <ImageSelectionPreview
-                      editor={modalEditor}
-                      actualDimensions={actualDimensions}
-                      image={image}
-                    />
-                  </div>
+              <div css={tw`flex items-center`}>
+                <Button css={tw`mr-3`} type="submit" filled>
+                  Update
+                </Button>
+                <Button type="button" onClick={() => onClose()}>
+                  Cancel
+                </Button>
+              </div>
+
+              <div css={tw`flex flex-col flex-1 w-full justify-end mt-6`}>
+                <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
+                <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-lg p-4`}>
+                  <ImageSelectionPreview
+                    editor={modalEditor}
+                    actualDimensions={actualDimensions}
+                    image={image}
+                  />
                 </div>
-              </Panel>
-            </div>
-          </div>
+              </div>
+            </FeatureFormModal.SidebarPanel>
+          </FeatureFormModal.Sidebar>
         </form>
       </div>
     </FocusLock>

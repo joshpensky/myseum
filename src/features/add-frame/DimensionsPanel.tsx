@@ -1,10 +1,10 @@
 import tw from 'twin.macro';
-import Panel from '@src/features/add-artwork/Panel';
-import Select from '@src/features/add-artwork/Select';
-import TextField from '@src/features/add-artwork/TextField';
+import Select from '@src/components/Select';
+import TextField from '@src/components/TextField';
 import Close from '@src/svgs/Close';
 import { Measurement } from '@src/types';
 import { useAddFrameContext } from './AddFrameContext';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 
 type DimensionsPanelProps = {
   onDepthFocusChange(isFocused: boolean): void;
@@ -22,7 +22,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
   } = useAddFrameContext();
 
   return (
-    <Panel title="Dimensions">
+    <FeatureFormModal.SidebarPanel title="Dimensions">
       <div css={tw`flex items-end mt-2`}>
         <div css={tw`flex flex-1 flex-col mr-4`}>
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="width">
@@ -107,7 +107,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
           />
         </div>
       </div>
-    </Panel>
+    </FeatureFormModal.SidebarPanel>
   );
 };
 
