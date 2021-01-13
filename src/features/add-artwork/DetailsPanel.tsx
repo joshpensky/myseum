@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import tw from 'twin.macro';
 import { useAddArtworkContext } from './AddArtworkContext';
 import Panel from './Panel';
@@ -6,36 +5,6 @@ import TextField from './TextField';
 
 const DetailsPanel = () => {
   const { details, isSubmitting, setDetails } = useAddArtworkContext();
-
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const mounted = useRef(false);
-
-  const updateHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'inherit';
-      const height = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = `${height + 2}px`; // account for top/bottom border
-      mounted.current = true;
-    }
-  };
-
-  useEffect(() => {
-    if (details.description.length > 0 && !mounted.current) {
-      if (textareaRef.current) {
-        updateHeight();
-        const observer = new ResizeObserver(entries => {
-          entries.forEach(updateHeight);
-        });
-        observer.observe(textareaRef.current);
-
-        return () => {
-          if (textareaRef.current) {
-            observer.unobserve(textareaRef.current);
-          }
-        };
-      }
-    }
-  }, []);
 
   return (
     <Panel title="Details">

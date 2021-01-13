@@ -118,14 +118,21 @@ const FramePanel = () => {
       }>
       {isAddingFrame && <AddFrameRoot onClose={() => setIsAddingFrame(false)} />}
       <ul css={tw`flex flex-col mt-3`}>
-        <li css={tw`flex flex-col not-last:mb-6`}>
-          <p css={tw`text-sm text-gray-300 mb-3`}>No frame</p>
+        <li css={tw`flex flex-col not-last:mb-6`} role="group" aria-labelledby="no-frame-label">
+          <p id="no-frame-label" css={tw`text-sm text-gray-300 mb-3`}>
+            No frame
+          </p>
           <div css={tw`flex flex-wrap -mb-5`}>
             <FrameInput value={undefined} label="No frame" />
           </div>
         </li>
-        <li css={tw`flex flex-col not-last:mb-6`}>
-          <p css={tw`text-sm text-gray-300 mb-3`}>Compatible frames</p>
+        <li
+          css={tw`flex flex-col not-last:mb-6`}
+          role="group"
+          aria-labelledby="compatible-frames-label">
+          <p id="compatible-frames-label" css={tw`text-sm text-gray-300 mb-3`}>
+            Compatible frames
+          </p>
           <div css={tw`flex flex-wrap -mb-5`}>
             <FrameInput value={{ id: 1, dimensions: actualDimensions }} label="1 frame" />
             <FrameInput value={{ id: 2, dimensions: actualDimensions }} label="2 frame" />
@@ -137,8 +144,13 @@ const FramePanel = () => {
             <FrameInput value={{ id: 8, dimensions: actualDimensions }} label="8 frame" />
           </div>
         </li>
-        <li css={tw`flex flex-col not-last:mb-6`}>
-          <p css={tw`text-sm text-gray-300 mb-3`}>Incompatible frames</p>
+        <li
+          css={tw`flex flex-col not-last:mb-6`}
+          role="group"
+          aria-labelledby="incompatible-frames-label">
+          <p id="incompatible-frames-label" css={tw`text-sm text-gray-300 mb-3`}>
+            Incompatible frames
+          </p>
           <div css={tw`flex flex-wrap -mb-5`}>
             <FrameInput value={{ id: 9, dimensions: { width: 5, height: 5 } }} label="9 frame" />
             <FrameInput value={{ id: 10, dimensions: { width: 10, height: 5 } }} label="10 frame" />

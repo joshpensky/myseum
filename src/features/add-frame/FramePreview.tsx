@@ -9,6 +9,7 @@ import PerspT from 'perspective-transform';
 import type { Matrix } from 'glfx-es6';
 import { Position } from '@src/types';
 import { CommonUtils } from '@src/utils/CommonUtils';
+import { Convert } from '@src/utils/Convert';
 
 type FramePreviewProps = {
   rotate?: boolean;
@@ -17,7 +18,7 @@ type FramePreviewProps = {
 // https://css-tricks.com/css-in-3d-learning-to-think-in-cubes-instead-of-boxes/
 
 const FramePreview = ({ rotate }: FramePreviewProps) => {
-  const { actualDimensions, depth, editor, image } = useAddFrameContext();
+  const { actualDimensions, depth, editor, image, measurement } = useAddFrameContext();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [wrapperDimensions, setWrapperDimensions] = useState({ width: 0, height: 0 });
@@ -64,7 +65,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
     }
   }, []);
 
-  const unitSize = 72; // 72ppi // TODO: change based on measurement
+  const unitSize = Convert.from(1, measurement).to('px').value;
   const previewDimensions = CanvasUtils.objectScaleDown(wrapperDimensions, {
     width: actualDimensions.width * unitSize,
     height: actualDimensions.height * unitSize,
@@ -137,22 +138,17 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
           `,
           // Don't animate when lightMode is undefined
           lightMode !== undefined &&
-            (lightMode
-              ? css`
+            css`
+              ${lightMode ? 'transform: rotate(180deg)' : 'animation: finish-rotation 300ms 1'};
+              @keyframes finish-rotation {
+                0% {
                   transform: rotate(180deg);
-                `
-              : css`
-                  animation: finish-rotation 300ms 1;
-                  @keyframes finish-rotation {
-                    0% {
-                      transform: rotate(180deg);
-                    }
-                    100% {
-                      transform: rotate(360deg); // Finish full rotation
-                      // Will auto-set to 0deg after animation is complete
-                    }
-                  }
-                `),
+                }
+                100% {
+                  transform: rotate(360deg); // Will auto-set to 0deg after animation is complete
+                }
+              }
+            `,
         ]}
         type="button"
         aria-pressed={!!lightMode}

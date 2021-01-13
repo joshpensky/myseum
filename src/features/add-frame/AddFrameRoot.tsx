@@ -10,7 +10,6 @@ import Portal from '@src/components/Portal';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import Panel from '@src/features/add-artwork/Panel';
-import TextField from '@src/features/add-artwork/TextField';
 import UploadImage from '@src/features/add-artwork/UploadImage';
 import { AddFrameContext } from './AddFrameContext';
 import UploadToast from './UploadToast';
@@ -18,6 +17,8 @@ import Close from '@src/svgs/Close';
 import { Dimensions, Measurement } from '@src/types';
 import EditSelectionModal from './EditSelectionModal';
 import FramePreview from './FramePreview';
+import DetailsPanel from './DetailsPanel';
+import DimensionsPanel from './DimensionsPanel';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -177,42 +178,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
     };
   }, []);
 
-  // // Downloads the resized/straightened image as a PNG
-  // const downloadResizedImage = (evt: MouseEvent<HTMLAnchorElement>) => {
-  //   if (!image) {
-  //     return;
-  //   }
-
-  //   // Get the dimensions of the final image, at the highest possible quality
-  //   const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points).map(
-  //     c => ({
-  //       x: c.x * image.naturalWidth,
-  //       y: c.y * image.naturalHeight,
-  //     }),
-  //   ) as SelectionEditorPoints;
-  //   const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
-  //   const imgRect = CanvasUtils.objectContain(avgRect, actualDimensions);
-
-  //   // Matrix warp the image selection into the straightened version
-  //   const webglCanvas = fx.canvas();
-  //   const texture = webglCanvas.texture(image);
-
-  //   const destCanvas = document.createElement('canvas');
-  //   CanvasUtils.resize(destCanvas, { width: imgRect.width, height: imgRect.height });
-  //   renderPreview({
-  //     destCanvas,
-  //     webglCanvas,
-  //     texture,
-  //     layers: editor.layers,
-  //     dimensions: { width: imgRect.width, height: imgRect.height },
-  //     position: { x: 0, y: 0 },
-  //   });
-
-  //   // Generate the URL and update the href (which the browser will use to download immediately)
-  //   const dataImageUrl = destCanvas.toDataURL('image/png');
-  //   evt.currentTarget.href = dataImageUrl;
-  // };
-
   return (
     <AddFrameContext.Provider
       value={{
@@ -307,44 +272,10 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
                               Edit selection
                             </Button>
                           </Panel>
-                          <Panel title="Dimensions">
-                            <TextField
-                              id="width"
-                              type="number"
-                              min={1}
-                              disabled={isSubmitting}
-                              value={actualDimensions.width}
-                              onChange={value => {
-                                setActualDimensions(dimensions => ({
-                                  ...dimensions,
-                                  width: value,
-                                }));
-                              }}
-                            />
-                            <TextField
-                              id="height"
-                              type="number"
-                              min={1}
-                              disabled={isSubmitting}
-                              value={actualDimensions.height}
-                              onChange={value => {
-                                setActualDimensions(dimensions => ({
-                                  ...dimensions,
-                                  height: value,
-                                }));
-                              }}
-                            />
-                            <TextField
-                              id="depth"
-                              type="number"
-                              min={0}
-                              disabled={isSubmitting}
-                              value={depth}
-                              onChange={value => setDepth(value)}
-                              onFocus={() => setIsPreviewRotated(true)}
-                              onBlur={() => setIsPreviewRotated(false)}
-                            />
-                          </Panel>
+                          <DimensionsPanel
+                            onDepthFocusChange={isFocused => setIsPreviewRotated(isFocused)}
+                          />
+                          <DetailsPanel />
                         </div>
                       </div>
                     </Fragment>
