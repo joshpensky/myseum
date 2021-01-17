@@ -7,7 +7,7 @@ import {
 } from 'react';
 import anime from 'animejs';
 import { createGlobalStyle } from 'styled-components';
-import tw, { theme } from 'twin.macro';
+import tw, { css, theme } from 'twin.macro';
 import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
@@ -118,19 +118,17 @@ const ImageSelectionEditor = ({
             ...layers[0],
             points: newActivePoints,
           },
-          // Prevent the frame path from being smaller than the window
-          ...layers.slice(1).map(layer => ({
-            ...layer,
-            points: layer.points.map(point => {
-              // If window layer point is outside frame layer path...
-              if (!GeometryUtils.isPointInPolygon(point, newActivePoints)) {
-                // Assign the nearest point that fits within the frame layer path
-                // TODO: FIX, this can cause the inner polygon to be concave! perhaps we just scale??
-                return GeometryUtils.findNearestPointOnPolygon(point, newActivePoints);
-              }
-              return point;
-            }) as SelectionEditorPoints,
-          })),
+          // Fit all window layers inside the frame
+          ...layers.slice(1).map(layer => {
+            const fittedPoints = GeometryUtils.fitConvexQuadrilateralInAnother(
+              layer.points,
+              newActivePoints,
+            );
+            return {
+              ...layer,
+              points: fittedPoints,
+            };
+          }),
         ];
       }
 
@@ -216,7 +214,7 @@ const ImageSelectionEditor = ({
     // Otherwise, update hovering state
     const strokeOffset = STROKE_WIDTH / 2;
     const hoveringIndex = editor.layers[activeLayer].points.findIndex(point =>
-      GeometryUtils.isPointWithinCircle(
+      GeometryUtils.isPointInCircle(
         {
           x: mouseX,
           y: mouseY,
@@ -386,7 +384,7 @@ const ImageSelectionEditor = ({
       ctx.globalAlpha = 1;
     };
 
-    const renderImageAndOverlays = () => {
+    const renderOverlays = () => {
       // Draw semi-transparent black overlay
       ctx.fillStyle = theme`colors.black`;
       ctx.globalAlpha = 0.9;
@@ -397,11 +395,6 @@ const ImageSelectionEditor = ({
       ctx.globalCompositeOperation = 'destination-out';
       const basePath = getPointsPath(editor.layers[0].points);
       ctx.fill(basePath);
-
-      // Draw the image under the overlay
-      ctx.globalCompositeOperation = 'destination-over';
-      ctx.drawImage(image, x, y, width, height); // Draw image
-      ctx.fillRect(0, 0, canvasDimensions.width, canvasDimensions.height); // Draw black background to clip magnifying glass
 
       // Revert back to regular composition type (drawing atop)
       ctx.globalCompositeOperation = 'source-over';
@@ -419,6 +412,17 @@ const ImageSelectionEditor = ({
     const renderPointsPath = (layerIndex: number, pointsPath: Path2D) => {
       setPointsStyle(layerIndex);
       ctx.stroke(pointsPath);
+
+      const points = editor.layers[layerIndex].points;
+
+      const center = GeometryUtils.findConvexQuadrilateralCenter(points);
+
+      [center].forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x * width + x, point.y * height + y, 5, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+      });
     };
 
     // Draw a single point
@@ -451,21 +455,34 @@ const ImageSelectionEditor = ({
         ctx.closePath();
         ctx.fill();
 
-        // Draw the magnified image area
-        ctx.globalCompositeOperation = 'destination-over';
+        // Draw the magnified image area inside a clipped circle
+        const magnifyCtx = document
+          .createElement('canvas')
+          .getContext('2d') as CanvasRenderingContext2D; // safe assignment since new canvas and 2d is valid identifier (https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
+        CanvasUtils.resize(magnifyCtx.canvas, {
+          width: magnifiedRadius * 2,
+          height: magnifiedRadius * 2,
+        });
+        magnifyCtx.beginPath();
+        magnifyCtx.arc(magnifiedRadius, magnifiedRadius, magnifiedRadius, 0, Math.PI * 2);
+        magnifyCtx.clip();
+        magnifyCtx.closePath();
         const imgDimensions = CommonUtils.getImageDimensions(image);
-        const imagePixelRadius = Math.max(imgDimensions.width, imgDimensions.height) / 100;
-        ctx.drawImage(
+        const imagePixelRadius = Math.max(imgDimensions.width, imgDimensions.height) / 100; // 100x zoom
+        magnifyCtx.drawImage(
           image,
           point.x * imgDimensions.width - imagePixelRadius,
           point.y * imgDimensions.height - imagePixelRadius,
           imagePixelRadius * 2,
           imagePixelRadius * 2,
-          px - magnifiedRadius,
-          py - magnifiedRadius,
+          0,
+          0,
           magnifiedRadius * 2,
           magnifiedRadius * 2,
         );
+        // Draw the magnified image canvas onto the base canvas
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.drawImage(magnifyCtx.canvas, px - magnifiedRadius, py - magnifiedRadius);
 
         // Draw white overlay
         ctx.globalCompositeOperation = 'source-over';
@@ -518,8 +535,8 @@ const ImageSelectionEditor = ({
       }
     };
 
-    // Renders the image and layer overlays
-    renderImageAndOverlays();
+    // Renders the layer overlays
+    renderOverlays();
 
     // Renders the other layer paths
     editor.layers.forEach((layer, index) => {
@@ -672,31 +689,38 @@ const ImageSelectionEditor = ({
   return (
     <div ref={containerRef} className={className} css={[tw`size-full relative`, customCss]}>
       {canvasDimensions && (
-        <canvas
-          ref={canvasRef}
-          aria-label="Editor"
-          css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}>
-          {/* Adds tabbable button controls for each of the point targets */}
-          {pointsTabOrder.map(({ index, name }) => (
-            <button
-              key={index}
-              id={`editor-point-${index}`}
-              type="button"
-              onKeyDown={evt => onPointKeyDown(evt, index)}
-              onFocus={() => setFocusIndex(index)}
-              onBlur={() => {
-                // Unfocus the point
-                setFocusIndex(-1);
-                // Stop moving the point if unfocused
-                if (movingIndex === index) {
-                  clearKeyboardMovingTimeoutRef();
-                  setMovingIndex(-1);
-                }
-              }}>
-              Point {name}
-            </button>
-          ))}
-        </canvas>
+        <div>
+          <div
+            css={[tw`absolute inset-0 size-full`, css({ padding: INNER_CANVAS_PADDING })]}
+            aria-hidden="true">
+            <img css={tw`size-full object-contain`} src={image.src} alt="" />
+          </div>
+          <canvas
+            ref={canvasRef}
+            aria-label="Editor"
+            css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}>
+            {/* Adds tabbable button controls for each of the point targets */}
+            {pointsTabOrder.map(({ index, name }) => (
+              <button
+                key={index}
+                id={`editor-point-${index}`}
+                type="button"
+                onKeyDown={evt => onPointKeyDown(evt, index)}
+                onFocus={() => setFocusIndex(index)}
+                onBlur={() => {
+                  // Unfocus the point
+                  setFocusIndex(-1);
+                  // Stop moving the point if unfocused
+                  if (movingIndex === index) {
+                    clearKeyboardMovingTimeoutRef();
+                    setMovingIndex(-1);
+                  }
+                }}>
+                Point {name}
+              </button>
+            ))}
+          </canvas>
+        </div>
       )}
       {movingIndex >= 0 &&
         isDragging &&

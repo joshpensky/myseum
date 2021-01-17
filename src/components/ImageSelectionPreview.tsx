@@ -33,8 +33,7 @@ const ImageSelectionPreview = ({
 
   // Render the final artwork onto the preview canvas
   const render = () => {
-    const imgCtx = document.createElement('canvas').getContext('2d');
-    if (imgCtx && canvasRef.current && texture) {
+    if (canvasRef.current && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
       // TODO: separate transform render onto separate canvas to speed up?
       // Render the preview onto the destination canvas

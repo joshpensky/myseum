@@ -10,6 +10,7 @@ import type { Matrix } from 'glfx-es6';
 import { Position } from '@src/types';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { Convert } from '@src/utils/Convert';
+import { DEFAULT_POINTS } from '@src/hooks/useSelectionEditor';
 
 type FramePreviewProps = {
   rotate?: boolean;
@@ -27,7 +28,8 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
   const [depthRgb, setDepthRgb] = useState({ r: 255, g: 255, b: 255 });
   const depthColor = rgb(depthRgb.r, depthRgb.g, depthRgb.b);
 
-  const onPreviewRender = (canvas: HTMLCanvasElement) => {
+  // Generates the depth RGB color based on the given canvas
+  const getDepthRgb = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
     if (ctx && canvas.height) {
       const depthRgb = CanvasUtils.getAverageColor(
@@ -38,6 +40,28 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
       setDepthRgb(depthRgb);
     }
   };
+
+  // Checks if the layers in the editor has been changed at all
+  const isFreshEditor =
+    editor.layers.length === 1 &&
+    editor.layers[0].points.every(
+      (point, index) => point.x === DEFAULT_POINTS[index].x && point.y === DEFAULT_POINTS[index].y,
+    );
+
+  // If using fresh editor, calculates the depth color when using vanilla image
+  useEffect(() => {
+    if (isFreshEditor && image) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const imgDimensions = CommonUtils.getImageDimensions(image);
+        canvas.width = 5;
+        canvas.height = imgDimensions.height;
+        ctx.drawImage(image, 0, 0, 5, imgDimensions.height);
+        getDepthRgb(canvas);
+      }
+    }
+  }, [isFreshEditor, image]);
 
   // _DEV_
   // Fix light mode animation on fast refresh
@@ -207,13 +231,17 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
                   transform: scaleX(${previewDimensions.width / imageDimensions.width})
                     scaleY(${previewDimensions.height / imageDimensions.height});
                 `}>
-                {/* TODO: improve performance by rendering image if only 1 layer and points are set to [00, 10, 11, 01] */}
-                <ImageSelectionPreview
-                  editor={editor}
-                  actualDimensions={imageDimensions}
-                  image={image}
-                  onRender={onPreviewRender}
-                />
+                {/* Improve performance by rendering only image if using a fresh editor (no changes) */}
+                {isFreshEditor ? (
+                  <img css={tw`absolute inset-0 size-full object-cover`} src={image.src} alt="" />
+                ) : (
+                  <ImageSelectionPreview
+                    editor={editor}
+                    actualDimensions={imageDimensions}
+                    image={image}
+                    onRender={getDepthRgb}
+                  />
+                )}
               </div>
             )}
           </div>

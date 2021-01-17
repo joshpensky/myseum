@@ -11,6 +11,12 @@ export enum Orientation {
 }
 
 export class GeometryUtils {
+  /**
+   * Gets the length of a line segment formed by the given points, using the distance formula.
+   *
+   * @param a initial point of the line segment
+   * @param b terminal point of the line segment
+   */
   static getLineLength(a: Position, b: Position) {
     return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
   }
@@ -18,7 +24,7 @@ export class GeometryUtils {
   /**
    * Gets the angle of the line, with the range [-180deg, 180deg].
    *
-   * // https://stackoverflow.com/a/9614122
+   * https://stackoverflow.com/a/9614122
    */
   static getLineAngle(a: Position, b: Position) {
     const theta = Math.atan2(b.y - a.y, b.x - a.x);
@@ -62,7 +68,15 @@ export class GeometryUtils {
     return -1 / slope;
   }
 
-  // Gets the orientation of three points
+  /**
+   * Gets the orientation of three ordered points, either colinear, clockwise, or counter-clockwise.
+   *
+   * https://www.geeksforgeeks.org/orientation-3-ordered-points/
+   *
+   * @param p1 point one
+   * @param p2 point two
+   * @param p3 point three
+   */
   static getOrientation(p1: Position, p2: Position, p3: Position) {
     const value = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y);
     if (value === 0) {
@@ -73,7 +87,12 @@ export class GeometryUtils {
     return Orientation.COUNTER_CLOCKWISE;
   }
 
-  // Checks if the given point exists on the given line
+  /**
+   * Checks if the given point exists on the given line
+   *
+   * @param point the point to check
+   * @param line the line to check if the points resides upon
+   */
   static isPointOnLine(point: Position, line: Line) {
     const [l1, l2] = line;
     const isPointWithinXRange = Math.min(l1.x, l2.x) <= point.x && point.x <= Math.max(l1.x, l2.x);
@@ -81,10 +100,98 @@ export class GeometryUtils {
     return isPointWithinXRange && isPointWithinYRange;
   }
 
-  // https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
-  static isPointWithinCircle(point: Position, circle: Position & { radius: number }) {
+  /**
+   * Checks if the given point exists within the circle.
+   *
+   * https://math.stackexchange.com/questions/198764/how-to-know-if-a-point-is-inside-a-circle
+   *
+   * @param point the point to check
+   * @param circle the circle to check if point resides within
+   */
+  static isPointInCircle(point: Position, circle: Position & { radius: number }) {
     const pointToCenterLength = this.getLineLength(point, circle);
     return pointToCenterLength <= circle.radius;
+  }
+
+  /**
+   * Checks where the given point exists within the given polygon.
+   *
+   * Algorithm taken from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
+   *
+   * @param point the point to check
+   * @param polygon the polygon to check if the point resides within
+   */
+  static isPointInPolygon(
+    point: Position,
+    polygon: { 0: Position; 1: Position; 2: Position } & Position[],
+  ) {
+    const { x, y } = point;
+
+    let inside = false;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const pointA = polygon[i];
+      const pointB = polygon[j];
+
+      const intersect =
+        pointA.y > y !== pointB.y > y &&
+        x < ((pointB.x - pointA.x) * (y - pointA.y)) / (pointB.y - pointA.y) + pointA.x;
+
+      if (intersect) {
+        inside = !inside;
+      }
+    }
+
+    return inside;
+  }
+
+  /**
+   * Gets the point of intersection between two lines, if any. If the lines are parellel,
+   * `null` will be returned.
+   *
+   * https://www.mathopenref.com/coordintersection.html
+   *
+   * @param lineA the first line to test
+   * @param lineB the second line to test
+   */
+  static getPointOfIntersection(lineA: Line, lineB: Line): Position | null {
+    const { slope: slopeA, intercept: interceptA } = this.getSlopeIntercept(lineA[0], lineA[1]);
+    const { slope: slopeB, intercept: interceptB } = this.getSlopeIntercept(lineB[0], lineB[1]);
+
+    // CASE: lines are parallel (both vertical, horizontal, or same diagonol)
+    if (slopeA === slopeB) {
+      return null;
+    }
+
+    // CASE: line A is vertical, line B is diagonal
+    if (slopeA === undefined) {
+      return {
+        x: interceptA,
+        y: (slopeB as number) * interceptA + interceptB,
+      };
+    }
+
+    // CASE: line B is vertical, line A is diagonol
+    if (slopeB === undefined) {
+      return {
+        x: interceptB,
+        y: (slopeA as number) * interceptB + interceptA,
+      };
+    }
+
+    // CASE: both lines are diagonal
+
+    // Set both slope-intercept equations equal to each other, then solve for X
+    // m1x + b1 = m2x + b2
+    // m1x = m2x + b2 - b1
+    // m1x - m2x = b2 - b1
+    // x = (b2 - b1) / (m1 - m2)
+    const x = (interceptB - interceptA) / (slopeA - slopeB);
+
+    // substitute x into one equation and solve for y
+    const y = slopeA * x + interceptA;
+
+    return { x, y };
   }
 
   // Checks if the given lines intersect or are colinear
@@ -229,38 +336,6 @@ export class GeometryUtils {
   }
 
   /**
-   * Checks where the given point exists within the given polygon.
-   *
-   * Algorithm taken from https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
-   *
-   * @param point the point to check
-   * @param polygon the polygon to check if the point resides within
-   */
-  static isPointInPolygon(
-    point: Position,
-    polygon: { 0: Position; 1: Position; 2: Position } & Position[],
-  ) {
-    const { x, y } = point;
-
-    let inside = false;
-
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const pointA = polygon[i];
-      const pointB = polygon[j];
-
-      const intersect =
-        pointA.y > y !== pointB.y > y &&
-        x < ((pointB.x - pointA.x) * (y - pointA.y)) / (pointB.y - pointA.y) + pointA.x;
-
-      if (intersect) {
-        inside = !inside;
-      }
-    }
-
-    return inside;
-  }
-
-  /**
    * Finds the nearest projection of the given point on the line.
    *
    * Algorithm taken from https://jsfiddle.net/shishirraven/4dmjh0sa/
@@ -333,6 +408,62 @@ export class GeometryUtils {
   }
 
   /**
+   * Finds the center point of a given triangle.
+   *
+   * @param points the points that make up the triangle
+   */
+  static findTriangleCenter(points: [Position, Position, Position]): Position {
+    return {
+      x: (points[0].x + points[1].x + points[2].x) / 3,
+      y: (points[0].y + points[1].y + points[2].y) / 3,
+    };
+  }
+
+  /**
+   * Finds the centroid of a convex quadrilateral.
+   *
+   * This is done by splitting the quadrilateral into four triangles and finding the centers of those.
+   * Then, point of intersection of lines formed by those centers will be the quadrilateral's centroid.
+   *
+   * @param points the quadrilateral's vertices
+   */
+  static findConvexQuadrilateralCenter(points: SelectionEditorPoints): Position {
+    const centerABX = GeometryUtils.findTriangleCenter([points[0], points[1], points[2]]); // ◥
+    const centerAXY = GeometryUtils.findTriangleCenter([points[0], points[2], points[3]]); // ◣
+
+    const centerABY = GeometryUtils.findTriangleCenter([points[0], points[1], points[3]]); // ◤
+    const centerBXY = GeometryUtils.findTriangleCenter([points[1], points[2], points[3]]); // ◢
+
+    const centroid = this.getPointOfIntersection([centerABX, centerAXY], [centerABY, centerBXY]);
+    if (!centroid) {
+      throw new Error(`Points don't form valid convex quadrilateral.`);
+    }
+
+    return centroid;
+  }
+
+  /**
+   * Scales a polygon around a given center point, at the given scale.
+   *
+   * @param points the points of the quadrilateral
+   * @param center the center point to scale the quadrilateral around
+   * @param scale a scale percentage, from 0 -> Infinity. (Note: 1 would keep the same size)
+   */
+  static scalePolygonAroundPoint<P extends Position[]>(points: P, center: Position, scale = 1): P {
+    if (scale === 1) {
+      return points;
+    }
+    const scaleDelta = Math.max(scale, 0);
+    return points.map(point => {
+      const scaledPoint = {
+        x: center.x + Math.sqrt(scaleDelta) * (point.x - center.x),
+        y: center.y + Math.sqrt(scaleDelta) * (point.y - center.y),
+      };
+      return scaledPoint;
+    }) as P;
+  }
+
+  /**
    * In the editor, there is a case where the validity of the convex quadrilateral path may
    * be questioned when a point is moved inward toward the center.
    *
@@ -367,7 +498,7 @@ export class GeometryUtils {
       path[(numPoints + (invalidPointIndex - 1)) % numPoints], // A
       path[(invalidPointIndex + 1) % numPoints], // B
       path[(invalidPointIndex + 2) % numPoints], // D
-    ];
+    ] as [Position, Position, Position];
     // 2) Form a line between the surrounding points of E (line AB)
     const lineAB: Line = [triangle[0], triangle[1]];
     // 3) Find the nearest projection of point E on line AB (point N)
@@ -386,10 +517,7 @@ export class GeometryUtils {
     ];
 
     // 5) Find the center point of triangle ABD (point C)
-    const centerPoint = {
-      x: (triangle[0].x + triangle[1].x + triangle[2].x) / 3,
-      y: (triangle[0].y + triangle[1].y + triangle[2].y) / 3,
-    };
+    const centerPoint = this.findTriangleCenter(triangle);
     // 6) Find the projection of the center onto the perpendicular vector (point NC)
     const nearestCenterPointOnPerpLine = GeometryUtils.findNearestPointOnLine(
       centerPoint,
@@ -404,5 +532,68 @@ export class GeometryUtils {
     );
 
     return offsetPoint;
+  }
+
+  /**
+   * Scales a convex quadrilateral to fit inside another convex quadrilateral.
+   *
+   * @param subject the convex quadrilateral to scale to fit
+   * @param container the containing convex quadrilateral to fit the other inside
+   */
+  static fitConvexQuadrilateralInAnother(
+    subject: SelectionEditorPoints,
+    container: SelectionEditorPoints,
+  ) {
+    const centerPoint = GeometryUtils.findConvexQuadrilateralCenter(subject);
+
+    const outsidePoints = subject.filter(
+      point => !GeometryUtils.isPointInPolygon(point, container),
+    );
+
+    // If no subject points are outside container, then it already fits!
+    if (!outsidePoints.length) {
+      return subject;
+    }
+
+    // Find all percentages the subject would need to scale to
+    // to fit inside the container
+    const scalePercentages = outsidePoints.map(outsidePoint => {
+      const centerLine: Line = [centerPoint, outsidePoint];
+
+      let intersectPoint: Position | undefined;
+      for (let i = 0; i < container.length; i++) {
+        const testA = container[i];
+        const testB = container[(i + 1) % container.length];
+        const testLine: Line = [testA, testB];
+
+        if (GeometryUtils.doLinesIntersect(centerLine, testLine)) {
+          const intersection = GeometryUtils.getPointOfIntersection(centerLine, testLine);
+          if (intersection) {
+            // Get the point of intersection between the outside point and a container edge
+            intersectPoint = intersection;
+            break;
+          }
+        }
+      }
+
+      if (!intersectPoint) {
+        return 1;
+      }
+      return (
+        GeometryUtils.getLineLength(centerPoint, intersectPoint) /
+        GeometryUtils.getLineLength(centerPoint, outsidePoint)
+      );
+    });
+
+    // Get the smallest percentage
+    const minPercentage = Math.min(...scalePercentages);
+    const flooredPercentage = Math.min(1, Math.floor(minPercentage * 1000) / 1000); // floored round to the nearest 0.001
+
+    // Scale accordingly
+    return GeometryUtils.scalePolygonAroundPoint(
+      subject,
+      GeometryUtils.findConvexQuadrilateralCenter(container),
+      flooredPercentage,
+    );
   }
 }

@@ -1,8 +1,8 @@
-import { FormEvent, Fragment, useContext, useEffect, useRef, useState } from 'react';
-import FocusLock from 'react-focus-lock';
+import { FormEvent, Fragment, useContext, useRef, useState } from 'react';
+import { MoveFocusInside } from 'react-focus-lock';
 import tw from 'twin.macro';
 import Button from '@src/components/Button';
-import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { DEFAULT_POINTS, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import UploadImage from '@src/features/add-artwork/UploadImage';
 import { AddFrameContext } from './AddFrameContext';
@@ -27,12 +27,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const editor = useSelectionEditor([
     {
       name: 'Frame',
-      points: [
-        { x: 0, y: 0 },
-        { x: 1, y: 0 },
-        { x: 1, y: 1 },
-        { x: 0, y: 1 },
-      ],
+      points: DEFAULT_POINTS,
     },
   ]);
 
@@ -50,19 +45,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   /**
-   * Key handler. Closes the modal form on escape key.
-   */
-  const onKeyDown = (evt: KeyboardEvent) => {
-    switch (evt.key) {
-      case 'Escape':
-      case 'Esc': {
-        evt.preventDefault();
-        setIsUploadToastHidden(true);
-      }
-    }
-  };
-
-  /**
    * Callback handler for when the form submits. Validates and saves data
    * to the API, then closes the modal.
    */
@@ -76,15 +58,6 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    if (!isUploadToastHidden) {
-      window.addEventListener('keydown', onKeyDown);
-      return () => {
-        window.removeEventListener('keydown', onKeyDown);
-      };
-    }
-  }, [isUploadToastHidden]);
 
   return (
     <AddFrameContext.Provider
@@ -106,7 +79,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
         id="add-frame-modal"
         aria-label="Create Frame Modal"
         title={<h1 css={tw`font-medium`}>Creating frame</h1>}
-        disabledClose={isEditingSelection || isUploadToastHidden}
+        disabledClose={isEditingSelection}
         disabledSubmit={isSubmitting || isEditingSelection || !description.trim()}
         hideSubmit={!image}
         onClose={onClose}
@@ -120,17 +93,13 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
               setMeasurement={setMeasurement}
             />
             {addArtworkContext?.image && (
-              <FocusLock
-                disabled={isUploadToastHidden}
-                onDeactivation={() => {
-                  process.nextTick(() => uploadInputRef.current?.focus());
-                }}>
+              <MoveFocusInside>
                 <UploadToast
                   image={addArtworkContext.image}
                   hidden={isUploadToastHidden}
                   onClose={() => setIsUploadToastHidden(true)}
                 />
-              </FocusLock>
+              </MoveFocusInside>
             )}
           </FeatureFormModal.Main>
         ) : (

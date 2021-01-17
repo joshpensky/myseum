@@ -50,7 +50,12 @@ export class CanvasUtils {
    * @param padding optional padding for the object
    */
   static objectContain(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
-    const canvasRatio = canvasDimensions.width / canvasDimensions.height;
+    const paddedCanvasDimensions = {
+      width: canvasDimensions.width - padding * 2,
+      height: canvasDimensions.height - padding * 2,
+    };
+
+    const canvasRatio = paddedCanvasDimensions.width / paddedCanvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
     let height: number;
@@ -58,22 +63,19 @@ export class CanvasUtils {
 
     if (canvasRatio < objectRatio) {
       // Scale by canvas width
-      width = canvasDimensions.width;
-      height = objectDimensions.height * (canvasDimensions.width / objectDimensions.width);
+      width = paddedCanvasDimensions.width;
+      height = paddedCanvasDimensions.width / objectRatio;
     } else {
       // Scale by canvas height
-      height = canvasDimensions.height;
-      width = objectDimensions.width * (canvasDimensions.height / objectDimensions.height);
+      height = paddedCanvasDimensions.height;
+      width = paddedCanvasDimensions.height * objectRatio;
     }
 
-    const x = (canvasDimensions.width - width) / 2;
-    const y = (canvasDimensions.height - height) / 2;
-
     return {
-      x: x + padding,
-      y: y + padding,
-      width: width - padding * 2,
-      height: height - padding * 2,
+      x: (canvasDimensions.width - width) / 2,
+      y: (canvasDimensions.height - height) / 2,
+      width,
+      height,
     };
   }
 

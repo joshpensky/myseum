@@ -11,7 +11,7 @@ type UploadToastProps = {
   onClose(): void;
 };
 
-const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
+const UploadToast = ({ hidden, image }: UploadToastProps) => {
   const { setImage, setActualDimensions, setMeasurement } = useAddFrameContext();
 
   const imageDimensions = CommonUtils.getImageDimensions(image);
@@ -21,12 +21,10 @@ const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
       id="upload-toast"
       css={[
         tw`absolute bottom-5 left-1/2 transform -translate-x-1/2 transition-all`,
-        tw`flex items-center bg-white bg-opacity-20 pl-3 pr-6 py-2.5 rounded-full`,
+        tw`flex items-center bg-white bg-opacity-20 pl-3 pr-5 py-2.5 rounded-full`,
         tw`focus-within:(ring-2 ring-white ring-opacity-50)`,
         hidden && tw`opacity-0 invisible`,
       ]}
-      role="dialog"
-      aria-modal="true"
       aria-hidden={hidden}
       aria-label="Reuse uploaded artwork photo"
       aria-describedby="upload-toast-description">
@@ -40,7 +38,6 @@ const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
         Reuse the same upload for the frame?
       </p>
       <Button
-        css={tw`mr-5`}
         onClick={() => {
           setImage(image);
           setActualDimensions({
@@ -51,9 +48,6 @@ const UploadToast = ({ hidden, image, onClose }: UploadToastProps) => {
         }}>
         Use photo
       </Button>
-      <IconButton title="Dismiss" onClick={onClose}>
-        <Close />
-      </IconButton>
     </div>
   );
 };

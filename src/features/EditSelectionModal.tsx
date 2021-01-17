@@ -4,11 +4,7 @@ import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import {
-  SelectionEditor,
-  SelectionEditorPoints,
-  useSelectionEditor,
-} from '@src/hooks/useSelectionEditor';
+import { SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions } from '@src/types';
 import Layer from '@src/svgs/Layer';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
@@ -86,6 +82,26 @@ const EditSelectionModal = ({
     }
   };
 
+  // Creates the window layer (if not already added) by scaling the frame layer down
+  const createWindowLayer = () => {
+    modalEditor.setLayers(layers => {
+      const centerPoint = GeometryUtils.findConvexQuadrilateralCenter(layers[0].points);
+      const windowPoints = GeometryUtils.scalePolygonAroundPoint(
+        layers[0].points,
+        centerPoint,
+        0.95, // Scales the frame layer down 5%
+      );
+
+      return [
+        layers[0],
+        {
+          name: 'Window',
+          points: windowPoints,
+        },
+      ];
+    });
+  };
+
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown, true);
     return () => {
@@ -139,28 +155,7 @@ const EditSelectionModal = ({
                       activeLayer={activeLayer}
                       onChange={() => {
                         if (modalEditor.layers.length === 1) {
-                          modalEditor.setLayers(layers => {
-                            const sortedFramePoints = GeometryUtils.sortConvexQuadrilateralPoints(
-                              layers[0].points,
-                            );
-
-                            const scaleDelta = 0.025;
-                            const windowPoints = sortedFramePoints.map((point, index) =>
-                              GeometryUtils.findPointOnVector(
-                                point,
-                                sortedFramePoints[(index + 2) % sortedFramePoints.length],
-                                scaleDelta,
-                              ),
-                            ) as SelectionEditorPoints;
-
-                            return [
-                              layers[0],
-                              {
-                                name: 'Window',
-                                points: windowPoints,
-                              },
-                            ];
-                          });
+                          createWindowLayer();
                         }
                         setActiveLayer(1);
                       }}

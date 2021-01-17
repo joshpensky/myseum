@@ -159,7 +159,7 @@ const FeatureFormModal = ({
     typeof child === 'object' &&
     'type' in child &&
     typeof child.type === 'function' &&
-    child.type.name === 'FeatureFormModalOutsideForm';
+    child.type.name === FeatureFormModalOutsideForm.name;
 
   return (
     <Portal to="modal-root">
@@ -189,7 +189,7 @@ const FeatureFormModal = ({
                 <IconButton
                   ref={cancelBtnRef}
                   title="Cancel"
-                  disabled={disabledClose || disabledSubmit}
+                  disabled={disabledClose}
                   onClick={_onClose}>
                   <Close />
                 </IconButton>

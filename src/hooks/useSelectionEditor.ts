@@ -3,6 +3,13 @@ import { Position } from '@src/types';
 
 export type SelectionEditorPoints = [Position, Position, Position, Position];
 
+export const DEFAULT_POINTS: SelectionEditorPoints = [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 1, y: 1 },
+  { x: 0, y: 1 },
+];
+
 export type SelectionEditorLayer = {
   name?: string;
   points: SelectionEditorPoints;
@@ -34,12 +41,7 @@ export const useSelectionEditor = (initialState?: SelectionEditorLayer[]): Selec
     return [
       [
         {
-          points: [
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-            { x: 1, y: 1 },
-            { x: 0, y: 1 },
-          ],
+          points: DEFAULT_POINTS,
         },
       ],
     ];
