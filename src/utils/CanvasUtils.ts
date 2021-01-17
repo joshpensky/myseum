@@ -129,6 +129,13 @@ export class CanvasUtils {
     };
   }
 
+  /**
+   * Gets the average color of the chosen section of a given context's canvas.
+   *
+   * @param context the context of a canvas to search
+   * @param position the starting position of the search box
+   * @param dimensions the dimensions of the box to search
+   */
   static getAverageColor(
     context: CanvasRenderingContext2D,
     position: Position,
@@ -160,5 +167,28 @@ export class CanvasUtils {
     rgb.b = Math.floor(rgb.b / count);
 
     return rgb;
+  }
+
+  /**
+   * Generates the line commands for an SVG `path.d` attribute, or a Path2D object.
+   *
+   * @example
+   * ```
+   * getLineCommands([{ x: 0, y: 0 }, { x: 2, y: 4 }, { x: 4, y: 5 }])
+   * // "M 0 0 L 2 4 L 4 5 Z"
+   * ```
+   *
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
+   *
+   * @param points the points to include in the line commands
+   * @param closePath whether to close the path, drawing a line back up to the first point
+   */
+  static getLineCommands(points: Position[], closePath = true): string {
+    const coordinates = points.map(point => [point.x, point.y].join(' '));
+    const lineCommands = ['M', coordinates.join(' L ')];
+    if (closePath) {
+      lineCommands.push('Z');
+    }
+    return lineCommands.join(' ');
   }
 }

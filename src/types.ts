@@ -38,12 +38,7 @@ export type Frame = {
    * +----------+
    * ```
    */
-  window: {
-    /** The window's position within the frame */
-    position: Position;
-    /** The dimensions of the window within the frame */
-    dimensions: Dimensions;
-  };
+  window: [Position, Position, Position, Position];
 };
 
 export type Artist = {

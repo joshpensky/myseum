@@ -3,22 +3,30 @@ import { Frame } from '@src/types';
 export const frames: Frame[] = [
   {
     id: 1,
-    src: '/img/cg-frame.png',
+    src: '/img/cg-frame-2.png',
     dimensions: {
       width: 5.5,
       height: 7.5,
     },
     depth: 1,
-    window: {
-      position: {
+    window: [
+      {
         x: 1,
-        y: 1,
+        y: 1.05,
       },
-      dimensions: {
-        width: 3.5,
-        height: 5.5,
+      {
+        x: 4.45,
+        y: 1.075,
       },
-    },
+      {
+        x: 4.45,
+        y: 6.5,
+      },
+      {
+        x: 1,
+        y: 6.5,
+      },
+    ],
   },
   {
     id: 2,
@@ -28,15 +36,23 @@ export const frames: Frame[] = [
       height: 23,
     },
     depth: 1.5,
-    window: {
-      position: {
+    window: [
+      {
         x: 3,
         y: 3.25,
       },
-      dimensions: {
-        width: 11,
-        height: 16.5,
+      {
+        x: 14,
+        y: 3.25,
       },
-    },
+      {
+        x: 14,
+        y: 19.75,
+      },
+      {
+        x: 3,
+        y: 19.75,
+      },
+    ],
   },
 ];

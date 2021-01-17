@@ -1,16 +1,14 @@
 import { FormEvent, useEffect, useState } from 'react';
 import FocusLock from 'react-focus-lock';
-import tw, { css, theme } from 'twin.macro';
+import tw, { css } from 'twin.macro';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { LAYER_COLORS, SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions } from '@src/types';
 import Layer from '@src/svgs/Layer';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import FeatureFormModal from '@src/components/FeatureFormModal';
-
-const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
 
 type LayerInputProps = {
   layerIndex: number;

@@ -1,8 +1,14 @@
 import { useState } from 'react';
+import { theme } from 'twin.macro';
 import { Position } from '@src/types';
 
-export type SelectionEditorPoints = [Position, Position, Position, Position];
+export const LAYER_COLORS = [
+  theme`colors.blue.500`,
+  theme`colors.magenta.500`,
+  theme`colors.yellow.500`,
+];
 
+export type SelectionEditorPoints = [Position, Position, Position, Position];
 export const DEFAULT_POINTS: SelectionEditorPoints = [
   { x: 0, y: 0 },
   { x: 1, y: 0 },

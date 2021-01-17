@@ -8,7 +8,11 @@ import {
 import anime from 'animejs';
 import { createGlobalStyle } from 'styled-components';
 import tw, { css, theme } from 'twin.macro';
-import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
+import {
+  LAYER_COLORS,
+  SelectionEditor,
+  SelectionEditorPoints,
+} from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
@@ -20,14 +24,12 @@ const POINT_RADIUS = 5;
 const MAGNIFIED_POINT_RADIUS = 30;
 const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
 
-const LAYER_COLORS = [theme`colors.blue.500`, theme`colors.magenta.500`, theme`colors.yellow.500`];
-
-// Disable cursor when moving point
 const GlobalDisableCursor = createGlobalStyle`
   * {
     ${tw`cursor-none!`}
   }
 `;
+
 const GlobalGrabbingCursor = createGlobalStyle`
   * {
     ${tw`cursor-grabbing!`}
