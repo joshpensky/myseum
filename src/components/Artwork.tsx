@@ -12,6 +12,8 @@ export type ArtworkProps = {
   withShadow?: boolean;
 };
 
+const BEZEL = 0.05;
+
 const Artwork = ({ data, withShadow }: ArtworkProps) => {
   const themeCtx = useTheme();
   const gridCtx = useGrid();
@@ -23,6 +25,9 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
   const { width: frameWidth, height: frameHeight } = frame.dimensions;
   const { width: artworkWidth, height: artworkHeight } = data.dimensions;
 
+  const artworkX = (frameWidth - artworkWidth) / 2;
+  const artworkY = (frameHeight - artworkHeight) / 2;
+
   const isLoaded = isFrameLoaded && isArtworkLoaded;
 
   /**
@@ -32,7 +37,7 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
    */
   const px = (value: number) => `${value * ((gridCtx?.itemSize ?? 0) / 25)}px`;
 
-  const backgroundColor = {
+  const backgroundStyle = {
     mint: tw`text-mint-200`,
     pink: tw`text-pink-200`,
     navy: tw`text-navy-200`,
@@ -104,17 +109,6 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
         <desc id={`artwork-${id}-desc`}>{alt}</desc>
 
         <defs>
-          {/* Define artwork drop shadow (https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDropShadow) */}
-          <filter id={`artwork-${id}-drop-shadow`}>
-            <feDropShadow
-              dx="0.025"
-              dy="0.025"
-              stdDeviation="0.05"
-              floodColor="#black"
-              floodOpacity="0.2"
-            />
-          </filter>
-
           {/* Define window path */}
           <path id={`artwork-${id}-window`} d={CanvasUtils.getLineCommands(frame.window)} />
 
@@ -157,21 +151,90 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
 
         {/* Render frame window when loading, and frame mat when loaded */}
         <use
-          css={[tw`fill-current`, isArtworkLoaded ? tw`text-white` : backgroundColor]}
+          css={[tw`fill-current`, isArtworkLoaded ? tw`text-paper-200` : backgroundStyle]}
           href={`#artwork-${id}-window`}
         />
+
+        {/* Render bezel for the frame mat */}
+        {isArtworkLoaded && (
+          <g id={`artwork-${id}-mat-bezel`} mask={`url(#artwork-${id}-window-mask)`}>
+            {/* Render base light of the bezel */}
+            <rect
+              css={tw`fill-current text-white`}
+              x={artworkX - BEZEL}
+              y={artworkY - BEZEL}
+              width={artworkWidth + BEZEL * 2}
+              height={artworkHeight + BEZEL * 2}
+            />
+            {/* Render shadow sides of bezel */}
+            <path
+              css={tw`fill-current text-black text-opacity-40`}
+              d={CanvasUtils.getLineCommands([
+                {
+                  x: artworkX + artworkWidth + BEZEL,
+                  y: artworkY - BEZEL,
+                },
+                {
+                  x: artworkX + artworkWidth,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX,
+                  y: artworkY + artworkHeight,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY + artworkHeight + BEZEL,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY - BEZEL,
+                },
+              ])}
+            />
+            {/* Render darker top shadow of bezel */}
+            <path
+              css={tw`fill-current text-black text-opacity-20`}
+              d={CanvasUtils.getLineCommands([
+                {
+                  x: artworkX + artworkWidth + BEZEL,
+                  y: artworkY - BEZEL,
+                },
+                {
+                  x: artworkX + artworkWidth,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY - BEZEL,
+                },
+              ])}
+            />
+            {/* Render back of frame under mat */}
+            <rect
+              css={tw`fill-current text-paper-300`}
+              x={artworkX}
+              y={artworkY}
+              width={artworkWidth}
+              height={artworkHeight}
+            />
+          </g>
+        )}
 
         {/* Render artwork image, centered in frame */}
         <image
           css={[!isLoaded && tw`opacity-0`]}
           href={src}
           preserveAspectRatio="xMinYMin slice"
-          x={(frameWidth - artworkWidth) / 2}
-          y={(frameHeight - artworkHeight) / 2}
+          x={artworkX}
+          y={artworkY}
           width={artworkWidth}
           height={artworkHeight}
           mask={`url(#artwork-${id}-window-mask)`}
-          filter={`url(#artwork-${id}-drop-shadow)`}
           onLoad={() => setIsArtworkLoaded(true)}
         />
 

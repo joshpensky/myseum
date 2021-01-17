@@ -4,6 +4,7 @@ export const frames: Frame[] = [
   {
     id: 1,
     src: '/img/cg-frame-2.png',
+    description: 'ADD_ALT_TEXT',
     dimensions: {
       width: 5.5,
       height: 7.5,
@@ -31,6 +32,7 @@ export const frames: Frame[] = [
   {
     id: 2,
     src: '/img/knight-frame.png',
+    description: 'ADD_ALT_TEXT',
     dimensions: {
       width: 17,
       height: 23,

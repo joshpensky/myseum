@@ -22,6 +22,7 @@ export type Dimensions = {
 export type Frame = {
   id: Id;
   src: string;
+  description: string;
   dimensions: Dimensions;
   depth: number;
   /**
