@@ -412,17 +412,6 @@ const ImageSelectionEditor = ({
     const renderPointsPath = (layerIndex: number, pointsPath: Path2D) => {
       setPointsStyle(layerIndex);
       ctx.stroke(pointsPath);
-
-      const points = editor.layers[layerIndex].points;
-
-      const center = GeometryUtils.findConvexQuadrilateralCenter(points);
-
-      [center].forEach(point => {
-        ctx.beginPath();
-        ctx.arc(point.x * width + x, point.y * height + y, 5, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.fill();
-      });
     };
 
     // Draw a single point
