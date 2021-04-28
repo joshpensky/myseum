@@ -72,6 +72,31 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
     [],
   );
 
+  // Toggles light mode when the `L` key is pressed
+  useEffect(() => {
+    const toggleLightMode = (evt: KeyboardEvent) => {
+      const isTypingInput = (
+        el: Element,
+      ): el is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement =>
+        new Set(['INPUT', 'TEXTAREA', 'SELECT']).has(el.tagName);
+
+      // Checks that the user isn't currently typing in an input
+      const focusedEl = document.activeElement;
+      const isUserTyping = focusedEl && isTypingInput(focusedEl) && focusedEl.type !== 'number';
+
+      if (evt.key === 'l' && !isUserTyping) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        setLightMode(mode => !mode);
+      }
+    };
+
+    window.addEventListener('keydown', toggleLightMode, true);
+    return () => {
+      window.removeEventListener('keydown', toggleLightMode, true);
+    };
+  }, []);
+
   // Track wrapper dimensions on resize
   useLayoutEffect(() => {
     if (wrapperRef.current) {
