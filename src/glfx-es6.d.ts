@@ -2,6 +2,10 @@
 
 declare module 'glfx-es6' {
   class Texture {
+    _: {
+      width: number;
+      height: number;
+    };
     loadContentsOf(element: CanvasImageSource): void;
     destroy(): void;
   }

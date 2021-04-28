@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect, Fragment } from 'react';
+import { rgba } from 'polished';
 import { Link, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import tw, { css, theme } from 'twin.macro';
@@ -17,6 +18,7 @@ import Cog from '@src/svgs/Cog';
 import { Gallery } from '@src/types';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Arrow from '@src/svgs/Arrow';
+import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 
 const MuseumGallery = () => {
   const { museum } = useMuseum();
@@ -25,6 +27,8 @@ const MuseumGallery = () => {
   const { data: gallery, error, mutate } = useSWR<Gallery>(() => `/api/galleries/${galleryId}`);
 
   const settingsPopover = usePopover('settings-modal');
+
+  const [isAddingArtwork, setIsAddingArtwork] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery?.name ?? '');
@@ -143,7 +147,7 @@ const MuseumGallery = () => {
                         tw`absolute left-2 top-2 w-full bg-transparent focus:outline-none font-serif leading-none text-3xl`,
                         css`
                           &::selection {
-                            background: ${theme`colors.white`};
+                            background: ${rgba(theme`colors.white`, 0.35)};
                           }
                         `,
                       ]}
@@ -207,7 +211,8 @@ const MuseumGallery = () => {
                   </span>
                 </FloatingActionButton>
                 <Popover.Body>
-                  <header css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex justify-between`}>
+                  <header
+                    css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex items-center justify-between`}>
                     <h1 css={tw`font-serif leading-none text-xl mt-1 mr-3`}>Settings</h1>
                     <IconButton title="Close settings" onClick={() => settingsPopover.close(true)}>
                       <Close />
@@ -226,11 +231,13 @@ const MuseumGallery = () => {
               </Popover>
               <FloatingActionButton
                 css={[settingsPopover.isExpanded && tw`transition-opacity opacity-50`]}
+                onClick={() => setIsAddingArtwork(true)}
                 title="Add new artwork">
                 <span css={tw`block transform rotate-45`}>
                   <Close />
                 </span>
               </FloatingActionButton>
+              {isAddingArtwork && <AddArtworkRoot onClose={() => setIsAddingArtwork(false)} />}
             </Fragment>
           ) : (
             <FloatingActionButton title="Edit gallery" onClick={() => setIsEditing(true)}>

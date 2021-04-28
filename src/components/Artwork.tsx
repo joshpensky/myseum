@@ -5,11 +5,14 @@ import ArtworkDetails from '@src/components/ArtworkDetails';
 import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
 import { useGrid } from '@src/providers/GridProvider';
 import { useTheme } from '@src/providers/ThemeProvider';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
 
 export type ArtworkProps = {
   data: ArtworkData | MuseumCollectionItem;
   withShadow?: boolean;
 };
+
+const BEZEL = 0.05;
 
 const Artwork = ({ data, withShadow }: ArtworkProps) => {
   const themeCtx = useTheme();
@@ -20,7 +23,10 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
 
   const { id, title, frame, src, alt } = data;
   const { width: frameWidth, height: frameHeight } = frame.dimensions;
-  const { width: windowWidth, height: windowHeight } = frame.window.dimensions;
+  const { width: artworkWidth, height: artworkHeight } = data.dimensions;
+
+  const artworkX = (frameWidth - artworkWidth) / 2;
+  const artworkY = (frameHeight - artworkHeight) / 2;
 
   const isLoaded = isFrameLoaded && isArtworkLoaded;
 
@@ -30,6 +36,13 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
    * @param value the value to scale
    */
   const px = (value: number) => `${value * ((gridCtx?.itemSize ?? 0) / 25)}px`;
+
+  const backgroundStyle = {
+    mint: tw`text-mint-200`,
+    pink: tw`text-pink-200`,
+    navy: tw`text-navy-200`,
+    paper: tw`text-paper-200`,
+  }[themeCtx?.color ?? 'mint'];
 
   const shadowColor = {
     mint: theme`colors.mint.800`,
@@ -95,8 +108,11 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
         <title id={`artwork-${id}-title`}>{title}</title>
         <desc id={`artwork-${id}-desc`}>{alt}</desc>
 
-        {/* Define inner shadow */}
         <defs>
+          {/* Define window path */}
+          <path id={`artwork-${id}-window`} d={CanvasUtils.getLineCommands(frame.window)} />
+
+          {/* Define window inner shadow (https://stackoverflow.com/a/53503687) */}
           <filter id={`artwork-${id}-inner-shadow`}>
             {/* Shadow Offset */}
             <feOffset dx={0} dy={0} />
@@ -104,13 +120,21 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
             <feGaussianBlur stdDeviation={0.15 * frame.depth} result="offset-blur" />
             {/* Invert the drop shadow to create an inner shadow */}
             <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse" />
-            {/* Color & Opacity */}
+            {/* Color & opacity */}
             <feFlood floodColor={theme`colors.black`} floodOpacity={0.5} result="color" />
             {/* Clip color inside shadow */}
             <feComposite operator="in" in="color" in2="inverse" result="shadow" />
-            {/* Put shadow over original object */}
-            <feComposite operator="over" in="shadow" in2="SourceGraphic" />
+            {/* Shadow opacity */}
+            <feComponentTransfer in="shadow" result="shadow">
+              <feFuncA type="linear" slope="1" />
+            </feComponentTransfer>
           </filter>
+
+          {/* Define window mask for artwork */}
+          <mask id={`artwork-${id}-window-mask`}>
+            <rect fill="black" x={0} y={0} width={frameWidth} height={frameHeight} />
+            <use fill="white" href={`#artwork-${id}-window`} />
+          </mask>
         </defs>
 
         {/* Render frame */}
@@ -125,35 +149,103 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           onLoad={() => setIsFrameLoaded(true)}
         />
 
-        {/* Render frame window (for loading state) */}
-        <rect
-          css={[
-            tw`fill-current`,
-            {
-              mint: tw`text-mint-200`,
-              pink: tw`text-pink-200`,
-              navy: tw`text-navy-200`,
-              paper: tw`text-paper-200`,
-            }[themeCtx?.color ?? 'mint'],
-          ]}
-          x={frame.window.position.x}
-          y={frame.window.position.y}
-          width={windowWidth}
-          height={windowHeight}
+        {/* Render frame window when loading, and frame mat when loaded */}
+        <use
+          css={[tw`fill-current`, isArtworkLoaded ? tw`text-paper-200` : backgroundStyle]}
+          href={`#artwork-${id}-window`}
         />
 
-        {/* Render artwork image */}
+        {/* Render bezel for the frame mat */}
+        {isArtworkLoaded && (
+          <g id={`artwork-${id}-mat-bezel`} mask={`url(#artwork-${id}-window-mask)`}>
+            {/* Render base light of the bezel */}
+            <rect
+              css={tw`fill-current text-white`}
+              x={artworkX - BEZEL}
+              y={artworkY - BEZEL}
+              width={artworkWidth + BEZEL * 2}
+              height={artworkHeight + BEZEL * 2}
+            />
+            {/* Render shadow sides of bezel */}
+            <path
+              css={tw`fill-current text-black text-opacity-40`}
+              d={CanvasUtils.getLineCommands([
+                {
+                  x: artworkX + artworkWidth + BEZEL,
+                  y: artworkY - BEZEL,
+                },
+                {
+                  x: artworkX + artworkWidth,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX,
+                  y: artworkY + artworkHeight,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY + artworkHeight + BEZEL,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY - BEZEL,
+                },
+              ])}
+            />
+            {/* Render darker top shadow of bezel */}
+            <path
+              css={tw`fill-current text-black text-opacity-20`}
+              d={CanvasUtils.getLineCommands([
+                {
+                  x: artworkX + artworkWidth + BEZEL,
+                  y: artworkY - BEZEL,
+                },
+                {
+                  x: artworkX + artworkWidth,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX,
+                  y: artworkY,
+                },
+                {
+                  x: artworkX - BEZEL,
+                  y: artworkY - BEZEL,
+                },
+              ])}
+            />
+            {/* Render back of frame under mat */}
+            <rect
+              css={tw`fill-current text-paper-300`}
+              x={artworkX}
+              y={artworkY}
+              width={artworkWidth}
+              height={artworkHeight}
+            />
+          </g>
+        )}
+
+        {/* Render artwork image, centered in frame */}
         <image
           css={[!isLoaded && tw`opacity-0`]}
           href={src}
           preserveAspectRatio="xMinYMin slice"
-          x={frame.window.position.x}
-          y={frame.window.position.y}
-          width={windowWidth}
-          height={windowHeight}
-          filter={`url(#artwork-${id}-inner-shadow)`}
+          x={artworkX}
+          y={artworkY}
+          width={artworkWidth}
+          height={artworkHeight}
+          mask={`url(#artwork-${id}-window-mask)`}
           onLoad={() => setIsArtworkLoaded(true)}
         />
+
+        {/* Render frame inner shadow */}
+        {isArtworkLoaded && (
+          <use
+            css={[tw`fill-current`]}
+            href={`#artwork-${id}-window`}
+            filter={`url(#artwork-${id}-inner-shadow)`}
+          />
+        )}
       </svg>
     </ArtworkDetails>
   );

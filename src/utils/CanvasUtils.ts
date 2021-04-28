@@ -1,4 +1,4 @@
-import { Dimensions } from '@src/types';
+import { Dimensions, Position } from '@src/types';
 
 export class CanvasUtils {
   /**
@@ -14,7 +14,7 @@ export class CanvasUtils {
    *
    * @param context the canvas's 2D context
    */
-  static clear(context: CanvasRenderingContext2D) {
+  static clear(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
     // Reset any transforms
     context.setTransform(1, 0, 0, 1, 0, 0);
     // Clear the canvas
@@ -49,8 +49,13 @@ export class CanvasUtils {
    * @param objectDimensions the dimensions of the object
    * @param padding optional padding for the object
    */
-  static containObject(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
-    const canvasRatio = canvasDimensions.width / canvasDimensions.height;
+  static objectContain(canvasDimensions: Dimensions, objectDimensions: Dimensions, padding = 0) {
+    const paddedCanvasDimensions = {
+      width: canvasDimensions.width - padding * 2,
+      height: canvasDimensions.height - padding * 2,
+    };
+
+    const canvasRatio = paddedCanvasDimensions.width / paddedCanvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
     let height: number;
@@ -58,22 +63,35 @@ export class CanvasUtils {
 
     if (canvasRatio < objectRatio) {
       // Scale by canvas width
-      width = canvasDimensions.width;
-      height = objectDimensions.height * (canvasDimensions.width / objectDimensions.width);
+      width = paddedCanvasDimensions.width;
+      height = paddedCanvasDimensions.width / objectRatio;
     } else {
       // Scale by canvas height
-      height = canvasDimensions.height;
-      width = objectDimensions.width * (canvasDimensions.height / objectDimensions.height);
+      height = paddedCanvasDimensions.height;
+      width = paddedCanvasDimensions.height * objectRatio;
     }
 
-    const x = (canvasDimensions.width - width) / 2;
-    const y = (canvasDimensions.height - height) / 2;
+    return {
+      x: (canvasDimensions.width - width) / 2,
+      y: (canvasDimensions.height - height) / 2,
+      width,
+      height,
+    };
+  }
+
+  static objectScaleDown(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
+    if (
+      objectDimensions.width > canvasDimensions.width ||
+      objectDimensions.height > canvasDimensions.height
+    ) {
+      return this.objectContain(canvasDimensions, objectDimensions);
+    }
 
     return {
-      x: x + padding,
-      y: y + padding,
-      width: width - padding * 2,
-      height: height - padding * 2,
+      x: (canvasDimensions.width - objectDimensions.width) / 2,
+      y: (canvasDimensions.height - objectDimensions.height) / 2,
+      width: objectDimensions.width,
+      height: objectDimensions.height,
     };
   }
 
@@ -83,7 +101,7 @@ export class CanvasUtils {
    * @param canvasDimensions the dimensions of the canvas
    * @param objectDimensions the dimensions of the object
    */
-  static coverObject(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
+  static objectCover(canvasDimensions: Dimensions, objectDimensions: Dimensions) {
     const canvasRatio = canvasDimensions.width / canvasDimensions.height;
     const objectRatio = objectDimensions.width / objectDimensions.height;
 
@@ -109,5 +127,68 @@ export class CanvasUtils {
       width: width,
       height: height,
     };
+  }
+
+  /**
+   * Gets the average color of the chosen section of a given context's canvas.
+   *
+   * @param context the context of a canvas to search
+   * @param position the starting position of the search box
+   * @param dimensions the dimensions of the box to search
+   */
+  static getAverageColor(
+    context: CanvasRenderingContext2D,
+    position: Position,
+    dimensions: Dimensions,
+  ) {
+    const rgb = { r: 0, g: 0, b: 0 };
+
+    let colorData: ImageData;
+    try {
+      colorData = context.getImageData(position.x, position.y, dimensions.width, dimensions.height);
+    } catch {
+      return rgb;
+    }
+
+    const blockSize = 5; // only visit every 5 pixels
+    let count = 0;
+
+    const length = colorData.data.length;
+    let i = -4;
+    while ((i += blockSize * 4) < length) {
+      ++count;
+      rgb.r += colorData.data[i];
+      rgb.g += colorData.data[i + 1];
+      rgb.b += colorData.data[i + 2];
+    }
+
+    rgb.r = Math.floor(rgb.r / count);
+    rgb.g = Math.floor(rgb.g / count);
+    rgb.b = Math.floor(rgb.b / count);
+
+    return rgb;
+  }
+
+  /**
+   * Generates the line commands for an SVG `path.d` attribute, or a Path2D object.
+   *
+   * @example
+   * ```
+   * getLineCommands([{ x: 0, y: 0 }, { x: 2, y: 4 }, { x: 4, y: 5 }])
+   * // "M 0 0 L 2 4 L 4 5 Z"
+   * ```
+   *
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths#line_commands
+   *
+   * @param points the points to include in the line commands
+   * @param closePath whether to close the path, drawing a line back up to the first point
+   */
+  static getLineCommands(points: Position[], closePath = true): string {
+    const coordinates = points.map(point => [point.x, point.y].join(' '));
+    const lineCommands = ['M', coordinates.join(' L ')];
+    if (closePath) {
+      lineCommands.push('Z');
+    }
+    return lineCommands.join(' ');
   }
 }

@@ -18,6 +18,21 @@ module.exports = {
       },
       colors: {
         'off-white': '#f8f8f8',
+        gray: {
+          300: '#cacaca',
+        },
+        red: {
+          500: '#FF3737',
+        },
+        magenta: {
+          500: '#D400A6',
+        },
+        blue: {
+          500: '#0989FF',
+        },
+        yellow: {
+          500: '#FFAF37',
+        },
         mint: {
           200: '#f0f2ea',
           300: '#dde1d2',
@@ -45,14 +60,27 @@ module.exports = {
         'ew-resize': 'ew-resize',
         grab: 'grab',
         grabbing: 'grabbing',
+        none: 'none',
       },
       fontFamily: {
         sans: ['IBM Plex Sans', ...defaultTheme.fontFamily.sans],
         serif: ['Migra Web', ...defaultTheme.fontFamily.serif],
       },
+      maxHeight: {
+        '3xl': '48rem',
+      },
+      opacity: {
+        15: '0.15',
+      },
       ringWidth: {
         0.5: '0.5px',
         6: '6px',
+      },
+      rotate: {
+        360: '360deg',
+      },
+      transitionDuration: {
+        0: '0ms',
       },
       transitionProperty: {
         'modal-enter': 'transform, opacity',
@@ -60,8 +88,10 @@ module.exports = {
       },
       zIndex: {
         '-1': '-1',
+        1: '1',
         fab: '100',
         popover: '110',
+        modal: '200',
       },
     },
   },

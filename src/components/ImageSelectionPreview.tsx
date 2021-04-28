@@ -1,55 +1,53 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as fx from 'glfx-es6';
 import tw from 'twin.macro';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { Dimensions } from '@src/types';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
+import { renderPreview } from '@src/utils/renderPreview';
 
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
   actualDimensions: Dimensions;
   editor: SelectionEditor;
   image: HTMLImageElement;
+  onRender?(canvas: HTMLCanvasElement): void;
 };
 
-const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelectionPreviewProps) => {
+const ImageSelectionPreview = ({
+  actualDimensions,
+  editor,
+  image,
+  onRender,
+}: ImageSelectionPreviewProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [webglCanvas] = useState(() => fx.canvas());
   const [texture, setTexture] = useState<fx.Texture>();
 
-  const [canvasDimensions] = useState<Dimensions>({
-    width: 500,
-    height: 500,
+  const [canvasDimensions, setCanvasDimensions] = useState<Dimensions>({
+    width: 0,
+    height: 0,
   });
 
   // Render the final artwork onto the preview canvas
   const render = () => {
-    const ctx = canvasRef.current?.getContext('2d');
-    if (ctx && texture && editor.isValid) {
-      const { width, height, x, y } = CanvasUtils.containObject(canvasDimensions, actualDimensions);
+    if (canvasRef.current && texture) {
+      const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
+      // TODO: separate transform render onto separate canvas to speed up?
+      // Render the preview onto the destination canvas
+      renderPreview({
+        destCanvas: canvasRef.current,
+        webglCanvas,
+        texture,
+        image,
+        layers: editor.layers,
+        dimensions: { width, height },
+        position: { x, y },
+      });
 
-      // Draw the image on the WebGL canvas
-      webglCanvas.draw(texture);
-      // Perform the perspective transformation to straighten the image
-      const beforePoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
-      const beforeMatrix = beforePoints.flatMap(c => [
-        c.x * image.naturalWidth,
-        c.y * image.naturalHeight,
-      ]) as fx.Matrix;
-      const afterMatrix = [
-        ...[0, 0],
-        ...[width, 0],
-        ...[width, height],
-        ...[0, height],
-      ] as fx.Matrix;
-      webglCanvas.perspective(beforeMatrix, afterMatrix);
-      // Update the WebGL canvas with the latest draw
-      webglCanvas.update();
-
-      // Reset the canvas and draw the final image in the center
-      CanvasUtils.clear(ctx);
-      ctx.drawImage(webglCanvas, 0, 0, width, height, x, y, width, height);
+      onRender?.(canvasRef.current);
     }
   };
 
@@ -67,20 +65,42 @@ const ImageSelectionPreview = ({ actualDimensions, editor, image }: ImageSelecti
   // Render canvas
   useEffect(() => {
     render();
-  }, [actualDimensions, editor, texture, webglCanvas]);
+  }, [actualDimensions.height, actualDimensions.width, editor.layers, texture, webglCanvas]);
 
   // Resize and re-render canvas when dimensions change
   useEffect(() => {
     if (canvasRef.current) {
       CanvasUtils.resize(canvasRef.current, canvasDimensions);
-      console.log('resize');
       render();
     }
-  }, [canvasDimensions]);
+  }, [canvasDimensions.height, canvasDimensions.width]);
+
+  // Update the canvas dimensions on resize
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const observer = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+          setCanvasDimensions({
+            height: entry.contentRect.height,
+            width: entry.contentRect.width,
+          });
+        });
+      });
+      observer.observe(containerRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
 
   return (
-    <div css={[tw`relative transition-opacity`, !editor.isValid && tw`opacity-50`]}>
-      <canvas ref={canvasRef} role="img" aria-label="A preview of the selected image" />
+    <div ref={containerRef} css={tw`size-full relative transition-opacity`}>
+      <canvas
+        ref={canvasRef}
+        css={tw`absolute inset-0 size-full`}
+        role="img"
+        aria-label="A preview of the selected image"
+      />
     </div>
   );
 };

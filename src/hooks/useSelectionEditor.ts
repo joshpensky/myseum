@@ -1,63 +1,87 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { theme } from 'twin.macro';
 import { Position } from '@src/types';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
+
+export const LAYER_COLORS = [
+  theme`colors.blue.500`,
+  theme`colors.magenta.500`,
+  theme`colors.yellow.500`,
+];
 
 export type SelectionEditorPoints = [Position, Position, Position, Position];
+export const DEFAULT_POINTS: SelectionEditorPoints = [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 1, y: 1 },
+  { x: 0, y: 1 },
+];
+
+export type SelectionEditorLayer = {
+  name?: string;
+  points: SelectionEditorPoints;
+};
 
 export type SelectionEditor = {
   history: {
     lap(): void;
     redo(): void;
     undo(): void;
+    squash(): void;
+    restart(): void;
   };
-  isValid: boolean;
-  points: SelectionEditorPoints;
-  setPoints(
-    points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+  layers: SelectionEditorLayer[];
+  setLayers(
+    layers:
+      | SelectionEditorLayer[]
+      | ((currLayers: SelectionEditorLayer[]) => SelectionEditorLayer[]),
     lap?: boolean,
   ): void;
 };
 
-export const useSelectionEditor = (): SelectionEditor => {
+export const useSelectionEditor = (initialState?: SelectionEditorLayer[]): SelectionEditor => {
   // A log of editor history
-  const [history, setHistory] = useState<SelectionEditorPoints[]>([
-    [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 1, y: 1 },
-      { x: 0, y: 1 },
-    ],
-  ]);
+  const [history, setHistory] = useState<SelectionEditorLayer[][]>(() => {
+    if (initialState) {
+      return [initialState];
+    }
+    return [
+      [
+        {
+          points: DEFAULT_POINTS,
+        },
+      ],
+    ];
+  });
   // The current index we're viewing in history ("time travel" state)
   const [historyIndex, setHistoryIndex] = useState(0);
   // The points at our current slice of history
-  const points = history[historyIndex];
-  // Checks whether the current points form a valid convex quadrilateral selection
-  const isSelectionValid = useMemo(() => GeometryUtils.isConvexQuadrilateral(points), [points]);
+  const layers = history[historyIndex];
 
-  // Updates the points in history
-  const setPoints = (
-    points: SelectionEditorPoints | ((currPoints: SelectionEditorPoints) => SelectionEditorPoints),
+  // Updates the layers in history
+  const setLayers = (
+    layers:
+      | SelectionEditorLayer[]
+      | ((currLayers: SelectionEditorLayer[]) => SelectionEditorLayer[]),
     lap?: boolean,
   ) => {
-    // Get the updated points values
-    let newPoints: SelectionEditorPoints;
-    if (typeof points === 'function') {
-      newPoints = points(history[historyIndex]);
+    // Get the updated layers' values
+    let newLayers: SelectionEditorLayer[];
+    if (typeof layers === 'function') {
+      newLayers = layers(history[historyIndex]);
     } else {
-      newPoints = points;
+      newLayers = layers;
     }
 
     // If lapping, this change will be recorded as a new entry
     if (lap) {
-      const newHistory = [...history.slice(0, historyIndex + 1), newPoints];
+      const newHistory = [...history.slice(0, historyIndex + 1), newLayers];
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
       return;
     }
 
     // Otherwise, it will override the current entry
-    const newHistory = [...history.slice(0, historyIndex), newPoints];
+    const newHistory = [...history.slice(0, historyIndex), newLayers];
     setHistory(newHistory);
   };
 
@@ -67,6 +91,18 @@ export const useSelectionEditor = (): SelectionEditor => {
     const newHistory = [...history.slice(0, historyIndex + 1), history[historyIndex]];
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+  };
+
+  // Squashes history back to one entry
+  const squash = () => {
+    setHistory([history[historyIndex]]);
+    setHistoryIndex(0);
+  };
+
+  // Removes all entries except the first
+  const restart = () => {
+    setHistory([history[0]]);
+    setHistoryIndex(0);
   };
 
   // Goes back to the previous entry in history, if available
@@ -88,9 +124,10 @@ export const useSelectionEditor = (): SelectionEditor => {
       undo,
       redo,
       lap,
+      squash,
+      restart,
     },
-    isValid: isSelectionValid,
-    points,
-    setPoints,
+    layers,
+    setLayers,
   };
 };

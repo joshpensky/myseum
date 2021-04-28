@@ -12,6 +12,8 @@ export type Position = {
   y: number;
 };
 
+export type Measurement = 'inch' | 'cm' | 'mm';
+
 export type Dimensions = {
   width: number;
   height: number;
@@ -20,6 +22,7 @@ export type Dimensions = {
 export type Frame = {
   id: Id;
   src: string;
+  description: string;
   dimensions: Dimensions;
   depth: number;
   /**
@@ -36,12 +39,7 @@ export type Frame = {
    * +----------+
    * ```
    */
-  window: {
-    /** The window's position within the frame */
-    position: Position;
-    /** The dimensions of the window within the frame */
-    dimensions: Dimensions;
-  };
+  window: [Position, Position, Position, Position];
 };
 
 export type Artist = {

@@ -5,16 +5,30 @@ import {
   useRef,
   useState,
 } from 'react';
+import anime from 'animejs';
 import { createGlobalStyle } from 'styled-components';
-import tw, { theme } from 'twin.macro';
-import { SelectionEditor, SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
+import tw, { css, theme } from 'twin.macro';
+import {
+  LAYER_COLORS,
+  SelectionEditor,
+  SelectionEditorPoints,
+} from '@src/hooks/useSelectionEditor';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
+import { MathUtils } from '@src/utils/MathUtils';
+import { CommonUtils } from '@src/utils/CommonUtils';
 
-const POINT_RADIUS = 5;
 const STROKE_WIDTH = 3;
-const INNER_CANVAS_PADDING = POINT_RADIUS + STROKE_WIDTH * 1.5;
+const POINT_RADIUS = 5;
+const MAGNIFIED_POINT_RADIUS = 30;
+const INNER_CANVAS_PADDING = MAGNIFIED_POINT_RADIUS + STROKE_WIDTH / 2;
+
+const GlobalDisableCursor = createGlobalStyle`
+  * {
+    ${tw`cursor-none!`}
+  }
+`;
 
 const GlobalGrabbingCursor = createGlobalStyle`
   * {
@@ -23,15 +37,17 @@ const GlobalGrabbingCursor = createGlobalStyle`
 `;
 
 export type ImageSelectionEditorProps = BaseProps & {
+  activeLayer?: number;
   actualDimensions: Dimensions;
   editor: SelectionEditor;
   image: HTMLImageElement;
 };
 
 const ImageSelectionEditor = ({
+  activeLayer = 0,
   actualDimensions,
   className,
-  css,
+  css: customCss,
   editor,
   image,
 }: ImageSelectionEditorProps) => {
@@ -41,8 +57,114 @@ const ImageSelectionEditor = ({
   const [canvasDimensions, setCanvasDimensions] = useState<Dimensions>();
 
   const [hoveringIndex, setHoveringIndex] = useState(-1);
-  const [movingIndex, setMovingIndex] = useState(-1);
   const [focusIndex, setFocusIndex] = useState(-1);
+
+  const [movingIndex, setMovingIndex] = useState(-1);
+  const [isDragging, setIsDragging] = useState(false); // Tracks whether moving by mouse drag or keyboard
+  const [isDraggingOutside, setIsDraggingOutside] = useState(false); // Tracks whether mouse is dragging outside valid bounds
+  const keyboardMovingTimeoutRef = useRef<NodeJS.Timeout>(); // Timeout for unsetting keyboard moving state
+
+  const [magnifyAnimationProgress, setMagnifyAnimationProgress] = useState([0, 0, 0, 0]);
+
+  const updateLayerPoint = (
+    activeLayer: number,
+    activePointIndex: number,
+    updateCallback: (point: Position) => Position,
+    options: { isDragging?: boolean; lap?: boolean },
+  ) => {
+    editor.setLayers(layers => {
+      const activePoints = layers[activeLayer].points;
+      const unboundedPoint = updateCallback(activePoints[activePointIndex]);
+      const newActivePoints = [
+        ...activePoints.slice(0, activePointIndex),
+        {
+          x: Math.min(1, Math.max(0, unboundedPoint.x)),
+          y: Math.min(1, Math.max(0, unboundedPoint.y)),
+        },
+        ...activePoints.slice(activePointIndex + 1),
+      ] as SelectionEditorPoints;
+
+      let isDraggingOutside = false;
+
+      const isPathValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
+
+      // Show cursor if user is dragging in invalid area
+      if (options.isDragging) {
+        isDraggingOutside = !isPathValid;
+      }
+
+      if (!isPathValid) {
+        // Offset the invalidating point to reform a convex quadrilateral
+        newActivePoints[activePointIndex] = GeometryUtils.fixConvexQuadrilateral(
+          newActivePoints,
+          activePointIndex,
+          0.0025, // Offset by 0.0025
+        );
+      }
+
+      // HANDLE FRAME LAYER (index 0)
+      if (activeLayer === 0) {
+        // Show cursor if user is dragging in outside image area
+        if (options.isDragging && !isDraggingOutside) {
+          isDraggingOutside =
+            unboundedPoint.x < 0 ||
+            unboundedPoint.x > 1 ||
+            unboundedPoint.y < 0 ||
+            unboundedPoint.y > 1;
+        }
+
+        setIsDraggingOutside(isDraggingOutside);
+
+        return [
+          {
+            ...layers[0],
+            points: newActivePoints,
+          },
+          // Fit all window layers inside the frame
+          ...layers.slice(1).map(layer => {
+            const fittedPoints = GeometryUtils.fitConvexQuadrilateralInAnother(
+              layer.points,
+              newActivePoints,
+            );
+            return {
+              ...layer,
+              points: fittedPoints,
+            };
+          }),
+        ];
+      }
+
+      // HANDLE WINDOW LAYER(S) (index 1+)
+      // Limit the size of other layers to fit within the frame
+      const activePoint = newActivePoints[activePointIndex];
+      const framePath = editor.layers[0].points;
+      const isPointInsideFrame = GeometryUtils.isPointInPolygon(activePoint, framePath);
+
+      // Show the cursor if the user is dragging outside frame
+      if (options.isDragging && !isDraggingOutside) {
+        isDraggingOutside = !isPointInsideFrame;
+      }
+
+      // If dragging and point is outside, find closest point to map to
+      if (!isPointInsideFrame) {
+        newActivePoints[activePointIndex] = GeometryUtils.findNearestPointOnPolygon(
+          activePoint,
+          framePath,
+        );
+      }
+
+      setIsDraggingOutside(isDraggingOutside);
+
+      return [
+        ...layers.slice(0, activeLayer),
+        {
+          ...layers[activeLayer],
+          points: newActivePoints,
+        },
+        ...layers.slice(activeLayer + 1),
+      ];
+    });
+  };
 
   // Tracks mouse movements on the canvas
   // If the user is currently hovering a target, the hovering state will accordingly update
@@ -62,39 +184,39 @@ const ImageSelectionEditor = ({
       return;
     }
 
-    const { width, height, x, y } = CanvasUtils.containObject(
+    const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
-      {
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      },
+      CommonUtils.getImageDimensions(image),
       INNER_CANVAS_PADDING,
     );
 
     // If there's a moving index, update corner position
-    if (movingIndex >= 0) {
+    if (isDragging && movingIndex >= 0) {
       evt.preventDefault();
-      editor.setPoints(points => {
-        // We calculate canvas position as..... cx = corner.x * width + x;
-        // So we inverse for corner position... corner.x = (cx - x) / width
-        const fx = (mouseX - x) / width;
-        const fy = (mouseY - y) / height;
-        return [
-          ...points.slice(0, movingIndex),
-          {
-            x: Math.min(1, Math.max(0, fx)),
-            y: Math.min(1, Math.max(0, fy)),
-          },
-          ...points.slice(movingIndex + 1),
-        ] as SelectionEditorPoints;
-      });
+      updateLayerPoint(
+        activeLayer,
+        movingIndex,
+        () => {
+          // We calculate canvas position as..... cx = corner.x * width + x;
+          // So we inverse for corner position... corner.x = (cx - x) / width
+          const fx = (mouseX - x) / width;
+          const fy = (mouseY - y) / height;
+          return {
+            x: fx,
+            y: fy,
+          };
+        },
+        {
+          isDragging: true,
+        },
+      );
       return;
     }
 
     // Otherwise, update hovering state
     const strokeOffset = STROKE_WIDTH / 2;
-    const hoveringIndex = editor.points.findIndex(point =>
-      GeometryUtils.isPointWithinCircle(
+    const hoveringIndex = editor.layers[activeLayer].points.findIndex(point =>
+      GeometryUtils.isPointInCircle(
         {
           x: mouseX,
           y: mouseY,
@@ -113,16 +235,25 @@ const ImageSelectionEditor = ({
   const onMouseDown = (evt: MouseEvent) => {
     if (hoveringIndex >= 0) {
       evt.preventDefault();
+      // Create new slice in history
       editor.history.lap();
+      // Update the moving index
       setMovingIndex(hoveringIndex);
-      canvasRef.current?.querySelectorAll('button')[hoveringIndex].focus();
+      setIsDragging(true);
+      // Focus the button
+      const buttonElement = canvasRef.current?.querySelector(`#editor-point-${hoveringIndex}`);
+      if (buttonElement && buttonElement instanceof HTMLElement) {
+        buttonElement.focus();
+      }
     }
   };
 
   // Resets moving state, if possible
   const onMouseUp = () => {
-    if (movingIndex >= 0) {
+    if (isDragging && movingIndex >= 0) {
       setMovingIndex(-1);
+      setIsDragging(false);
+      setIsDraggingOutside(false);
     }
   };
 
@@ -143,6 +274,13 @@ const ImageSelectionEditor = ({
     }
   };
 
+  const clearKeyboardMovingTimeoutRef = () => {
+    if (keyboardMovingTimeoutRef.current) {
+      clearTimeout(keyboardMovingTimeoutRef.current);
+      keyboardMovingTimeoutRef.current = undefined;
+    }
+  };
+
   /**
    * Key handler for the accessible button targets. Handles moving the points using
    * arrow keys.
@@ -152,23 +290,22 @@ const ImageSelectionEditor = ({
    */
   const onPointKeyDown = (evt: ReactKeyboardEvent<HTMLButtonElement>, pointIndex: number) => {
     // If user is actively dragging handle, don't update state
-    if (movingIndex >= 0) {
+    if (isDragging) {
       return;
     }
 
     // Helper function to update the point at the focused index using the given callback function
     const updatePoint = (updateCallback: (point: Position) => Position) => {
-      editor.setPoints(points => {
-        const newPoint = updateCallback(points[pointIndex]);
-        return [
-          ...points.slice(0, pointIndex),
-          {
-            x: Math.min(1, Math.max(0, newPoint.x)),
-            y: Math.min(1, Math.max(0, newPoint.y)),
-          },
-          ...points.slice(pointIndex + 1),
-        ] as SelectionEditorPoints;
-      }, !evt.repeat); // Create a new entry in history, if key is being held down repeatedly
+      // Show the magnifying animation, and stop after 500ms
+      clearKeyboardMovingTimeoutRef();
+      setMovingIndex(pointIndex);
+      keyboardMovingTimeoutRef.current = setTimeout(() => {
+        setMovingIndex(-1);
+      }, 500);
+
+      updateLayerPoint(activeLayer, pointIndex, updateCallback, {
+        lap: true, // Create a new entry in history, if key is being held down repeatedly
+      });
     };
 
     // Position should change 10x faster when shift key is held
@@ -222,108 +359,234 @@ const ImageSelectionEditor = ({
     CanvasUtils.clear(ctx);
 
     // Get inner canvas dimensions/position
-    const { width, height, x, y } = CanvasUtils.containObject(
+    const { width, height, x, y } = CanvasUtils.objectContain(
       canvasDimensions,
-      {
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      },
+      CommonUtils.getImageDimensions(image),
       INNER_CANVAS_PADDING,
     );
 
-    // Draw semi-transparent black overlay
-    ctx.fillStyle = theme`colors.black`;
-    ctx.globalAlpha = 0.8;
-    ctx.fillRect(0, 0, canvasDimensions.width, canvasDimensions.height);
-    ctx.globalAlpha = 1;
+    const getPointsPath = (points: SelectionEditorPoints) => {
+      const pointsPath = new Path2D();
+      points.forEach((point, idx) => {
+        if (idx === 0) {
+          pointsPath.moveTo(point.x * width + x, point.y * height + y);
+        } else {
+          pointsPath.lineTo(point.x * width + x, point.y * height + y);
+        }
+      });
+      pointsPath.closePath();
+      return pointsPath;
+    };
 
-    // Draw overlay window and clip from overlay
-    ctx.globalCompositeOperation = 'destination-out';
-    const path = new Path2D();
-    editor.points.forEach((point, idx) => {
-      if (idx === 0) {
-        path.moveTo(point.x * width + x, point.y * height + y);
-      } else {
-        path.lineTo(point.x * width + x, point.y * height + y);
-      }
-    });
-    path.closePath();
-    ctx.fill(path);
+    const setPointsStyle = (layerIndex: number) => {
+      ctx.fillStyle = theme`colors.white`;
+      ctx.lineJoin = 'bevel';
+      ctx.lineWidth = STROKE_WIDTH;
+      ctx.strokeStyle = LAYER_COLORS[layerIndex % LAYER_COLORS.length];
+      ctx.globalAlpha = 1;
+    };
 
-    // Draw the image under the overlay
-    ctx.globalCompositeOperation = 'destination-over';
-    ctx.drawImage(image, x, y, width, height);
+    const renderOverlays = () => {
+      // Draw semi-transparent black overlay
+      ctx.fillStyle = theme`colors.black`;
+      ctx.globalAlpha = 0.9;
+      ctx.fillRect(0, 0, canvasDimensions.width, canvasDimensions.height);
+      ctx.globalAlpha = 1;
 
-    // Revert back to regular composition type (drawing atop)
-    ctx.globalCompositeOperation = 'source-over';
+      // Draw overlay window and clip from overlay
+      ctx.globalCompositeOperation = 'destination-out';
+      const basePath = getPointsPath(editor.layers[0].points);
+      ctx.fill(basePath);
 
-    // Outline frame path
-    ctx.fillStyle = theme`colors.white`;
-    ctx.lineWidth = STROKE_WIDTH;
-    ctx.lineJoin = 'bevel';
-    ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
-    ctx.stroke(path);
+      // Revert back to regular composition type (drawing atop)
+      ctx.globalCompositeOperation = 'source-over';
 
-    // _DEV_
-    // Draws the average rectangle formed by the selection points
-    // This will later be used to download/upload the straightened image at the highest quality
-    // if (editor.isValid) {
-    //   const sortedPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.points);
-    //   const avgRect = GeometryUtils.getAverageRectangle(sortedPoints);
-    //   const avgScaledRect = {
-    //     x: avgRect.x * width + x,
-    //     y: avgRect.y * height + y,
-    //     width: avgRect.width * width,
-    //     height: avgRect.height * height,
-    //   };
+      // Render the window layers over top
+      ctx.globalAlpha = 0.9;
+      editor.layers.slice(1).map(layer => {
+        const layerPath = getPointsPath(layer.points);
+        ctx.fill(layerPath);
+      });
+      ctx.globalAlpha = 1;
+    };
 
-    //   ctx.globalAlpha = 0.5;
-    //   ctx.strokeStyle = theme`colors.green.400`;
-    //   ctx.strokeRect(avgScaledRect.x, avgScaledRect.y, avgScaledRect.width, avgScaledRect.height);
+    // Outline points path
+    const renderPointsPath = (layerIndex: number, pointsPath: Path2D) => {
+      setPointsStyle(layerIndex);
+      ctx.stroke(pointsPath);
+    };
 
-    //   // Draws the biggest rectangle within the average that shares the same dimensions as the actual artwork
-    //   // This is the size to download/upload the straightened image at the highest quality possible
-    //   const resizedRect = CanvasUtils.containObject(avgScaledRect, actualDimensions);
-    //   ctx.strokeStyle = theme`colors.yellow.400`;
-    //   ctx.strokeRect(
-    //     resizedRect.x + avgScaledRect.x,
-    //     resizedRect.y + avgScaledRect.y,
-    //     resizedRect.width,
-    //     resizedRect.height,
-    //   );
+    // Draw a single point
+    const renderPoint = (layerIndex: number, point: Position, index: number) => {
+      // Reset styles
+      setPointsStyle(layerIndex);
 
-    //   // Reset styles
-    //   ctx.globalAlpha = 1;
-    //   ctx.strokeStyle = editor.isValid ? '#0989FF' : theme`colors.red.500`;
-    // }
-
-    // Draw point targets
-    editor.points.forEach((point, index) => {
+      // Draw target
+      const px = point.x * width + x;
+      const py = point.y * height + y;
       ctx.beginPath();
-      ctx.arc(point.x * width + x, point.y * height + y, POINT_RADIUS, 0, Math.PI * 2);
+      ctx.arc(px, py, POINT_RADIUS, 0, Math.PI * 2);
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
-      ctx.closePath();
-      // Draw focus ring, if any are focused
-      if (focusIndex === index) {
+
+      const showMagnifiedVersion = magnifyAnimationProgress[index] > 0;
+      const magnifiedRadius = MathUtils.scaleLinear(magnifyAnimationProgress[index], [
+        POINT_RADIUS,
+        MAGNIFIED_POINT_RADIUS,
+      ]);
+
+      // If moving, render magnifying glass with crosshairs
+      if (showMagnifiedVersion) {
+        // Clip out a circle for the magnified area
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = theme`colors.black`;
         ctx.beginPath();
-        ctx.arc(
-          point.x * width + x,
-          point.y * height + y,
-          POINT_RADIUS + STROKE_WIDTH * 0.8,
+        ctx.arc(px, py, magnifiedRadius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw the magnified image area inside a clipped circle
+        const magnifyCtx = document
+          .createElement('canvas')
+          .getContext('2d') as CanvasRenderingContext2D; // safe assignment since new canvas and 2d is valid identifier (https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
+        CanvasUtils.resize(magnifyCtx.canvas, {
+          width: magnifiedRadius * 2,
+          height: magnifiedRadius * 2,
+        });
+        magnifyCtx.beginPath();
+        magnifyCtx.arc(magnifiedRadius, magnifiedRadius, magnifiedRadius, 0, Math.PI * 2);
+        magnifyCtx.clip();
+        magnifyCtx.closePath();
+        const imgDimensions = CommonUtils.getImageDimensions(image);
+        const imagePixelRadius = Math.max(imgDimensions.width, imgDimensions.height) / 100; // 100x zoom
+        magnifyCtx.drawImage(
+          image,
+          point.x * imgDimensions.width - imagePixelRadius,
+          point.y * imgDimensions.height - imagePixelRadius,
+          imagePixelRadius * 2,
+          imagePixelRadius * 2,
           0,
-          Math.PI * 2,
+          0,
+          magnifiedRadius * 2,
+          magnifiedRadius * 2,
         );
+        // Draw the magnified image canvas onto the base canvas
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.drawImage(magnifyCtx.canvas, px - magnifiedRadius, py - magnifiedRadius);
+
+        // Draw white overlay
+        ctx.globalCompositeOperation = 'source-over';
+        const alphaMultiplier = magnifyAnimationProgress[index];
+        ctx.globalAlpha = 1 - alphaMultiplier;
+        ctx.fillStyle = theme`colors.white`;
+        ctx.beginPath();
+        ctx.arc(px, py, magnifiedRadius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw crosshairs over magnified image
+        const crosshair = new Path2D();
+        crosshair.moveTo(px - magnifiedRadius, py);
+        crosshair.lineTo(px + magnifiedRadius, py);
+        crosshair.moveTo(px, py - magnifiedRadius);
+        crosshair.lineTo(px, py + magnifiedRadius);
+        crosshair.closePath();
+        // Stroke a transparent white version (for dark backgrounds)
+        ctx.globalAlpha = 0.5 * alphaMultiplier;
+        ctx.strokeStyle = theme`colors.white`;
+        ctx.lineWidth = 3;
+        ctx.stroke(crosshair);
+        // Stroke the actual crosshairs
+        ctx.globalAlpha = alphaMultiplier;
+        ctx.strokeStyle = theme`colors.black`;
+        ctx.lineWidth = 1;
+        ctx.stroke(crosshair);
+
+        // Reset styles
+        setPointsStyle(layerIndex);
+      }
+
+      // Draw focus ring, if point is focused
+      if (focusIndex === index || showMagnifiedVersion) {
+        let focusRingRadius: number;
+        if (showMagnifiedVersion) {
+          ctx.globalAlpha = 1;
+          focusRingRadius = magnifiedRadius;
+        } else {
+          ctx.globalAlpha = 0.5;
+          ctx.lineWidth = 5;
+          focusRingRadius = POINT_RADIUS + STROKE_WIDTH;
+        }
+
+        ctx.beginPath();
+        ctx.arc(px, py, focusRingRadius, 0, Math.PI * 2);
         ctx.stroke();
         ctx.closePath();
       }
+    };
+
+    // Renders the layer overlays
+    renderOverlays();
+
+    // Renders the other layer paths
+    editor.layers.forEach((layer, index) => {
+      if (activeLayer !== index) {
+        renderPointsPath(index, getPointsPath(layer.points));
+      }
+    });
+
+    // Render the active layer path on top
+    const activePoints = editor.layers[activeLayer].points;
+    renderPointsPath(activeLayer, getPointsPath(activePoints));
+
+    // Sort editor points by their magnification (magnified = higher z-index)
+    const sortedPointsByZIndex = [0, 1, 2, 3].sort(
+      (aIndex, bIndex) => magnifyAnimationProgress[aIndex] - magnifyAnimationProgress[bIndex],
+    );
+    // Then, render each active point
+    sortedPointsByZIndex.forEach(pointIndex => {
+      renderPoint(activeLayer, activePoints[pointIndex], pointIndex);
     });
   };
+
+  // Animates the magnifying glass zoom for moving points
+  useEffect(() => {
+    if (movingIndex >= 0) {
+      // Animate the magnifying glass zooming in
+      const zoomInAnim = anime({
+        size: [POINT_RADIUS, MAGNIFIED_POINT_RADIUS],
+        duration: 100,
+        easing: 'easeOutSine',
+        update(anim) {
+          setMagnifyAnimationProgress(prog => [
+            ...prog.slice(0, movingIndex),
+            anim.progress / 100,
+            ...prog.slice(movingIndex + 1),
+          ]);
+        },
+      });
+
+      return () => {
+        // Reverse to animate the magnifying glass zooming out
+        zoomInAnim.pause();
+        zoomInAnim.reverse();
+        zoomInAnim.play();
+      };
+    }
+  }, [movingIndex]);
 
   // Re-render the canvas when points (and their validity) change
   useEffect(() => {
     render();
-  }, [actualDimensions, editor.isValid, focusIndex, editor.points]);
+  }, [
+    actualDimensions,
+    movingIndex,
+    magnifyAnimationProgress,
+    focusIndex,
+    editor.layers,
+    activeLayer,
+  ]);
 
   // Resize the canvas when dimensions change
   useEffect(() => {
@@ -345,7 +608,7 @@ const ImageSelectionEditor = ({
         document.removeEventListener('mouseup', onMouseUp);
       };
     }
-  }, [canvasDimensions, editor, hoveringIndex, movingIndex]);
+  }, [canvasDimensions, editor, hoveringIndex, isDragging, movingIndex, activeLayer]);
 
   // Attach the undo/redo key listener
   useEffect(() => {
@@ -381,28 +644,78 @@ const ImageSelectionEditor = ({
       setHoveringIndex(-1);
       setMovingIndex(-1);
     },
-    [],
+    [activeLayer],
   );
 
+  /**
+   * Reorders the button points to be left->right, top->bottom.
+   *
+   * ```
+   * Points state           Points tab order
+   *  (1)------(2)          (1)------(2)
+   *   |        |     ->     |        |
+   *   |        |            |        |
+   *  (4)------(3)          (3)------(4)
+   * ```
+   */
+  const pointsTabOrder = [
+    {
+      index: 0,
+      name: 'A',
+    },
+    {
+      index: 1,
+      name: 'B',
+    },
+    {
+      index: 3,
+      name: 'C',
+    },
+    {
+      index: 2,
+      name: 'D',
+    },
+  ];
+
   return (
-    <div ref={containerRef} className={className} css={[tw`size-full relative`, css]}>
+    <div ref={containerRef} className={className} css={[tw`size-full relative`, customCss]}>
       {canvasDimensions && (
-        <canvas
-          ref={canvasRef}
-          css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}>
-          {/* Adds tabbable button controls for each of the point targets */}
-          {editor.points.map((point, index) => (
-            <button
-              key={index}
-              onKeyDown={evt => onPointKeyDown(evt, index)}
-              onFocus={() => setFocusIndex(index)}
-              onBlur={() => setFocusIndex(-1)}>
-              Point {['A', 'B', 'C', 'D'][index]}
-            </button>
-          ))}
-        </canvas>
+        <div>
+          <div
+            css={[tw`absolute inset-0 size-full`, css({ padding: INNER_CANVAS_PADDING })]}
+            aria-hidden="true">
+            <img css={tw`size-full object-contain`} src={image.src} alt="" />
+          </div>
+          <canvas
+            ref={canvasRef}
+            aria-label="Editor"
+            css={[tw`absolute inset-0 size-full`, hoveringIndex >= 0 && tw`cursor-grab`]}>
+            {/* Adds tabbable button controls for each of the point targets */}
+            {pointsTabOrder.map(({ index, name }) => (
+              <button
+                key={index}
+                id={`editor-point-${index}`}
+                type="button"
+                onKeyDown={evt => onPointKeyDown(evt, index)}
+                onFocus={() => setFocusIndex(index)}
+                onBlur={() => {
+                  // Unfocus the point
+                  setFocusIndex(-1);
+                  // Stop moving the point if unfocused
+                  if (movingIndex === index) {
+                    clearKeyboardMovingTimeoutRef();
+                    setMovingIndex(-1);
+                  }
+                }}>
+                Point {name}
+              </button>
+            ))}
+          </canvas>
+        </div>
       )}
-      {movingIndex >= 0 && <GlobalGrabbingCursor />}
+      {movingIndex >= 0 &&
+        isDragging &&
+        (isDraggingOutside ? <GlobalGrabbingCursor /> : <GlobalDisableCursor />)}
     </div>
   );
 };
