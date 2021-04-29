@@ -6,37 +6,50 @@ import tw from 'twin.macro';
 import Button from '@src/components/Button';
 import Close from '@src/svgs/Close';
 import Artwork from '@src/components/Artwork';
+import { lazy, Suspense, useState } from 'react';
+
+const AddArtworkRoot = lazy(() => import('@src/features/add-artwork/AddArtworkRoot'));
 
 export interface MuseumCollectionViewProps {
   collection: MuseumCollectionItem[];
   museum: Museum;
 }
 
-const MuseumCollectionView = ({ collection }: MuseumCollectionViewProps) => (
-  <div css={tw`pt-2 px-4`}>
-    <header css={tw`mb-6`}>
-      <h2 css={tw`leading-none font-serif text-3xl`}>Collection</h2>
-      <p>
-        {collection.length} item{collection.length === 1 ? '' : 's'}
-      </p>
+const MuseumCollectionView = ({ collection }: MuseumCollectionViewProps) => {
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
-      <Button css={tw`mt-4`}>
-        <span css={tw`block size-3 mr-3 transform rotate-45`}>
-          <Close />
-        </span>
-        <span>Add item</span>
-      </Button>
-    </header>
+  return (
+    <div css={tw`pt-2 px-4`}>
+      <header css={tw`mb-6`}>
+        <h2 css={tw`leading-none font-serif text-3xl`}>Collection</h2>
+        <p>
+          {collection.length} item{collection.length === 1 ? '' : 's'}
+        </p>
 
-    <ul css={tw`-mb-5 flex flex-wrap`}>
-      {collection.map(artwork => (
-        <li key={artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
-          <Artwork data={artwork} />
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+        <Button css={tw`mt-4`} onClick={() => setIsAddingItem(true)}>
+          <span css={tw`block size-3 mr-3 transform rotate-45`}>
+            <Close />
+          </span>
+          <span>Add item</span>
+        </Button>
+      </header>
+
+      {isAddingItem && (
+        <Suspense fallback={null}>
+          <AddArtworkRoot onClose={() => setIsAddingItem(false)} />
+        </Suspense>
+      )}
+
+      <ul css={tw`-mb-5 flex flex-wrap`}>
+        {collection.map(artwork => (
+          <li key={artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
+            <Artwork data={artwork} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 MuseumCollectionView.getLayout = getMuseumHomeLayout;
 

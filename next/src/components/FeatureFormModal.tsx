@@ -207,13 +207,11 @@ const FeatureFormModal = ({
 
                 {/* Render Save button in top right corner, last in tab order */}
                 {!hideSubmit && (
-                  <Button
-                    css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
-                    disabled={disabledSubmit}
-                    filled
-                    type="submit">
-                    Save
-                  </Button>
+                  <div css={tw`fixed right-4 top-8 transform -translate-y-1/2`}>
+                    <Button disabled={disabledSubmit} filled type="submit">
+                      Save
+                    </Button>
+                  </div>
                 )}
               </form>
 
