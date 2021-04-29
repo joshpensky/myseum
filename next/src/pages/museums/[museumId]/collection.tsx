@@ -1,23 +1,40 @@
 import { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import { getMuseumHomeLayout } from '@src/layouts/MuseumLayout';
+import { Museum, MuseumCollectionItem } from '@src/types';
+import { getMuseum, getMuseumCollection } from '@src/data';
+import tw from 'twin.macro';
+import Button from '@src/components/Button';
+import Close from '@src/svgs/Close';
+import Artwork from '@src/components/Artwork';
 
-interface MuseumDto {
-  id: number;
-  name: string;
+export interface MuseumCollectionViewProps {
+  collection: MuseumCollectionItem[];
+  museum: Museum;
 }
 
-export interface MuseumProps {
-  museum: MuseumDto;
-}
+const MuseumCollectionView = ({ collection }: MuseumCollectionViewProps) => (
+  <div css={tw`pt-2 px-4`}>
+    <header css={tw`mb-6`}>
+      <h2 css={tw`leading-none font-serif text-3xl`}>Collection</h2>
+      <p>
+        {collection.length} item{collection.length === 1 ? '' : 's'}
+      </p>
 
-const MuseumCollectionView = ({ museum }: MuseumProps) => (
-  <div>
-    <Head>
-      <title>{museum.name}</title>
-    </Head>
+      <Button css={tw`mt-4`}>
+        <span css={tw`block size-3 mr-3 transform rotate-45`}>
+          <Close />
+        </span>
+        <span>Add item</span>
+      </Button>
+    </header>
 
-    <h1>Collection</h1>
+    <ul css={tw`-mb-5 flex flex-wrap`}>
+      {collection.map(artwork => (
+        <li key={artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
+          <Artwork data={artwork} />
+        </li>
+      ))}
+    </ul>
   </div>
 );
 
@@ -26,26 +43,35 @@ MuseumCollectionView.getLayout = getMuseumHomeLayout;
 export default MuseumCollectionView;
 
 export const getServerSideProps: GetServerSideProps<
-  MuseumProps,
+  MuseumCollectionViewProps,
   { museumId: string }
 > = async ctx => {
-  const data: Record<string, MuseumDto> = {
-    1: {
-      id: 1,
-      name: 'Good Museum',
-    },
-  };
-
-  const museumId = ctx.params?.museumId;
-  if (!museumId || !(museumId in data)) {
+  const museumIdStr = ctx.params?.museumId;
+  if (!museumIdStr) {
     return {
       notFound: true,
     };
   }
 
-  return {
-    props: {
-      museum: data[museumId],
-    },
-  };
+  const museumId = Number.parseInt(museumIdStr);
+  if (!Number.isFinite(museumId)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  try {
+    const museum = getMuseum(museumId);
+    const collection = getMuseumCollection(museum);
+    return {
+      props: {
+        museum: JSON.parse(JSON.stringify(museum)),
+        collection: JSON.parse(JSON.stringify(collection)),
+      },
+    };
+  } catch {
+    return {
+      notFound: true,
+    };
+  }
 };

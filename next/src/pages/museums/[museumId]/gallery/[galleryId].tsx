@@ -1,23 +1,15 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { getMuseumGalleryLayout } from '@src/layouts/MuseumLayout';
+import { getGallery, getMuseum } from '@src/data';
+import { Gallery, Museum } from '@src/types';
 
-interface GalleryDto {
-  id: number;
-  name: string;
-}
-interface MuseumDto {
-  id: number;
-  name: string;
-  galleries: Record<string, GalleryDto>;
+export interface GalleryViewProps {
+  gallery: Gallery;
+  museum: Museum;
 }
 
-export interface GalleryProps {
-  gallery: GalleryDto;
-  museum: MuseumDto;
-}
-
-const Gallery = ({ gallery, museum }: GalleryProps) => (
+const GalleryView = ({ gallery, museum }: GalleryViewProps) => (
   <div>
     <Head>
       <title>
@@ -29,47 +21,45 @@ const Gallery = ({ gallery, museum }: GalleryProps) => (
   </div>
 );
 
-Gallery.getLayout = getMuseumGalleryLayout;
+GalleryView.getLayout = getMuseumGalleryLayout;
 
-export default Gallery;
+export default GalleryView;
 
 export const getServerSideProps: GetServerSideProps<
-  GalleryProps,
+  GalleryViewProps,
   { museumId: string; galleryId: string }
 > = async ctx => {
-  const data: Record<string, MuseumDto> = {
-    1: {
-      id: 1,
-      name: 'Good Museum',
-      galleries: {
-        1: {
-          id: 1,
-          name: 'Good Gallery',
-        },
+  const museumIdStr = ctx.params?.museumId;
+  const galleryIdStr = ctx.params?.galleryId;
+  if (!museumIdStr || !galleryIdStr) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const museumId = Number.parseInt(museumIdStr);
+  const galleryId = Number.parseInt(galleryIdStr);
+  if (!Number.isFinite(museumId) || !Number.isFinite(galleryId)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  try {
+    const museum = getMuseum(museumId);
+    if (!museum.galleries.find(gallery => gallery.item.id === galleryId)) {
+      throw new Error('Gallery not found');
+    }
+    const gallery = getGallery(galleryId);
+    return {
+      props: {
+        gallery: JSON.parse(JSON.stringify(gallery)),
+        museum: JSON.parse(JSON.stringify(museum)),
       },
-    },
-  };
-
-  const museumId = ctx.params?.museumId;
-  if (!museumId || !(museumId in data)) {
+    };
+  } catch {
     return {
       notFound: true,
     };
   }
-
-  const museum = data[museumId];
-
-  const galleryId = ctx.params?.galleryId;
-  if (!galleryId || !(galleryId in museum.galleries)) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      museum,
-      gallery: museum.galleries[galleryId],
-    },
-  };
 };

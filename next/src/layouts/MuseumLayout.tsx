@@ -1,20 +1,21 @@
 import Link from 'next/link';
 import tw from 'twin.macro';
 import Layout, { GetLayoutFunction, LayoutContext } from '@src/components/Layout';
-import type { MuseumProps } from '@src/pages/museums/[museumId]';
 import ViewToggle from '@src/components/ViewToggle';
-import { GalleryProps } from '@src/pages/museums/[museumId]/gallery/[galleryId]';
+import type { MuseumMapViewProps } from '@src/pages/museums/[museumId]';
+import type { GalleryViewProps } from '@src/pages/museums/[museumId]/gallery/[galleryId]';
+import Arrow from '@src/svgs/Arrow';
 
-export const getMuseumLayout: GetLayoutFunction<MuseumProps> = (page, pageProps) => (
+export const getMuseumLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
   <Layout
     navOverrides={{
       center: (
         <Link href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
           {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <a>
-            <h1 css={tw`flex mt-1.5 cursor-pointer font-serif leading-none text-3xl`}>
-              {pageProps.museum.name}
-            </h1>
+            <span css={tw`flex mt-1.5 cursor-pointer`}>
+              <h1 css={tw`font-serif leading-none text-3xl`}>{pageProps.museum.name}</h1>
+            </span>
           </a>
         </Link>
       ),
@@ -28,7 +29,7 @@ export const getMuseumLayout: GetLayoutFunction<MuseumProps> = (page, pageProps)
   </Layout>
 );
 
-export const getMuseumHomeLayout: GetLayoutFunction<MuseumProps> = (page, pageProps) => (
+export const getMuseumHomeLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
@@ -49,7 +50,7 @@ export const getMuseumHomeLayout: GetLayoutFunction<MuseumProps> = (page, pagePr
   </LayoutContext.Provider>
 );
 
-export const getMuseumAboutLayout: GetLayoutFunction<MuseumProps> = (page, pageProps) => (
+export const getMuseumAboutLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
@@ -66,7 +67,7 @@ export const getMuseumAboutLayout: GetLayoutFunction<MuseumProps> = (page, pageP
   </LayoutContext.Provider>
 );
 
-export const getMuseumGalleryLayout: GetLayoutFunction<GalleryProps> = (page, pageProps) => (
+export const getMuseumGalleryLayout: GetLayoutFunction<GalleryViewProps> = (page, pageProps) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
@@ -74,7 +75,14 @@ export const getMuseumGalleryLayout: GetLayoutFunction<GalleryProps> = (page, pa
           <Link
             href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-            <a>Back to map</a>
+            <a>
+              <span css={tw`flex items-center`}>
+                <span css={tw`block size-3 mr-1.5`}>
+                  <Arrow />
+                </span>
+                <span>Back to map</span>
+              </span>
+            </a>
           </Link>
         ),
         center: (
@@ -82,9 +90,9 @@ export const getMuseumGalleryLayout: GetLayoutFunction<GalleryProps> = (page, pa
             href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <a>
-              <h1 css={tw`flex mt-1.5 cursor-pointer font-serif leading-none text-xl`}>
-                {pageProps.museum.name}
-              </h1>
+              <span css={tw`flex cursor-pointer -mb-1`}>
+                <h1 css={tw`font-serif leading-none text-lg`}>{pageProps.museum.name}</h1>
+              </span>
             </a>
           </Link>
         ),

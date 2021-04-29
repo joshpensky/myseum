@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
+import CollectionViewIcon from '@src/svgs/CollectionViewIcon';
+import MapViewIcon from '@src/svgs/MapViewIcon';
 
 const ViewToggle = () => {
   const router = useRouter();
@@ -33,10 +35,14 @@ const ViewToggle = () => {
         ]}
       />
       <span css={tw`flex items-center justify-center size-8 z-10`}>
-        <span css={tw`block size-4`}>{/* <CollectionViewIcon /> */}</span>
+        <span css={tw`block size-4`}>
+          <MapViewIcon />
+        </span>
       </span>
       <span css={tw`flex items-center justify-center size-8 z-10`}>
-        <span css={tw`block size-4`}>{/* <MapViewIcon /> */}</span>
+        <span css={tw`block size-4`}>
+          <CollectionViewIcon />
+        </span>
       </span>
     </button>
   );

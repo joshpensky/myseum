@@ -1,17 +1,14 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { getMuseumAboutLayout } from '@src/layouts/MuseumLayout';
+import { Museum } from '@src/types';
+import { getMuseum } from '@src/data';
 
-interface MuseumDto {
-  id: number;
-  name: string;
+export interface MuseumAboutProps {
+  museum: Museum;
 }
 
-export interface MuseumProps {
-  museum: MuseumDto;
-}
-
-const MuseumAbout = ({ museum }: MuseumProps) => (
+const MuseumAbout = ({ museum }: MuseumAboutProps) => (
   <div>
     <Head>
       <title>About | {museum.name}</title>
@@ -26,26 +23,33 @@ MuseumAbout.getLayout = getMuseumAboutLayout;
 export default MuseumAbout;
 
 export const getServerSideProps: GetServerSideProps<
-  MuseumProps,
+  MuseumAboutProps,
   { museumId: string }
 > = async ctx => {
-  const data: Record<string, MuseumDto> = {
-    1: {
-      id: 1,
-      name: 'Good Museum',
-    },
-  };
-
-  const museumId = ctx.params?.museumId;
-  if (!museumId || !(museumId in data)) {
+  const museumIdStr = ctx.params?.museumId;
+  if (!museumIdStr) {
     return {
       notFound: true,
     };
   }
 
-  return {
-    props: {
-      museum: data[museumId],
-    },
-  };
+  const museumId = Number.parseInt(museumIdStr);
+  if (!Number.isFinite(museumId)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  try {
+    const museum = getMuseum(museumId);
+    return {
+      props: {
+        museum: JSON.parse(JSON.stringify(museum)),
+      },
+    };
+  } catch {
+    return {
+      notFound: true,
+    };
+  }
 };
