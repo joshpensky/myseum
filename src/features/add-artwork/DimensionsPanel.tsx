@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import tw from 'twin.macro';
-import { useAddArtworkContext } from './AddArtworkContext';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import Select from '@src/components/Select';
 import TextField from '@src/components/TextField';
-import { Preset } from './types';
 import Close from '@src/svgs/Close';
 import { Measurement } from '@src/types';
-import FeatureFormModal from '@src/components/FeatureFormModal';
+import { useAddArtworkContext } from './AddArtworkContext';
+import { Preset } from './types';
 
 const presets: Preset[] = [
   {

@@ -1,7 +1,7 @@
 import tw from 'twin.macro';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import TextField from '@src/components/TextField';
 import { useAddFrameContext } from './AddFrameContext';
-import FeatureFormModal from '@src/components/FeatureFormModal';
 
 const DetailsPanel = () => {
   const { description, isSubmitting, setDescription } = useAddFrameContext();

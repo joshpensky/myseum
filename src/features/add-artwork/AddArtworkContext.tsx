@@ -1,7 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useContext } from 'react';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
-import { ArtworkDetails } from './types';
 import { Dimensions, Measurement } from '@src/types';
+import { ArtworkDetails } from './types';
 
 export type AddArtworkContextValue = {
   actualDimensions: Dimensions;

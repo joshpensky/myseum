@@ -1,9 +1,9 @@
 import { Fragment, ReactNode } from 'react';
-import { createGlobalStyle } from 'styled-components';
 import tw, { GlobalStyles as GlobalTwinStyles, theme } from 'twin.macro';
+import { createGlobalStyle } from 'styled-components';
 
 const GlobalCustomStyles = createGlobalStyle`
-  /* Adding body color */
+  /* Adding base body styles */
   body {
     background-color: ${theme`colors.off-white`};
     ${tw`font-sans`}

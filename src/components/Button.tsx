@@ -1,6 +1,6 @@
-import { BaseProps } from '@src/types';
 import { forwardRef, Fragment, MouseEvent, PropsWithChildren } from 'react';
 import tw, { css } from 'twin.macro';
+import { BaseProps } from '@src/types';
 
 export type ButtonProps = BaseProps & {
   disabled?: boolean;

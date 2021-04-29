@@ -1,18 +1,18 @@
 import { FormEvent, Fragment, useContext, useRef, useState } from 'react';
-import { MoveFocusInside } from 'react-focus-lock';
 import tw from 'twin.macro';
+import { MoveFocusInside } from 'react-focus-lock';
 import Button from '@src/components/Button';
-import { DEFAULT_POINTS, useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import UploadImage from '@src/features/add-artwork/UploadImage';
-import { AddFrameContext } from './AddFrameContext';
-import UploadToast from './UploadToast';
+import { DEFAULT_POINTS, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Measurement } from '@src/types';
-import EditSelectionModal from '../EditSelectionModal';
-import FramePreview from './FramePreview';
+import { AddFrameContext } from './AddFrameContext';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
-import FeatureFormModal from '@src/components/FeatureFormModal';
+import FramePreview from './FramePreview';
+import UploadToast from './UploadToast';
+import EditSelectionModal from '../EditSelectionModal';
 
 export type AddFrameRootProps = {
   onClose(): void;
@@ -53,7 +53,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
       setIsSubmitting(true);
       // TODO: validate and save data to API
       console.log(evt);
-      return false;
+      return true;
     } finally {
       setIsSubmitting(false);
     }

@@ -1,12 +1,12 @@
+import { useEffect, useState } from 'react';
 import tw, { css, theme } from 'twin.macro';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import IconButton from '@src/components/IconButton';
-import { useAddArtworkContext } from './AddArtworkContext';
+import AddFrameRoot from '@src/features/add-frame/AddFrameRoot';
 import Checkmark from '@src/svgs/Checkmark';
 import Close from '@src/svgs/Close';
 import { Dimensions } from '@src/types';
-import { useEffect, useState } from 'react';
-import AddFrameRoot from '@src/features/add-frame/AddFrameRoot';
-import FeatureFormModal from '@src/components/FeatureFormModal';
+import { useAddArtworkContext } from './AddArtworkContext';
 
 type Frame = {
   id: number;

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { rgba } from 'polished';
 import tw, { css, theme } from 'twin.macro';
+import { rgba } from 'polished';
 import ArtworkDetails from '@src/components/ArtworkDetails';
-import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { useGrid } from '@src/providers/GridProvider';
 import { useTheme } from '@src/providers/ThemeProvider';
+import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 
 export type ArtworkProps = {
@@ -20,15 +21,31 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
 
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
+  const isLoaded = isFrameLoaded && isArtworkLoaded;
 
   const { id, title, frame, src, alt } = data;
+
+  // Loads the image and artwork on mount
+  useIsomorphicLayoutEffect(() => {
+    const artworkImg = new Image();
+    artworkImg.onload = () => {
+      setIsArtworkLoaded(true);
+    };
+
+    const frameImg = new Image();
+    frameImg.onload = () => {
+      setIsFrameLoaded(true);
+    };
+
+    artworkImg.src = src;
+    frameImg.src = frame.src;
+  }, [src]);
+
   const { width: frameWidth, height: frameHeight } = frame.dimensions;
   const { width: artworkWidth, height: artworkHeight } = data.dimensions;
 
   const artworkX = (frameWidth - artworkWidth) / 2;
   const artworkY = (frameHeight - artworkHeight) / 2;
-
-  const isLoaded = isFrameLoaded && isArtworkLoaded;
 
   /**
    * Gets the pixel value for a shadow, scaled to the grid item size.
@@ -146,7 +163,6 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           y={0}
           width={frameWidth}
           height={frameHeight}
-          onLoad={() => setIsFrameLoaded(true)}
         />
 
         {/* Render frame window when loading, and frame mat when loaded */}
@@ -235,7 +251,6 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
           width={artworkWidth}
           height={artworkHeight}
           mask={`url(#artwork-${id}-window-mask)`}
-          onLoad={() => setIsArtworkLoaded(true)}
         />
 
         {/* Render frame inner shadow */}

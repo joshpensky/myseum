@@ -1,8 +1,6 @@
-import Button from '@src/components/Button';
-import IconButton from '@src/components/IconButton';
-import Close from '@src/svgs/Close';
-import { CommonUtils } from '@src/utils/CommonUtils';
 import tw from 'twin.macro';
+import Button from '@src/components/Button';
+import { CommonUtils } from '@src/utils/CommonUtils';
 import { useAddFrameContext } from './AddFrameContext';
 
 type UploadToastProps = {

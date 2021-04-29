@@ -1,9 +1,9 @@
 import { Children, FormEvent, PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
+import tw, { css, theme } from 'twin.macro';
 import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
-import tw, { css, theme } from 'twin.macro';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import Portal from '@src/components/Portal';
@@ -207,13 +207,11 @@ const FeatureFormModal = ({
 
                 {/* Render Save button in top right corner, last in tab order */}
                 {!hideSubmit && (
-                  <Button
-                    css={tw`fixed right-4 top-8 transform -translate-y-1/2`}
-                    disabled={disabledSubmit}
-                    filled
-                    type="submit">
-                    Save
-                  </Button>
+                  <div css={tw`fixed right-4 top-8 transform -translate-y-1/2`}>
+                    <Button disabled={disabledSubmit} filled type="submit">
+                      Save
+                    </Button>
+                  </div>
                 )}
               </form>
 

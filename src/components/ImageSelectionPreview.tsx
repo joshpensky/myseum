@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import * as fx from 'glfx-es6';
+import { useEffect, useRef, useState } from 'react';
 import tw from 'twin.macro';
+import * as fx from 'glfx-es6';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { SelectionEditor } from '@src/hooks/useSelectionEditor';
-import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { Dimensions } from '@src/types';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { renderPreview } from '@src/utils/renderPreview';
 
 export type ImageSelectionPreviewProps = {
@@ -76,7 +77,7 @@ const ImageSelectionPreview = ({
   }, [canvasDimensions.height, canvasDimensions.width]);
 
   // Update the canvas dimensions on resize
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (containerRef.current) {
       const observer = new ResizeObserver(entries => {
         entries.forEach(entry => {

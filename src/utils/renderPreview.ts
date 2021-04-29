@@ -1,10 +1,10 @@
 import * as fx from 'glfx-es6';
+import PerspT from 'perspective-transform';
 import { SelectionEditorLayer } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Position } from '@src/types';
 import { CanvasUtils } from './CanvasUtils';
-import { GeometryUtils } from './GeometryUtils';
-import PerspT from 'perspective-transform';
 import { CommonUtils } from './CommonUtils';
+import { GeometryUtils } from './GeometryUtils';
 
 type RenderPreviewOptions = {
   destCanvas: HTMLCanvasElement;

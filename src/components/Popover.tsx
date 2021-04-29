@@ -8,8 +8,8 @@ import {
   useContext,
   ReactNode,
 } from 'react';
-import FocusLock from 'react-focus-lock';
 import tw from 'twin.macro';
+import FocusLock from 'react-focus-lock';
 import Portal from '@src/components/Portal';
 import { useTheme } from '@src/providers/ThemeProvider';
 import { BaseProps } from '@src/types';

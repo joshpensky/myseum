@@ -1,6 +1,6 @@
 import { ChangeEvent, Fragment, MouseEvent as ReactMouseEvent, useEffect, useState } from 'react';
-import { createGlobalStyle } from 'styled-components';
 import tw, { css, TwStyle } from 'twin.macro';
+import { createGlobalStyle } from 'styled-components';
 import { GalleryColor } from '@src/types';
 
 type GallerySettingsProps = {

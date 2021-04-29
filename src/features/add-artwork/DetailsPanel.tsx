@@ -1,7 +1,7 @@
 import tw from 'twin.macro';
-import { useAddArtworkContext } from './AddArtworkContext';
-import TextField from '@src/components/TextField';
 import FeatureFormModal from '@src/components/FeatureFormModal';
+import TextField from '@src/components/TextField';
+import { useAddArtworkContext } from './AddArtworkContext';
 
 const DetailsPanel = () => {
   const { details, isSubmitting, setDetails } = useAddArtworkContext();
