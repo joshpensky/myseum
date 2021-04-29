@@ -1,6 +1,6 @@
 {
   "extends": ["@upstatement/eslint-config/react", "plugin:promise/recommended"],
-  "plugins": ["promise"],
+  "plugins": ["import", "promise"],
   "env": {
     "node": true,
     "es6": true
@@ -10,6 +10,7 @@
     "no-empty-function": "off",
     "promise/prefer-await-to-then": "error",
     "react/react-in-jsx-scope": "off",
+    "jsx-a11y/anchor-is-valid": "off",
     "jsx-a11y/no-onchange": "off",
     "jsx-a11y/no-interactive-element-to-noninteractive-role": [
       "error",
@@ -32,7 +33,59 @@
         "@typescript-eslint/camelcase": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "react/prop-types": "off"
+        "react/prop-types": "off",
+        "import/first": "error",
+        "import/no-relative-parent-imports": "error",
+        "import/newline-after-import": "error",
+        // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
+        "import/order": [
+          "error",
+          {
+            "alphabetize": {
+              "order": "asc",
+              "caseInsensitive": false
+            },
+            "groups": ["builtin", "external", "internal", "index", "sibling"],
+            "newlines-between": "never",
+            "pathGroups": [
+              {
+                "pattern": "react",
+                "group": "external",
+                "position": "before"
+              },
+              {
+                "pattern": "react-dom",
+                "group": "external",
+                "position": "before"
+              },
+              {
+                "pattern": "next",
+                "group": "external",
+                "position": "before"
+              },
+              {
+                "pattern": "next/**",
+                "group": "external",
+                "position": "before"
+              },
+              {
+                "pattern": "twin.macro",
+                "group": "external",
+                "position": "before"
+              },
+              {
+                "pattern": "@src/**",
+                "group": "internal"
+              },
+              {
+                "pattern": "*.css",
+                "group": "sibling",
+                "position": "after"
+              }
+            ],
+            "pathGroupsExcludedImportTypes": ["builtin"]
+          }
+        ]
       }
     }
   ]

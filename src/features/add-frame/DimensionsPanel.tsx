@@ -1,10 +1,10 @@
 import tw from 'twin.macro';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import Select from '@src/components/Select';
 import TextField from '@src/components/TextField';
 import Close from '@src/svgs/Close';
 import { Measurement } from '@src/types';
 import { useAddFrameContext } from './AddFrameContext';
-import FeatureFormModal from '@src/components/FeatureFormModal';
 
 type DimensionsPanelProps = {
   onDepthFocusChange(isFocused: boolean): void;

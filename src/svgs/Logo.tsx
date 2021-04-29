@@ -7,7 +7,7 @@ const Logo = () => (
     viewBox="0 0 26 30"
     xmlns="http://www.w3.org/2000/svg"
     aria-labelledby="logo-title">
-    <title id="logo-title">Museums Logo</title>
+    <title id="logo-title">Myseum Logo</title>
     <path
       css={tw`fill-current`}
       d="M2.40039 6.00002V7.20003H22.8005V6.00002L12.6004 0L2.40039 6.00002Z"

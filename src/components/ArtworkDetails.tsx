@@ -1,7 +1,8 @@
 import { PropsWithChildren } from 'react';
-import dayjs from 'dayjs';
-import { Link, useParams } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import tw from 'twin.macro';
+import dayjs from 'dayjs';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
 import { useUniqueId } from '@src/hooks/useUniqueId';
@@ -17,7 +18,9 @@ export type ArtworkDetailProps = {
 };
 
 const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkDetailProps>) => {
-  const { museumId } = useParams<{ museumId: string }>();
+  const router = useRouter();
+  const museumId = router.query.museumId;
+
   const detailsId = useUniqueId();
 
   const popover = usePopover(`artwork-details-${detailsId}`);
@@ -84,9 +87,12 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
                 <p css={tw`text-sm`}>
                   Featured in the{' '}
                   <Link
-                    css={tw`text-black underline`}
-                    to={`/museum/${museumId}/gallery/${data.gallery.id}`}>
-                    {data.gallery.name}
+                    passHref
+                    href={{
+                      pathname: `/museums/[museumId]/gallery/[galleryId]`,
+                      query: { museumId, galleryId: data.gallery.id },
+                    }}>
+                    <a css={tw`text-black underline`}>{data.gallery.name}</a>
                   </Link>
                 </p>
               )}

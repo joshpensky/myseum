@@ -1,17 +1,17 @@
 import { FormEvent, Fragment, useState } from 'react';
 import tw from 'twin.macro';
 import Button from '@src/components/Button';
+import FeatureFormModal from '@src/components/FeatureFormModal';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { Dimensions, Measurement } from '@src/types';
 import { AddArtworkContext } from './AddArtworkContext';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
-import EditSelectionModal from '../EditSelectionModal';
 import FramePanel from './FramePanel';
 import UploadImage from './UploadImage';
 import { ArtworkDetails } from './types';
-import { Dimensions, Measurement } from '@src/types';
-import FeatureFormModal from '@src/components/FeatureFormModal';
+import EditSelectionModal from '../EditSelectionModal';
 
 export type AddArtworkRootProps = {
   onClose(): void;

@@ -1,23 +1,18 @@
-import {
-  KeyboardEvent as ReactKeyboardEvent,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import tw, { css, theme } from 'twin.macro';
 import anime from 'animejs';
 import { createGlobalStyle } from 'styled-components';
-import tw, { css, theme } from 'twin.macro';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import {
   LAYER_COLORS,
   SelectionEditor,
   SelectionEditorPoints,
 } from '@src/hooks/useSelectionEditor';
-import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { BaseProps, Dimensions, Position } from '@src/types';
-import { MathUtils } from '@src/utils/MathUtils';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
+import { MathUtils } from '@src/utils/MathUtils';
 
 const STROKE_WIDTH = 3;
 const POINT_RADIUS = 5;
@@ -619,7 +614,7 @@ const ImageSelectionEditor = ({
   }, [onGlobalKeyDown]);
 
   // Update the canvas dimensions on resize
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (containerRef.current) {
       const observer = new ResizeObserver(entries => {
         entries.forEach(entry => {

@@ -1,9 +1,10 @@
-import { useLayoutEffect, useRef, useState, useEffect, ReactElement } from 'react';
+import { useRef, useState, useEffect, ReactElement } from 'react';
 import tw, { css } from 'twin.macro';
-import { GridItemProps } from './GridItem';
-import GridMap from './GridMap';
-import GridLines from './GridLines';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { GridProvider } from '@src/providers/GridProvider';
+import { GridItemProps } from './GridItem';
+import GridLines from './GridLines';
+import GridMap from './GridMap';
 
 export type GridProps = {
   asPreview?: boolean;
@@ -21,7 +22,7 @@ const Grid = ({ asPreview, children, minColumns, rows, showLines }: GridProps) =
   const dragAreaRef = useRef<HTMLDivElement>(null);
 
   const [height, setHeight] = useState(0);
-  const [visibleWidth, setVisibleWidth] = useState(window.innerWidth);
+  const [visibleWidth, setVisibleWidth] = useState(0);
 
   const itemSize = rows ? height / rows : 0;
   let minColumnsForWidth = 100;
@@ -91,7 +92,7 @@ const Grid = ({ asPreview, children, minColumns, rows, showLines }: GridProps) =
   }, [asPreview]);
 
   // On mount, start resize observer for container width + height
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (containerRef.current) {
       const observer = new ResizeObserver(entries => {
         const entry = entries[0];

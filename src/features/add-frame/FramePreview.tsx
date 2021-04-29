@@ -1,16 +1,17 @@
-import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
-import { darken, rgb } from 'polished';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import tw, { css, theme } from 'twin.macro';
-import { useAddFrameContext } from './AddFrameContext';
-import PerspT from 'perspective-transform';
 import type { Matrix } from 'glfx-es6';
+import PerspT from 'perspective-transform';
+import { darken, rgb } from 'polished';
+import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import { DEFAULT_POINTS } from '@src/hooks/useSelectionEditor';
 import { Position } from '@src/types';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { Convert } from '@src/utils/Convert';
-import { DEFAULT_POINTS } from '@src/hooks/useSelectionEditor';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
+import { useAddFrameContext } from './AddFrameContext';
 
 type FramePreviewProps = {
   rotate?: boolean;
@@ -98,7 +99,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
   }, []);
 
   // Track wrapper dimensions on resize
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (wrapperRef.current) {
       const observer = new ResizeObserver(entries => {
         const [wrapper] = entries;
