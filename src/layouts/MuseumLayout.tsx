@@ -14,14 +14,9 @@ export const getMuseumLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pag
           passHref
           href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
           <a css={tw`flex mt-1.5 cursor-pointer`}>
-            <h1 css={tw`font-serif leading-none text-3xl`}>{pageProps.museum.name}</h1>
+            <h1 css={tw`font-serif leading-none text-center text-3xl`}>{pageProps.museum.name}</h1>
           </a>
         </Link>
-      ),
-      right: (
-        <div className="no-replace">
-          <button>Log in</button>
-        </div>
       ),
     }}>
     {page}
@@ -87,7 +82,7 @@ export const getMuseumGalleryLayout: GetLayoutFunction<GalleryViewProps> = (page
             passHref
             href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
             <a css={tw`flex cursor-pointer -mb-1`}>
-              <h1 css={tw`font-serif leading-none text-lg`}>{pageProps.museum.name}</h1>
+              <h1 css={tw`font-serif leading-none text-center text-lg`}>{pageProps.museum.name}</h1>
             </a>
           </Link>
         ),

@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import tw, { css } from 'twin.macro';
 import Logo from '@src/svgs/Logo';
+import UserAuthState from './UserAuthState';
 
 const replaceableContent = css`
   > *:not(.no-replace):not(:first-child) {
@@ -25,13 +27,16 @@ const Nav = ({ overrides }: NavProps) => (
 
       <div id="nav-center" css={[tw`flex flex-1 items-center justify-center`, replaceableContent]}>
         {overrides?.center}
-        <span css={tw`flex h-8`}>
-          <Logo />
-        </span>
+        <Link passHref href="/">
+          <a css={tw`flex h-8`}>
+            <Logo />
+          </a>
+        </Link>
       </div>
 
       <div id="nav-right" css={[tw`flex flex-1 items-center justify-end`, replaceableContent]}>
         {overrides?.right}
+        <UserAuthState />
       </div>
     </div>
   </nav>

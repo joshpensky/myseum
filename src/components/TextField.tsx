@@ -10,11 +10,12 @@ type BaseTextFieldProps = BaseProps & {
   onFocus?(): void;
   placeholder?: string;
   required?: boolean;
+  readOnly?: boolean;
 };
 
 type StringTextFieldProps = {
   // Common props
-  type: 'text';
+  type: 'text' | 'email';
   onChange(value: string): void;
   value: string;
   // String-only props
@@ -49,6 +50,7 @@ const TextField = ({
   onBlur,
   onFocus,
   placeholder,
+  readOnly,
   required,
   step,
   ...typedProps
@@ -172,6 +174,7 @@ const TextField = ({
       step={step}
       disabled={disabled}
       required={required}
+      readOnly={readOnly}
       placeholder={placeholder}
       value={typedProps.value}
       onBlur={onBlur}

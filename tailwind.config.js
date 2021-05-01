@@ -79,6 +79,9 @@ module.exports = {
       rotate: {
         360: '360deg',
       },
+      scale: {
+        '-100': '-1',
+      },
       transitionDuration: {
         0: '0ms',
       },
