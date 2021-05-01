@@ -4,8 +4,8 @@ import tw from 'twin.macro';
 import FocusLock from 'react-focus-lock';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
+import { supabase } from '@src/lib/supabase';
 import { AuthUser, useAuth } from '@src/providers/AuthProvider';
-import { supabase } from '@src/utils/supabase';
 
 interface UserDropdownProps {
   user: AuthUser;

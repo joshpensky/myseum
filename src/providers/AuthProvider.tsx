@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
-import { supabase } from '@src/utils/supabase';
+import { supabase } from '@src/lib/supabase';
 
 export interface AuthUser extends User {
   email: string;

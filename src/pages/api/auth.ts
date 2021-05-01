@@ -1,5 +1,5 @@
 import { NextApiHandler } from 'next';
-import { supabase } from '@src/utils/supabase';
+import { supabase } from '@src/lib/supabase';
 
 const auth: NextApiHandler = (req, res) => {
   // Assigns the user's Supabase auth token as a cookie

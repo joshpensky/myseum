@@ -13,13 +13,24 @@ type BaseTextFieldProps = BaseProps & {
   readOnly?: boolean;
 };
 
-type StringTextFieldProps = {
+type EmailTextFieldProps = {
+  type: 'email';
+  grow?: never;
+  rows?: never;
+};
+
+type GrowTextFieldProps<T extends boolean> = {
+  grow: T;
+  rows?: T extends true ? number : never;
+};
+type BasicTextFieldProps = {
+  type: 'text';
+} & GrowTextFieldProps<boolean>;
+
+type StringTextFieldProps = (EmailTextFieldProps | BasicTextFieldProps) & {
   // Common props
-  type: 'text' | 'email';
   onChange(value: string): void;
   value: string;
-  // String-only props
-  grow?: boolean;
   // Disable number-only props
   min?: never;
   step?: never;
@@ -35,6 +46,7 @@ type NumberTextFieldProps = {
   // Disable string-only props
   step?: number;
   grow?: never;
+  rows?: never;
 };
 
 type TextFieldProps = BaseTextFieldProps & (StringTextFieldProps | NumberTextFieldProps);
@@ -47,6 +59,7 @@ const TextField = ({
   id,
   min,
   grow,
+  rows,
   onBlur,
   onFocus,
   placeholder,
@@ -92,6 +105,7 @@ const TextField = ({
 
   const commonStyles = [
     tw`bg-transparent min-w-0 w-full py-2 px-3 border border-white border-opacity-20 bg-white bg-opacity-0 rounded`,
+    tw`ring-1 ring-black ring-opacity-20 not-disabled:(hover:ring-opacity-40 focus:ring-opacity-100 transition-shadow)`,
     tw`placeholder-gray-300 placeholder-opacity-70`,
     [
       tw`disabled:(text-gray-300 text-opacity-70 placeholder-opacity-50 cursor-not-allowed)`,
@@ -107,7 +121,7 @@ const TextField = ({
         id={id}
         className={className}
         css={[tw`max-h-36 resize-none`, commonStyles]}
-        rows={1}
+        rows={rows ?? 1}
         autoComplete={autoComplete}
         disabled={disabled}
         required={required}
