@@ -20,7 +20,7 @@ type EmailTextFieldProps = {
 };
 
 type GrowTextFieldProps<T extends boolean> = {
-  grow: T;
+  grow?: T;
   rows?: T extends true ? number : never;
 };
 type BasicTextFieldProps = {
