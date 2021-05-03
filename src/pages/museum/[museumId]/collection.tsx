@@ -5,7 +5,7 @@ import * as z from 'zod';
 import Artwork from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumHomeLayout } from '@src/layouts/MuseumLayout';
+import { MuseumHomeLayout } from '@src/layouts/museum';
 import Close from '@src/svgs/Close';
 import { Museum, MuseumCollectionItem } from '@src/types';
 

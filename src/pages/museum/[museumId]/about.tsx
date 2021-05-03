@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { Museum, User } from '@prisma/client';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumAboutLayout } from '@src/layouts/MuseumLayout';
+import { MuseumAboutLayout } from '@src/layouts/museum';
 
 export interface MuseumAboutProps {
   basePath: string;

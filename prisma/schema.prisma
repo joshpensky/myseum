@@ -14,8 +14,9 @@ model User {
   id        String   @id @db.Uuid
   avatar    String?
   bio       String?
-  museum    Museum?
   updatedAt DateTime @default(now()) @updatedAt
+
+  museum Museum?
 
   @@map("users")
 }
@@ -23,10 +24,37 @@ model User {
 model Museum {
   id        Int      @id @default(autoincrement())
   name      String
-  curator   User     @relation(fields: [curatorId], references: [id])
-  curatorId String   @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  curator   User   @relation(fields: [curatorId], references: [id])
+  curatorId String @db.Uuid
+
+  galleries Gallery[]
+
   @@map("museums")
+}
+
+enum GalleryColor {
+  mint
+  navy
+  pink
+  paper
+}
+
+model Gallery {
+  id        Int          @id @default(autoincrement())
+  name      String
+  color     GalleryColor @default(paper)
+  height    Int          @default(40)
+  xPosition Int
+  yPosition Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+
+  museum   Museum @relation(fields: [museumId], references: [id])
+  museumId Int
+
+  @@unique([xPosition, yPosition])
+  @@map("galleries")
 }

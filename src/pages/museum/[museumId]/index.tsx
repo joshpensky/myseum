@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { GetServerSideProps } from 'next';
-// import Link from 'next/link';
+import Link from 'next/link';
 import tw, { theme } from 'twin.macro';
-// import dayjs from 'dayjs';
-import { Museum } from '@prisma/client';
+import { Gallery, Museum } from '@prisma/client';
+import dayjs from 'dayjs';
 import { rgba } from 'polished';
 import toast from 'react-hot-toast';
 import { css } from 'styled-components';
@@ -12,11 +12,11 @@ import * as z from 'zod';
 // import GridItem from '@src/components/GridItem';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import Portal from '@src/components/Portal';
+import TextField from '@src/components/TextField';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { supabase } from '@src/data/supabase';
 import { useMuseum } from '@src/hooks/useMuseum';
-import { MuseumHomeLayout } from '@src/layouts/MuseumLayout';
-// import { ThemeProvider } from '@src/providers/ThemeProvider';
+import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Arrow from '@src/svgs/Arrow';
@@ -25,10 +25,12 @@ import Edit from '@src/svgs/Edit';
 
 export interface MuseumMapViewProps {
   basePath: string;
-  museum: Museum;
+  museum: Museum & {
+    galleries: Gallery[];
+  };
 }
 
-const MuseumMapView = ({ museum: data }: MuseumMapViewProps) => {
+const MuseumMapView = ({ basePath, museum: data }: MuseumMapViewProps) => {
   const auth = useAuth();
 
   const museum = useMuseum(data);
@@ -46,14 +48,31 @@ const MuseumMapView = ({ museum: data }: MuseumMapViewProps) => {
   const onSave = async () => {
     setIsFormSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('museums')
-        .update({
+      const res = await fetch(`/api/museums/${museum.id}`, {
+        method: 'PATCH',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({
           name,
-        })
-        .eq('id', museum.id);
+          galleries: [
+            {
+              id: 1,
+              name: 'Awesome Gallery',
+              color: 'pink',
+            },
+            {
+              name: 'Good',
+              color: 'navy',
+              xPosition: 1,
+              yPosition: 1,
+            },
+          ],
+        }),
+      });
 
-      if (error) {
+      if (!res.ok) {
+        const error = await res.json();
         throw error;
       }
 
@@ -66,30 +85,31 @@ const MuseumMapView = ({ museum: data }: MuseumMapViewProps) => {
     }
   };
 
-  // let minX = 0;
-  // let maxX = 0;
-  // let maxY = 0;
+  let minX = 0;
+  let maxX = 0;
+  let maxY = 0;
 
   // A map of coordinates to galleries
   // { [xPos]: { [yPos]: Gallery } }
-  // const galleryMap: Record<number, Record<number, Gallery<Artwork>>> = {};
-  // museum.galleries.forEach(({ item, position }) => {
-  //   // Update the min and max X/Y coords for grid positioning
-  //   minX = Math.min(minX, position.x);
-  //   maxX = Math.max(maxX, position.x);
-  //   maxY = Math.max(maxY, position.y);
+  const galleryMap: Record<number, Record<number, Gallery>> = {};
+  museum.galleries.forEach(gallery => {
+    const { xPosition, yPosition } = gallery;
+    // Update the min and max X/Y coords for grid positioning
+    minX = Math.min(minX, xPosition);
+    maxX = Math.max(maxX, xPosition);
+    maxY = Math.max(maxY, yPosition);
 
-  //   // Add the gallery to the map
-  //   if (!galleryMap[position.x]) {
-  //     galleryMap[position.x] = {};
-  //   }
-  //   galleryMap[position.x][position.y] = item;
-  // });
+    // Add the gallery to the map
+    if (!galleryMap[xPosition]) {
+      galleryMap[xPosition] = {};
+    }
+    galleryMap[xPosition][yPosition] = gallery;
+  });
 
-  // // Grid width = longest side from the center * 2, plus 1 (to account for x=0 column)
-  // const gridWidth = Math.max(Math.abs(maxX), Math.abs(minX)) * 2 + 1;
-  // // Grid height = max y + 1 (y will ALWAYS be greater than 0)
-  // const gridHeight = maxY + 1;
+  // Grid width = longest side from the center * 2, plus 1 (to account for x=0 column)
+  const gridWidth = Math.max(Math.abs(maxX), Math.abs(minX)) * 2 + 1;
+  // Grid height = max y + 1 (y will ALWAYS be greater than 0)
+  const gridHeight = maxY + 1;
 
   return (
     <ThemeProvider color="paper">
@@ -168,72 +188,72 @@ const MuseumMapView = ({ museum: data }: MuseumMapViewProps) => {
             </span>
           </div>
           {/* Renders the museum grid */}
-          {/* <div css={tw`flex flex-col mt-2.5`}>
-          {Array(gridHeight)
-            .fill(null)
-            .map((_, y) => (
-              <div key={y} css={tw`flex`}>
-                {Array(gridWidth)
-                  .fill(null)
-                  .map((_, xIndex) => {
-                    const startingX = (gridWidth - 1) / -2;
-                    const x = startingX + xIndex;
-                    // If no gallery for position, render empty block
-                    if (!galleryMap[x]?.[y]) {
+          <div css={tw`flex flex-col mt-2.5`}>
+            {Array(gridHeight)
+              .fill(null)
+              .map((_, y) => (
+                <div key={y} css={tw`flex`}>
+                  {Array(gridWidth)
+                    .fill(null)
+                    .map((_, xIndex) => {
+                      const startingX = (gridWidth - 1) / -2;
+                      const x = startingX + xIndex;
+                      // If no gallery for position, render empty block
+                      if (!galleryMap[x]?.[y]) {
+                        return (
+                          <div key={`${x}-${y}`} css={tw`flex flex-shrink-0`}>
+                            <div css={tw`block w-96 ratio-4-3 m-2.5 bg-red-100`} />
+                          </div>
+                        );
+                      }
+                      // Otherwise, render gallery block
+                      const gallery = galleryMap[x][y];
                       return (
                         <div key={`${x}-${y}`} css={tw`flex flex-shrink-0`}>
-                          <div css={tw`block w-96 ratio-4-3 m-2.5`} />
+                          <Link
+                            passHref
+                            href={{
+                              pathname: `${basePath}/gallery/[galleryId]`,
+                              query: { galleryId: gallery.id },
+                            }}>
+                            <a
+                              css={[
+                                tw`block w-96 ratio-4-3 m-2.5 relative rounded-lg overflow-hidden`,
+                                {
+                                  mint: tw`bg-mint-200`,
+                                  pink: tw`bg-pink-200`,
+                                  navy: tw`bg-navy-200 text-white`,
+                                  paper: tw`bg-paper-200`,
+                                }[gallery.color],
+                              ]}>
+                              <ThemeProvider color={gallery.color}>
+                                <div css={tw`absolute inset-0 size-full flex flex-col flex-1`}>
+                                  <div css={tw`relative flex-1`}>
+                                    {/* {gallery.artworks.length > 0 && (
+                                      <div
+                                        css={tw`absolute inset-0 size-full flex flex-col origin-bottom-left transform scale-125`}>
+                                        <Grid asPreview rows={gallery.height}>
+                                          {gallery.artworks.map(({ item, position }, idx) => (
+                                            <GridItem key={idx} item={item} position={position} />
+                                          ))}
+                                        </Grid>
+                                      </div>
+                                    )} */}
+                                  </div>
+                                  <div css={tw`flex flex-col text-center px-4 pb-4 pt-5`}>
+                                    <p css={tw`leading-none font-serif text-2xl`}>{gallery.name}</p>
+                                    <p css={tw`text-sm`}>Est. {dayjs(gallery.createdAt).year()}</p>
+                                  </div>
+                                </div>
+                              </ThemeProvider>
+                            </a>
+                          </Link>
                         </div>
                       );
-                    }
-                    // Otherwise, render gallery block
-                    const gallery = galleryMap[x][y];
-                    return (
-                      <div key={`${x}-${y}`} css={tw`flex flex-shrink-0`}>
-                        <Link
-                          passHref
-                          href={{
-                            pathname: `/museum/[museumId]/gallery/[galleryId]`,
-                            query: { museumId: museum.id, galleryId: gallery.id },
-                          }}>
-                          <a
-                            css={[
-                              tw`block w-96 ratio-4-3 m-2.5 relative rounded-lg overflow-hidden`,
-                              {
-                                mint: tw`bg-mint-200`,
-                                pink: tw`bg-pink-200`,
-                                navy: tw`bg-navy-200 text-white`,
-                                paper: tw`bg-paper-200`,
-                              }[gallery.color],
-                            ]}>
-                            <ThemeProvider color={gallery.color}>
-                              <div css={tw`absolute inset-0 size-full flex flex-col flex-1`}>
-                                <div css={tw`relative flex-1`}>
-                                  {gallery.artworks.length > 0 && (
-                                    <div
-                                      css={tw`absolute inset-0 size-full flex flex-col origin-bottom-left transform scale-125`}>
-                                      <Grid asPreview rows={gallery.height}>
-                                        {gallery.artworks.map(({ item, position }, idx) => (
-                                          <GridItem key={idx} item={item} position={position} />
-                                        ))}
-                                      </Grid>
-                                    </div>
-                                  )}
-                                </div>
-                                <div css={tw`flex flex-col text-center px-4 pb-4 pt-5`}>
-                                  <p css={tw`leading-none font-serif text-2xl`}>{gallery.name}</p>
-                                  <p css={tw`text-sm`}>Est. {dayjs(gallery.createdAt).year()}</p>
-                                </div>
-                              </div>
-                            </ThemeProvider>
-                          </a>
-                        </Link>
-                      </div>
-                    );
-                  })}
-              </div>
-            ))}
-        </div> */}
+                    })}
+                </div>
+              ))}
+          </div>
         </div>
       </div>
     </ThemeProvider>
