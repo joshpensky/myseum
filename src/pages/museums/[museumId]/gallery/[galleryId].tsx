@@ -9,7 +9,7 @@ import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
-import { getGallery, getMuseum } from '@src/data';
+import { getGallery, getMuseum } from '@src/data/static';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import { getMuseumGalleryLayout } from '@src/layouts/MuseumLayout';
 import { ThemeProvider } from '@src/providers/ThemeProvider';

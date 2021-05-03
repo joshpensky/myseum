@@ -10,8 +10,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Profile {
+model User {
   id     String  @id @db.Uuid
   avatar String?
   bio    String? @db.Text
+
+  @@map("users")
 }

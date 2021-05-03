@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next';
 import tw from 'twin.macro';
 import Artwork from '@src/components/Artwork';
 import Button from '@src/components/Button';
-import { getMuseum, getMuseumCollection } from '@src/data';
+import { getMuseum, getMuseumCollection } from '@src/data/static';
 import { getMuseumHomeLayout } from '@src/layouts/MuseumLayout';
 import Close from '@src/svgs/Close';
 import { Museum, MuseumCollectionItem } from '@src/types';

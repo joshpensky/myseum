@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import { getMuseum } from '@src/data';
+import { getMuseum } from '@src/data/static';
 import { getMuseumAboutLayout } from '@src/layouts/MuseumLayout';
 import { Museum } from '@src/types';
 

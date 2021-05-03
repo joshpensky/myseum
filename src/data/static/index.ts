@@ -1,8 +1,8 @@
-import { artists } from '@src/data/artists';
-import { artworks } from '@src/data/artworks';
-import { frames } from '@src/data/frames';
-import { galleries } from '@src/data/galleries';
-import { museums } from '@src/data/museums';
+import { artists } from '@src/data/static/artists';
+import { artworks } from '@src/data/static/artworks';
+import { frames } from '@src/data/static/frames';
+import { galleries } from '@src/data/static/galleries';
+import { museums } from '@src/data/static/museums';
 import { Artist, Artwork, Gallery, Id, Museum, MuseumCollectionItem } from '@src/types';
 
 export const getArtwork = (id: Id): Artwork => {

@@ -4,7 +4,7 @@ import tw from 'twin.macro';
 import FocusLock from 'react-focus-lock';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
-import { supabase } from '@src/lib/supabase';
+import { supabase } from '@src/data/supabase';
 import { AuthUser, useAuth } from '@src/providers/AuthProvider';
 
 interface UserDropdownProps {
@@ -21,13 +21,13 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
    * Logs the user out.
    */
   const logOut = async () => {
+    setIsDropdownOpen(false);
     setIsLoading(true);
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error(error.message);
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    setIsDropdownOpen(false);
   };
 
   /**

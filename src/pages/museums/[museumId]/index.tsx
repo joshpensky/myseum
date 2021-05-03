@@ -4,7 +4,7 @@ import tw from 'twin.macro';
 import dayjs from 'dayjs';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
-import { getMuseum } from '@src/data';
+import { getMuseum } from '@src/data/static';
 import { getMuseumHomeLayout } from '@src/layouts/MuseumLayout';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Arrow from '@src/svgs/Arrow';
