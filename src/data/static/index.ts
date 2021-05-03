@@ -90,7 +90,7 @@ export const getMuseumCollection = (museum: Museum) => {
 
 // export const mockServiceWorker = setupWorker(
 //   // Museum mock
-//   rest.get('/api/museums/:museumId', (req, res, ctx) => {
+//   rest.get('/api/museum/:museumId', (req, res, ctx) => {
 //     const { museumId } = req.params;
 
 //     try {
@@ -102,7 +102,7 @@ export const getMuseumCollection = (museum: Museum) => {
 //   }),
 
 //   // Museum collection mock
-//   rest.get('/api/museums/:museumId/collection', (req, res, ctx) => {
+//   rest.get('/api/museum/:museumId/collection', (req, res, ctx) => {
 //     const { museumId } = req.params;
 
 //     try {

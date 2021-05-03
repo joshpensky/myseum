@@ -44,5 +44,4 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
 
 export default Layout;
 
-export type GetLayoutFunction<T = any> = (page: ReactNode, pageProps: T) => ReactNode;
-export const getDefaultLayout: GetLayoutFunction = page => <Layout>{page}</Layout>;
+export type SubLayoutProps<T = any> = PropsWithChildren<{ pageProps: T }>;

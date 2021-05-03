@@ -1,10 +1,11 @@
 import { lazy, Suspense, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import tw from 'twin.macro';
+import * as z from 'zod';
 import Artwork from '@src/components/Artwork';
 import Button from '@src/components/Button';
-import { getMuseum, getMuseumCollection } from '@src/data/static';
-import { getMuseumHomeLayout } from '@src/layouts/MuseumLayout';
+import { MuseumRepository } from '@src/data/MuseumRepository';
+import { MuseumHomeLayout } from '@src/layouts/MuseumLayout';
 import Close from '@src/svgs/Close';
 import { Museum, MuseumCollectionItem } from '@src/types';
 
@@ -51,7 +52,7 @@ const MuseumCollectionView = ({ collection }: MuseumCollectionViewProps) => {
   );
 };
 
-MuseumCollectionView.getLayout = getMuseumHomeLayout;
+MuseumCollectionView.Layout = MuseumHomeLayout;
 
 export default MuseumCollectionView;
 
@@ -59,30 +60,27 @@ export const getServerSideProps: GetServerSideProps<
   MuseumCollectionViewProps,
   { museumId: string }
 > = async ctx => {
-  const museumIdStr = ctx.params?.museumId;
-  if (!museumIdStr) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const museumId = Number.parseInt(museumIdStr);
-  if (!Number.isFinite(museumId)) {
+  const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
+  if (!museumId.success) {
     return {
       notFound: true,
     };
   }
 
   try {
-    const museum = getMuseum(museumId);
-    const collection = getMuseumCollection(museum);
+    const museum = await MuseumRepository.findById(museumId.data);
+    if (!museum) {
+      throw new Error('Museum not found.');
+    }
+
     return {
       props: {
+        basePath: `/museum/${museum.id}`,
         museum: JSON.parse(JSON.stringify(museum)),
-        collection: JSON.parse(JSON.stringify(collection)),
+        collection: [], // TODO: add collection
       },
     };
-  } catch {
+  } catch (error) {
     return {
       notFound: true,
     };

@@ -3,17 +3,21 @@ import tw from 'twin.macro';
 import CollectionViewIcon from '@src/svgs/CollectionViewIcon';
 import MapViewIcon from '@src/svgs/MapViewIcon';
 
-const ViewToggle = () => {
+interface ViewToggleProps {
+  basePath: string;
+}
+
+const ViewToggle = ({ basePath }: ViewToggleProps) => {
   const router = useRouter();
 
-  const isCollectionView = router.pathname === '/museums/[museumId]/collection';
+  const isCollectionView = router.asPath === `${basePath}/collection`;
 
   const toggleView = () => {
-    let toggleLink = `/museums/[museumId]/collection`;
+    let toggleLink = `${basePath}/collection`;
     if (isCollectionView) {
-      toggleLink = `/museums/[museumId]`;
+      toggleLink = basePath;
     }
-    router.push({ pathname: toggleLink, query: router.query });
+    router.push({ pathname: toggleLink });
   };
 
   return (

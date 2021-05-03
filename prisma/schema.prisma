@@ -11,9 +11,22 @@ generator client {
 }
 
 model User {
-  id     String  @id @db.Uuid
-  avatar String?
-  bio    String? @db.Text
+  id        String   @id @db.Uuid
+  avatar    String?
+  bio       String?
+  museum    Museum?
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("users")
+}
+
+model Museum {
+  id        Int      @id @default(autoincrement())
+  name      String
+  curator   User     @relation(fields: [curatorId], references: [id])
+  curatorId String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("museums")
 }

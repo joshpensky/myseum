@@ -1,29 +1,41 @@
+import { Fragment } from 'react';
 import Link from 'next/link';
 import tw from 'twin.macro';
-import Layout, { GetLayoutFunction, LayoutContext } from '@src/components/Layout';
+import { Museum } from '@prisma/client';
+import Layout, { LayoutContext, SubLayoutProps } from '@src/components/Layout';
 import ViewToggle from '@src/components/ViewToggle';
-import type { MuseumMapViewProps } from '@src/pages/museums/[museumId]';
-import type { GalleryViewProps } from '@src/pages/museums/[museumId]/gallery/[galleryId]';
+import { useMuseum } from '@src/hooks/useMuseum';
+import type { MuseumMapViewProps } from '@src/pages/museum/[museumId]';
+import type { GalleryViewProps } from '@src/pages/museum/[museumId]/gallery/[galleryId]';
 import Arrow from '@src/svgs/Arrow';
 
-export const getMuseumLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
+interface MuseumNameProps {
+  museum: Museum;
+}
+const MuseumName = ({ museum: data }: MuseumNameProps) => {
+  const museum = useMuseum(data);
+  return <Fragment>{museum.name}</Fragment>;
+};
+
+export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
   <Layout
     navOverrides={{
       center: (
-        <Link
-          passHref
-          href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
+        <Link passHref href={{ pathname: pageProps.basePath }}>
           <a css={tw`flex mt-1.5 cursor-pointer`}>
-            <h1 css={tw`font-serif leading-none text-center text-3xl`}>{pageProps.museum.name}</h1>
+            <h1 css={tw`font-serif leading-none text-center text-3xl`}>
+              {/* TODO: fix useMuseum not updating when traversing back+forth b/w pages */}
+              <MuseumName museum={pageProps.museum} />
+            </h1>
           </a>
         </Link>
       ),
     }}>
-    {page}
+    {children}
   </Layout>
 );
 
-export const getMuseumHomeLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
+export const MuseumHomeLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
@@ -31,44 +43,42 @@ export const getMuseumHomeLayout: GetLayoutFunction<MuseumMapViewProps> = (page,
           <Link
             passHref
             href={{
-              pathname: '/museums/[museumId]/about',
-              query: { museumId: pageProps.museum.id },
+              pathname: `${pageProps.basePath}/about`,
             }}>
             <a>About</a>
           </Link>
         ),
-        right: <ViewToggle />,
+        right: <ViewToggle basePath={pageProps.basePath} />,
       },
     }}>
-    {getMuseumLayout(page, pageProps)}
+    <MuseumLayout pageProps={pageProps}>{children}</MuseumLayout>
   </LayoutContext.Provider>
 );
 
-export const getMuseumAboutLayout: GetLayoutFunction<MuseumMapViewProps> = (page, pageProps) => (
+export const MuseumAboutLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
         left: (
-          <Link
-            passHref
-            href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
+          <Link passHref href={{ pathname: pageProps.basePath }}>
             <a>Back</a>
           </Link>
         ),
       },
     }}>
-    {getMuseumLayout(page, pageProps)}
+    <MuseumLayout pageProps={pageProps}>{children}</MuseumLayout>
   </LayoutContext.Provider>
 );
 
-export const getMuseumGalleryLayout: GetLayoutFunction<GalleryViewProps> = (page, pageProps) => (
+// TODO: update with museum name
+export const MuseumGalleryLayout = ({ children, pageProps }: SubLayoutProps<GalleryViewProps>) => (
   <LayoutContext.Provider
     value={{
       navOverrides: {
         left: (
           <Link
             passHref
-            href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
+            href={{ pathname: '/museum/[museumId]', query: { museumId: pageProps.museum.id } }}>
             <a css={tw`flex items-center`}>
               <span css={tw`block size-3 mr-1.5`}>
                 <Arrow />
@@ -80,7 +90,7 @@ export const getMuseumGalleryLayout: GetLayoutFunction<GalleryViewProps> = (page
         center: (
           <Link
             passHref
-            href={{ pathname: '/museums/[museumId]', query: { museumId: pageProps.museum.id } }}>
+            href={{ pathname: '/museum/[museumId]', query: { museumId: pageProps.museum.id } }}>
             <a css={tw`flex cursor-pointer -mb-1`}>
               <h1 css={tw`font-serif leading-none text-center text-lg`}>{pageProps.museum.name}</h1>
             </a>
@@ -88,6 +98,7 @@ export const getMuseumGalleryLayout: GetLayoutFunction<GalleryViewProps> = (page
         ),
       },
     }}>
-    {getMuseumLayout(page, pageProps)}
+    {/* {getMuseumLayout(page, pageProps)} */}
+    {children}
   </LayoutContext.Provider>
 );

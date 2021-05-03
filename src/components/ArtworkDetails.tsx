@@ -89,7 +89,7 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
                   <Link
                     passHref
                     href={{
-                      pathname: `/museums/[museumId]/gallery/[galleryId]`,
+                      pathname: `/museum/[museumId]/gallery/[galleryId]`,
                       query: { museumId, galleryId: data.gallery.id },
                     }}>
                     <a css={tw`text-black underline`}>{data.gallery.name}</a>

@@ -11,7 +11,7 @@ import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
 import { getGallery, getMuseum } from '@src/data/static';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
-import { getMuseumGalleryLayout } from '@src/layouts/MuseumLayout';
+import { MuseumGalleryLayout } from '@src/layouts/MuseumLayout';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
@@ -213,7 +213,7 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
   );
 };
 
-GalleryView.getLayout = getMuseumGalleryLayout;
+GalleryView.Layout = MuseumGalleryLayout;
 
 export default GalleryView;
 
