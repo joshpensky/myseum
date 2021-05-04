@@ -4,6 +4,7 @@ import { Museum, User } from '@prisma/client';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumAboutLayout } from '@src/layouts/museum';
+import { useMuseum } from '@src/providers/MuseumProvider';
 
 export interface MuseumAboutProps {
   basePath: string;
@@ -12,17 +13,21 @@ export interface MuseumAboutProps {
   };
 }
 
-const MuseumAbout = ({ museum }: MuseumAboutProps) => (
-  <div>
-    <Head>
-      <title>About | {museum.name}</title>
-    </Head>
+const MuseumAbout = () => {
+  const { museum } = useMuseum();
 
-    <h1>About the Curator</h1>
+  return (
+    <div>
+      <Head>
+        <title>About | {museum.name} | Myseum</title>
+      </Head>
 
-    <p>{museum.curator.bio}</p>
-  </div>
-);
+      <h1>About the Curator</h1>
+
+      <p>{museum.curator.bio}</p>
+    </div>
+  );
+};
 
 MuseumAbout.Layout = MuseumAboutLayout;
 

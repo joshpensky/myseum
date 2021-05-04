@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import tw from 'twin.macro';
 import FocusLock from 'react-focus-lock';
 import toast from 'react-hot-toast';
@@ -151,6 +152,7 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
 
 const UserAuthState = () => {
   const auth = useAuth();
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -159,7 +161,12 @@ const UserAuthState = () => {
    */
   const logIn = async () => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signIn({ provider: 'google' });
+    const { error } = await supabase.auth.signIn(
+      { provider: 'google' },
+      {
+        redirectTo: `${window.location.origin}${router.asPath}`,
+      },
+    );
     if (error) {
       toast.error(error.message);
     }

@@ -1,11 +1,13 @@
 import { lazy, Suspense, useState } from 'react';
 import { GetServerSideProps } from 'next';
+import Head from 'next/head';
 import tw from 'twin.macro';
 import * as z from 'zod';
 import Artwork from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
+import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
 import { Museum, MuseumCollectionItem } from '@src/types';
 
@@ -17,10 +19,16 @@ export interface MuseumCollectionViewProps {
 }
 
 const MuseumCollectionView = ({ collection }: MuseumCollectionViewProps) => {
+  const { museum } = useMuseum();
+
   const [isAddingItem, setIsAddingItem] = useState(false);
 
   return (
     <div css={tw`pt-2 px-4`}>
+      <Head>
+        <title>Collection | {museum.name} | Myseum</title>
+      </Head>
+
       <header css={tw`mb-6`}>
         <h2 css={tw`leading-none font-serif text-3xl`}>Collection</h2>
         <p>

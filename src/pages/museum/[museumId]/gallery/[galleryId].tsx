@@ -1,7 +1,10 @@
 import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
+import Head from 'next/head';
 import tw, { css, theme } from 'twin.macro';
+import { Gallery, Museum, User } from '@prisma/client';
 import { rgba } from 'polished';
+import * as z from 'zod';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import Grid from '@src/components/Grid';
@@ -9,21 +12,29 @@ import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
-import { getGallery, getMuseum } from '@src/data/static';
+import { MuseumRepository } from '@src/data/MuseumRepository';
+import { getGallery } from '@src/data/static';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import { MuseumGalleryLayout } from '@src/layouts/museum';
+import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
 import Edit from '@src/svgs/Edit';
-import { Gallery, Museum } from '@src/types';
+import { Gallery as StaticGallery } from '@src/types';
 
 export interface GalleryViewProps {
-  gallery: Gallery;
-  museum: Museum;
+  basePath: string;
+  gallery: StaticGallery;
+  museum: Museum & {
+    galleries: Gallery[];
+    curator: User;
+  };
 }
 
 const GalleryView = ({ gallery }: GalleryViewProps) => {
+  const { museum } = useMuseum();
+
   const settingsPopover = usePopover('settings-modal');
 
   const [isAddingArtwork, setIsAddingArtwork] = useState(false);
@@ -78,6 +89,12 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
 
   return (
     <ThemeProvider color={wallColor}>
+      <Head>
+        <title>
+          {gallery.name} | {museum.name} | Myseum
+        </title>
+      </Head>
+
       <div
         css={[
           tw`flex flex-col flex-1`,
@@ -221,35 +238,30 @@ export const getServerSideProps: GetServerSideProps<
   GalleryViewProps,
   { museumId: string; galleryId: string }
 > = async ctx => {
-  const museumIdStr = ctx.params?.museumId;
-  const galleryIdStr = ctx.params?.galleryId;
-  if (!museumIdStr || !galleryIdStr) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const museumId = Number.parseInt(museumIdStr);
-  const galleryId = Number.parseInt(galleryIdStr);
-  if (!Number.isFinite(museumId) || !Number.isFinite(galleryId)) {
+  const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
+  if (!museumId.success) {
     return {
       notFound: true,
     };
   }
 
   try {
-    const museum = getMuseum(museumId);
-    if (!museum.galleries.find(gallery => gallery.item.id === galleryId)) {
-      throw new Error('Gallery not found');
+    const museum = await MuseumRepository.findById(museumId.data);
+    if (!museum) {
+      throw new Error('Museum not found.');
     }
-    const gallery = getGallery(galleryId);
+
+    // TODO: replace with actual data once artwork is implemented
+    const gallery = getGallery(1);
+
     return {
       props: {
-        gallery: JSON.parse(JSON.stringify(gallery)),
+        basePath: `/museum/${museum.id}`,
         museum: JSON.parse(JSON.stringify(museum)),
+        gallery: JSON.parse(JSON.stringify(gallery)),
       },
     };
-  } catch {
+  } catch (error) {
     return {
       notFound: true,
     };

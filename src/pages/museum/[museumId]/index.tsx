@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { GetServerSideProps } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 import tw, { theme } from 'twin.macro';
-import { Gallery, Museum } from '@prisma/client';
+import { Gallery, Museum, User } from '@prisma/client';
 import dayjs from 'dayjs';
 import { rgba } from 'polished';
 import toast from 'react-hot-toast';
@@ -12,12 +13,10 @@ import * as z from 'zod';
 // import GridItem from '@src/components/GridItem';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import Portal from '@src/components/Portal';
-import TextField from '@src/components/TextField';
 import { MuseumRepository } from '@src/data/MuseumRepository';
-import { supabase } from '@src/data/supabase';
-import { useMuseum } from '@src/hooks/useMuseum';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useAuth } from '@src/providers/AuthProvider';
+import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Arrow from '@src/svgs/Arrow';
 import Edit from '@src/svgs/Edit';
@@ -26,14 +25,15 @@ import Edit from '@src/svgs/Edit';
 export interface MuseumMapViewProps {
   basePath: string;
   museum: Museum & {
+    curator: User;
     galleries: Gallery[];
   };
 }
 
-const MuseumMapView = ({ basePath, museum: data }: MuseumMapViewProps) => {
+const MuseumMapView = ({ basePath }: MuseumMapViewProps) => {
   const auth = useAuth();
 
-  const museum = useMuseum(data);
+  const { museum, setMuseum } = useMuseum();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
@@ -56,31 +56,39 @@ const MuseumMapView = ({ basePath, museum: data }: MuseumMapViewProps) => {
         body: JSON.stringify({
           name,
           galleries: [
-            {
-              id: 1,
-              name: 'Awesome Gallery',
-              color: 'pink',
-            },
-            {
-              name: 'Good',
-              color: 'navy',
-              xPosition: 1,
-              yPosition: 1,
-            },
+            // {
+            //   id: 1,
+            //   name: 'Awesome Gallery',
+            //   color: 'pink',
+            // },
+            // {
+            //   id: 13,
+            //   name: 'Good',
+            //   color: 'navy',
+            //   xPosition: 1,
+            //   yPosition: 1,
+            // },
           ],
         }),
       });
 
+      // Throw error, if any
       if (!res.ok) {
         const error = await res.json();
         throw error;
       }
 
-      toast.success('Museum updated!');
+      // Update state
+      const data = await res.json();
+      setMuseum(data.museum);
       setIsEditing(false);
+      // Send success toast
+      toast.success('Museum updated!');
     } catch (error) {
+      // If error, send error toast
       toast.error(error.message);
     } finally {
+      // Regardless, update form state
       setIsFormSubmitting(false);
     }
   };
@@ -113,6 +121,10 @@ const MuseumMapView = ({ basePath, museum: data }: MuseumMapViewProps) => {
 
   return (
     <ThemeProvider color="paper">
+      <Head>
+        <title>{museum.name} | Myseum</title>
+      </Head>
+
       {!isEditing && auth.user && auth.user.id === museum.curatorId && (
         <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
           <FloatingActionButton title="Edit museum" onClick={() => onEdit()}>
