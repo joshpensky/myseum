@@ -27,7 +27,7 @@ const Profile = ({ user }: ProfileProps) => {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch(`/api/users/${user.id}`, {
+      const res = await fetch(`/api/user/${user.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',

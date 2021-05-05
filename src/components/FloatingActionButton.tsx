@@ -6,6 +6,7 @@ import { BaseProps } from '@src/types';
 export type FloatingActionButtonProps = BaseProps & {
   'aria-controls'?: string;
   'aria-expanded'?: boolean;
+  disabled?: boolean;
   onClick?(evt: MouseEvent<HTMLButtonElement>): void;
   title: string;
 };
@@ -18,6 +19,7 @@ const FloatingActionButton = forwardRef<
     className,
     css: customCss,
     children,
+    disabled,
     onClick,
     title,
     ['aria-controls']: ariaControls,
@@ -45,6 +47,7 @@ const FloatingActionButton = forwardRef<
       ]}
       title={title}
       onClick={onClick}
+      disabled={disabled}
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}>
       <span

@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
+import { Museum } from '@prisma/client';
 import * as z from 'zod';
 import Artwork from '@src/components/Artwork';
 import Button from '@src/components/Button';
@@ -9,7 +10,7 @@ import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
-import { Museum, MuseumCollectionItem } from '@src/types';
+import { MuseumCollectionItem } from '@src/types';
 
 const AddArtworkRoot = lazy(() => import('@src/features/add-artwork/AddArtworkRoot'));
 
@@ -76,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   try {
-    const museum = await MuseumRepository.findById(museumId.data);
+    const museum = await MuseumRepository.findOne(museumId.data);
     if (!museum) {
       throw new Error('Museum not found.');
     }
@@ -84,7 +85,7 @@ export const getServerSideProps: GetServerSideProps<
     return {
       props: {
         basePath: `/museum/${museum.id}`,
-        museum: JSON.parse(JSON.stringify(museum)),
+        museum,
         collection: [], // TODO: add collection
       },
     };

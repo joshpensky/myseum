@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   try {
-    const museum = await MuseumRepository.findById(museumId.data);
+    const museum = await MuseumRepository.findOne(museumId.data);
     if (!museum) {
       throw new Error('Museum not found.');
     }
@@ -53,7 +53,7 @@ export const getServerSideProps: GetServerSideProps<
     return {
       props: {
         basePath: `/museum/${museum.id}`,
-        museum: JSON.parse(JSON.stringify(museum)),
+        museum,
       },
     };
   } catch (error) {

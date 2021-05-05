@@ -3,7 +3,7 @@ import { UserRepository } from '@src/data/UserRepository';
 import { supabase } from '@src/data/supabase';
 
 const userDetailController: NextApiHandler = async (req, res) => {
-  const userId = req.query.id;
+  const userId = req.query.userId;
   if (typeof userId !== 'string') {
     res.status(400).json({ message: 'Must supply a single user ID' });
     return;

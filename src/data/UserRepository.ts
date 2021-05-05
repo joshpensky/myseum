@@ -39,6 +39,9 @@ export class UserRepository {
       where: {
         id: userId,
       },
+      include: {
+        museum: true,
+      },
     });
     return user;
   }

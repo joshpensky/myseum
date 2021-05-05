@@ -48,27 +48,27 @@ const MuseumMapView = ({ basePath }: MuseumMapViewProps) => {
   const onSave = async () => {
     setIsFormSubmitting(true);
     try {
-      const res = await fetch(`/api/museums/${museum.id}`, {
+      const res = await fetch(`/api/museum/${museum.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
         }),
         body: JSON.stringify({
           name,
-          galleries: [
-            // {
-            //   id: 1,
-            //   name: 'Awesome Gallery',
-            //   color: 'pink',
-            // },
-            // {
-            //   id: 13,
-            //   name: 'Good',
-            //   color: 'navy',
-            //   xPosition: 1,
-            //   yPosition: 1,
-            // },
-          ],
+          // galleries: [
+          //   {
+          //     name: 'Awesome Gallery',
+          //     color: 'pink',
+          //     xPosition: 0,
+          //     yPosition: 0,
+          //   },
+          //   {
+          //     name: 'Good One',
+          //     color: 'navy',
+          //     xPosition: 1,
+          //     yPosition: 0,
+          //   },
+          // ],
         }),
       });
 
@@ -288,7 +288,7 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   try {
-    const museum = await MuseumRepository.findById(museumId.data);
+    const museum = await MuseumRepository.findOne(museumId.data);
     if (!museum) {
       throw new Error('Museum not found.');
     }
@@ -296,7 +296,7 @@ export const getServerSideProps: GetServerSideProps<
     return {
       props: {
         basePath: `/museum/${museum.id}`,
-        museum: JSON.parse(JSON.stringify(museum)),
+        museum,
       },
     };
   } catch (error) {

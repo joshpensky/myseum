@@ -119,6 +119,21 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
             </p>
           </div>
           <ul css={[tw`py-1.5 px-1 text-black bg-white rounded-b-md flex flex-col w-full`]}>
+            {user.museum && (
+              <li css={[tw`not-last:mb-0.5`]}>
+                <Link passHref href={`/museum/${user.museum.id}`}>
+                  {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, jsx-a11y/interactive-supports-focus */}
+                  <a
+                    css={[
+                      tw`py-0.5 px-2 rounded flex w-full`,
+                      tw`transition-colors hover:bg-gray-100 focus:(outline-none bg-gray-200)`,
+                    ]}
+                    onClick={() => setIsDropdownOpen(false)}>
+                    Myseum
+                  </a>
+                </Link>
+              </li>
+            )}
             <li css={[tw`not-last:mb-0.5`]}>
               <Link passHref href="/me">
                 {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, jsx-a11y/interactive-supports-focus */}

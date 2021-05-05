@@ -9,7 +9,7 @@ begin
   values (new.id);
 
   insert into public.museums ("name", "curatorId")
-  values ('My Museum', new.id);
+  values (split_part(new.email, '@', '1') || '''s Museum', new.id);
 
   return new;
 end;

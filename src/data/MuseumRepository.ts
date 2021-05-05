@@ -24,7 +24,7 @@ export interface UpdateMuseumDto {
 }
 
 export class MuseumRepository {
-  static async findById(id: number) {
+  static async findOne(id: number) {
     const museum = await prisma.museum.findUnique({
       where: { id },
       include: {
@@ -35,7 +35,7 @@ export class MuseumRepository {
     return museum;
   }
 
-  static async findByUser(user: User | SupabaseUser) {
+  static async findOneByUser(user: User | SupabaseUser) {
     const museum = await prisma.user
       .findUnique({
         where: {
@@ -74,8 +74,6 @@ export class MuseumRepository {
         };
       }
     }
-
-    console.log(updateMuseumDto);
 
     const updatedMuseum = await prisma.museum.update({
       data: {

@@ -4,16 +4,18 @@ import Head from 'next/head';
 import tw, { css, theme } from 'twin.macro';
 import { Gallery, Museum, User } from '@prisma/client';
 import { rgba } from 'polished';
+import toast from 'react-hot-toast';
 import * as z from 'zod';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
-import Grid from '@src/components/Grid';
-import GridItem from '@src/components/GridItem';
+// import Grid from '@src/components/Grid';
+// import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
-import { MuseumRepository } from '@src/data/MuseumRepository';
-import { getGallery } from '@src/data/static';
+import { GalleryRepository } from '@src/data/GalleryRepository';
+// import { MuseumRepository } from '@src/data/MuseumRepository';
+// import { getGallery } from '@src/data/static';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import { MuseumGalleryLayout } from '@src/layouts/museum';
 import { useMuseum } from '@src/providers/MuseumProvider';
@@ -21,19 +23,21 @@ import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
 import Edit from '@src/svgs/Edit';
-import { Gallery as StaticGallery } from '@src/types';
+// import { Gallery as StaticGallery } from '@src/types';
 
 export interface GalleryViewProps {
   basePath: string;
-  gallery: StaticGallery;
+  gallery: Gallery;
   museum: Museum & {
     galleries: Gallery[];
     curator: User;
   };
 }
 
-const GalleryView = ({ gallery }: GalleryViewProps) => {
+const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const { museum } = useMuseum();
+
+  const [gallery, setGallery] = useState(data);
 
   const settingsPopover = usePopover('settings-modal');
 
@@ -44,6 +48,8 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
   const [wallColor, setWallColor] = useState(gallery.color);
   const [wallHeight, setWallHeight] = useState(gallery.height);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   /**
    * Exits the editing mode, closing any popovers.
    */
@@ -52,40 +58,65 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
     setIsEditing(false);
   };
 
-  /**
-   * Handler for cancelling updates made in edit mode.
-   */
-  const onCancel = () => {
-    // Reset state
+  const onEdit = () => {
+    // Update state
     setName(gallery.name);
     setWallColor(gallery.color);
     setWallHeight(gallery.height);
-    // Exit editing mode
-    exitEditingMode();
+    // Update editing mode
+    setIsEditing(true);
   };
 
   /**
    * Handler for saving updates made in edit mode.
    */
   const onSave = async () => {
-    // TODO: validation and saving data to db
-    // Exit editing mode
-    exitEditingMode();
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/museum/${museum.id}/gallery/${gallery.id}`, {
+        method: 'PATCH',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({
+          name,
+          color: wallColor,
+          height: wallHeight,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw error;
+      }
+
+      const data = await res.json();
+      setGallery(gallery => ({
+        ...gallery,
+        ...data.gallery,
+      }));
+      exitEditingMode();
+      toast.success('Gallery updated!');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const { artworks } = gallery;
+  // const { artworks } = gallery;
 
-  // Generates min height based on the lowest-positioned frame
-  const minHeight = artworks.reduce((acc, { item, position }) => {
-    const y2 = position.y + Math.ceil(item.frame.dimensions.height);
-    return Math.max(acc, y2);
-  }, 1);
+  // // Generates min height based on the lowest-positioned frame
+  // const minHeight = artworks.reduce((acc, { item, position }) => {
+  //   const y2 = position.y + Math.ceil(item.frame.dimensions.height);
+  //   return Math.max(acc, y2);
+  // }, 1);
 
-  // Generates min columns based on the frame positioned furthest to the right
-  const minColumns = artworks.reduce((acc, { item, position }) => {
-    const x2 = position.x + Math.ceil(item.frame.dimensions.width);
-    return Math.max(acc, x2);
-  }, 1);
+  // // Generates min columns based on the frame positioned furthest to the right
+  // const minColumns = artworks.reduce((acc, { item, position }) => {
+  //   const x2 = position.x + Math.ceil(item.frame.dimensions.width);
+  //   return Math.max(acc, x2);
+  // }, 1);
 
   return (
     <ThemeProvider color={wallColor}>
@@ -111,7 +142,9 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
               <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
               <div css={tw`flex flex-1`}>
                 <div css={tw`flex flex-1 items-center justify-start`}>
-                  <button onClick={onCancel}>Cancel</button>
+                  <button disabled={isSubmitting} onClick={() => exitEditingMode()}>
+                    Cancel
+                  </button>
                 </div>
                 <div css={tw`flex flex-1 items-center justify-center`}>
                   <div
@@ -143,13 +176,16 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
                       ]}
                       type="text"
                       aria-label="Gallery name"
+                      disabled={isSubmitting}
                       value={name}
                       onChange={evt => setName(evt.target.value)}
                     />
                   </div>
                 </div>
                 <div css={tw`flex flex-1 items-center justify-end`}>
-                  <button onClick={onSave}>Save</button>
+                  <button disabled={isSubmitting} onClick={onSave}>
+                    Save
+                  </button>
                 </div>
               </div>
             </div>
@@ -194,7 +230,8 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
                   </header>
                   <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
                     <GallerySettings
-                      minWallHeight={minHeight}
+                      disabled={isSubmitting}
+                      minWallHeight={/*minHeight*/ 0}
                       wallHeight={wallHeight}
                       onWallHeightChange={setWallHeight}
                       wallColor={wallColor}
@@ -206,6 +243,7 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
               <FloatingActionButton
                 css={[settingsPopover.isExpanded && tw`transition-opacity opacity-50`]}
                 onClick={() => setIsAddingArtwork(true)}
+                disabled={isSubmitting}
                 title="Add new artwork">
                 <span css={tw`block transform rotate-45`}>
                   <Close />
@@ -214,17 +252,17 @@ const GalleryView = ({ gallery }: GalleryViewProps) => {
               {isAddingArtwork && <AddArtworkRoot onClose={() => setIsAddingArtwork(false)} />}
             </Fragment>
           ) : (
-            <FloatingActionButton title="Edit gallery" onClick={() => setIsEditing(true)}>
+            <FloatingActionButton title="Edit gallery" onClick={() => onEdit()}>
               <Edit />
             </FloatingActionButton>
           )}
         </div>
 
-        <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
+        {/* <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
           {artworks.map(({ item, position }, idx) => (
             <GridItem key={idx} item={item} position={position} />
           ))}
-        </Grid>
+        </Grid> */}
       </div>
     </ThemeProvider>
   );
@@ -239,26 +277,24 @@ export const getServerSideProps: GetServerSideProps<
   { museumId: string; galleryId: string }
 > = async ctx => {
   const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
-  if (!museumId.success) {
+  const galleryId = z.number().int().safeParse(Number(ctx.params?.galleryId));
+  if (!museumId.success || !galleryId.success) {
     return {
       notFound: true,
     };
   }
 
   try {
-    const museum = await MuseumRepository.findById(museumId.data);
-    if (!museum) {
-      throw new Error('Museum not found.');
+    const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
+    if (!gallery) {
+      throw new Error('Gallery not found.');
     }
-
-    // TODO: replace with actual data once artwork is implemented
-    const gallery = getGallery(1);
 
     return {
       props: {
-        basePath: `/museum/${museum.id}`,
-        museum: JSON.parse(JSON.stringify(museum)),
-        gallery: JSON.parse(JSON.stringify(gallery)),
+        basePath: `/museum/${gallery.museum.id}`,
+        museum: gallery.museum,
+        gallery,
       },
     };
   } catch (error) {

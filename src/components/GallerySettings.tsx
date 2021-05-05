@@ -4,6 +4,7 @@ import { createGlobalStyle } from 'styled-components';
 import { GalleryColor } from '@src/types';
 
 type GallerySettingsProps = {
+  disabled?: boolean;
   wallColor: GalleryColor;
   onWallColorChange(nextWallColor: GalleryColor): void;
   minWallHeight: number;
@@ -21,6 +22,7 @@ const GlobalResizeCursor = createGlobalStyle`
 `;
 
 const GallerySettings = ({
+  disabled,
   wallColor,
   onWallColorChange,
   minWallHeight,
@@ -39,7 +41,9 @@ const GallerySettings = ({
 
   // Starts the drag listening on the wall height input
   const onInputMouseDown = (evt: ReactMouseEvent<HTMLInputElement>) => {
-    setStartingDragPosition(evt.clientX);
+    if (!disabled) {
+      setStartingDragPosition(evt.clientX);
+    }
   };
 
   // When the mouse drags on the input, resize the wall height accordingly
@@ -68,7 +72,7 @@ const GallerySettings = ({
 
   // Attaches drag and release listeners when drag is detected
   useEffect(() => {
-    if (startingDragPosition !== null) {
+    if (startingDragPosition !== null && !disabled) {
       document.addEventListener('mousemove', onInputDrag);
       document.addEventListener('mouseup', onInputDragRelease);
 
@@ -77,7 +81,7 @@ const GallerySettings = ({
         document.removeEventListener('mouseup', onInputDragRelease);
       };
     }
-  }, [startingDragPosition]);
+  }, [startingDragPosition, disabled]);
 
   type WallColorOption = {
     value: GalleryColor;
@@ -121,6 +125,7 @@ const GallerySettings = ({
               <input
                 css={tw`sr-only checked:sibling:ring-1 focus:checked:sibling:ring-2`}
                 type="radio"
+                disabled={disabled}
                 checked={value === wallColor}
                 onChange={() => onWallColorChange(value)}
                 name="wallColor"
@@ -164,6 +169,7 @@ const GallerySettings = ({
               id="wallHeight"
               type="number"
               step={1}
+              disabled={disabled}
               min={minWallHeight}
               value={wallHeight === 0 ? '' : wallHeight}
               onChange={_onWallHeightChange}

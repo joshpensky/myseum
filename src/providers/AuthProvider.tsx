@@ -1,12 +1,15 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Museum } from '@prisma/client';
 import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
 import { supabase } from '@src/data/supabase';
 
 export interface AuthUser extends User {
   email: string;
-  bio: string | null;
-  avatar: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  museum?: Museum;
 }
 
 interface AuthContextValue {
@@ -24,6 +27,8 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
   const [user, setUser] = useState<AuthUser | null>(null);
   const [didLogOut, setDidLogOut] = useState(false);
 
+  const router = useRouter();
+
   const abortControllerRef = useRef<AbortController | null>(null);
 
   /**
@@ -36,8 +41,16 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
   const updateUser = (authUser: User): [AbortController, Promise<void>] => {
     const abortController = new AbortController();
     const updatePromise = (async () => {
-      const { data: user } = await supabase.from('users').select().eq('id', authUser.id).single();
-      if (!abortController.signal.aborted) {
+      const res = await fetch(`/api/user/${authUser.id}`);
+      if (res.status === 404) {
+        // Sign out of user not found
+        await supabase.auth.signOut();
+      } else if (!res.ok) {
+        // Show error if user could not be fetched
+        toast.error('Could not fetch user data.');
+      } else if (!abortController.signal.aborted) {
+        // Otherwise, update user data if not aborted
+        const { user } = await res.json();
         setUser({
           ...authUser,
           ...user,
@@ -90,7 +103,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
 
     // Send success toast when logging in or out
     if (event === 'SIGNED_IN') {
-      toast.success('Logged in!'); // TODO: prevent toast on refresh token
+      toast.success('Logged in!'); // TODO: prevent toast on refresh token (which also triggers SIGNED_IN event)
       setDidLogOut(false);
     } else if (event === 'SIGNED_OUT') {
       setDidLogOut(true);
@@ -121,6 +134,22 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
     };
   }, []);
 
+  // Fix bug with auth leaving an empty '#' after authentication
+  useEffect(() => {
+    const { data: authSubscription } = supabase.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_IN') {
+        const splitPath = router.asPath.split('#');
+        if (splitPath[1] === '' || splitPath[1].startsWith('access_token')) {
+          router.replace(splitPath[0], undefined, { shallow: true });
+        }
+      }
+    });
+
+    return () => {
+      authSubscription?.unsubscribe();
+    };
+  }, [router.asPath]);
+
   // Listens and updates user when Supabase record updates
   useEffect(() => {
     if (user) {
@@ -132,6 +161,9 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
             ...user,
             ...payload.new,
           }));
+        })
+        .on('DELETE', () => {
+          supabase.auth.signOut();
         })
         .subscribe();
 
