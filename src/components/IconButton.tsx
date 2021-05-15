@@ -12,7 +12,7 @@ export type IconButtonProps = BaseProps & {
 
 const IconButton = forwardRef<HTMLButtonElement, PropsWithChildren<IconButtonProps>>(
   function IconButton(
-    { children: icon, className, css: customCss, disabled, id, onClick, title, type },
+    { children: icon, className, css: customCss, disabled, id, onClick, title, type, ...props },
     ref,
   ) {
     return (
@@ -29,7 +29,8 @@ const IconButton = forwardRef<HTMLButtonElement, PropsWithChildren<IconButtonPro
         type={type}
         disabled={disabled}
         title={title}
-        onClick={onClick}>
+        onClick={onClick}
+        {...props}>
         <span css={tw`sr-only`}>{title}</span>
         <span css={tw`block size-4`}>{icon}</span>
         <span

@@ -103,7 +103,7 @@ const UserDropdown = ({ user }: UserDropdownProps) => {
           ref={dropdownRef}
           id="user-dropdown"
           css={[
-            tw`absolute -bottom-3 right-0 transform translate-y-full`,
+            tw`absolute -bottom-3 right-0 transform translate-y-full z-10`,
             tw`flex flex-col items-start minWidth[12rem]`,
             tw`text-black text-opacity-20 bg-current ring-current shadow-popover rounded-md`,
             tw`origin-top-right transition-modal-enter`,

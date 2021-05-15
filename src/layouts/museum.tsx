@@ -25,8 +25,8 @@ export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapVi
   }, [auth.didLogOut]);
 
   return (
-    <MuseumProvider museum={pageProps.museum}>
-      {museum => (
+    <MuseumProvider basePath={pageProps.basePath} museum={pageProps.museum}>
+      {({ museum }) => (
         <Layout
           navOverrides={{
             center: (
@@ -80,8 +80,8 @@ export const MuseumAboutLayout = ({ children, pageProps }: SubLayoutProps<Museum
 );
 
 export const MuseumGalleryLayout = ({ children, pageProps }: SubLayoutProps<GalleryViewProps>) => (
-  <MuseumProvider museum={pageProps.museum}>
-    {museum => (
+  <MuseumProvider basePath={pageProps.basePath} museum={pageProps.museum}>
+    {({ museum }) => (
       <LayoutContext.Provider
         value={{
           navOverrides: {

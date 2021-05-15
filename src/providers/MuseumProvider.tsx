@@ -2,6 +2,7 @@ import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useStat
 import { Gallery, Museum, User } from '@prisma/client';
 
 export interface MuseumContextValue {
+  basePath: string;
   museum: Museum & {
     galleries: Gallery[];
     curator: User;
@@ -11,17 +12,24 @@ export interface MuseumContextValue {
 export const MuseumContext = createContext<MuseumContextValue | null>(null);
 
 interface MuseumProviderProps {
-  children: ReactNode | ((museum: MuseumContextValue['museum']) => ReactNode);
+  basePath: string;
+  children: ReactNode | ((context: MuseumContextValue) => ReactNode);
   museum: MuseumContextValue['museum'];
 }
-export const MuseumProvider = ({ children, museum: initialMuseum }: MuseumProviderProps) => {
+export const MuseumProvider = ({
+  basePath,
+  children,
+  museum: initialMuseum,
+}: MuseumProviderProps) => {
   const museumCtx = useContext(MuseumContext);
 
   const [museum, setMuseum] = useState(initialMuseum);
 
+  const value = museumCtx ?? { basePath, museum, setMuseum };
+
   return (
-    <MuseumContext.Provider value={museumCtx ?? { museum, setMuseum }}>
-      {typeof children === 'function' ? children(museum) : children}
+    <MuseumContext.Provider value={value}>
+      {typeof children === 'function' ? children(value) : children}
     </MuseumContext.Provider>
   );
 };

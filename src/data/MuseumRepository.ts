@@ -81,18 +81,30 @@ export class MuseumRepository {
         galleries: {
           deleteMany: galleriesToDelete,
           createMany: {
-            data: (updateMuseumDto.galleries ?? []).filter(
+            data: ((updateMuseumDto.galleries ?? []).filter(
               gallery => gallery.id === undefined,
-            ) as CreateGalleryDto[],
-          },
-          update: (updateMuseumDto.galleries ?? [])
-            .filter(gallery => gallery.id !== undefined)
-            .map(gallery => ({
-              data: gallery as UpdateGalleryDto,
-              where: {
-                id: gallery.id,
-              },
+            ) as CreateGalleryDto[]).map(gallery => ({
+              name: gallery.name,
+              color: gallery.color,
+              height: gallery.height,
+              xPosition: gallery.xPosition,
+              yPosition: gallery.yPosition,
             })),
+          },
+          update: ((updateMuseumDto.galleries ?? []).filter(
+            gallery => gallery.id !== undefined,
+          ) as UpdateGalleryDto[]).map(gallery => ({
+            data: {
+              name: gallery.name,
+              color: gallery.color,
+              height: gallery.height,
+              xPosition: gallery.xPosition,
+              yPosition: gallery.yPosition,
+            },
+            where: {
+              id: gallery.id,
+            },
+          })),
         },
       },
       where: {
