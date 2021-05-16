@@ -12,14 +12,16 @@ import {
 import EditGalleryBlock from './EditGalleryBlock';
 import Entrance from './Entrance';
 import GalleryBlock from './GalleryBlock';
+import Button from '../Button';
 
 interface MuseumMapProps {
-  isEditing?: boolean;
+  disabled?: boolean;
   galleries: Gallery[];
+  isEditing?: boolean;
   setGalleries: Dispatch<SetStateAction<Gallery[]>>;
 }
 
-const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
+const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapProps) => {
   const [droppableSourceId, setDroppableSourceId] = useState<string | null>(null);
 
   let minX = 0;
@@ -43,9 +45,18 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
     galleryMap.set(xPosition, galleryMapForX);
   });
 
-  const onDragStart: OnDragStartResponder = initial => {
-    setDroppableSourceId(initial.source.droppableId);
-  };
+  // const createGalleryAtPosition = (xPosition: number, yPosition: number) => {
+  //   setGalleries([
+  //     ...galleries,
+  //     {
+  //       name: 'New Gallery',
+  //       color: 'mint',
+  //       height: 30,
+  //       xPosition,
+  //       yPosition,
+  //     },
+  //   ]);
+  // };
 
   const onGalleryChange = (updatedGallery: Gallery) => {
     setGalleries(
@@ -59,6 +70,10 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
         return gallery;
       }),
     );
+  };
+
+  const onDragStart: OnDragStartResponder = initial => {
+    setDroppableSourceId(initial.source.droppableId);
   };
 
   const onDragEnd: OnDragEndResponder = result => {
@@ -163,12 +178,12 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
                                 {isEditing && (
                                   <Droppable
                                     droppableId={droppableId}
-                                    isDropDisabled={!isDroppable}>
+                                    isDropDisabled={disabled || !isDroppable}>
                                     {(provided, snapshot) => (
                                       <div
                                         ref={provided.innerRef}
                                         css={[
-                                          tw`absolute inset-0 rounded-lg flex`,
+                                          tw`absolute inset-0 rounded-lg flex flex-col items-center justify-center`,
                                           isInvalid &&
                                             !(isDroppable && droppableSourceId) &&
                                             tw`bg-red-200`,
@@ -180,10 +195,22 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
                                         ]}
                                         {...provided.droppableProps}>
                                         {isInvalid && !(isDroppable && droppableSourceId) && (
-                                          <p css={tw`text-red-600 text-center self-center w-full`}>
+                                          <p
+                                            css={tw`text-red-600 text-center w-full not-last:mb-3`}>
                                             There must be a gallery at the entrance.
                                           </p>
                                         )}
+
+                                        {isDroppable && !droppableSourceId && (
+                                          <Button
+                                          /*onClick={() =>
+                                             createGalleryAtPosition(xPosition, yPosition)
+                                            }*/
+                                          >
+                                            Add gallery here
+                                          </Button>
+                                        )}
+
                                         {provided.placeholder}
                                       </div>
                                     )}
@@ -201,7 +228,7 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
                                 <Droppable
                                   key={droppableId}
                                   droppableId={droppableId}
-                                  isDropDisabled={droppableSourceId !== droppableId}>
+                                  isDropDisabled={disabled || droppableSourceId !== droppableId}>
                                   {(provided, snapshot) => (
                                     <div
                                       ref={provided.innerRef}
@@ -216,7 +243,8 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
                                       <Draggable
                                         key={gallery.id}
                                         draggableId={String(gallery.id)}
-                                        index={0}>
+                                        index={0}
+                                        isDragDisabled={disabled}>
                                         {(provided, snapshot) => (
                                           <div
                                             ref={provided.innerRef}
@@ -224,6 +252,7 @@ const MuseumMap = ({ isEditing, galleries, setGalleries }: MuseumMapProps) => {
                                             {...provided.draggableProps}
                                             style={provided.draggableProps.style}>
                                             <EditGalleryBlock
+                                              disabled={disabled}
                                               gallery={gallery}
                                               onChange={onGalleryChange}
                                               snapshot={snapshot}

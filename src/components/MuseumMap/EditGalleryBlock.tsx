@@ -4,10 +4,14 @@ import dayjs from 'dayjs';
 import { DraggableProvidedDragHandleProps, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import AutofitTextField from '@src/components/AutofitTextField';
 import IconButton from '@src/components/IconButton';
+import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
 import DragHandle from '@src/svgs/DragHandle';
+import GallerySettings from '../GallerySettings';
+import Popover, { usePopover } from '../Popover';
 
 interface EditGalleryBlockProps {
+  disabled?: boolean;
   dragHandleProps?: DraggableProvidedDragHandleProps;
   gallery: Gallery;
   onChange(updatedGallery: Gallery): void;
@@ -15,11 +19,14 @@ interface EditGalleryBlockProps {
 }
 
 const EditGalleryBlock = ({
+  disabled,
   dragHandleProps,
   gallery,
   onChange,
   snapshot,
 }: EditGalleryBlockProps) => {
+  const settingsPopover = usePopover(`gallery-${gallery.id}-settings`);
+
   const blockColor = {
     mint: tw`bg-mint-200`,
     pink: tw`bg-pink-200`,
@@ -32,24 +39,46 @@ const EditGalleryBlock = ({
       <div
         css={[
           tw`absolute inset-0 flex flex-col rounded-lg`,
-          snapshot.isDragging &&
-            tw`bg-black bg-opacity-20 ring-black ring-opacity-20 shadow-popover`,
+          tw`bg-black bg-opacity-0 ring-black ring-opacity-0 transition-all`,
+          snapshot.isDragging && tw` bg-opacity-20 ring-opacity-20 shadow-popover`,
         ]}>
-        <div css={[tw`py-3.5 px-3.5 flex flex-shrink-0 mb-px rounded-t-lg`, blockColor]}>
+        <div
+          css={[tw`py-3.5 px-4 flex flex-shrink-0 justify-between mb-px rounded-t-lg`, blockColor]}>
           <div css={tw`flex mr-5`}>
-            <IconButton title="Drag" {...dragHandleProps}>
+            <IconButton {...dragHandleProps} title="Drag" disabled={disabled}>
               <DragHandle />
             </IconButton>
           </div>
-          <div css={tw`flex mr-5`}>
+
+          <Popover
+            {...settingsPopover.wrapperProps}
+            css={tw`flex`}
+            origin="top left"
+            disabled={disabled}>
             <IconButton
-              title="Change Color"
-              onClick={() =>
-                onChange({ ...gallery, color: gallery.color === 'mint' ? 'navy' : 'mint' })
-              }>
+              {...settingsPopover.anchorProps}
+              title="Open gallery settings"
+              disabled={disabled}>
               <Cog />
             </IconButton>
-          </div>
+            <Popover.Body>
+              <header
+                css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex items-center justify-between`}>
+                <h1 css={tw`font-serif leading-none text-xl mt-1 mr-3`}>Settings</h1>
+                <IconButton title="Close settings" onClick={() => settingsPopover.close(true)}>
+                  <Close />
+                </IconButton>
+              </header>
+              <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
+                <GallerySettings
+                  id={`gallery-${gallery.id}`}
+                  disabled={disabled}
+                  wallColor={gallery.color}
+                  onWallColorChange={color => onChange({ ...gallery, color })}
+                />
+              </section>
+            </Popover.Body>
+          </Popover>
         </div>
         <div
           css={[
@@ -61,6 +90,7 @@ const EditGalleryBlock = ({
             css={[tw`pb-0.5`]}
             inputCss={[tw`font-serif leading-none text-2xl`]}
             label="Gallery name"
+            disabled={disabled}
             value={gallery.name}
             onChange={value => onChange({ ...gallery, name: value })}
           />

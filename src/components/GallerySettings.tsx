@@ -5,11 +5,17 @@ import { GalleryColor } from '@src/types';
 
 type GallerySettingsProps = {
   disabled?: boolean;
+  id: string;
   wallColor: GalleryColor;
   onWallColorChange(nextWallColor: GalleryColor): void;
-  minWallHeight: number;
-  wallHeight: number;
-  onWallHeightChange(nextWallHeight: number): void;
+  wallHeight?: {
+    minValue: number;
+    value: number;
+    onChange(nextWallHeight: number): void;
+  };
+  // minWallHeight: number;
+  // wallHeight: number;
+  // onWallHeightChange(nextWallHeight: number): void;
 };
 
 // Sets the global cursor to "ew-resize" so it remains the same
@@ -23,11 +29,10 @@ const GlobalResizeCursor = createGlobalStyle`
 
 const GallerySettings = ({
   disabled,
+  id,
   wallColor,
   onWallColorChange,
-  minWallHeight,
   wallHeight,
-  onWallHeightChange,
 }: GallerySettingsProps) => {
   const [startingDragPosition, setStartingDragPosition] = useState<number | null>(null);
 
@@ -36,7 +41,7 @@ const GallerySettings = ({
     if (Number.isNaN(value)) {
       value = 0;
     }
-    onWallHeightChange(value);
+    wallHeight?.onChange(value);
   };
 
   // Starts the drag listening on the wall height input
@@ -51,7 +56,7 @@ const GallerySettings = ({
     if (startingDragPosition !== null) {
       evt.preventDefault();
       const delta = Math.ceil((evt.clientX - startingDragPosition) / 16);
-      onWallHeightChange(Math.max(minWallHeight, wallHeight + delta));
+      wallHeight?.onChange(Math.max(wallHeight.minValue, wallHeight.value + delta));
     }
   };
 
@@ -114,7 +119,7 @@ const GallerySettings = ({
 
   return (
     <Fragment>
-      <fieldset css={tw`flex flex-col mb-4`}>
+      <fieldset css={tw`flex flex-col mb-1`}>
         <legend css={tw`text-sm mb-1.5`}>Wall color</legend>
         <div css={tw`flex`}>
           {wallColorOptions.map(({ value, label, color }) => (
@@ -128,7 +133,7 @@ const GallerySettings = ({
                 disabled={disabled}
                 checked={value === wallColor}
                 onChange={() => onWallColorChange(value)}
-                name="wallColor"
+                name={`${id}-wallColor`}
               />
               <span
                 css={[
@@ -142,46 +147,48 @@ const GallerySettings = ({
         </div>
       </fieldset>
 
-      <div css={tw`flex flex-col items-start`}>
-        <label css={tw`text-sm`} htmlFor="wallHeight">
-          Wall height
-        </label>
-        <div css={tw`flex border-b border-mint-300 transition-colors focus-within:border-black`}>
-          <div css={tw`relative`}>
-            <span css={tw`invisible`} aria-hidden="true">
-              {wallHeight}
+      {wallHeight && (
+        <div css={tw`flex flex-col items-start mt-3`}>
+          <label css={tw`text-sm`} htmlFor="wallHeight">
+            Wall height
+          </label>
+          <div css={tw`flex border-b border-mint-300 transition-colors focus-within:border-black`}>
+            <div css={tw`relative`}>
+              <span css={tw`invisible`} aria-hidden="true">
+                {wallHeight.value}
+              </span>
+              <input
+                css={[
+                  tw`absolute left-0 m-0 w-full cursor-ew-resize focus:outline-none`,
+                  css`
+                    /* Chrome, Safari, Edge, Opera */
+                    &::-webkit-outer-spin-button,
+                    &::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                    }
+                    /* Firefox */
+                    &[type='number'] {
+                      -moz-appearance: textfield;
+                    }
+                  `,
+                ]}
+                id={`${id}-wallHeight`}
+                type="number"
+                step={1}
+                disabled={disabled}
+                min={wallHeight.minValue}
+                value={wallHeight.value === 0 ? '' : wallHeight.value}
+                onChange={_onWallHeightChange}
+                onMouseDown={onInputMouseDown}
+              />
+              {startingDragPosition !== null && <GlobalResizeCursor />}
+            </div>
+            <span css={tw`ml-1 text-mint-600`}>
+              in<span css={tw`sr-only`}>ches</span>
             </span>
-            <input
-              css={[
-                tw`absolute left-0 m-0 w-full cursor-ew-resize focus:outline-none`,
-                css`
-                  /* Chrome, Safari, Edge, Opera */
-                  &::-webkit-outer-spin-button,
-                  &::-webkit-inner-spin-button {
-                    -webkit-appearance: none;
-                  }
-                  /* Firefox */
-                  &[type='number'] {
-                    -moz-appearance: textfield;
-                  }
-                `,
-              ]}
-              id="wallHeight"
-              type="number"
-              step={1}
-              disabled={disabled}
-              min={minWallHeight}
-              value={wallHeight === 0 ? '' : wallHeight}
-              onChange={_onWallHeightChange}
-              onMouseDown={onInputMouseDown}
-            />
-            {startingDragPosition !== null && <GlobalResizeCursor />}
           </div>
-          <span css={tw`ml-1 text-mint-600`}>
-            in<span css={tw`sr-only`}>ches</span>
-          </span>
         </div>
-      </div>
+      )}
     </Fragment>
   );
 };

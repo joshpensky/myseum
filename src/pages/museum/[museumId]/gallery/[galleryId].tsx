@@ -230,10 +230,13 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                   </header>
                   <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
                     <GallerySettings
+                      id="gallery"
                       disabled={isSubmitting}
-                      minWallHeight={/*minHeight*/ 0}
-                      wallHeight={wallHeight}
-                      onWallHeightChange={setWallHeight}
+                      wallHeight={{
+                        minValue: 0, // minHeight,
+                        value: wallHeight,
+                        onChange: setWallHeight,
+                      }}
                       wallColor={wallColor}
                       onWallColorChange={setWallColor}
                     />

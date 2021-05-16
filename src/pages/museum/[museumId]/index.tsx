@@ -5,8 +5,6 @@ import tw from 'twin.macro';
 import { Gallery, GalleryColor, Museum, User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
-// import Grid from '@src/components/Grid';
-// import GridItem from '@src/components/GridItem';
 import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import MuseumMap from '@src/components/MuseumMap';
@@ -17,7 +15,6 @@ import { useAuth } from '@src/providers/AuthProvider';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Edit from '@src/svgs/Edit';
-// import { Artwork, Gallery, Museum } from '@src/types';
 
 const updateMuseumSchema = z.object({
   name: z.string().refine(string => !!string.trim().length, {
@@ -25,17 +22,16 @@ const updateMuseumSchema = z.object({
   }),
   galleries: z
     .array(
-      z
-        .object({
-          name: z.string().refine(string => !!string.trim().length, {
-            message: 'Museum must have a valid name.',
-          }),
-          color: z.nativeEnum(GalleryColor),
-          height: z.number().positive().int(),
-          xPosition: z.number().nonnegative().int(),
-          yPosition: z.number().nonnegative().int(),
-        })
-        .nonstrict(),
+      z.object({
+        id: z.number().positive().int().optional(),
+        name: z.string().refine(string => !!string.trim().length, {
+          message: 'Gallery must have a valid name.',
+        }),
+        color: z.nativeEnum(GalleryColor),
+        height: z.number().positive().int(),
+        xPosition: z.number().int(),
+        yPosition: z.number().nonnegative().int(),
+      }),
     )
     .refine(
       galleries => {
@@ -81,7 +77,14 @@ const MuseumMapView = () => {
       // Validates the museum
       const updateMuseumDto = updateMuseumSchema.parse({
         name,
-        galleries,
+        galleries: galleries.map(gallery => ({
+          id: gallery.id,
+          name: gallery.name,
+          color: gallery.color,
+          height: gallery.height,
+          xPosition: gallery.xPosition,
+          yPosition: gallery.yPosition,
+        })),
       });
       // If no errors, updates the gallery
       const res = await fetch(`/api/museum/${museum.id}`, {
@@ -159,6 +162,7 @@ const MuseumMapView = () => {
       )}
 
       <MuseumMap
+        disabled={isFormSubmitting}
         isEditing={isEditing}
         galleries={isEditing ? galleries : museum.galleries}
         setGalleries={setGalleries}
