@@ -1,6 +1,7 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import tw from 'twin.macro';
-import { Gallery } from '@prisma/client';
+import { Gallery, GalleryColor } from '@prisma/client';
+import dayjs from 'dayjs';
 import {
   DragDropContext,
   Draggable,
@@ -8,31 +9,43 @@ import {
   OnDragEndResponder,
   OnDragStartResponder,
 } from 'react-beautiful-dnd';
-// import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import EditGalleryBlock from './EditGalleryBlock';
 import Entrance from './Entrance';
 import GalleryBlock from './GalleryBlock';
 import Button from '../Button';
 
-interface MuseumMapProps {
-  disabled?: boolean;
-  galleries: Gallery[];
-  isEditing?: boolean;
-  setGalleries: Dispatch<SetStateAction<Gallery[]>>;
+export interface CreateUpdateGalleryDto {
+  id?: number;
+  name: string;
+  color: GalleryColor;
+  height: number;
+  xPosition: number;
+  yPosition: number;
+  createdAt: string | Date;
 }
 
-const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapProps) => {
+type MuseumMapProps = {
+  disabled?: boolean;
+  galleries: Gallery[];
+  editMode?: {
+    galleries: CreateUpdateGalleryDto[];
+    setGalleries: Dispatch<SetStateAction<CreateUpdateGalleryDto[]>>;
+  };
+};
+
+const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
   const [droppableSourceId, setDroppableSourceId] = useState<string | null>(null);
 
   let minX = 0;
   let maxX = 0;
   let maxY = 0;
 
-  const galleryMap = new Map<number, Map<number, Gallery>>();
+  const galleryMap = new Map<number, Map<number, Gallery | CreateUpdateGalleryDto>>();
 
   // A map of coordinates to galleries
   // { [xPos]: { [yPos]: Gallery } }
-  galleries.forEach(gallery => {
+  (editMode?.galleries ?? galleries).forEach(gallery => {
     const { xPosition, yPosition } = gallery;
     // Update the min and max X/Y coords for grid positioning
     minX = Math.min(minX, xPosition);
@@ -45,23 +58,35 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
     galleryMap.set(xPosition, galleryMapForX);
   });
 
-  // const createGalleryAtPosition = (xPosition: number, yPosition: number) => {
-  //   setGalleries([
-  //     ...galleries,
-  //     {
-  //       name: 'New Gallery',
-  //       color: 'mint',
-  //       height: 30,
-  //       xPosition,
-  //       yPosition,
-  //     },
-  //   ]);
-  // };
+  /**
+   * Type check to ensure the gallery is strictly a gallery, and not a form DTO.
+   */
+  const isStrictGallery = (
+    untypedGallery: Gallery | CreateUpdateGalleryDto,
+  ): untypedGallery is Gallery => !editMode;
 
-  const onGalleryChange = (updatedGallery: Gallery) => {
-    setGalleries(
+  const createGallery = (xPosition: number, yPosition: number) => {
+    editMode?.setGalleries(galleries => [
+      ...galleries,
+      {
+        name: 'New Gallery',
+        color: 'paper',
+        height: 40,
+        xPosition,
+        yPosition,
+        createdAt: new Date(),
+      },
+    ]);
+  };
+
+  const updateGallery = (
+    xPosition: number,
+    yPosition: number,
+    updatedGallery: CreateUpdateGalleryDto,
+  ) => {
+    editMode?.setGalleries(galleries =>
       galleries.map(gallery => {
-        if (gallery.id === updatedGallery.id) {
+        if (gallery.xPosition === xPosition && gallery.yPosition === yPosition) {
           return {
             ...gallery,
             ...updatedGallery,
@@ -70,6 +95,32 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
         return gallery;
       }),
     );
+  };
+
+  // TODO: add confirmation modal
+  const deleteGallery = (xPosition: number, yPosition: number) => {
+    editMode?.setGalleries(galleries =>
+      galleries.filter(
+        gallery => !(gallery.xPosition === xPosition && gallery.yPosition === yPosition),
+      ),
+    );
+  };
+
+  const isGalleryAdjacentToPosition = (xPosition: number, yPosition: number) => {
+    const isGalleryAbove =
+      galleryMap.get(xPosition)?.get(yPosition - 1) &&
+      droppableSourceId !== `${xPosition}:${yPosition - 1}`;
+    const isGalleryBelow =
+      galleryMap.get(xPosition)?.get(yPosition + 1) &&
+      droppableSourceId !== `${xPosition}:${yPosition + 1}`;
+    const isGalleryLeft =
+      galleryMap.get(xPosition - 1)?.get(yPosition) &&
+      droppableSourceId !== `${xPosition - 1}:${yPosition}`;
+    const isGalleryRight =
+      galleryMap.get(xPosition + 1)?.get(yPosition) &&
+      droppableSourceId !== `${xPosition + 1}:${yPosition}`;
+
+    return isGalleryAbove || isGalleryBelow || isGalleryLeft || isGalleryRight;
   };
 
   const onDragStart: OnDragStartResponder = initial => {
@@ -81,17 +132,22 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
       if (!result.destination) {
         return;
       }
-      const [xPosition, yPosition] = result.destination.droppableId
+
+      const [srcXPosition, srcYPosition] = result.source.droppableId
         .split(':')
         .map(str => Number.parseInt(str));
 
-      setGalleries(
+      const [dstXPosition, dstYPosition] = result.destination.droppableId
+        .split(':')
+        .map(str => Number.parseInt(str));
+
+      editMode?.setGalleries(galleries =>
         galleries.map(gallery => {
-          if (gallery.id === Number.parseInt(result.draggableId)) {
+          if (gallery.xPosition === srcXPosition && gallery.yPosition === srcYPosition) {
             return {
               ...gallery,
-              xPosition,
-              yPosition,
+              xPosition: dstXPosition,
+              yPosition: dstYPosition,
             };
           }
           return gallery;
@@ -107,7 +163,7 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
   // Grid height = max y + 1 (y will ALWAYS be greater than 0)
   let gridHeight = maxY + 1;
 
-  if (isEditing) {
+  if (editMode) {
     gridWidth += 2;
     gridHeight += 1;
   }
@@ -115,25 +171,21 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
   // Get the starting X position (where center x=0)
   const startingX = (gridWidth - 1) / -2;
 
-  // const containerRef = useRef<HTMLDivElement>(null);
-  // useIsomorphicLayoutEffect(() => {
-  //   if (containerRef.current) {
-  //     const observer = new ResizeObserver(entries => {
-  //       const [container] = entries;
-  //       console.log(container);
-  //     });
-  //     observer.observe(containerRef.current);
-  //     return () => {
-  //       observer.disconnect();
-  //     };
-  //   }
-  // }, []);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  // Automatically center the scroll area on mount and when entering/exiting edit mode
+  useIsomorphicLayoutEffect(() => {
+    if (scrollAreaRef.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft =
+        (scrollAreaRef.current.clientWidth - scrollContainerRef.current.clientWidth) / 2;
+    }
+  }, [!!editMode]);
 
   return (
     <div css={[tw`relative flex-1 w-full`]}>
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <div css={tw`absolute inset-0 overflow-auto`}>
-          <div /* ref={containerRef} */ css={[tw`p-6 flex flex-col items-center`]}>
+        <div ref={scrollContainerRef} css={tw`absolute inset-0 flex overflow-auto`}>
+          <div ref={scrollAreaRef} css={[tw`p-6 flex flex-col mx-auto`]}>
             <Entrance />
             <div css={tw`flex flex-col mt-2.5`}>
               {Array(gridHeight)
@@ -151,31 +203,14 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
 
                         // If no gallery for position, render empty block
                         if (!gallery) {
-                          const isDroppableAbove =
-                            galleryMapForX?.get(yPosition - 1) &&
-                            droppableSourceId !== `${xPosition}:${yPosition - 1}`;
-                          const isDroppableBelow =
-                            galleryMapForX?.get(yPosition + 1) &&
-                            droppableSourceId !== `${xPosition}:${yPosition + 1}`;
-                          const isDroppableLeft =
-                            galleryMap.get(xPosition - 1)?.get(yPosition) &&
-                            droppableSourceId !== `${xPosition - 1}:${yPosition}`;
-                          const isDroppableRight =
-                            galleryMap.get(xPosition + 1)?.get(yPosition) &&
-                            droppableSourceId !== `${xPosition + 1}:${yPosition}`;
-
-                          const isDroppable =
-                            isDroppableAbove ||
-                            isDroppableBelow ||
-                            isDroppableLeft ||
-                            isDroppableRight;
+                          const isDroppable = isGalleryAdjacentToPosition(xPosition, yPosition);
 
                           const isInvalid = xPosition === 0 && yPosition === 0;
 
                           return (
                             <div key={droppableId} css={tw`flex flex-shrink-0 m-2.5`}>
                               <div css={[tw`relative block w-96 ratio-4-3 rounded-lg bg-gray-100`]}>
-                                {isEditing && (
+                                {!!editMode && (
                                   <Droppable
                                     droppableId={droppableId}
                                     isDropDisabled={disabled || !isDroppable}>
@@ -195,19 +230,15 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
                                         ]}
                                         {...provided.droppableProps}>
                                         {isInvalid && !(isDroppable && droppableSourceId) && (
-                                          <p
-                                            css={tw`text-red-600 text-center w-full not-last:mb-3`}>
+                                          <p css={tw`text-red-600 text-center not-last:mb-3`}>
                                             There must be a gallery at the entrance.
                                           </p>
                                         )}
 
                                         {isDroppable && !droppableSourceId && (
                                           <Button
-                                          /*onClick={() =>
-                                             createGalleryAtPosition(xPosition, yPosition)
-                                            }*/
-                                          >
-                                            Add gallery here
+                                            onClick={() => createGallery(xPosition, yPosition)}>
+                                            Add gallery
                                           </Button>
                                         )}
 
@@ -221,57 +252,80 @@ const MuseumMap = ({ disabled, galleries, isEditing, setGalleries }: MuseumMapPr
                           );
                         }
 
-                        if (isEditing) {
-                          return (
-                            <div key={droppableId} css={tw`flex flex-shrink-0 m-2.5`}>
-                              <div css={[tw`relative block w-96 ratio-4-3 rounded-lg`]}>
-                                <Droppable
-                                  key={droppableId}
-                                  droppableId={droppableId}
-                                  isDropDisabled={disabled || droppableSourceId !== droppableId}>
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      css={[
-                                        tw`absolute inset-0 rounded-lg`,
-                                        droppableSourceId === droppableId &&
-                                          (snapshot.isDraggingOver
-                                            ? tw`bg-gray-200`
-                                            : tw`bg-gray-200`),
-                                      ]}
-                                      {...provided.droppableProps}>
-                                      <Draggable
-                                        key={gallery.id}
-                                        draggableId={String(gallery.id)}
-                                        index={0}
-                                        isDragDisabled={disabled}>
-                                        {(provided, snapshot) => (
-                                          <div
-                                            ref={provided.innerRef}
-                                            css={[tw`block w-96`]}
-                                            {...provided.draggableProps}
-                                            style={provided.draggableProps.style}>
-                                            <EditGalleryBlock
-                                              disabled={disabled}
-                                              gallery={gallery}
-                                              onChange={onGalleryChange}
-                                              snapshot={snapshot}
-                                              dragHandleProps={provided.dragHandleProps}
-                                            />
-                                          </div>
-                                        )}
-                                      </Draggable>
-                                      {provided.placeholder}
-                                    </div>
-                                  )}
-                                </Droppable>
-                              </div>
-                            </div>
-                          );
+                        if (isStrictGallery(gallery)) {
+                          return <GalleryBlock key={gallery.id} gallery={gallery} />;
                         }
 
-                        // Otherwise, render gallery block
-                        return <GalleryBlock key={gallery.id} gallery={gallery} />;
+                        // Assign gallery ID, or temporary one based on create date
+                        const galleryId = gallery.id ?? dayjs(gallery.createdAt).valueOf();
+
+                        // Gallery position is invalid if there isn't an adjacent one
+                        const isInvalid = !isGalleryAdjacentToPosition(xPosition, yPosition);
+
+                        return (
+                          <div key={droppableId} css={tw`flex flex-shrink-0 m-2.5`}>
+                            <div
+                              css={[
+                                tw`relative block w-96 ratio-4-3 rounded-lg`,
+                                !droppableSourceId && isInvalid && tw`ring ring-red-600`,
+                              ]}>
+                              {!droppableSourceId && isInvalid && (
+                                <p
+                                  css={[
+                                    tw`absolute py-1 px-3 bottom-0 left-1/2 rounded-full whitespace-nowrap bg-red-600 text-white text-sm z-10`,
+                                    tw`transform -translate-x-1/2 translate-y-1/2`,
+                                  ]}>
+                                  There must be a connecting gallery.
+                                </p>
+                              )}
+                              <Droppable
+                                key={droppableId}
+                                droppableId={droppableId}
+                                isDropDisabled={
+                                  disabled || isInvalid || droppableSourceId !== droppableId
+                                }>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    css={[
+                                      tw`absolute inset-0 rounded-lg`,
+                                      droppableSourceId === droppableId &&
+                                        (snapshot.isDraggingOver
+                                          ? tw`bg-gray-200`
+                                          : tw`bg-gray-200`),
+                                    ]}
+                                    {...provided.droppableProps}>
+                                    <Draggable
+                                      key={galleryId}
+                                      draggableId={String(galleryId)}
+                                      index={0}
+                                      isDragDisabled={disabled}>
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          css={[tw`block w-96`]}
+                                          {...provided.draggableProps}
+                                          style={provided.draggableProps.style}>
+                                          <EditGalleryBlock
+                                            disabled={disabled}
+                                            gallery={gallery}
+                                            onChange={updatedGallery =>
+                                              updateGallery(xPosition, yPosition, updatedGallery)
+                                            }
+                                            onDelete={() => deleteGallery(xPosition, yPosition)}
+                                            snapshot={snapshot}
+                                            dragHandleProps={provided.dragHandleProps}
+                                          />
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                    {provided.placeholder}
+                                  </div>
+                                )}
+                              </Droppable>
+                            </div>
+                          </div>
+                        );
                       })}
                   </div>
                 ))}

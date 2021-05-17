@@ -55,6 +55,6 @@ model Gallery {
   museum   Museum @relation(fields: [museumId], references: [id])
   museumId Int
 
-  @@unique([museumId, xPosition, yPosition])
+  // @@unique([museumId, xPosition, yPosition])
   @@map("galleries")
 }

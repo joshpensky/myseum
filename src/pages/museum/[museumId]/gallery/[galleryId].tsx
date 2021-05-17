@@ -1,11 +1,11 @@
 import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import tw, { css, theme } from 'twin.macro';
+import tw from 'twin.macro';
 import { Gallery, Museum, User } from '@prisma/client';
-import { rgba } from 'polished';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 // import Grid from '@src/components/Grid';
@@ -147,40 +147,15 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                   </button>
                 </div>
                 <div css={tw`flex flex-1 items-center justify-center`}>
-                  <div
-                    css={[
-                      tw`px-2 pt-2 pb-0.5 relative bg-white bg-opacity-0 rounded`,
-                      tw`transition-all hover:bg-opacity-20 focus-within:bg-opacity-20`,
-                      !name && tw`w-0 overflow-x-hidden`,
-                    ]}>
-                    <span css={tw`invisible font-serif leading-none text-3xl`} aria-hidden="true">
-                      {Array(name.length - name.trimStart().length)
-                        .fill(null)
-                        .map((_, index) => (
-                          <span key={index}>&nbsp;</span>
-                        ))}
-                      {name ? name.trim() : <span>&nbsp;</span>}
-                      {name.trim().length > 0 &&
-                        Array(name.length - name.trimEnd().length)
-                          .fill(null)
-                          .map((_, index) => <span key={index}>&nbsp;</span>)}
-                    </span>
-                    <input
-                      css={[
-                        tw`absolute left-2 top-2 w-full bg-transparent focus:outline-none font-serif leading-none text-3xl`,
-                        css`
-                          &::selection {
-                            background: ${rgba(theme`colors.white`, 0.35)};
-                          }
-                        `,
-                      ]}
-                      type="text"
-                      aria-label="Gallery name"
-                      disabled={isSubmitting}
-                      value={name}
-                      onChange={evt => setName(evt.target.value)}
-                    />
-                  </div>
+                  <AutofitTextField
+                    id="gallery-name"
+                    css={[tw`pb-0.5`]}
+                    inputCss={[tw`font-serif leading-none text-3xl`]}
+                    label="Gallery name"
+                    disabled={isSubmitting}
+                    value={name}
+                    onChange={setName}
+                  />
                 </div>
                 <div css={tw`flex flex-1 items-center justify-end`}>
                   <button disabled={isSubmitting} onClick={onSave}>

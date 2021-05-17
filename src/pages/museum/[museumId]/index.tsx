@@ -6,8 +6,9 @@ import { Gallery, GalleryColor, Museum, User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
+import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
-import MuseumMap from '@src/components/MuseumMap';
+import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
 import Portal from '@src/components/Portal';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
@@ -61,7 +62,7 @@ const MuseumMapView = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
-  const [galleries, setGalleries] = useState<Gallery[]>([]);
+  const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>([]);
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
@@ -86,6 +87,7 @@ const MuseumMapView = () => {
           yPosition: gallery.yPosition,
         })),
       });
+
       // If no errors, updates the gallery
       const res = await fetch(`/api/museum/${museum.id}`, {
         method: 'PATCH',
@@ -136,9 +138,9 @@ const MuseumMapView = () => {
             <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
             <div css={tw`flex flex-1`}>
               <div css={tw`flex flex-1 items-center justify-start`}>
-                <button onClick={() => setIsEditing(false)} disabled={isFormSubmitting}>
+                <Button onClick={() => setIsEditing(false)} disabled={isFormSubmitting}>
                   Cancel
-                </button>
+                </Button>
               </div>
               <div css={tw`flex flex-1 items-center justify-center`}>
                 <AutofitTextField
@@ -152,9 +154,9 @@ const MuseumMapView = () => {
                 />
               </div>
               <div css={tw`flex flex-1 items-center justify-end`}>
-                <button onClick={onSave} disabled={isFormSubmitting}>
+                <Button onClick={onSave} disabled={isFormSubmitting}>
                   Save
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -163,9 +165,8 @@ const MuseumMapView = () => {
 
       <MuseumMap
         disabled={isFormSubmitting}
-        isEditing={isEditing}
-        galleries={isEditing ? galleries : museum.galleries}
-        setGalleries={setGalleries}
+        galleries={museum.galleries}
+        editMode={isEditing ? { galleries, setGalleries } : undefined}
       />
     </ThemeProvider>
   );
