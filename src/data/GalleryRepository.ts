@@ -22,6 +22,16 @@ export class GalleryRepository {
             curator: true,
           },
         },
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                frame: true,
+                artist: true,
+              },
+            },
+          },
+        },
       },
     });
     return gallery;
@@ -44,6 +54,16 @@ export class GalleryRepository {
           include: {
             galleries: true,
             curator: true,
+          },
+        },
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                frame: true,
+                artist: true,
+              },
+            },
           },
         },
       },

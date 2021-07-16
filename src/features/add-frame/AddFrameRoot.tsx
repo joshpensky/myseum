@@ -41,6 +41,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
   const [description, setDescription] = useState('');
 
   const [isPreviewRotated, setIsPreviewRotated] = useState(false);
+  const [isPreviewManuallyRotated, setIsPreviewManuallyRotated] = useState(false);
   const [isEditingSelection, setIsEditingSelection] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -105,7 +106,10 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
         ) : (
           <Fragment>
             <FeatureFormModal.Main>
-              <FramePreview rotate={isPreviewRotated} />
+              <FramePreview
+                rotated={isPreviewManuallyRotated || isPreviewRotated}
+                setRotated={setIsPreviewManuallyRotated}
+              />
             </FeatureFormModal.Main>
             <FeatureFormModal.Sidebar>
               <FeatureFormModal.SidebarPanel title="Selection">

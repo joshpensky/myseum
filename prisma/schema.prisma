@@ -55,6 +55,73 @@ model Gallery {
   museum   Museum @relation(fields: [museumId], references: [id])
   museumId Int
 
+  artworks GalleryArtwork[]
+
   // @@unique([museumId, xPosition, yPosition])
   @@map("galleries")
+}
+
+model Frame {
+  id          Int    @id @default(autoincrement())
+  src         String
+  description String
+  width       Float
+  height      Float
+  depth       Float
+  windowX1    Float
+  windowY1    Float
+  windowX2    Float
+  windowY2    Float
+  windowX3    Float
+  windowY3    Float
+  windowX4    Float
+  windowY4    Float
+
+  artworks Artwork[]
+
+  @@map("frames")
+}
+
+model Artist {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  artworks Artwork[]
+
+  @@map("artists")
+}
+
+model Artwork {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  src         String
+  alt         String
+  width       Float
+  height      Float
+  createdAt   DateTime @default(now())
+  acquiredAt  DateTime @default(now())
+
+  frame Frame @relation(fields: [frameId], references: [id])
+  frameId Int
+
+  artist Artist? @relation(fields: [artistId], references: [id])
+  artistId Int?
+
+  galleries GalleryArtwork[]
+
+  @@map("artworks")
+}
+
+model GalleryArtwork {
+  xPosition Int
+  yPosition Int
+
+  artwork Artwork @relation(fields: [artworkId], references: [id])
+  artworkId Int
+
+  gallery Gallery @relation(fields: [galleryId], references: [id])
+  galleryId Int
+
+  @@id(fields: [artworkId, galleryId])
 }

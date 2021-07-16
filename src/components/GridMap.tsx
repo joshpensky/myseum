@@ -33,8 +33,8 @@ const GridMap = ({ children }: GridMapProps) => {
       css={tw`fill-current`}
       x={position.x}
       y={position.y}
-      width={item.frame.dimensions.width}
-      height={item.frame.dimensions.height}
+      width={item.frame.width}
+      height={item.frame.height}
     />
   ));
 
@@ -45,9 +45,9 @@ const GridMap = ({ children }: GridMapProps) => {
         theme &&
           {
             mint: tw`text-mint-400`,
-            pink: tw`text-mint-400`, // TODO
+            pink: tw`text-mint-400`, // TODO:
             navy: tw`text-navy-800`,
-            paper: tw`text-mint-400`, // TODO
+            paper: tw`text-mint-400`, // TODO:
           }[theme.color],
         tw`relative border border-current rounded-md h-6 mx-auto overflow-hidden max-w-2xl`,
         css`

@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
-import { Gallery, GalleryColor, Museum, User } from '@prisma/client';
+import { GalleryColor, Museum, User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
+import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 import Portal from '@src/components/Portal';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
@@ -51,7 +52,7 @@ export interface MuseumMapViewProps {
   basePath: string;
   museum: Museum & {
     curator: User;
-    galleries: Gallery[];
+    galleries: GalleryBlockProps['gallery'][];
   };
 }
 

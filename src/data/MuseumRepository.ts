@@ -29,7 +29,20 @@ export class MuseumRepository {
       where: { id },
       include: {
         curator: true,
-        galleries: true,
+        galleries: {
+          include: {
+            artworks: {
+              include: {
+                artwork: {
+                  include: {
+                    frame: true,
+                    artist: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
     return museum;
@@ -112,7 +125,20 @@ export class MuseumRepository {
       },
       include: {
         curator: true,
-        galleries: true,
+        galleries: {
+          include: {
+            artworks: {
+              include: {
+                artwork: {
+                  include: {
+                    artist: true,
+                    frame: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 

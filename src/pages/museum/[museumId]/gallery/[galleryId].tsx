@@ -2,14 +2,14 @@ import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
-import { Gallery, Museum, User } from '@prisma/client';
+import { Artist, Artwork, Frame, Gallery, GalleryArtwork, Museum, User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
-// import Grid from '@src/components/Grid';
-// import GridItem from '@src/components/GridItem';
+import Grid from '@src/components/Grid';
+import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
@@ -27,7 +27,14 @@ import Edit from '@src/svgs/Edit';
 
 export interface GalleryViewProps {
   basePath: string;
-  gallery: Gallery;
+  gallery: Gallery & {
+    artworks: (GalleryArtwork & {
+      artwork: Artwork & {
+        frame: Frame;
+        artist: Artist | null;
+      };
+    })[];
+  };
   museum: Museum & {
     galleries: Gallery[];
     curator: User;
@@ -104,19 +111,19 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     }
   };
 
-  // const { artworks } = gallery;
+  const { artworks } = gallery;
 
-  // // Generates min height based on the lowest-positioned frame
-  // const minHeight = artworks.reduce((acc, { item, position }) => {
-  //   const y2 = position.y + Math.ceil(item.frame.dimensions.height);
-  //   return Math.max(acc, y2);
-  // }, 1);
+  // Generates min height based on the lowest-positioned frame
+  const minHeight = artworks.reduce((acc, item) => {
+    const y2 = item.yPosition + Math.ceil(item.artwork.frame.height);
+    return Math.max(acc, y2);
+  }, 1);
 
-  // // Generates min columns based on the frame positioned furthest to the right
-  // const minColumns = artworks.reduce((acc, { item, position }) => {
-  //   const x2 = position.x + Math.ceil(item.frame.dimensions.width);
-  //   return Math.max(acc, x2);
-  // }, 1);
+  // Generates min columns based on the frame positioned furthest to the right
+  const minColumns = artworks.reduce((acc, item) => {
+    const x2 = item.xPosition + Math.ceil(item.artwork.frame.width);
+    return Math.max(acc, x2);
+  }, 1);
 
   return (
     <ThemeProvider color={wallColor}>
@@ -208,7 +215,7 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                       id="gallery"
                       disabled={isSubmitting}
                       wallHeight={{
-                        minValue: 0, // minHeight,
+                        minValue: minHeight,
                         value: wallHeight,
                         onChange: setWallHeight,
                       }}
@@ -236,11 +243,15 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           )}
         </div>
 
-        {/* <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
-          {artworks.map(({ item, position }, idx) => (
-            <GridItem key={idx} item={item} position={position} />
+        <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
+          {artworks.map((item, idx) => (
+            <GridItem
+              key={idx}
+              item={item.artwork}
+              position={{ x: item.xPosition, y: item.yPosition }}
+            />
           ))}
-        </Grid> */}
+        </Grid>
       </div>
     </ThemeProvider>
   );

@@ -1,10 +1,14 @@
 import tw, { css } from 'twin.macro';
-import Artwork from '@src/components/Artwork';
+import { Artist, Artwork, Frame } from '@prisma/client';
+import ArtworkComponent from '@src/components/Artwork';
 import { useGrid } from '@src/providers/GridProvider';
-import { Artwork as ArtworkData, Position } from '@src/types';
+import { Position } from '@src/types';
 
 export type GridItemProps = {
-  item: ArtworkData;
+  item: Artwork & {
+    frame: Frame;
+    artist: Artist | null;
+  };
   position: Position;
 };
 
@@ -15,8 +19,7 @@ const GridItem = ({ item, position }: GridItemProps) => {
   }
   const { itemSize } = gridCtx;
 
-  const { dimensions } = item.frame;
-  const { width: frameWidth, height: frameHeight } = dimensions;
+  const { width: frameWidth, height: frameHeight } = item.frame;
 
   return (
     <div
@@ -36,7 +39,7 @@ const GridItem = ({ item, position }: GridItemProps) => {
             height: ${frameHeight * itemSize}px;
           `,
         ]}>
-        <Artwork data={item} withShadow />
+        <ArtworkComponent data={item} withShadow />
       </div>
     </div>
   );

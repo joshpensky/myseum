@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import tw, { css, theme } from 'twin.macro';
+import { Artist, Artwork, Frame, Gallery } from '@prisma/client';
 import { rgba } from 'polished';
 import ArtworkDetails from '@src/components/ArtworkDetails';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { useGrid } from '@src/providers/GridProvider';
 import { useTheme } from '@src/providers/ThemeProvider';
-import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 
 export type ArtworkProps = {
-  data: ArtworkData | MuseumCollectionItem;
+  data: Artwork & {
+    frame: Frame;
+    artist: Artist | null;
+    gallery?: Gallery;
+  };
   withShadow?: boolean;
 };
 
 const BEZEL = 0.05;
 
-const Artwork = ({ data, withShadow }: ArtworkProps) => {
+const ArtworkComponent = ({ data, withShadow }: ArtworkProps) => {
   const themeCtx = useTheme();
   const gridCtx = useGrid();
 
@@ -41,8 +45,8 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
     frameImg.src = frame.src;
   }, [src]);
 
-  const { width: frameWidth, height: frameHeight } = frame.dimensions;
-  const { width: artworkWidth, height: artworkHeight } = data.dimensions;
+  const { width: frameWidth, height: frameHeight } = frame;
+  const { width: artworkWidth, height: artworkHeight } = data;
 
   const artworkX = (frameWidth - artworkWidth) / 2;
   const artworkY = (frameHeight - artworkHeight) / 2;
@@ -127,7 +131,27 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
 
         <defs>
           {/* Define window path */}
-          <path id={`artwork-${id}-window`} d={CanvasUtils.getLineCommands(frame.window)} />
+          <path
+            id={`artwork-${id}-window`}
+            d={CanvasUtils.getLineCommands([
+              {
+                x: frame.windowX1,
+                y: frame.windowY1,
+              },
+              {
+                x: frame.windowX2,
+                y: frame.windowY2,
+              },
+              {
+                x: frame.windowX3,
+                y: frame.windowY3,
+              },
+              {
+                x: frame.windowX4,
+                y: frame.windowY4,
+              },
+            ])}
+          />
 
           {/* Define window inner shadow (https://stackoverflow.com/a/53503687) */}
           <filter id={`artwork-${id}-inner-shadow`}>
@@ -266,4 +290,4 @@ const Artwork = ({ data, withShadow }: ArtworkProps) => {
   );
 };
 
-export default Artwork;
+export default ArtworkComponent;

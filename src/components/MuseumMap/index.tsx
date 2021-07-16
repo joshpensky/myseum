@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import tw from 'twin.macro';
-import { Gallery, GalleryColor } from '@prisma/client';
+import { GalleryColor } from '@prisma/client';
 import dayjs from 'dayjs';
 import {
   DragDropContext,
@@ -12,7 +12,7 @@ import {
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import EditGalleryBlock from './EditGalleryBlock';
 import Entrance from './Entrance';
-import GalleryBlock from './GalleryBlock';
+import GalleryBlock, { GalleryBlockProps } from './GalleryBlock';
 import Button from '../Button';
 
 export interface CreateUpdateGalleryDto {
@@ -23,11 +23,12 @@ export interface CreateUpdateGalleryDto {
   xPosition: number;
   yPosition: number;
   createdAt: string | Date;
+  artworks: GalleryBlockProps['gallery']['artworks'];
 }
 
 type MuseumMapProps = {
   disabled?: boolean;
-  galleries: Gallery[];
+  galleries: GalleryBlockProps['gallery'][];
   editMode?: {
     galleries: CreateUpdateGalleryDto[];
     setGalleries: Dispatch<SetStateAction<CreateUpdateGalleryDto[]>>;
@@ -41,7 +42,10 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
   let maxX = 0;
   let maxY = 0;
 
-  const galleryMap = new Map<number, Map<number, Gallery | CreateUpdateGalleryDto>>();
+  const galleryMap = new Map<
+    number,
+    Map<number, GalleryBlockProps['gallery'] | CreateUpdateGalleryDto>
+  >();
 
   // A map of coordinates to galleries
   // { [xPos]: { [yPos]: Gallery } }
@@ -53,7 +57,8 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
     maxY = Math.max(maxY, yPosition);
 
     // Add the gallery to the map
-    const galleryMapForX = galleryMap.get(xPosition) ?? new Map<number, Gallery>();
+    const galleryMapForX =
+      galleryMap.get(xPosition) ?? new Map<number, GalleryBlockProps['gallery']>();
     galleryMapForX.set(yPosition, gallery);
     galleryMap.set(xPosition, galleryMapForX);
   });
@@ -62,8 +67,8 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
    * Type check to ensure the gallery is strictly a gallery, and not a form DTO.
    */
   const isStrictGallery = (
-    untypedGallery: Gallery | CreateUpdateGalleryDto,
-  ): untypedGallery is Gallery => !editMode;
+    untypedGallery: GalleryBlockProps['gallery'] | CreateUpdateGalleryDto,
+  ): untypedGallery is GalleryBlockProps['gallery'] => !editMode;
 
   const createGallery = (xPosition: number, yPosition: number) => {
     editMode?.setGalleries(galleries => [
@@ -75,6 +80,7 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
         xPosition,
         yPosition,
         createdAt: new Date(),
+        artworks: [],
       },
     ]);
   };

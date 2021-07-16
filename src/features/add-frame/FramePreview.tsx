@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import tw, { css, theme } from 'twin.macro';
 import type { Matrix } from 'glfx-es6';
 import PerspT from 'perspective-transform';
@@ -14,12 +14,13 @@ import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { useAddFrameContext } from './AddFrameContext';
 
 type FramePreviewProps = {
-  rotate?: boolean;
+  rotated: boolean;
+  setRotated: Dispatch<SetStateAction<boolean>>;
 };
 
 // https://css-tricks.com/css-in-3d-learning-to-think-in-cubes-instead-of-boxes/
 
-const FramePreview = ({ rotate }: FramePreviewProps) => {
+const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
   const { actualDimensions, depth, editor, image, measurement } = useAddFrameContext();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -73,9 +74,9 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
     [],
   );
 
-  // Toggles light mode when the `L` key is pressed
+  // Toggles light mode when the `L` key is pressed, and rotation when the `R` key is pressed
   useEffect(() => {
-    const toggleLightMode = (evt: KeyboardEvent) => {
+    const onKeyDown = (evt: KeyboardEvent) => {
       const isTypingInput = (
         el: Element,
       ): el is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement =>
@@ -84,17 +85,24 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
       // Checks that the user isn't currently typing in an input
       const focusedEl = document.activeElement;
       const isUserTyping = focusedEl && isTypingInput(focusedEl) && focusedEl.type !== 'number';
+      if (isUserTyping) {
+        return;
+      }
 
-      if (evt.key === 'l' && !isUserTyping) {
+      if (evt.key === 'l') {
         evt.preventDefault();
         evt.stopPropagation();
         setLightMode(mode => !mode);
+      } else if (evt.key === 'r') {
+        evt.preventDefault();
+        evt.stopPropagation();
+        setRotated(rotated => !rotated);
       }
     };
 
-    window.addEventListener('keydown', toggleLightMode, true);
+    window.addEventListener('keydown', onKeyDown, true);
     return () => {
-      window.removeEventListener('keydown', toggleLightMode, true);
+      window.removeEventListener('keydown', onKeyDown, true);
     };
   }, []);
 
@@ -215,7 +223,7 @@ const FramePreview = ({ rotate }: FramePreviewProps) => {
             --width: ${previewDimensions.width};
             --height: ${previewDimensions.height};
             --depth: ${depth * previewUnitSize};
-            --angle: ${rotate ? 30 : 0};
+            --angle: ${rotated ? 30 : 0};
             --color: ${depthColor};
             --color-shade: ${darken(0.1, depthColor)};
 

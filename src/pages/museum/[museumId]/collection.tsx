@@ -2,17 +2,20 @@ import { lazy, Suspense, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
-import { Museum } from '@prisma/client';
+import { Gallery, Museum } from '@prisma/client';
 import * as z from 'zod';
-import Artwork from '@src/components/Artwork';
+import Artwork, { ArtworkProps } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
-import { MuseumCollectionItem } from '@src/types';
 
 const AddArtworkRoot = lazy(() => import('@src/features/add-artwork/AddArtworkRoot'));
+
+type MuseumCollectionItem = ArtworkProps['data'] & {
+  gallery: Gallery;
+};
 
 export interface MuseumCollectionViewProps {
   collection: MuseumCollectionItem[];
@@ -82,11 +85,20 @@ export const getServerSideProps: GetServerSideProps<
       throw new Error('Museum not found.');
     }
 
+    const collection: MuseumCollectionItem[] = museum.galleries
+      .map(({ artworks, ...gallery }) =>
+        artworks.map(artwork => ({
+          ...artwork.artwork,
+          gallery,
+        })),
+      )
+      .flat();
+
     return {
       props: {
         basePath: `/museum/${museum.id}`,
         museum,
-        collection: [], // TODO: add collection
+        collection,
       },
     };
   } catch (error) {

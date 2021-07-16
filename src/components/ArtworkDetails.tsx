@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
+import { Artist, Artwork, Frame, Gallery } from '@prisma/client';
 import dayjs from 'dayjs';
 import IconButton from '@src/components/IconButton';
 import Popover, { usePopover } from '@src/components/Popover';
@@ -10,10 +11,13 @@ import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
 import Fullscreen from '@src/svgs/Fullscreen';
 import Trash from '@src/svgs/Trash';
-import { Artwork as ArtworkData, MuseumCollectionItem } from '@src/types';
 
 export type ArtworkDetailProps = {
-  data: ArtworkData | MuseumCollectionItem;
+  data: Artwork & {
+    frame: Frame;
+    artist: Artist | null;
+    gallery?: Gallery;
+  };
   disabled?: boolean;
 };
 
@@ -25,7 +29,7 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
 
   const popover = usePopover(`artwork-details-${detailsId}`);
 
-  const { title, artist, description, acquiredAt, createdAt, dimensions } = data;
+  const { title, artist, description, acquiredAt, createdAt } = data;
 
   return (
     <Popover {...popover.wrapperProps} css={tw`h-full`} disabled={disabled} origin="right top">
@@ -72,18 +76,21 @@ const ArtworkDetails = ({ children, data, disabled }: PropsWithChildren<ArtworkD
               <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
             <p>
-              {dimensions.width} x {dimensions.height} in.
+              {data.width} x {data.height} in.
             </p>
           </div>
+
           <p>{description}</p>
-          {(acquiredAt || 'gallery' in data) && (
+
+          {(acquiredAt || data.gallery) && (
             <div css={tw`italic mt-6`}>
               {acquiredAt && (
                 <p css={tw`text-sm`}>
                   Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
                 </p>
               )}
-              {'gallery' in data && (
+
+              {data.gallery && (
                 <p css={tw`text-sm`}>
                   Featured in the{' '}
                   <Link
