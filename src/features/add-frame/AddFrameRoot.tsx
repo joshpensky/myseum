@@ -1,12 +1,17 @@
-import { FormEvent, Fragment, useContext, useRef, useState } from 'react';
+import { Fragment, useContext, useRef, useState } from 'react';
 import tw from 'twin.macro';
+import { Frame } from '@prisma/client';
 import { MoveFocusInside } from 'react-focus-lock';
+import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import FeatureFormModal from '@src/components/FeatureFormModal';
+import { CreateFrameDto } from '@src/data/FrameRepository';
+import { supabase } from '@src/data/supabase';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import UploadImage from '@src/features/add-artwork/UploadImage';
 import { DEFAULT_POINTS, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Measurement } from '@src/types';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { AddFrameContext } from './AddFrameContext';
 import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
@@ -15,10 +20,11 @@ import UploadToast from './UploadToast';
 import EditSelectionModal from '../EditSelectionModal';
 
 export type AddFrameRootProps = {
+  onSubmit(frame: Frame): void;
   onClose(): void;
 };
 
-const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
+const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
   const addArtworkContext = useContext(AddArtworkContext);
 
   const uploadInputRef = useRef<HTMLInputElement>(null);
@@ -49,12 +55,45 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
    * Callback handler for when the form submits. Validates and saves data
    * to the API, then closes the modal.
    */
-  const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      // TODO: validate and save data to API
-      console.log(evt);
+
+      // TODO: validate data
+
+      // TODO: supabase.storage.from('frames').upload()
+
+      // TODO: submit data to API
+      // const createFrameDto: CreateFrameDto = {
+      //   src: '', // TODO: add supabase upload URL
+      //   description,
+      //   width: actualDimensions.width, // TODO: convert from other measurements to inches
+      //   height: actualDimensions.height, // TODO: convert from other measurements to inches
+      //   depth, // TODO: convert from other measurements to inches
+      //   // windowX1: srcPoints[0].x,
+      //   // windowY1: srcPoints[0].y,
+      //   // windowX2: srcPoints[1].x,
+      //   // windowY2: srcPoints[1].y,
+      //   // windowX3: srcPoints[2].x,
+      //   // windowY3: srcPoints[2].y,
+      //   // windowX4: srcPoints[3].x,
+      //   // windowY4: srcPoints[3].y,
+      // };
+
+      // const res = await fetch('/api/frames', {
+      //   method: 'POST',
+      //   headers: new Headers({
+      //     'Content-Type': 'application/json',
+      //   }),
+      //   body: JSON.stringify(createFrameDto),
+      // });
+      // const data = await res.json();
+      // onSubmit(data);
+
       return true;
+    } catch (error) {
+      toast.error(JSON.stringify(error)); // TODO: better error handling
+      return false;
     } finally {
       setIsSubmitting(false);
     }
@@ -84,7 +123,7 @@ const AddFrameRoot = ({ onClose }: AddFrameRootProps) => {
         disabledSubmit={isSubmitting || isEditingSelection || !description.trim()}
         hideSubmit={!image}
         onClose={onClose}
-        onSubmit={onSubmit}>
+        onSubmit={handleSubmit}>
         {!image ? (
           <FeatureFormModal.Main>
             <UploadImage

@@ -58,7 +58,20 @@ export class MuseumRepository {
       .museum({
         include: {
           curator: true,
-          galleries: true,
+          galleries: {
+            include: {
+              artworks: {
+                include: {
+                  artwork: {
+                    include: {
+                      frame: true,
+                      artist: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
     return museum;

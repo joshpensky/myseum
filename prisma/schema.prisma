@@ -102,8 +102,8 @@ model Artwork {
   createdAt   DateTime @default(now())
   acquiredAt  DateTime @default(now())
 
-  frame Frame @relation(fields: [frameId], references: [id])
-  frameId Int
+  frame Frame? @relation(fields: [frameId], references: [id])
+  frameId Int?
 
   artist Artist? @relation(fields: [artistId], references: [id])
   artistId Int?

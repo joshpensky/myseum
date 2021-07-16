@@ -18,7 +18,20 @@ export class GalleryRepository {
       include: {
         museum: {
           include: {
-            galleries: true,
+            galleries: {
+              include: {
+                artworks: {
+                  include: {
+                    artwork: {
+                      include: {
+                        frame: true,
+                        artist: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
             curator: true,
           },
         },
@@ -52,7 +65,20 @@ export class GalleryRepository {
       include: {
         museum: {
           include: {
-            galleries: true,
+            galleries: {
+              include: {
+                artworks: {
+                  include: {
+                    artwork: {
+                      include: {
+                        frame: true,
+                        artist: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
             curator: true,
           },
         },

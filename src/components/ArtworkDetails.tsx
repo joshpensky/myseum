@@ -14,7 +14,7 @@ import Trash from '@src/svgs/Trash';
 
 export type ArtworkDetailProps = {
   data: Artwork & {
-    frame: Frame;
+    frame: Frame | null;
     artist: Artist | null;
     gallery?: Gallery;
   };

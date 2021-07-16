@@ -33,8 +33,8 @@ const GridMap = ({ children }: GridMapProps) => {
       css={tw`fill-current`}
       x={position.x}
       y={position.y}
-      width={item.frame.width}
-      height={item.frame.height}
+      width={item.frame?.width ?? item.width}
+      height={item.frame?.height ?? item.height}
     />
   ));
 

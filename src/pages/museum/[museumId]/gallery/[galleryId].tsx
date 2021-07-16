@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
-import { Artist, Artwork, Frame, Gallery, GalleryArtwork, Museum, User } from '@prisma/client';
+import { Museum, User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
@@ -11,6 +11,7 @@ import GallerySettings from '@src/components/GallerySettings';
 import Grid from '@src/components/Grid';
 import GridItem from '@src/components/GridItem';
 import IconButton from '@src/components/IconButton';
+import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 import Popover, { usePopover } from '@src/components/Popover';
 import Portal from '@src/components/Portal';
 import { GalleryRepository } from '@src/data/GalleryRepository';
@@ -27,16 +28,9 @@ import Edit from '@src/svgs/Edit';
 
 export interface GalleryViewProps {
   basePath: string;
-  gallery: Gallery & {
-    artworks: (GalleryArtwork & {
-      artwork: Artwork & {
-        frame: Frame;
-        artist: Artist | null;
-      };
-    })[];
-  };
+  gallery: GalleryBlockProps['gallery'];
   museum: Museum & {
-    galleries: Gallery[];
+    galleries: GalleryBlockProps['gallery'][];
     curator: User;
   };
 }
@@ -115,13 +109,13 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   // Generates min height based on the lowest-positioned frame
   const minHeight = artworks.reduce((acc, item) => {
-    const y2 = item.yPosition + Math.ceil(item.artwork.frame.height);
+    const y2 = item.yPosition + Math.ceil(item.artwork.frame?.height ?? item.artwork.height);
     return Math.max(acc, y2);
   }, 1);
 
   // Generates min columns based on the frame positioned furthest to the right
   const minColumns = artworks.reduce((acc, item) => {
-    const x2 = item.xPosition + Math.ceil(item.artwork.frame.width);
+    const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
     return Math.max(acc, x2);
   }, 1);
 

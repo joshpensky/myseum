@@ -6,7 +6,7 @@ import { Position } from '@src/types';
 
 export type GridItemProps = {
   item: Artwork & {
-    frame: Frame;
+    frame: Frame | null;
     artist: Artist | null;
   };
   position: Position;
@@ -19,7 +19,8 @@ const GridItem = ({ item, position }: GridItemProps) => {
   }
   const { itemSize } = gridCtx;
 
-  const { width: frameWidth, height: frameHeight } = item.frame;
+  const frameWidth = item.frame?.width ?? item.width;
+  const frameHeight = item.frame?.height ?? item.height;
 
   return (
     <div

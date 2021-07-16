@@ -11,7 +11,7 @@ export interface GalleryBlockProps {
   gallery: Gallery & {
     artworks: (GalleryArtwork & {
       artwork: Artwork & {
-        frame: Frame;
+        frame: Frame | null;
         artist: Artist | null;
       };
     })[];
