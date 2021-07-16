@@ -35,7 +35,7 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
   return (
     <div css={tw`flex flex-col mr-5 mb-5`}>
       <input
-        css={tw`sr-only not-disabled:focus-visible:sibling:(ring-1)`}
+        css={tw`sr-only not-disabled:focus:sibling:(ring-1)`}
         id={id}
         type="radio"
         name="frame"
@@ -70,6 +70,7 @@ const FrameInput = ({ label, value }: FrameInputProps) => {
           css={[
             tw`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10`,
             tw`size-7 bg-white bg-opacity-20 flex items-center justify-center rounded-full`,
+            tw`border border-white border-opacity-50`,
             [tw`transition-all`, !isChecked && tw`opacity-0 scale-75`],
           ]}>
           <span css={tw`block size-4`}>
