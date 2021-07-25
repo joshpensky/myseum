@@ -68,6 +68,15 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     setIsEditing(true);
   };
 
+  const onCancel = () => {
+    // Reset state
+    setName(gallery.name);
+    setWallColor(gallery.color);
+    setWallHeight(gallery.height);
+    // Exit editing mode
+    exitEditingMode();
+  };
+
   /**
    * Handler for saving updates made in edit mode.
    */
@@ -143,7 +152,7 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
               <div css={tw`flex flex-1`}>
                 <div css={tw`flex flex-1 items-center justify-start`}>
-                  <button disabled={isSubmitting} onClick={() => exitEditingMode()}>
+                  <button disabled={isSubmitting} onClick={() => onCancel()}>
                     Cancel
                   </button>
                 </div>
@@ -159,7 +168,7 @@ const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                   />
                 </div>
                 <div css={tw`flex flex-1 items-center justify-end`}>
-                  <button disabled={isSubmitting} onClick={onSave}>
+                  <button disabled={isSubmitting} onClick={() => onSave()}>
                     Save
                   </button>
                 </div>
