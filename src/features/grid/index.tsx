@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import { Grid } from './Grid';
-import { GridItem } from './GridItem';
+import { GridItem, GridItemChildProps } from './GridItem';
 import { isInBounds } from './bounds';
 import styles from './styles.module.scss';
 import { ItemError, MoveControllerType, Position, Size } from './types';
@@ -13,48 +13,36 @@ const cx = classNames.bind(styles);
 // TODO: a11y: announcements!
 // TODO: finding a place to add new items
 
-interface BaseItem {
+export interface GridItem {
   position: Position;
   size: Size;
 }
 
-interface Item extends BaseItem {
-  id: number;
-  color: string;
+interface GridFeatureProps<Item extends GridItem> {
+  items: Item[];
+  getItemId(item: Item): string;
+  size: Size;
+  onItemChange(index: number, value: Item): void;
+  onSizeChange?(value: Size): void;
+  renderItem(item: Item, props: GridItemChildProps & { disabled: boolean }): ReactNode;
 }
 
-export default function App() {
-  const [gridSize, setGridSize] = useState({ width: 10, height: 20 });
-
-  const [items, setItems] = useState<Item[]>([
-    {
-      id: 1,
-      color: 'rebeccapurple',
-      position: { x: 0, y: 0 },
-      size: { width: 1, height: 1 },
-    },
-    {
-      id: 2,
-      color: 'pink',
-      position: { x: 5, y: 6 },
-      size: { width: 2, height: 3 },
-    },
-    {
-      id: 3,
-      color: 'MediumSeaGreen',
-      position: { x: 2, y: 14 },
-      size: { width: 5, height: 2 },
-    },
-  ]);
-
+function GridFeature<Item extends GridItem>({
+  items,
+  size,
+  getItemId,
+  renderItem,
+  onItemChange,
+  onSizeChange,
+}: GridFeatureProps<Item>) {
   const [gridMoveType, setGridMoveType] = useState<MoveControllerType | null>(null);
 
   const isItemInBounds = (item: Item) =>
     isInBounds(item, {
       top: 0,
-      bottom: gridSize.height,
+      bottom: size.height,
       left: 0,
-      right: gridSize.width,
+      right: size.width,
     });
 
   const doItemsOverlap = (itemA: Item, itemB: Item) => {
@@ -81,8 +69,8 @@ export default function App() {
   };
 
   // Declare projection states
-  const [itemErrorMap, setItemErrorMap] = useState(new Map<number, ItemError>());
-  const [projectedItem, setProjectedItem] = useState<BaseItem | null>(null);
+  const [itemErrorMap, setItemErrorMap] = useState(new Map<string, ItemError>());
+  const [projectedItem, setProjectedItem] = useState<GridItem | null>(null);
 
   const onPositionProjectionChange = (index: number, position: Position) => {
     const referredItem = items[index];
@@ -96,31 +84,31 @@ export default function App() {
     // Check if any of the other items are overlapping with moving item
     const overlapStates = items.map(item => {
       // Skip over the moving item
-      if (item.id === projectedItem.id) {
+      if (getItemId(item) === getItemId(projectedItem)) {
         return false;
       }
 
       const doesOverlap = doItemsOverlap(item, projectedItem);
       if (doesOverlap) {
-        newItemErrorMap.set(item.id, 'overlapping');
+        newItemErrorMap.set(getItemId(item), 'overlapping');
         return true;
       } else {
-        newItemErrorMap.delete(item.id);
+        newItemErrorMap.delete(getItemId(item));
         return false;
       }
     });
 
     if (overlapStates.some(Boolean)) {
       // If there are any overlapping items, update moving item's state!
-      newItemErrorMap.set(projectedItem.id, 'overlapping');
+      newItemErrorMap.set(getItemId(projectedItem), 'overlapping');
       setProjectedItem(null);
     } else if (!isItemInBounds(projectedItem)) {
       // If moving item is out of bounds, update state!
-      newItemErrorMap.set(projectedItem.id, 'out-of-bounds');
+      newItemErrorMap.set(getItemId(projectedItem), 'out-of-bounds');
       setProjectedItem(null);
     } else {
       // Otherwise, clear state
-      newItemErrorMap.delete(projectedItem.id);
+      newItemErrorMap.delete(getItemId(projectedItem));
       setProjectedItem({
         position: projectedItem.position,
         size: projectedItem.size,
@@ -139,9 +127,9 @@ export default function App() {
    * @returns the final position of the item, which could be the same if the change is rejected
    */
   const onPositionChange = (index: number, position: Position): Position => {
-    const referredItem = items[index];
+    const currentItem = items[index];
     const projectedItem = {
-      ...referredItem,
+      ...currentItem,
       position,
     };
 
@@ -151,7 +139,7 @@ export default function App() {
 
     // If item is out of bounds, don't update position
     if (!isItemInBounds(projectedItem)) {
-      return referredItem.position;
+      return currentItem.position;
     }
 
     const itemsBefore = items.slice(0, index);
@@ -161,27 +149,28 @@ export default function App() {
 
     // If any items are overlapping, don't update position
     if (doItemsBeforeOverlap || doItemsAfterOverlap) {
-      return referredItem.position;
+      return currentItem.position;
     }
 
     // Otherwise, good to update position!
-    setItems([...itemsBefore, projectedItem, ...itemsAfter]);
+    onItemChange(index, projectedItem);
+    // And return the changed position
     return projectedItem.position;
   };
 
   // Auto-expand the grid when the projected item moves toward an edge
   useLayoutEffect(() => {
-    if (projectedItem) {
-      const nextGridSize = { ...gridSize };
+    if (onSizeChange && projectedItem) {
+      const nextSize = { ...size };
       const projectedItemRightX = projectedItem.position.x + projectedItem.size.width;
-      if (nextGridSize.width <= projectedItemRightX) {
-        nextGridSize.width += 1;
+      if (nextSize.width <= projectedItemRightX) {
+        nextSize.width += 1;
       }
       const projectedItemBottomY = projectedItem.position.y + projectedItem.size.height;
-      if (nextGridSize.height <= projectedItemBottomY) {
-        nextGridSize.height += 1;
+      if (nextSize.height <= projectedItemBottomY) {
+        nextSize.height += 1;
       }
-      setGridSize(nextGridSize);
+      onSizeChange(nextSize);
     }
   }, [projectedItem?.position, projectedItem?.size]);
 
@@ -192,35 +181,22 @@ export default function App() {
 
   return (
     <div className={cx('scroll-container')}>
-      <Grid size={gridSize}>
+      <Grid size={size}>
         {items.map((item, idx) => (
-          <GridItem<HTMLButtonElement>
-            key={item.id}
-            id={item.id}
+          <GridItem
+            key={getItemId(item)}
+            id={getItemId(item)}
             position={item.position}
             size={item.size}
-            error={itemErrorMap.get(item.id)}
+            error={itemErrorMap.get(getItemId(item))}
             onMoveTypeChange={moveType => setGridMoveType(moveType)}
             onPositionChange={action => onPositionChange(idx, action)}
             onPositionProjectionChange={action => onPositionProjectionChange(idx, action)}>
-            {({ moveType, error, dragHandleProps }) => {
+            {itemProps => {
               // Disabled if an item is moving and it's NOT this one
-              const disabled = !!gridMoveType && !moveType;
+              const disabled = !!gridMoveType && !itemProps.moveType;
 
-              return (
-                <div
-                  className={cx('wrapper', error)}
-                  aria-disabled={disabled}
-                  style={{ color: item.color }}>
-                  <div className={cx('artwork', !!moveType && 'artwork--moving')} />
-
-                  <button {...dragHandleProps} className={cx('drag-handle')} aria-label="Drag">
-                    <span className="material-icons" aria-hidden="true">
-                      drag_indicator
-                    </span>
-                  </button>
-                </div>
-              );
+              return renderItem(item, { ...itemProps, disabled });
             }}
           </GridItem>
         ))}
@@ -228,3 +204,5 @@ export default function App() {
     </div>
   );
 }
+
+export default GridFeature;

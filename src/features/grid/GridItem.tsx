@@ -11,14 +11,14 @@ import { ItemError, MoveControllerType, Position, Size } from './types';
 
 const cx = classNames.bind(styles);
 
-interface GridItemChildProps<DragHandleElement extends HTMLElement> {
+export interface GridItemChildProps {
   moveType: MoveControllerType | null;
   error: ItemError | undefined;
-  dragHandleProps: DragHandleProps<DragHandleElement>;
+  dragHandleProps: DragHandleProps;
 }
 
-interface GridItemProps<DragHandleElement extends HTMLElement> {
-  children(props: GridItemChildProps<DragHandleElement>): ReactNode;
+interface GridItemProps {
+  children(props: GridItemChildProps): ReactNode;
   id: string | number;
   error: ItemError | undefined;
   position: Position;
@@ -28,7 +28,7 @@ interface GridItemProps<DragHandleElement extends HTMLElement> {
   onPositionProjectionChange(position: Position): void;
 }
 
-export function GridItem<DragHandleElement extends HTMLElement>({
+export function GridItem({
   children,
   error,
   id,
@@ -37,8 +37,8 @@ export function GridItem<DragHandleElement extends HTMLElement>({
   onMoveTypeChange,
   onPositionChange,
   onPositionProjectionChange,
-}: GridItemProps<DragHandleElement>) {
-  const dragHandleRef = useRef<DragHandleElement>(null);
+}: GridItemProps) {
+  const dragHandleRef = useRef<HTMLButtonElement>(null);
 
   const controller = useMoveController({
     position,
@@ -56,7 +56,7 @@ export function GridItem<DragHandleElement extends HTMLElement>({
   }, [controller.move.type]);
 
   const instructionsId = `grid-item-${id}-instructions`;
-  const dragHandleProps: DragHandleProps<DragHandleElement> = {
+  const dragHandleProps: DragHandleProps = {
     ref: dragHandleRef,
     'aria-describedby': instructionsId,
     // Adds the drag handle props for mouse move

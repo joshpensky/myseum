@@ -14,12 +14,12 @@ import { getScrollBounds, getScrollDelta, getScrollParent } from './scroll';
 import { MoveControllerType } from './types';
 import { useGrid } from './useGrid';
 
-export interface DragHandleProps<E extends HTMLElement = HTMLElement> {
-  ref: React.RefObject<E>;
+export interface DragHandleProps {
+  ref: React.RefObject<HTMLButtonElement>;
   'aria-describedby': string;
-  onMouseDown(evt: React.MouseEvent<E>): void;
-  onBlur(evt: React.FocusEvent<E>): void;
-  onKeyDown(evt: React.KeyboardEvent<E>): void;
+  onMouseDown(evt: React.MouseEvent<HTMLButtonElement>): void;
+  onBlur(evt: React.FocusEvent<HTMLButtonElement>): void;
+  onKeyDown(evt: React.KeyboardEvent<HTMLButtonElement>): void;
 }
 
 export interface UseMoveControllerOpts {
@@ -263,9 +263,9 @@ interface ScrollOpts {
   viewport: Element;
   mouse: Position;
 }
-export function useMouseMove<DragHandleElement extends HTMLElement>(
+export function useMouseMove(
   controller: MoveController,
-): Pick<DragHandleProps<DragHandleElement>, 'onBlur' | 'onMouseDown'> {
+): Pick<DragHandleProps, 'onBlur' | 'onMouseDown'> {
   const { move, scrollParent, translateTo } = controller;
 
   const [scrollOpts, setScrollOpts] = useState<ScrollOpts | null>(null);
@@ -360,9 +360,7 @@ export function useMouseMove<DragHandleElement extends HTMLElement>(
   };
 }
 
-export function useKeyboardMove<DragHandleElement extends HTMLElement>(
-  controller: MoveController,
-): Pick<DragHandleProps<DragHandleElement>, 'onKeyDown'> {
+export function useKeyboardMove(controller: MoveController): Pick<DragHandleProps, 'onKeyDown'> {
   const grid = useGrid();
 
   const { animatedRef, move, scrollParent, translateTo, translatePx } = controller;
