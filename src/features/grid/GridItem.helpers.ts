@@ -1,13 +1,6 @@
-import {
-  Dispatch,
-  RefObject,
-  SetStateAction,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
 import { isInBounds } from './bounds';
 import { getScrollBounds, getScrollDelta, getScrollParent } from './scroll';
@@ -64,7 +57,7 @@ export function useMoveController({
     y: 0,
   });
   // Add an offset from the grid for when the item is position:fixed and moving
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (moveType && itemRef.current) {
       const offsetParent = itemRef.current.offsetParent;
       if (offsetParent instanceof HTMLElement) {
@@ -83,11 +76,23 @@ export function useMoveController({
     }
   }, [moveType]);
 
+  // Gets the parent of the itemRef that scrolls
+  let scrollParent: Element;
+  if (typeof document === 'undefined') {
+    // When this hook is server-rendered, there is no document and thus this will be undefined
+    // This should only affect the `itemTranslateOffsetPx` variable, as every other use is encapsulated
+    // within a `useEffect` (which only runs client-side)
+    scrollParent = (undefined as unknown) as Element;
+  } else {
+    // When this hook is then hydrated client-side, the scrollParent will get a real value
+    // based on the document and fix any issues
+    scrollParent = getScrollParent(itemRef.current);
+  }
+
   // Parent offset combined with scroll offset
-  const scrollParent = getScrollParent(itemRef.current);
   const itemTranslateOffsetPx: Position = {
-    x: parentOffsetPx.x - scrollParent.scrollLeft,
-    y: parentOffsetPx.y - scrollParent.scrollTop,
+    x: parentOffsetPx.x - (scrollParent?.scrollLeft ?? 0),
+    y: parentOffsetPx.y - (scrollParent?.scrollTop ?? 0),
   };
 
   /**
@@ -272,7 +277,7 @@ export function useMouseMove(
   const scrollRafIdRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
 
   // Auto-scroll for mouse navigation
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     // Cancel any old RAF
     if (scrollRafIdRef.current) {
       window.cancelAnimationFrame(scrollRafIdRef.current);
@@ -414,7 +419,7 @@ export function useKeyboardMove(controller: MoveController): Pick<DragHandleProp
     scrollParent.scrollTop = lastAutoscrollPositionRef.current.y;
   }
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (move.type === 'keyboard') {
       // Event handler for the scroll parent scroll. If the user has manually scrolled
       // the element during keyboard navigation, cancel the move

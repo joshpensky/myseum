@@ -37,36 +37,34 @@ const GridPage = () => {
   ]);
 
   return (
-    <div suppressHydrationWarning>
+    <div>
       <Head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </Head>
 
-      {typeof window !== 'undefined' && (
-        <Grid
-          size={gridSize}
-          onSizeChange={size => setGridSize(size)}
-          items={items}
-          getItemId={item => String(item.id)}
-          onItemChange={(idx, item) => {
-            setItems([...items.slice(0, idx), item, ...items.slice(idx + 1)]);
-          }}
-          renderItem={(item, props) => (
-            <div
-              className={cx('wrapper', props.error)}
-              aria-disabled={props.disabled}
-              style={{ color: item.color }}>
-              <div className={cx('artwork', !!props.moveType && 'artwork--moving')} />
+      <Grid
+        size={gridSize}
+        onSizeChange={size => setGridSize(size)}
+        items={items}
+        getItemId={item => String(item.id)}
+        onItemChange={(idx, item) => {
+          setItems([...items.slice(0, idx), item, ...items.slice(idx + 1)]);
+        }}
+        renderItem={(item, props) => (
+          <div
+            className={cx('wrapper', props.error)}
+            aria-disabled={props.disabled}
+            style={{ color: item.color }}>
+            <div className={cx('box', !!props.moveType && 'box--moving')} />
 
-              <button {...props.dragHandleProps} className={cx('drag-handle')} aria-label="Drag">
-                <span className="material-icons" aria-hidden="true">
-                  drag_indicator
-                </span>
-              </button>
-            </div>
-          )}
-        />
-      )}
+            <button {...props.dragHandleProps} className={cx('drag-handle')} aria-label="Drag">
+              <span className="material-icons" aria-hidden="true">
+                drag_indicator
+              </span>
+            </button>
+          </div>
+        )}
+      />
     </div>
   );
 };

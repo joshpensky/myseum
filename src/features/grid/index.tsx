@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useLayoutEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Grid } from './Grid';
 import { GridItem, GridItemChildProps } from './GridItem';
 import { isInBounds } from './bounds';
@@ -159,7 +160,7 @@ function GridFeature<Item extends GridItem>({
   };
 
   // Auto-expand the grid when the projected item moves toward an edge
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (onSizeChange && projectedItem) {
       const nextSize = { ...size };
       const projectedItemRightX = projectedItem.position.x + projectedItem.size.width;

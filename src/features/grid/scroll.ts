@@ -2,6 +2,11 @@ import { Bounds, Position, Size } from './types';
 
 // https://stackoverflow.com/a/42543908
 export function getScrollParent(element: Element | null) {
+  // If the page is server-rendered, early return
+  // if (typeof document === 'undefined') {
+  //   return null;
+  // }
+
   // If no element is passed, return document element
   if (!element) {
     return document.documentElement;
