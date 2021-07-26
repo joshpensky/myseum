@@ -1,4 +1,4 @@
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
@@ -11,6 +11,7 @@ export interface DragHandleProps {
   ref: React.RefObject<HTMLButtonElement>;
   'aria-describedby': string;
   onMouseDown(evt: React.MouseEvent<HTMLButtonElement>): void;
+  onTouchStart(evt: React.TouchEvent<HTMLButtonElement>): void;
   onBlur(evt: React.FocusEvent<HTMLButtonElement>): void;
   onKeyDown(evt: React.KeyboardEvent<HTMLButtonElement>): void;
 }
@@ -264,16 +265,16 @@ export function useMoveController({
   };
 }
 
-interface ScrollOpts {
+interface AutoScrollOpts {
   viewport: Element;
-  mouse: Position;
+  cursor: Position;
 }
-export function useMouseMove(
-  controller: MoveController,
-): Pick<DragHandleProps, 'onBlur' | 'onMouseDown'> {
-  const { move, scrollParent, translateTo } = controller;
-
-  const [scrollOpts, setScrollOpts] = useState<ScrollOpts | null>(null);
+interface AutoScroll {
+  setOptions(options: AutoScrollOpts): void;
+  cancel(): void;
+}
+function useAutoScroll(controller: MoveController): AutoScroll {
+  const [options, setOptions] = useState<AutoScrollOpts | null>(null);
   const scrollRafIdRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
 
   // Auto-scroll for mouse navigation
@@ -284,18 +285,18 @@ export function useMouseMove(
       scrollRafIdRef.current = null;
     }
 
-    if (scrollOpts) {
+    if (options) {
       const updateScrollPosition = () => {
         // Get scroll delta
-        const scrollDelta = getScrollDelta({ position: scrollOpts.mouse }, scrollOpts.viewport);
+        const scrollDelta = getScrollDelta({ position: options.cursor }, options.viewport);
 
         // If there is scroll space to move...
         if (scrollDelta.x || scrollDelta.y) {
           // -> Update the viewport scroll
-          scrollOpts.viewport.scrollTop += scrollDelta.y;
-          scrollOpts.viewport.scrollLeft += scrollDelta.x;
+          options.viewport.scrollTop += scrollDelta.y;
+          options.viewport.scrollLeft += scrollDelta.x;
           // -> Update the delta state to account for scroll
-          translateTo(posDelta => ({
+          controller.translateTo(posDelta => ({
             x: posDelta.x + scrollDelta.x,
             y: posDelta.y + scrollDelta.y,
           }));
@@ -309,7 +310,20 @@ export function useMouseMove(
 
       updateScrollPosition();
     }
-  }, [scrollOpts]);
+  }, [options]);
+
+  return {
+    setOptions: options => setOptions(options),
+    cancel: () => setOptions(null),
+  };
+}
+
+export function useMouseMove(
+  controller: MoveController,
+): Pick<DragHandleProps, 'onBlur' | 'onMouseDown'> {
+  const { move, scrollParent, translateTo } = controller;
+
+  const autoScroll = useAutoScroll(controller);
 
   // When the item is moving via mouse navigation, track mouse move+up via document
   useEffect(() => {
@@ -328,16 +342,16 @@ export function useMouseMove(
         const scrollBounds = getScrollBounds(scrollParent);
         const mousePosition: Position = { x: evt.clientX, y: evt.clientY };
         if (!isInBounds({ position: mousePosition }, scrollBounds)) {
-          setScrollOpts({ viewport: scrollParent, mouse: mousePosition });
+          autoScroll.setOptions({ viewport: scrollParent, cursor: mousePosition });
         } else {
-          setScrollOpts(null);
+          autoScroll.cancel();
         }
       };
 
       // Cancel moving when mouse is released
       const onMouseUp = () => {
         move.end();
-        setScrollOpts(null);
+        autoScroll.cancel();
       };
 
       // Toggle event listeners
@@ -354,12 +368,117 @@ export function useMouseMove(
   return {
     // Cancel auto-scrolling when the target is unfocused
     onBlur: () => {
-      setScrollOpts(null);
+      autoScroll.cancel();
     },
-    // Start moving if the target is picked up in an idle state
+    // Start moving if the target is clicked on in an idle state
     onMouseDown: evt => {
       if (evt.button === 0) {
         move.start('mouse');
+      }
+    },
+  };
+}
+
+export function useTouchMove(
+  controller: MoveController,
+): Pick<DragHandleProps, 'onBlur' | 'onTouchStart'> {
+  const { move, scrollParent, translateTo } = controller;
+
+  const lastTouchPositionRef = useRef({ x: 0, y: 0 });
+
+  const autoScroll = useAutoScroll(controller);
+
+  // When the item is moving via mouse navigation, track mouse move+up via document
+  useEffect(() => {
+    if (move.type === 'touch') {
+      const onTouchMove = (evt: TouchEvent) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        const touch = evt.touches[0];
+        const touchPosition: Position = { x: touch.clientX, y: touch.clientY };
+
+        // Update move delta on mouse move
+        translateTo(translatePx => ({
+          x: translatePx.x + (touchPosition.x - lastTouchPositionRef.current.x),
+          y: translatePx.y + (touchPosition.y - lastTouchPositionRef.current.y),
+        }));
+        lastTouchPositionRef.current = touchPosition;
+
+        // Initialize auto-scrolling (so it continues to scroll without movement)
+        const scrollBounds = getScrollBounds(scrollParent);
+        if (!isInBounds({ position: touchPosition }, scrollBounds)) {
+          autoScroll.setOptions({ viewport: scrollParent, cursor: touchPosition });
+        } else {
+          autoScroll.cancel();
+        }
+      };
+
+      const onTouchEnd = (evt: TouchEvent) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        move.end();
+        autoScroll.cancel();
+      };
+
+      const onTouchCancel = (evt: TouchEvent) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        move.end({ cancelled: true });
+        autoScroll.cancel();
+      };
+
+      const onOrientationChange = () => {
+        move.end({ cancelled: true });
+        autoScroll.cancel();
+      };
+
+      const onContextMenu = (evt: MouseEvent) => {
+        evt.preventDefault();
+      };
+
+      // Toggle event listeners for touch
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd, { passive: false });
+      document.addEventListener('touchcancel', onTouchCancel, { passive: false });
+      // TODO: cancel for forcepress
+
+      // Cancel any touches when the screen orientation changes
+      window.addEventListener('orientationchange', onOrientationChange);
+      window.addEventListener('resize', onOrientationChange); // resize can be triggered by orienttion change
+
+      // Opt out of behavior where long-press brings up context menu
+      window.addEventListener('contextmenu', onContextMenu);
+
+      // TODO: cancel on page visibility change
+
+      return () => {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        document.removeEventListener('touchcancel', onTouchCancel);
+
+        window.removeEventListener('orientationchange', onOrientationChange);
+        window.removeEventListener('resize', onOrientationChange);
+
+        window.removeEventListener('contextmenu', onContextMenu);
+      };
+    }
+  }, [move.type, scrollParent, move.end]);
+
+  return {
+    // Cancel auto-scrolling when the target is unfocused
+    onBlur: () => {
+      autoScroll.cancel();
+    },
+    // Start moving if the target is touched in an idle state
+    onTouchStart: evt => {
+      if (evt.touches.length === 1) {
+        // Record the latest touch position
+        const touch = evt.touches[0];
+        const touchPosition: Position = { x: touch.clientX, y: touch.clientY };
+        lastTouchPositionRef.current = touchPosition;
+        // And start moving
+        move.start('touch');
       }
     },
   };

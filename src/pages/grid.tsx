@@ -5,6 +5,12 @@ import Grid from '@src/features/grid';
 import styles from '@src/features/grid/styles.module.scss';
 import { Position, Size } from '@src/features/grid/types';
 
+// TODO: drag to trash icon! (maybe delete key for keyboard-users?)
+// TODO: fix touch support!
+// TODO: a11y: announcements!
+// TODO: finding a place to add new items
+// TODO: fix vertical scrolling + positioning on boundless vertical parent
+
 const cx = classNames.bind(styles);
 
 interface BaseItem {
@@ -37,7 +43,7 @@ const GridPage = () => {
   ]);
 
   return (
-    <div>
+    <div className={cx('page')}>
       <Head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </Head>

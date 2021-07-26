@@ -9,11 +9,6 @@ import { ItemError, MoveControllerType, Position, Size } from './types';
 
 const cx = classNames.bind(styles);
 
-// TODO: drag to trash icon! (maybe delete key for keyboard-users?)
-// TODO: touch support!
-// TODO: a11y: announcements!
-// TODO: finding a place to add new items
-
 export interface GridItem {
   position: Position;
   size: Size;
@@ -37,6 +32,8 @@ function GridFeature<Item extends GridItem>({
   onSizeChange,
 }: GridFeatureProps<Item>) {
   const [gridMoveType, setGridMoveType] = useState<MoveControllerType | null>(null);
+
+  const shouldAutoExpand = !!onSizeChange;
 
   const isItemInBounds = (item: Item) =>
     isInBounds(item, {
@@ -103,8 +100,8 @@ function GridFeature<Item extends GridItem>({
       // If there are any overlapping items, update moving item's state!
       newItemErrorMap.set(getItemId(projectedItem), 'overlapping');
       setProjectedItem(null);
-    } else if (!isItemInBounds(projectedItem)) {
-      // If moving item is out of bounds, update state!
+    } else if (!shouldAutoExpand && !isItemInBounds(projectedItem)) {
+      // If moving item is out of bounds (and the grid doesn't auto-expand), update state!
       newItemErrorMap.set(getItemId(projectedItem), 'out-of-bounds');
       setProjectedItem(null);
     } else {
@@ -161,17 +158,15 @@ function GridFeature<Item extends GridItem>({
 
   // Auto-expand the grid when the projected item moves toward an edge
   useIsomorphicLayoutEffect(() => {
-    if (onSizeChange && projectedItem) {
+    if (shouldAutoExpand && projectedItem) {
       const nextSize = { ...size };
       const projectedItemRightX = projectedItem.position.x + projectedItem.size.width;
-      if (nextSize.width <= projectedItemRightX) {
-        nextSize.width += 1;
-      }
       const projectedItemBottomY = projectedItem.position.y + projectedItem.size.height;
-      if (nextSize.height <= projectedItemBottomY) {
-        nextSize.height += 1;
-      }
-      onSizeChange(nextSize);
+
+      onSizeChange?.({
+        width: Math.max(nextSize.width, projectedItemRightX + 1),
+        height: Math.max(nextSize.height, projectedItemBottomY + 1),
+      });
     }
   }, [projectedItem?.position, projectedItem?.size]);
 
@@ -181,28 +176,26 @@ function GridFeature<Item extends GridItem>({
   }, [gridMoveType]);
 
   return (
-    <div className={cx('scroll-container')}>
-      <Grid size={size}>
-        {items.map((item, idx) => (
-          <GridItem
-            key={getItemId(item)}
-            id={getItemId(item)}
-            position={item.position}
-            size={item.size}
-            error={itemErrorMap.get(getItemId(item))}
-            onMoveTypeChange={moveType => setGridMoveType(moveType)}
-            onPositionChange={action => onPositionChange(idx, action)}
-            onPositionProjectionChange={action => onPositionProjectionChange(idx, action)}>
-            {itemProps => {
-              // Disabled if an item is moving and it's NOT this one
-              const disabled = !!gridMoveType && !itemProps.moveType;
+    <Grid size={size}>
+      {items.map((item, idx) => (
+        <GridItem
+          key={getItemId(item)}
+          id={getItemId(item)}
+          position={item.position}
+          size={item.size}
+          error={itemErrorMap.get(getItemId(item))}
+          onMoveTypeChange={moveType => setGridMoveType(moveType)}
+          onPositionChange={action => onPositionChange(idx, action)}
+          onPositionProjectionChange={action => onPositionProjectionChange(idx, action)}>
+          {itemProps => {
+            // Disabled if an item is moving and it's NOT this one
+            const disabled = !!gridMoveType && !itemProps.moveType;
 
-              return renderItem(item, { ...itemProps, disabled });
-            }}
-          </GridItem>
-        ))}
-      </Grid>
-    </div>
+            return renderItem(item, { ...itemProps, disabled });
+          }}
+        </GridItem>
+      ))}
+    </Grid>
   );
 }
 
