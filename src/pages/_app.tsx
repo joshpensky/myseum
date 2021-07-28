@@ -22,6 +22,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           <Component {...pageProps} />
         </AppLayout>
         <div id="modal-root" />
+
         {/* TODO: style the toasts */}
         <Toaster
           position="bottom-left"

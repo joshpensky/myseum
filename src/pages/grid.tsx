@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import Head from 'next/head';
 import classNames from 'classnames/bind';
 import Grid from '@src/features/grid';
-import styles from '@src/features/grid/styles.module.scss';
 import { Position, Size } from '@src/features/grid/types';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import styles from './grid.module.scss';
 
 // TODO: drag to trash icon! (maybe delete key for keyboard-users?)
 // TODO: fix touch support!
@@ -23,7 +23,7 @@ const GridPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [gridHeightPx, setGridHeightPx] = useState(0);
 
-  const [gridSize, setGridSize] = useState({ width: 10, height: 40 });
+  const [gridSize, setGridSize] = useState({ width: 10, height: 30 });
 
   const [items, setItems] = useState<(BaseItem & { id: number; color: string })[]>([
     {
@@ -64,13 +64,14 @@ const GridPage = () => {
   const unitPx = gridHeightPx / gridSize.height;
 
   return (
-    <div ref={containerRef} className={cx('page')}>
+    <div className={cx('page')}>
       <Head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </Head>
 
-      <div className={cx('page__grid')}>
+      <div ref={containerRef} className={cx('page__grid')}>
         <Grid
+          className={cx('page__grid__actual')}
           unitPx={unitPx}
           size={gridSize}
           onSizeChange={newGridSize => {

@@ -7,17 +7,18 @@ import { GridContext } from './useGrid';
 const cx = classNames.bind(styles);
 
 interface GridProps {
+  className?: string;
   size: Size;
   unitPx: number;
 }
-export function Grid({ children, size, unitPx }: PropsWithChildren<GridProps>) {
+export function Grid({ children, className, size, unitPx }: PropsWithChildren<GridProps>) {
   const gridRef = useRef<HTMLDivElement>(null);
 
   return (
     <GridContext.Provider value={{ size, unitPx }}>
       <div
         ref={gridRef}
-        className={cx('grid')}
+        className={cx('grid', className)}
         style={{
           '--unit-size': unitPx,
           '--grid-width': size.width,

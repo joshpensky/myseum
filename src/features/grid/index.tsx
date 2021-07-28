@@ -15,6 +15,7 @@ export interface GridItem {
 }
 
 interface GridFeatureProps<Item extends GridItem> {
+  className?: string;
   items: Item[];
   getItemId(item: Item): string;
   size: Size;
@@ -25,6 +26,7 @@ interface GridFeatureProps<Item extends GridItem> {
 }
 
 function GridFeature<Item extends GridItem>({
+  className,
   items,
   size,
   unitPx,
@@ -178,7 +180,7 @@ function GridFeature<Item extends GridItem>({
   }, [gridMoveType]);
 
   return (
-    <Grid size={size} unitPx={unitPx}>
+    <Grid className={className} size={size} unitPx={unitPx}>
       {items.map((item, idx) => (
         <GridItem
           key={getItemId(item)}
