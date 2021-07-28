@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react';
 import Head from 'next/head';
 import classNames from 'classnames/bind';
-import Grid from '@src/features/grid';
-import { Position, Size } from '@src/features/grid/types';
+import { Grid, GridItem } from '@src/features/grid';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import styles from './grid.module.scss';
 
@@ -14,18 +13,13 @@ import styles from './grid.module.scss';
 
 const cx = classNames.bind(styles);
 
-interface BaseItem {
-  position: Position;
-  size: Size;
-}
-
 const GridPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [gridHeightPx, setGridHeightPx] = useState(0);
 
   const [gridSize, setGridSize] = useState({ width: 10, height: 30 });
 
-  const [items, setItems] = useState<(BaseItem & { id: number; color: string })[]>([
+  const [items, setItems] = useState<(GridItem & { id: number; color: string })[]>([
     {
       id: 1,
       color: 'rebeccapurple',

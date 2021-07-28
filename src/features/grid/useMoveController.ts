@@ -9,7 +9,6 @@ import {
   getScrollParent,
   getScrollParentPosition,
 } from './scroll';
-import { MoveControllerType } from './types';
 import { useGrid } from './useGrid';
 
 export interface DragHandleProps {
@@ -27,9 +26,12 @@ export interface UseMoveControllerOpts {
   onPositionProjectionChange(position: Position): void;
 }
 
+export type MoveControllerType = 'mouse' | 'keyboard' | 'touch';
+
 export interface MoveController {
   ref: RefObject<HTMLDivElement>;
   animatedRef: RefObject<HTMLDivElement>;
+  readOnly: boolean;
   move: {
     type: MoveControllerType | null;
     end(opts?: { cancelled?: boolean }): void;
@@ -64,7 +66,7 @@ export function useMoveController({
   });
   // Add an offset from the grid for when the item is position:fixed and moving
   useIsomorphicLayoutEffect(() => {
-    if (moveType && itemRef.current) {
+    if (moveType && itemRef.current && !grid.readOnly) {
       // The initial offset is 0
       const parentOffsetPx = {
         x: 0,
@@ -84,11 +86,11 @@ export function useMoveController({
       // Then set the total offset
       setParentOffsetPx(parentOffsetPx);
     }
-  }, [moveType]);
+  }, [moveType, grid.readOnly]);
 
   // Gets the parent of the itemRef that scrolls
   let scrollParent: Element;
-  if (typeof document === 'undefined') {
+  if (typeof document === 'undefined' || grid.readOnly) {
     // When this hook is server-rendered, there is no document and thus this will be undefined
     // This should only affect the `itemTranslateOffsetPx` variable, as every other use is encapsulated
     // within a `useEffect` (which only runs client-side)
@@ -203,6 +205,10 @@ export function useMoveController({
    * @param nextMoveType the type of move to start
    */
   const startMove = (nextMoveType: MoveControllerType) => {
+    if (grid.readOnly) {
+      throw new Error('Cannot update a move in read-only mode.');
+    }
+
     if (!isAnimating && !moveType) {
       setMoveType(nextMoveType);
     }
@@ -215,6 +221,10 @@ export function useMoveController({
    * @param opts options for ending the move
    */
   const endMove = (opts?: { cancelled?: boolean }) => {
+    if (grid.readOnly) {
+      throw new Error('Cannot update a move in read-only mode.');
+    }
+
     // If there is no current move, early return!
     if (!moveType) {
       return;
@@ -248,18 +258,28 @@ export function useMoveController({
     snapIntoPlace(translateFrom);
   };
 
+  // Reset state when moved to `readOnly` mode
+  useEffect(() => {
+    if (grid.readOnly) {
+      setMoveType(null);
+      setItemTranslatePx({ x: 0, y: 0 });
+      setParentOffsetPx({ x: 0, y: 0 });
+    }
+  }, [grid.readOnly]);
+
   // Update projected position when delta changes
   useEffect(() => {
-    if (moveType) {
+    if (moveType && !grid.readOnly) {
       const projectedPosition = getProjectedPosition(position, itemTranslatePx);
       onPositionProjectionChange(projectedPosition);
     }
-  }, [moveType, itemTranslatePx.x, itemTranslatePx.y, grid.unitPx]);
+  }, [grid.readOnly, moveType, itemTranslatePx.x, itemTranslatePx.y, grid.unitPx]);
 
   return {
     ref: itemRef,
     animatedRef: animatedItemRef,
     scrollParent,
+    readOnly: grid.readOnly,
     move: {
       type: moveType,
       end: endMove,
@@ -292,7 +312,7 @@ function useAutoScroll(controller: MoveController): AutoScroll {
       scrollRafIdRef.current = null;
     }
 
-    if (options) {
+    if (options && !controller.readOnly) {
       const updateScrollPosition = () => {
         // Get scroll delta
         const scrollDelta = getScrollDelta({ position: options.cursor }, options.viewport);
@@ -317,7 +337,7 @@ function useAutoScroll(controller: MoveController): AutoScroll {
 
       updateScrollPosition();
     }
-  }, [options]);
+  }, [options, controller.readOnly]);
 
   return {
     setOptions: options => setOptions(options),
@@ -334,7 +354,7 @@ export function useMouseMove(
 
   // When the item is moving via mouse navigation, track mouse move+up via document
   useEffect(() => {
-    if (move.type === 'mouse') {
+    if (move.type === 'mouse' && !controller.readOnly) {
       const onMouseMove = (evt: MouseEvent) => {
         // Prevent browser from auto-scrolling on drag
         evt.preventDefault();
@@ -370,7 +390,7 @@ export function useMouseMove(
         document.removeEventListener('mouseup', onMouseUp);
       };
     }
-  }, [move.type, scrollParent, move.end]);
+  }, [move.type, scrollParent, move.end, controller.readOnly]);
 
   return {
     // Cancel auto-scrolling when the target is unfocused
@@ -379,7 +399,7 @@ export function useMouseMove(
     },
     // Start moving if the target is clicked on in an idle state
     onMouseDown: evt => {
-      if (evt.button === 0) {
+      if (evt.button === 0 && !controller.readOnly) {
         move.start('mouse');
       }
     },
@@ -397,7 +417,7 @@ export function useTouchMove(
 
   // When the item is moving via mouse navigation, track mouse move+up via document
   useEffect(() => {
-    if (move.type === 'touch') {
+    if (move.type === 'touch' && !controller.readOnly) {
       const onTouchMove = (evt: TouchEvent) => {
         evt.preventDefault();
         evt.stopPropagation();
@@ -470,7 +490,7 @@ export function useTouchMove(
         window.removeEventListener('contextmenu', onContextMenu);
       };
     }
-  }, [move.type, scrollParent, move.end]);
+  }, [move.type, scrollParent, move.end, controller.readOnly]);
 
   return {
     // Cancel auto-scrolling when the target is unfocused
@@ -479,7 +499,7 @@ export function useTouchMove(
     },
     // Start moving if the target is touched in an idle state
     onTouchStart: evt => {
-      if (evt.touches.length === 1) {
+      if (evt.touches.length === 1 && !controller.readOnly) {
         // Record the latest touch position
         const touch = evt.touches[0];
         const touchPosition: Position = { x: touch.clientX, y: touch.clientY };
@@ -546,7 +566,7 @@ export function useKeyboardMove(controller: MoveController): Pick<DragHandleProp
   }
 
   useIsomorphicLayoutEffect(() => {
-    if (move.type === 'keyboard') {
+    if (move.type === 'keyboard' && !controller.readOnly) {
       // Event handler for the scroll parent scroll. If the user has manually scrolled
       // the element during keyboard navigation, cancel the move
       const onScroll = () => {
@@ -566,7 +586,7 @@ export function useKeyboardMove(controller: MoveController): Pick<DragHandleProp
         scrollParent.removeEventListener('scroll', onScroll);
       };
     }
-  }, [move.type, scrollParent, move.end]);
+  }, [move.type, scrollParent, move.end, controller.readOnly]);
 
   /**
    * Moves the grid item for keyboard navigation. This handles
@@ -598,6 +618,11 @@ export function useKeyboardMove(controller: MoveController): Pick<DragHandleProp
     // Handles keyboard navigation on the drag handle
     // inspired by: https://github.com/atlassian/react-beautiful-dnd/blob/master/docs/sensors/keyboard.md
     onKeyDown: evt => {
+      // Don't do anything if in read-only mode
+      if (controller.readOnly) {
+        return;
+      }
+
       // Activate keyboard navigation with spacebar
       if (!move.type && evt.key === ' ') {
         evt.preventDefault();

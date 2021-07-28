@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react';
-import { Size } from './types';
+import { Dimensions } from '@src/types';
 
 interface GridContextValue {
-  size: Size;
+  size: Dimensions;
   unitPx: number;
+  readOnly: boolean;
 }
 
 export const GridContext = createContext<GridContextValue | null>(null);

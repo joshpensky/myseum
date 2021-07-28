@@ -1,29 +1,32 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
+import { Dimensions, Position } from '@src/types';
+import styles from './styles.module.scss';
 import {
   DragHandleProps,
+  MoveControllerType,
   useKeyboardMove,
   useMouseMove,
   useMoveController,
   useTouchMove,
-} from './GridItem.helpers';
-import styles from './styles.module.scss';
-import { ItemError, MoveControllerType, Position, Size } from './types';
+} from './useMoveController';
 
 const cx = classNames.bind(styles);
 
+export type GridItemError = 'overlapping' | 'out-of-bounds';
+
 export interface GridItemChildProps {
   moveType: MoveControllerType | null;
-  error: ItemError | undefined;
+  error: GridItemError | undefined;
   dragHandleProps: DragHandleProps;
 }
 
 interface GridItemProps {
   children(props: GridItemChildProps): ReactNode;
   id: string | number;
-  error: ItemError | undefined;
+  error: GridItemError | undefined;
   position: Position;
-  size: Size;
+  size: Dimensions;
   onMoveTypeChange(moveType: MoveControllerType | null): void;
   onPositionChange(position: Position): Position;
   onPositionProjectionChange(position: Position): void;
@@ -68,6 +71,10 @@ export function GridItem({
     ...keyboardDragHandleProps,
     // Handles cancelling move when focus is lost on the drag handle
     onBlur: evt => {
+      if (controller.readOnly) {
+        return;
+      }
+
       mouseDragHandleProps.onBlur(evt);
       touchDragHandleProps.onBlur(evt);
       controller.move.end({ cancelled: true });

@@ -1,6 +1,14 @@
-import { Bounds, Position, Size } from './types';
+import { Dimensions, Position } from '@src/types';
+import { Bounds } from './bounds';
 
+/**
+ * Gets the current scroll position for the given scroll parent.
+ *
+ * @param parent the parent element to check
+ * @returns the scroll position of the parent
+ */
 export function getScrollParentPosition(parent?: Element): Position {
+  // If there's no element, just return the base position
   if (!parent) {
     return {
       x: 0,
@@ -8,6 +16,7 @@ export function getScrollParentPosition(parent?: Element): Position {
     };
   }
 
+  // If the parent is the root element, return the page scroll position
   if (parent === document.documentElement) {
     return {
       x: parent.scrollLeft,
@@ -15,13 +24,21 @@ export function getScrollParentPosition(parent?: Element): Position {
     };
   }
 
+  // Otherwise, combine the parent's scroll position AND the page scroll position
   return {
     x: parent.scrollLeft + document.documentElement.scrollLeft,
     y: parent.scrollTop + document.documentElement.scrollTop,
   };
 }
 
-// https://stackoverflow.com/a/42543908
+/**
+ * Finds the closest parent element that is scrollable. This is used for auto-scrolling.
+ *
+ * Inspired by: https://stackoverflow.com/a/42543908
+ *
+ * @param element the element to find the scroll parent of
+ * @returns the scrollable element
+ */
 export function getScrollParent(element: Element | null): Element {
   // If no element is passed, return document element
   if (!element) {
@@ -47,11 +64,6 @@ export function getScrollParent(element: Element | null): Element {
       parent = parent.parentElement;
       continue;
     }
-
-    // // If parent handles both overflow methods, we found scroll container!
-    // if (overflowRegex.test(style.overflow) || (overflowRegex.test(style.overflowX) && overflowRegex.test(style.overflowY))) {
-    //   return parent;
-    // }
 
     // If the parent is an overflow container of auto or scroll, we found scroll container!
     // -> Return this parent element!
@@ -114,7 +126,7 @@ export function getActualScrollDimensionDelta(
 
 // Calculates the amount the browser should scroll on X + Y axes
 export const getScrollDelta = (
-  item: { position: Position; size?: Size },
+  item: { position: Position; size?: Dimensions },
   viewport: Element,
   scrollByOpts?: { scrollByDistance?: boolean },
 ) => {
