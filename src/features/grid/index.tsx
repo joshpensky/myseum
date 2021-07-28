@@ -18,6 +18,7 @@ interface GridFeatureProps<Item extends GridItem> {
   items: Item[];
   getItemId(item: Item): string;
   size: Size;
+  unitPx: number;
   onItemChange(index: number, value: Item): void;
   onSizeChange?(value: Size): void;
   renderItem(item: Item, props: GridItemChildProps & { disabled: boolean }): ReactNode;
@@ -26,6 +27,7 @@ interface GridFeatureProps<Item extends GridItem> {
 function GridFeature<Item extends GridItem>({
   items,
   size,
+  unitPx,
   getItemId,
   renderItem,
   onItemChange,
@@ -176,7 +178,7 @@ function GridFeature<Item extends GridItem>({
   }, [gridMoveType]);
 
   return (
-    <Grid size={size}>
+    <Grid size={size} unitPx={unitPx}>
       {items.map((item, idx) => (
         <GridItem
           key={getItemId(item)}

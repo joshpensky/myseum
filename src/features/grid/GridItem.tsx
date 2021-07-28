@@ -88,7 +88,9 @@ export function GridItem({
           '--item-grid-height': size.height,
           '--item-delta-x': translateOffsetPx.x + translatePx.x,
           '--item-delta-y': translateOffsetPx.y + translatePx.y,
-        }}>
+        }}
+        // Offset may differ from server to client, so we must suppress hydration warning!
+        suppressHydrationWarning>
         {children({ moveType: move.type, error, dragHandleProps })}
 
         <div id={instructionsId} className={cx('drag-handle-instructions')}>

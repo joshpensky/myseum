@@ -3,7 +3,12 @@ import anime from 'animejs';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
 import { isInBounds } from './bounds';
-import { getScrollBounds, getScrollDelta, getScrollParent } from './scroll';
+import {
+  getScrollBounds,
+  getScrollDelta,
+  getScrollParent,
+  getScrollParentPosition,
+} from './scroll';
 import { MoveControllerType } from './types';
 import { useGrid } from './useGrid';
 
@@ -60,20 +65,24 @@ export function useMoveController({
   // Add an offset from the grid for when the item is position:fixed and moving
   useIsomorphicLayoutEffect(() => {
     if (moveType && itemRef.current) {
-      const offsetParent = itemRef.current.offsetParent;
-      if (offsetParent instanceof HTMLElement) {
-        // If there's an offset parent, use their left + top!
-        setParentOffsetPx({
-          x: offsetParent.offsetLeft,
-          y: offsetParent.offsetTop,
-        });
-      } else {
-        // If no offset parent, just reset to 0
-        setParentOffsetPx({
-          x: 0,
-          y: 0,
-        });
+      // The initial offset is 0
+      const parentOffsetPx = {
+        x: 0,
+        y: 0,
+      };
+
+      // Loop through all positioned parents, and sum the offsets of each
+      let offsetParent: Element | null = itemRef.current.offsetParent;
+      while (offsetParent instanceof HTMLElement) {
+        // Add the offset left + top to total
+        parentOffsetPx.x += offsetParent.offsetLeft;
+        parentOffsetPx.y += offsetParent.offsetTop;
+        // Then loop to next offset parent
+        offsetParent = offsetParent.offsetParent;
       }
+
+      // Then set the total offset
+      setParentOffsetPx(parentOffsetPx);
     }
   }, [moveType]);
 
@@ -89,11 +98,12 @@ export function useMoveController({
     // based on the document and fix any issues
     scrollParent = getScrollParent(itemRef.current);
   }
+  const scrollParentPosition = getScrollParentPosition(scrollParent);
 
   // Parent offset combined with scroll offset
   const itemTranslateOffsetPx: Position = {
-    x: parentOffsetPx.x - (scrollParent?.scrollLeft ?? 0),
-    y: parentOffsetPx.y - (scrollParent?.scrollTop ?? 0),
+    x: parentOffsetPx.x - scrollParentPosition.x,
+    y: parentOffsetPx.y - scrollParentPosition.y,
   };
 
   /**
@@ -132,10 +142,7 @@ export function useMoveController({
     }
 
     // Get the initial scroll position of the parent, before animating to new position
-    const initialScrollPositionPx: Position = {
-      x: scrollParent.scrollLeft,
-      y: scrollParent.scrollTop,
-    };
+    const initialScrollPositionPx = getScrollParentPosition(scrollParent);
 
     // Animate the item snapping into place
     setIsAnimating(true);

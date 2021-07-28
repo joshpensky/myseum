@@ -8,11 +8,10 @@ const cx = classNames.bind(styles);
 
 interface GridProps {
   size: Size;
+  unitPx: number;
 }
-export function Grid({ children, size }: PropsWithChildren<GridProps>) {
+export function Grid({ children, size, unitPx }: PropsWithChildren<GridProps>) {
   const gridRef = useRef<HTMLDivElement>(null);
-
-  const unitPx = 30;
 
   return (
     <GridContext.Provider value={{ size, unitPx }}>

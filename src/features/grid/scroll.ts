@@ -1,12 +1,28 @@
 import { Bounds, Position, Size } from './types';
 
-// https://stackoverflow.com/a/42543908
-export function getScrollParent(element: Element | null) {
-  // If the page is server-rendered, early return
-  // if (typeof document === 'undefined') {
-  //   return null;
-  // }
+export function getScrollParentPosition(parent?: Element): Position {
+  if (!parent) {
+    return {
+      x: 0,
+      y: 0,
+    };
+  }
 
+  if (parent === document.documentElement) {
+    return {
+      x: parent.scrollLeft,
+      y: parent.scrollTop,
+    };
+  }
+
+  return {
+    x: parent.scrollLeft + document.documentElement.scrollLeft,
+    y: parent.scrollTop + document.documentElement.scrollTop,
+  };
+}
+
+// https://stackoverflow.com/a/42543908
+export function getScrollParent(element: Element | null): Element {
   // If no element is passed, return document element
   if (!element) {
     return document.documentElement;
@@ -31,6 +47,11 @@ export function getScrollParent(element: Element | null) {
       parent = parent.parentElement;
       continue;
     }
+
+    // // If parent handles both overflow methods, we found scroll container!
+    // if (overflowRegex.test(style.overflow) || (overflowRegex.test(style.overflowX) && overflowRegex.test(style.overflowY))) {
+    //   return parent;
+    // }
 
     // If the parent is an overflow container of auto or scroll, we found scroll container!
     // -> Return this parent element!
