@@ -23,7 +23,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
           return;
         }
         const updatedGallery = await GalleryRepository.update(gallery, req.body);
-        res.status(200).json({ gallery: updatedGallery });
+        res.status(200).json(updatedGallery);
         break;
       }
 

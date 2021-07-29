@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { Dimensions, Position } from '@src/types';
+import { BaseProps, Dimensions, Position } from '@src/types';
 import { GridBase } from './GridBase';
 import { GridItem, GridItemChildProps, GridItemError } from './GridItem';
 import { isInBounds } from './bounds';
@@ -20,12 +20,10 @@ export interface GridRenderItemProps extends GridItemChildProps {
   disabled: boolean;
 }
 
-interface GridProps<Item extends GridItemDto> {
-  className?: string;
+interface GridProps<Item extends GridItemDto> extends BaseProps {
   items: Item[];
   getItemId(item: Item): string;
   size: Dimensions;
-  unitPx: number;
   onItemChange?: ((index: number, value: Item) => void) | false;
   onSizeChange?(value: Dimensions): void;
   renderItem(item: Item, props: GridRenderItemProps): ReactNode;
@@ -33,9 +31,9 @@ interface GridProps<Item extends GridItemDto> {
 
 export function Grid<Item extends GridItemDto>({
   className,
+  css,
   items,
   size,
-  unitPx,
   getItemId,
   renderItem,
   onItemChange,
@@ -44,14 +42,13 @@ export function Grid<Item extends GridItemDto>({
   const [gridMoveType, setGridMoveType] = useState<MoveControllerType | null>(null);
 
   const readOnly = !onItemChange;
-  const shouldAutoExpand = !readOnly && !!onSizeChange;
 
   const isItemInBounds = (item: Item) =>
     isInBounds(item, {
       top: 0,
       bottom: size.height,
       left: 0,
-      right: size.width,
+      right: Infinity, // size.width,
     });
 
   const doItemsOverlap = (itemA: Item, itemB: Item) => {
@@ -111,7 +108,7 @@ export function Grid<Item extends GridItemDto>({
       // If there are any overlapping items, update moving item's state!
       newItemErrorMap.set(getItemId(projectedItem), 'overlapping');
       setProjectedItem(null);
-    } else if (!shouldAutoExpand && !isItemInBounds(projectedItem)) {
+    } else if (!isItemInBounds(projectedItem)) {
       // If moving item is out of bounds (and the grid doesn't auto-expand), update state!
       newItemErrorMap.set(getItemId(projectedItem), 'out-of-bounds');
       setProjectedItem(null);
@@ -173,7 +170,7 @@ export function Grid<Item extends GridItemDto>({
 
   // Auto-expand the grid when the projected item moves toward an edge
   useIsomorphicLayoutEffect(() => {
-    if (shouldAutoExpand && projectedItem && onSizeChange) {
+    if (projectedItem && onSizeChange) {
       const nextSize = { ...size };
       const projectedItemRightX = projectedItem.position.x + projectedItem.size.width;
       const projectedItemBottomY = projectedItem.position.y + projectedItem.size.height;
@@ -183,7 +180,7 @@ export function Grid<Item extends GridItemDto>({
         height: Math.max(nextSize.height, projectedItemBottomY + 1),
       });
     }
-  }, [shouldAutoExpand, projectedItem?.position, projectedItem?.size]);
+  }, [projectedItem?.position, projectedItem?.size]);
 
   // When a mouse item is moving, use the grabbing cursor
   useEffect(() => {
@@ -191,8 +188,8 @@ export function Grid<Item extends GridItemDto>({
   }, [gridMoveType]);
 
   return (
-    <GridContext.Provider value={{ size, unitPx, readOnly }}>
-      <GridBase className={className}>
+    <GridContext.Provider value={{ size, unitPx: 0, readOnly }}>
+      <GridBase className={className} css={css}>
         {items.map((item, idx) => (
           <GridItem
             key={getItemId(item)}

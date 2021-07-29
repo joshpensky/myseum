@@ -1,8 +1,7 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import classNames from 'classnames/bind';
 import { Grid, GridItem } from '@src/features/grid';
-import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import styles from './grid.module.scss';
 
 // TODO: drag to trash icon! (maybe delete key for keyboard-users?)
@@ -14,9 +13,6 @@ import styles from './grid.module.scss';
 const cx = classNames.bind(styles);
 
 const GridPage = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [gridHeightPx, setGridHeightPx] = useState(0);
-
   const [gridSize, setGridSize] = useState({ width: 10, height: 30 });
 
   const [items, setItems] = useState<(GridItem & { id: number; color: string })[]>([
@@ -40,59 +36,39 @@ const GridPage = () => {
     },
   ]);
 
-  // Observe resizes to the page grid
-  useIsomorphicLayoutEffect(() => {
-    if (containerRef.current) {
-      const observer = new ResizeObserver(entries => {
-        const [container] = entries;
-        setGridHeightPx(container.contentRect.height);
-      });
-      observer.observe(containerRef.current);
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, []);
-
-  // Calculate the grid unit size as the element height divided by the grid size height (# of rows)
-  const unitPx = gridHeightPx / gridSize.height;
-
   return (
     <div className={cx('page')}>
       <Head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </Head>
 
-      <div ref={containerRef} className={cx('page__grid')}>
-        <Grid
-          className={cx('page__grid__actual')}
-          unitPx={unitPx}
-          size={gridSize}
-          onSizeChange={newGridSize => {
-            // Only expand the width
-            setGridSize({ ...gridSize, width: newGridSize.width });
-          }}
-          items={items}
-          getItemId={item => String(item.id)}
-          onItemChange={(idx, item) => {
-            setItems([...items.slice(0, idx), item, ...items.slice(idx + 1)]);
-          }}
-          renderItem={(item, props) => (
-            <div
-              className={cx('wrapper', props.error)}
-              aria-disabled={props.disabled}
-              style={{ color: item.color }}>
-              <div className={cx('box', !!props.moveType && 'box--moving')} />
+      <Grid
+        className={cx('page__grid__actual')}
+        size={gridSize}
+        onSizeChange={newGridSize => {
+          // Only expand the width
+          setGridSize({ ...gridSize, width: newGridSize.width });
+        }}
+        items={items}
+        getItemId={item => String(item.id)}
+        onItemChange={(idx, item) => {
+          setItems([...items.slice(0, idx), item, ...items.slice(idx + 1)]);
+        }}
+        renderItem={(item, props) => (
+          <div
+            className={cx('wrapper', props.error)}
+            aria-disabled={props.disabled}
+            style={{ color: item.color }}>
+            <div className={cx('box', !!props.moveType && 'box--moving')} />
 
-              <button {...props.dragHandleProps} className={cx('drag-handle')} aria-label="Drag">
-                <span className="material-icons" aria-hidden="true">
-                  drag_indicator
-                </span>
-              </button>
-            </div>
-          )}
-        />
-      </div>
+            <button {...props.dragHandleProps} className={cx('drag-handle')} aria-label="Drag">
+              <span className="material-icons" aria-hidden="true">
+                drag_indicator
+              </span>
+            </button>
+          </div>
+        )}
+      />
     </div>
   );
 };

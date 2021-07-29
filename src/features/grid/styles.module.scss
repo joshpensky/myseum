@@ -2,6 +2,16 @@
   cursor: -webkit-grabbing !important;
 }
 
+.root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .grid {
   --unit-px: var(--unit-size) * 1px;
 
@@ -10,13 +20,11 @@
   position: relative;
   overflow: hidden;
 
-  background-image: repeating-linear-gradient(var(--grid-color) 0 1px, transparent 1px 100%),
-    repeating-linear-gradient(90deg, var(--grid-color) 0 1px, transparent 1px 100%);
+  background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
 
   background-size: calc(var(--unit-px)) calc(var(--unit-px));
-
-  background-position: 0 0, 0 0, calc(var(--unit-px) * -1) calc(var(--unit-px) * -1),
-    calc(var(--unit-px)) calc(var(--unit-px));
+  background-position: -0.5px -0.5px;
 }
 
 .item {

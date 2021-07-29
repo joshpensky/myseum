@@ -4,15 +4,6 @@
   position: relative;
 }
 
-.page__grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100vw;
-  overflow-x: auto;
-}
-
 .page__grid__actual {
   --grid-color: #ddd;
 }

@@ -1,10 +1,9 @@
 import { Fragment, useState } from 'react';
-import tw, { css, theme } from 'twin.macro';
+import tw, { theme } from 'twin.macro';
 import { Artist, Artwork, Frame, Gallery } from '@prisma/client';
-import { rgba } from 'polished';
 import ArtworkDetails from '@src/components/ArtworkDetails';
+import { useGrid } from '@src/features/grid';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { useGrid } from '@src/providers/GridProvider';
 import { useTheme } from '@src/providers/ThemeProvider';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 
@@ -14,14 +13,14 @@ export type ArtworkProps = {
     artist: Artist | null;
     gallery?: Gallery;
   };
-  withShadow?: boolean;
+  disabled?: boolean;
 };
 
 const BEZEL = 0.05;
 
-const ArtworkComponent = ({ data, withShadow }: ArtworkProps) => {
+const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
   const themeCtx = useTheme();
-  const gridCtx = useGrid();
+  const gridCtx = useGrid(true);
 
   const { id, title, frame, src, alt } = data;
 
@@ -54,13 +53,6 @@ const ArtworkComponent = ({ data, withShadow }: ArtworkProps) => {
   const artworkX = (frameWidth - artworkWidth) / 2;
   const artworkY = (frameHeight - artworkHeight) / 2;
 
-  /**
-   * Gets the pixel value for a shadow, scaled to the grid item size.
-   *
-   * @param value the value to scale
-   */
-  const px = (value: number) => `${value * ((gridCtx?.itemSize ?? 0) / 25)}px`;
-
   const backgroundStyle = {
     mint: tw`text-mint-200`,
     pink: tw`text-pink-200`,
@@ -68,51 +60,8 @@ const ArtworkComponent = ({ data, withShadow }: ArtworkProps) => {
     paper: tw`text-paper-200`,
   }[themeCtx?.color ?? 'mint'];
 
-  const shadowColor = {
-    mint: theme`colors.mint.800`,
-    pink: theme`colors.mint.800`, // TODO: update
-    navy: theme`colors.navy.50`,
-    paper: theme`colors.mint.800`, // TODO: update
-  }[themeCtx?.color ?? 'mint'];
-
-  const highlightColor = {
-    mint: theme`colors.white`,
-    pink: theme`colors.white`, // TODO: update
-    navy: theme`colors.navy.800`,
-    paper: theme`colors.white`, // TODO: update
-  }[themeCtx?.color ?? 'mint'];
-
-  const boxShadow = [
-    [
-      // Cast small shadow (bottom right)
-      px(frameHeight * 0.25),
-      px(frameHeight * 0.25),
-      px(frameDepth * 5),
-      px(-2),
-      rgba(shadowColor, 0.25),
-    ],
-    [
-      // Cast larger shadow (bottom right)
-      px(frameHeight * 0.75),
-      px(frameHeight * 0.75),
-      px(frameDepth * 10),
-      px(frameDepth * 2),
-      rgba(shadowColor, 0.15),
-    ],
-    [
-      // Cast highlight (top left)
-      px(frameHeight * -0.5),
-      px(frameHeight * -0.5),
-      px(frameDepth * 15),
-      px(frameDepth),
-      rgba(highlightColor, 0.15),
-    ],
-  ]
-    .map(shadowValues => shadowValues.join(' '))
-    .join(', ');
-
   return (
-    <ArtworkDetails data={data} disabled={!isLoaded || gridCtx?.asPreview}>
+    <ArtworkDetails data={data} disabled={!isLoaded || !gridCtx || disabled}>
       <svg
         id={`artwork-${id}`}
         css={[
@@ -123,7 +72,7 @@ const ArtworkComponent = ({ data, withShadow }: ArtworkProps) => {
             navy: tw`bg-navy-100`,
             paper: tw`bg-mint-300`, // TODO: update
           }[themeCtx?.color ?? 'mint'],
-          withShadow && isLoaded && css({ boxShadow }),
+          // !!gridCtx && isLoaded && css({ boxShadow }),
         ]}
         xmlns="http://www.w3.org/2000/svg"
         aria-labelledby={`artwork-${id}-title`}

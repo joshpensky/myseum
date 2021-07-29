@@ -122,7 +122,6 @@ export function useMoveController({
       const rect = animatedItemRef.current.getBoundingClientRect();
       const item = {
         // Rect position is set at itemTranslatePx.{x,y}
-        // If translateFrom is overridden, calculate to find the transformation
         position: {
           x: rect.x - translateFromPx.x,
           y: rect.y - translateFromPx.y,

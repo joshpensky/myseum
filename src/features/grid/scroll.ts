@@ -141,7 +141,7 @@ export const getScrollDelta = (
     if (scrollByOpts?.scrollByDistance) {
       return distanceFromEdge;
     }
-    const scrollSpeedMax = opts?.scrollSpeedMax ?? 3;
+    const scrollSpeedMax = opts?.scrollSpeedMax ?? 8;
     const percentToEdge = Math.round(distanceFromEdge) / MIN_DISTANCE_TO_SCROLL;
     return Math.floor(percentToEdge * scrollSpeedMax);
   }

@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import tw from 'twin.macro';
+import tw, { css, theme } from 'twin.macro';
 import { Museum, User } from '@prisma/client';
+import { rgba } from 'polished';
 import toast from 'react-hot-toast';
+import ArtworkComponent from '@src/components/Artwork';
 import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 import Portal from '@src/components/Portal';
-// import { MuseumRepository } from '@src/data/MuseumRepository';
-// import { getGallery } from '@src/data/static';
+import { Grid, useGrid } from '@src/features/grid';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
+import DragHandle from '@src/svgs/DragHandle';
 import Edit from '@src/svgs/Edit';
 import { GallerySettingsPopover } from './GallerySettingsPopover';
-// import { Gallery as StaticGallery } from '@src/types';
 
 export interface GalleryViewProps {
   basePath: string;
@@ -29,26 +30,45 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const [gallery, setGallery] = useState(data);
 
+  const getArtworkItems = (gallery: GalleryBlockProps['gallery']) =>
+    gallery.artworks.map(({ artwork, xPosition, yPosition }) => ({
+      artwork: artwork,
+      position: {
+        x: xPosition,
+        y: yPosition,
+      },
+      size: {
+        width: Math.ceil(artwork.frame?.width ?? artwork.width),
+        height: Math.ceil(artwork.frame?.height ?? artwork.height),
+      },
+    }));
+
+  const getWallWidth = (gallery: GalleryBlockProps['gallery']) => {
+    // Generates min columns based on the frame positioned furthest to the right
+    const minWidth = gallery.artworks.reduce((acc, item) => {
+      const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
+      return Math.max(acc, x2);
+    }, 1);
+    // Then add buffer
+    return minWidth + 5;
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery.name);
   const [wallColor, setWallColor] = useState(gallery.color);
   const [wallHeight, setWallHeight] = useState(gallery.height);
+  const [wallWidth, setWallWidth] = useState(() => getWallWidth(gallery));
+  const [artworkItems, setArtworkItems] = useState(() => getArtworkItems(gallery));
+
+  // Generates min height based on the lowest-positioned frame
+  const minHeight = artworkItems.reduce((acc, item) => {
+    const y2 = item.position.y + Math.ceil(item.artwork.frame?.height ?? item.artwork.height);
+    return Math.max(acc, y2);
+  }, 1);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /**
-   * Exits the editing mode, closing any popovers.
-   */
-  const exitEditingMode = () => {
-    // settingsPopover.close();
-    setIsEditing(false);
-  };
-
   const onEdit = () => {
-    // Update state
-    setName(gallery.name);
-    setWallColor(gallery.color);
-    setWallHeight(gallery.height);
     // Update editing mode
     setIsEditing(true);
   };
@@ -58,8 +78,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     setName(gallery.name);
     setWallColor(gallery.color);
     setWallHeight(gallery.height);
+    setArtworkItems(getArtworkItems(gallery));
     // Exit editing mode
-    exitEditingMode();
+    setIsEditing(false);
   };
 
   /**
@@ -77,6 +98,11 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           name,
           color: wallColor,
           height: wallHeight,
+          artworks: artworkItems.map(item => ({
+            artworkId: item.artwork.id,
+            xPosition: item.position.x,
+            yPosition: item.position.y,
+          })),
         }),
       });
 
@@ -86,11 +112,14 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       }
 
       const data = await res.json();
+      // Update state
       setGallery(gallery => ({
         ...gallery,
-        ...data.gallery,
+        ...data,
       }));
-      exitEditingMode();
+      setWallWidth(getWallWidth(data));
+      setArtworkItems(getArtworkItems(data));
+      setIsEditing(false);
       toast.success('Gallery updated!');
     } catch (error) {
       toast.error(error.message);
@@ -98,20 +127,6 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       setIsSubmitting(false);
     }
   };
-
-  const { artworks } = gallery;
-
-  // Generates min height based on the lowest-positioned frame
-  const minHeight = artworks.reduce((acc, item) => {
-    const y2 = item.yPosition + Math.ceil(item.artwork.frame?.height ?? item.artwork.height);
-    return Math.max(acc, y2);
-  }, 1);
-
-  // Generates min columns based on the frame positioned furthest to the right
-  const minColumns = artworks.reduce((acc, item) => {
-    const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
-    return Math.max(acc, x2);
-  }, 1);
 
   return (
     <ThemeProvider color={wallColor}>
@@ -196,15 +211,136 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           )}
         </div>
 
-        {/* <Grid showLines={isEditing} rows={wallHeight} minColumns={minColumns}>
-          {artworks.map((item, idx) => (
-            <GridItem
-              key={idx}
-              item={item.artwork}
-              position={{ x: item.xPosition, y: item.yPosition }}
-            />
-          ))}
-        </Grid> */}
+        <div css={[tw`relative flex flex-1 my-10`]}>
+          <Grid
+            css={[
+              {
+                mint: tw`text-mint-700`,
+                pink: tw`text-mint-700`, // TODO: update
+                navy: tw`text-navy-800`,
+                paper: tw`text-mint-700`, // TODO: update
+              }[wallColor],
+              isEditing ? tw`text-opacity-20` : tw`text-opacity-0`,
+            ]}
+            size={{ width: wallWidth, height: wallHeight }}
+            items={artworkItems}
+            getItemId={item => String(item.artwork.id)}
+            onSizeChange={size => setWallWidth(size.width)}
+            onItemChange={
+              isEditing &&
+              ((index, item) => {
+                setArtworkItems([
+                  ...artworkItems.slice(0, index),
+                  item,
+                  ...artworkItems.slice(index + 1),
+                ]);
+              })
+            }
+            renderItem={(item, props) => {
+              const gridCtx = useGrid();
+
+              const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
+              const frameDepth = item.artwork.frame?.depth ?? 0;
+
+              const isDragging = !!props.moveType;
+
+              /**
+               * Gets the pixel value for a shadow, scaled to the grid item size.
+               *
+               * @param value the value to scale
+               */
+              const px = (value: number) => `${value * ((gridCtx?.unitPx ?? 0) / 25)}px`;
+
+              const shadowColor = {
+                mint: theme`colors.mint.800`,
+                pink: theme`colors.mint.800`, // TODO: update
+                navy: theme`colors.navy.50`,
+                paper: theme`colors.mint.800`, // TODO: update
+              }[wallColor];
+
+              const highlightColor = {
+                mint: theme`colors.white`,
+                pink: theme`colors.white`, // TODO: update
+                navy: theme`colors.navy.800`,
+                paper: theme`colors.white`, // TODO: update
+              }[wallColor];
+
+              // When dragging, increase the x/y offset of shadows by 150%
+              const shadowOffsetMultiplier = isDragging ? 1.5 : 1;
+              const boxShadow = [
+                [
+                  // Cast small shadow (bottom right)
+                  px(frameHeight * 0.25 * shadowOffsetMultiplier),
+                  px(frameHeight * 0.25 * shadowOffsetMultiplier),
+                  px(frameDepth * 5),
+                  px(-2),
+                  rgba(shadowColor, 0.25),
+                ],
+                [
+                  // Cast larger shadow (bottom right)
+                  px(frameHeight * 0.75 * shadowOffsetMultiplier),
+                  px(frameHeight * 0.75 * shadowOffsetMultiplier),
+                  px(frameDepth * 10),
+                  px(frameDepth * 2),
+                  rgba(shadowColor, 0.15),
+                ],
+                [
+                  // Cast highlight (top left)
+                  px(frameHeight * -0.5 * shadowOffsetMultiplier),
+                  px(frameHeight * -0.5 * shadowOffsetMultiplier),
+                  px(frameDepth * 15),
+                  px(frameDepth),
+                  rgba(highlightColor, 0.15),
+                ],
+              ]
+                .map(shadowValues => shadowValues.join(' '))
+                .join(', ');
+
+              // When dragging, scale the artwork up by 1/4 of a grid unit
+              const draggingScale = 1 + 1 / (frameHeight * 4);
+
+              return (
+                <div className="group" css={[tw`absolute inset-0`]}>
+                  <div
+                    css={[
+                      tw`flex items-center justify-center h-full w-full relative transition-all`,
+                      isDragging && css({ transform: `scale(${draggingScale})` }),
+                      props.error && tw`overflow-hidden rounded-sm`,
+                      (props.error || props.disabled) && tw`opacity-75`,
+                      css({ boxShadow }),
+                    ]}>
+                    <ArtworkComponent data={item.artwork} disabled={isEditing} />
+                    <div
+                      css={[
+                        tw`absolute inset-0 rounded-sm opacity-0 pointer-events-none`,
+                        props.error &&
+                          tw`opacity-100 ring-2 ring-inset transition-opacity duration-75`,
+                        props.error === 'overlapping' &&
+                          tw`bg-yellow-500 bg-opacity-50 ring-yellow-500`,
+                        props.error === 'out-of-bounds' &&
+                          tw`bg-red-500 bg-opacity-50 ring-red-500`,
+                      ]}
+                    />
+                  </div>
+                  {isEditing && (
+                    <button
+                      css={[
+                        tw`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`,
+                        tw`w-8 h-8 rounded-full bg-white flex items-center justify-center`,
+                        tw`opacity-0 transition-opacity group-hover:(opacity-100) focus:(opacity-100 outline-none ring)`,
+                      ]}
+                      {...props.dragHandleProps}
+                      aria-label="Drag">
+                      <span css={[tw`block w-4 text-black`]}>
+                        <DragHandle />
+                      </span>
+                    </button>
+                  )}
+                </div>
+              );
+            }}
+          />
+        </div>
       </div>
     </ThemeProvider>
   );
