@@ -189,8 +189,13 @@ export function useMoveController({
 
   // Get the position the element would snap to given the current delta
   function getProjectedPosition(position: Position, deltaPx: Position) {
-    const deltaX = Math.round(deltaPx.x / grid.unitPx);
-    const deltaY = Math.round(deltaPx.y / grid.unitPx);
+    // Allow users to choose in what increments items are allowed to move around the grid
+    const step = grid.step;
+
+    const stepDivisions = 1 / step;
+
+    const deltaX = Math.round((deltaPx.x / grid.unitPx) * stepDivisions) / stepDivisions;
+    const deltaY = Math.round((deltaPx.y / grid.unitPx) * stepDivisions) / stepDivisions;
 
     return {
       x: position.x + deltaX,
@@ -633,7 +638,7 @@ export function useKeyboardMove(controller: MoveController): Pick<DragHandleProp
       // If keyboard is moving, allow keyboard nav as follows:
       if (move.type === 'keyboard') {
         // Double the move speed when holding shift key
-        const delta = evt.shiftKey ? 2 : 1;
+        const delta = grid.step * (evt.shiftKey ? 2 : 1);
 
         switch (evt.key) {
           // Prevent submission or tabbing

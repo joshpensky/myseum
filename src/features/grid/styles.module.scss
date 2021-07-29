@@ -23,7 +23,7 @@
   background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
     linear-gradient(to bottom, currentColor 1px, transparent 1px);
 
-  background-size: calc(var(--unit-px)) calc(var(--unit-px));
+  background-size: calc(var(--unit-px) * var(--grid-step)) calc(var(--unit-px) * var(--grid-step));
   background-position: -0.5px -0.5px;
 }
 

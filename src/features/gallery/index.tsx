@@ -152,7 +152,10 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
               <div css={tw`flex flex-1`}>
                 <div css={tw`flex flex-1 items-center justify-start`}>
-                  <button disabled={isSubmitting} onClick={() => onCancel()}>
+                  <button
+                    css={[tw`disabled:opacity-50`]}
+                    disabled={isSubmitting}
+                    onClick={() => onCancel()}>
                     Cancel
                   </button>
                 </div>
@@ -160,7 +163,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                   <AutofitTextField
                     id="gallery-name"
                     css={[tw`pb-0.5`]}
-                    inputCss={[tw`font-serif leading-none text-3xl`]}
+                    inputCss={[tw`font-serif leading-none text-3xl disabled:opacity-50`]}
                     label="Gallery name"
                     disabled={isSubmitting}
                     value={name}
@@ -168,7 +171,10 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                   />
                 </div>
                 <div css={tw`flex flex-1 items-center justify-end`}>
-                  <button disabled={isSubmitting} onClick={() => onSave()}>
+                  <button
+                    css={[tw`disabled:opacity-50`]}
+                    disabled={isSubmitting}
+                    onClick={() => onSave()}>
                     Save
                   </button>
                 </div>
@@ -224,6 +230,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
             ]}
             size={{ width: wallWidth, height: wallHeight }}
             items={artworkItems}
+            step={1}
             getItemId={item => String(item.artwork.id)}
             onSizeChange={size => setWallWidth(size.width)}
             onItemChange={
@@ -239,18 +246,6 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
             renderItem={(item, props) => {
               const gridCtx = useGrid();
 
-              const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
-              const frameDepth = item.artwork.frame?.depth ?? 0;
-
-              const isDragging = !!props.moveType;
-
-              /**
-               * Gets the pixel value for a shadow, scaled to the grid item size.
-               *
-               * @param value the value to scale
-               */
-              const px = (value: number) => `${value * ((gridCtx?.unitPx ?? 0) / 25)}px`;
-
               const shadowColor = {
                 mint: theme`colors.mint.800`,
                 pink: theme`colors.mint.800`, // TODO: update
@@ -264,6 +259,17 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 navy: theme`colors.navy.800`,
                 paper: theme`colors.white`, // TODO: update
               }[wallColor];
+
+              const isDragging = !!props.moveType;
+              const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
+              const frameDepth = item.artwork.frame?.depth ?? 0;
+
+              /**
+               * Gets the pixel value for a shadow, scaled to the grid item size.
+               *
+               * @param value the value to scale
+               */
+              const px = (value: number) => `${value * ((gridCtx?.unitPx ?? 0) / 25)}px`;
 
               // When dragging, increase the x/y offset of shadows by 150%
               const shadowOffsetMultiplier = isDragging ? 1.5 : 1;
@@ -327,9 +333,11 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                       css={[
                         tw`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`,
                         tw`w-8 h-8 rounded-full bg-white flex items-center justify-center`,
-                        tw`opacity-0 transition-opacity group-hover:(opacity-100) focus:(opacity-100 outline-none ring)`,
+                        tw`can-hover:(opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100)`,
+                        tw`focus:(outline-none ring)`,
                       ]}
                       {...props.dragHandleProps}
+                      disabled={isSubmitting}
                       aria-label="Drag">
                       <span css={[tw`block w-4 text-black`]}>
                         <DragHandle />

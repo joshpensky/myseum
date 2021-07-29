@@ -39,6 +39,7 @@ export function GridBase({ children, className, css }: PropsWithChildren<BasePro
           className={cx('grid', className)}
           css={css}
           style={{
+            '--grid-step': grid.step,
             '--unit-size': unitPx,
             '--grid-width': Math.max(grid.size.width, widthPx / unitPx),
             '--grid-height': grid.size.height,

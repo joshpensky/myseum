@@ -5,6 +5,7 @@ interface GridContextValue {
   size: Dimensions;
   unitPx: number;
   readOnly: boolean;
+  step: number;
 }
 
 export const GridContext = createContext<GridContextValue | null>(null);

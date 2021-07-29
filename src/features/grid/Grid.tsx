@@ -24,6 +24,7 @@ interface GridProps<Item extends GridItemDto> extends BaseProps {
   items: Item[];
   getItemId(item: Item): string;
   size: Dimensions;
+  step?: number;
   onItemChange?: ((index: number, value: Item) => void) | false;
   onSizeChange?(value: Dimensions): void;
   renderItem(item: Item, props: GridRenderItemProps): ReactNode;
@@ -34,6 +35,7 @@ export function Grid<Item extends GridItemDto>({
   css,
   items,
   size,
+  step,
   getItemId,
   renderItem,
   onItemChange,
@@ -188,7 +190,7 @@ export function Grid<Item extends GridItemDto>({
   }, [gridMoveType]);
 
   return (
-    <GridContext.Provider value={{ size, unitPx: 0, readOnly }}>
+    <GridContext.Provider value={{ size, unitPx: 0, readOnly, step: step ?? 1 }}>
       <GridBase className={className} css={css}>
         {items.map((item, idx) => (
           <GridItem
