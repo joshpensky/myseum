@@ -12,19 +12,67 @@
   overflow-y: hidden;
 }
 
-.grid {
-  --unit-px: var(--unit-size) * 1px;
+$grid-y-margin: 30px;
 
+.grid {
+  // Center the grid vertically in the root container
+  margin-top: $grid-y-margin;
+  margin-bottom: $grid-y-margin;
+
+  // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
   width: calc(var(--grid-width) * var(--unit-px));
+
   position: relative;
   overflow: hidden;
 
-  background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to bottom, currentColor 1px, transparent 1px);
+  // Render the bottom line, since the bg-image doesn't do so!
+  border-bottom: currentColor 1px solid;
 
-  background-size: calc(var(--unit-px) * var(--grid-step)) calc(var(--unit-px) * var(--grid-step));
-  background-position: -0.5px -0.5px;
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    // Render the grid texture
+    background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
+      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+
+    // Render the grid at the even unit px size (for crisp lines) at the chosen step (e.g., 1/2, 1, 2)
+    background-size: calc(var(--even-unit-px) * var(--grid-step))
+      calc(var(--even-unit-px) * var(--grid-step));
+
+    // Scale the element so even-unit-px is now the same size as unit-px
+    transform: scale(var(--scale));
+    transform-origin: 0 0;
+
+    // Then apply the inverse scale of the width and height so it takes up the full container size
+    width: calc(100% * (1 / var(--scale)));
+    height: calc(100% * (1 / var(--scale)));
+  }
+
+  &::before {
+    // Render any user-chosen step at half opacity
+    opacity: 0.5;
+  }
+
+  &::after {
+    // Always render the base 1 step at full opacity
+    --grid-step: 1;
+  }
+
+  // If the grid step is larger than 1, only render the before grid at full opacity
+  &.grid--large {
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      display: none;
+    }
+  }
 }
 
 .item {
@@ -34,6 +82,7 @@
 
   width: calc(var(--item-grid-width) * (var(--unit-px)));
   height: calc(var(--item-grid-height) * (var(--unit-px)));
+  z-index: 2;
 }
 
 .movable--active {
@@ -44,4 +93,8 @@
 
 .drag-handle-instructions {
   display: none;
+}
+
+:export {
+  varGridYMargin: $grid-y-margin;
 }

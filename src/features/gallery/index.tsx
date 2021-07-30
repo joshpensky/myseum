@@ -217,7 +217,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           )}
         </div>
 
-        <div css={[tw`relative flex flex-1 my-10`]}>
+        <div css={[tw`relative flex flex-1`]}>
           <Grid
             css={[
               {
@@ -230,7 +230,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
             ]}
             size={{ width: wallWidth, height: wallHeight }}
             items={artworkItems}
-            step={1}
+            step={0.5}
             getItemId={item => String(item.artwork.id)}
             onSizeChange={size => setWallWidth(size.width)}
             onItemChange={
