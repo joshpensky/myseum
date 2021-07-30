@@ -1,0 +1,45 @@
+$c-white: #ffffff;
+$c-black: #000000;
+
+$c-red-500: #ff3737;
+
+$c-yellow-500: #ffaf37;
+
+$c-mint-200: #f0f2ea;
+$c-mint-300: #dde1d2;
+$c-mint-400: #b6bba8;
+$c-mint-600: #8c8e84;
+$c-mint-700: #6a715c;
+$c-mint-800: #585f3c;
+$c-mint-900: #4e533f;
+
+$c-pink-200: #f6efe8;
+
+$c-navy-50: #101824;
+$c-navy-100: #161f2e;
+$c-navy-200: #232e3f;
+$c-navy-800: #6582ab;
+
+$c-paper-200: #f8f8f8;
+$c-paper-300: #eaeaea;
+
+////////////////////////////////////
+
+$ff-name-migra: 'Migra Web';
+$ff-name-plex: 'IBM Plex Sans';
+
+$ff-serif: $ff-name-migra, serif;
+$ff-sans: $ff-name-plex, sans-serif;
+
+$fs-xs: sz(3);
+$fs-sm: sz(3.5);
+$fs-md: sz(4);
+$fs-base: $fs-md;
+$fs-lg: sz(4.5);
+$fs-xl: sz(5);
+$fs-2xl: sz(6);
+$fs-3xl: sz(7.5);
+
+////////////////////////////////////
+
+$z-fab: 100;

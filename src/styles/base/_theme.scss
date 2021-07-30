@@ -1,0 +1,46 @@
+@function hex-to-rgb($color) {
+  @return red($color), green($color), blue($color);
+}
+
+:root {
+  --c-white: #{hex-to-rgb($c-white)};
+  --c-black: #{hex-to-rgb($c-black)};
+  --c-red: #{hex-to-rgb($c-red-500)};
+  --c-yellow: #{hex-to-rgb($c-yellow-500)};
+}
+
+.theme--mint {
+  --c-bg: #{hex-to-rgb($c-mint-200)};
+  --c-icon: #{hex-to-rgb($c-mint-900)};
+  --c-text: #{hex-to-rgb($c-black)};
+  --c-border: #{hex-to-rgb($c-mint-700)};
+  --c-shadow: #{hex-to-rgb($c-mint-800)};
+  --c-highlight: #{hex-to-rgb($c-white)};
+}
+
+.theme--pink {
+  --c-bg: #{hex-to-rgb($c-pink-200)};
+  --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
+  --c-text: #{hex-to-rgb($c-black)};
+  --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
+  --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
+  --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
+}
+
+.theme--navy {
+  --c-bg: #{hex-to-rgb($c-navy-200)};
+  --c-icon: #{hex-to-rgb($c-navy-800)};
+  --c-text: #{hex-to-rgb($c-white)};
+  --c-border: #{hex-to-rgb($c-navy-800)};
+  --c-shadow: #{hex-to-rgb($c-navy-50)};
+  --c-highlight: #{hex-to-rgb($c-navy-800)};
+}
+
+.theme--paper {
+  --c-bg: #{hex-to-rgb($c-paper-200)};
+  --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
+  --c-text: #{hex-to-rgb($c-black)};
+  --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
+  --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
+  --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
+}

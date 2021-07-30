@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { BaseProps, Dimensions, Position } from '@src/types';
+import { Dimensions, Position } from '@src/types';
 import { GridBase } from './GridBase';
 import { GridItem, GridItemChildProps, GridItemError } from './GridItem';
 import { isInBounds } from './bounds';
@@ -20,7 +20,8 @@ export interface GridRenderItemProps extends GridItemChildProps {
   disabled: boolean;
 }
 
-interface GridProps<Item extends GridItemDto> extends BaseProps {
+interface GridProps<Item extends GridItemDto> {
+  className?: string;
   items: Item[];
   getItemId(item: Item): string;
   size: Dimensions;
@@ -32,7 +33,6 @@ interface GridProps<Item extends GridItemDto> extends BaseProps {
 
 export function Grid<Item extends GridItemDto>({
   className,
-  css,
   items,
   size,
   step,
@@ -191,7 +191,7 @@ export function Grid<Item extends GridItemDto>({
 
   return (
     <GridContext.Provider value={{ size, unitPx: 0, readOnly, step: step ?? 1 }}>
-      <GridBase className={className} css={css}>
+      <GridBase className={className}>
         {items.map((item, idx) => (
           <GridItem
             key={getItemId(item)}

@@ -1,0 +1,26 @@
+.button {
+  @include size(sz(14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: c('white');
+  cursor: pointer;
+  box-shadow: 0 0 0 1px c('border', 0);
+  transition: box-shadow 150ms ease;
+  // tailwind TODO: shadow-lg
+
+  &:hover {
+    box-shadow: 0 0 0 1px c('border', 0.2);
+  }
+
+  &:focus {
+    @include outline-none;
+    box-shadow: 0 0 0 2px c('border', 1);
+  }
+}
+
+.icon {
+  @include size(sz(5));
+  color: c('icon');
+}

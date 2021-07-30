@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import classNames from 'classnames/bind';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions, Position } from '@src/types';
 import styles from './styles.module.scss';
 import {
@@ -55,7 +56,7 @@ export function GridItem({
   const keyboardDragHandleProps = useKeyboardMove(controller);
 
   // Update the move controller
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     onMoveTypeChange(controller.move.type);
   }, [controller.move.type]);
 

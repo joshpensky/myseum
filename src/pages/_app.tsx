@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import Layout, { SubLayoutProps } from '@src/components/Layout';
 import { AuthProvider } from '@src/providers/AuthProvider';
 import StyleProvider from '@src/providers/StyleProvider';
-import '@src/global.css';
+import '@src/styles/index.scss';
 
 interface AppProps extends BaseAppProps {
   Component: BaseAppProps['Component'] & {

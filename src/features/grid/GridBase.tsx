@@ -1,7 +1,6 @@
 import { PropsWithChildren, useRef, useState } from 'react';
 import classNames from 'classnames/bind';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { BaseProps } from '@src/types';
 import styles from './styles.module.scss';
 import { GridContext, useGrid } from './useGrid';
 
@@ -9,7 +8,11 @@ const cx = classNames.bind(styles);
 
 const GRID_Y_MARGIN = Number.parseInt(styles.varGridYMargin);
 
-export function GridBase({ children, className, css }: PropsWithChildren<BaseProps>) {
+interface GridBaseProps {
+  className?: string;
+}
+
+export function GridBase({ children, className }: PropsWithChildren<GridBaseProps>) {
   const grid = useGrid();
 
   const rootElRef = useRef<HTMLDivElement>(null);
@@ -41,7 +44,6 @@ export function GridBase({ children, className, css }: PropsWithChildren<BasePro
       <div ref={rootElRef} className={cx('root')}>
         <div
           className={cx('grid', grid.step >= 1 && 'grid--large', className)}
-          css={css}
           style={{
             '--grid-step': grid.step,
             '--unit-px': `${unitPx}px`,

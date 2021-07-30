@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import tw, { css, theme } from 'twin.macro';
+import tw from 'twin.macro';
 import { Museum, User } from '@prisma/client';
-import { rgba } from 'polished';
+import cx from 'classnames';
 import toast from 'react-hot-toast';
-import ArtworkComponent from '@src/components/Artwork';
 import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 import Portal from '@src/components/Portal';
-import { Grid, useGrid } from '@src/features/grid';
+import { Grid } from '@src/features/grid';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
-import DragHandle from '@src/svgs/DragHandle';
 import Edit from '@src/svgs/Edit';
 import { GallerySettingsPopover } from './GallerySettingsPopover';
+import { GridArtwork } from './GridArtwork';
+import styles from './gallery.module.scss';
 
 export interface GalleryViewProps {
   basePath: string;
@@ -136,16 +136,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         </title>
       </Head>
 
-      <div
-        css={[
-          tw`flex flex-col flex-1`,
-          {
-            mint: tw`bg-mint-200`,
-            pink: tw`bg-pink-200`,
-            navy: tw`bg-navy-200`,
-            paper: tw`bg-paper-200`,
-          }[wallColor],
-        ]}>
+      <div className={cx(`theme--${wallColor}`, styles.page)}>
         {isEditing && (
           <Portal to="nav" prepend>
             <div css={tw`bg-black py-2 px-4 text-white flex flex-col`}>
@@ -184,23 +175,12 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         )}
 
         {!isEditing && (
-          <header css={tw`flex justify-center px-4 pt-4 -mb-1.5`}>
-            <h2
-              css={[
-                tw`font-serif leading-none text-3xl`,
-                {
-                  mint: tw`text-black`,
-                  pink: tw`text-black`,
-                  navy: tw`text-white`,
-                  paper: tw`text-black`,
-                }[wallColor],
-              ]}>
-              {gallery.name}
-            </h2>
+          <header className={styles.header}>
+            <h2 className={styles.title}>{gallery.name}</h2>
           </header>
         )}
 
-        <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
+        <div className={styles.fab}>
           {!isEditing ? (
             <FloatingActionButton title="Edit gallery" onClick={() => onEdit()}>
               <Edit />
@@ -217,17 +197,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           )}
         </div>
 
-        <div css={[tw`relative flex flex-1`]}>
+        <div className={styles.gridWrapper}>
           <Grid
-            css={[
-              {
-                mint: tw`text-mint-700`,
-                pink: tw`text-mint-700`, // TODO: update
-                navy: tw`text-navy-800`,
-                paper: tw`text-mint-700`, // TODO: update
-              }[wallColor],
-              isEditing ? tw`text-opacity-20` : tw`text-opacity-0`,
-            ]}
+            className={cx(styles.grid, isEditing && styles.gridEditing)}
             size={{ width: wallWidth, height: wallHeight }}
             items={artworkItems}
             step={0.5}
@@ -243,110 +215,14 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 ]);
               })
             }
-            renderItem={(item, props) => {
-              const gridCtx = useGrid();
-
-              const shadowColor = {
-                mint: theme`colors.mint.800`,
-                pink: theme`colors.mint.800`, // TODO: update
-                navy: theme`colors.navy.50`,
-                paper: theme`colors.mint.800`, // TODO: update
-              }[wallColor];
-
-              const highlightColor = {
-                mint: theme`colors.white`,
-                pink: theme`colors.white`, // TODO: update
-                navy: theme`colors.navy.800`,
-                paper: theme`colors.white`, // TODO: update
-              }[wallColor];
-
-              const isDragging = !!props.moveType;
-              const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
-              const frameDepth = item.artwork.frame?.depth ?? 0;
-
-              /**
-               * Gets the pixel value for a shadow, scaled to the grid item size.
-               *
-               * @param value the value to scale
-               */
-              const px = (value: number) => `${value * ((gridCtx?.unitPx ?? 0) / 25)}px`;
-
-              // When dragging, increase the x/y offset of shadows by 150%
-              const shadowOffsetMultiplier = isDragging ? 1.5 : 1;
-              const boxShadow = [
-                [
-                  // Cast small shadow (bottom right)
-                  px(frameHeight * 0.25 * shadowOffsetMultiplier),
-                  px(frameHeight * 0.25 * shadowOffsetMultiplier),
-                  px(frameDepth * 5),
-                  px(-2),
-                  rgba(shadowColor, 0.25),
-                ],
-                [
-                  // Cast larger shadow (bottom right)
-                  px(frameHeight * 0.75 * shadowOffsetMultiplier),
-                  px(frameHeight * 0.75 * shadowOffsetMultiplier),
-                  px(frameDepth * 10),
-                  px(frameDepth * 2),
-                  rgba(shadowColor, 0.15),
-                ],
-                [
-                  // Cast highlight (top left)
-                  px(frameHeight * -0.5 * shadowOffsetMultiplier),
-                  px(frameHeight * -0.5 * shadowOffsetMultiplier),
-                  px(frameDepth * 15),
-                  px(frameDepth),
-                  rgba(highlightColor, 0.15),
-                ],
-              ]
-                .map(shadowValues => shadowValues.join(' '))
-                .join(', ');
-
-              // When dragging, scale the artwork up by 1/4 of a grid unit
-              const draggingScale = 1 + 1 / (frameHeight * 4);
-
-              return (
-                <div className="group" css={[tw`absolute inset-0`]}>
-                  <div
-                    css={[
-                      tw`flex items-center justify-center h-full w-full relative transition-all`,
-                      isDragging && css({ transform: `scale(${draggingScale})` }),
-                      props.error && tw`overflow-hidden rounded-sm`,
-                      (props.error || props.disabled) && tw`opacity-75`,
-                      css({ boxShadow }),
-                    ]}>
-                    <ArtworkComponent data={item.artwork} disabled={isEditing} />
-                    <div
-                      css={[
-                        tw`absolute inset-0 rounded-sm opacity-0 pointer-events-none`,
-                        props.error &&
-                          tw`opacity-100 ring-2 ring-inset transition-opacity duration-75`,
-                        props.error === 'overlapping' &&
-                          tw`bg-yellow-500 bg-opacity-50 ring-yellow-500`,
-                        props.error === 'out-of-bounds' &&
-                          tw`bg-red-500 bg-opacity-50 ring-red-500`,
-                      ]}
-                    />
-                  </div>
-                  {isEditing && (
-                    <button
-                      css={[
-                        tw`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`,
-                        tw`w-8 h-8 rounded-full bg-white flex items-center justify-center`,
-                        tw`can-hover:(opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100)`,
-                        tw`focus:(outline-none ring)`,
-                      ]}
-                      {...props.dragHandleProps}
-                      disabled={isSubmitting}
-                      aria-label="Drag">
-                      <span css={[tw`block w-4 text-black`]}>
-                        <DragHandle />
-                      </span>
-                    </button>
-                  )}
-                </div>
-              );
-            }}
+            renderItem={(item, props) => (
+              <GridArtwork
+                {...props}
+                item={item}
+                isEditing={isEditing}
+                disabled={props.disabled || isSubmitting}
+              />
+            )}
           />
         </div>
       </div>

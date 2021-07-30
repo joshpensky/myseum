@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import tw from 'twin.macro';
 import { GalleryColor } from '@prisma/client';
+import cx from 'classnames';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import IconButton from '@src/components/IconButton';
@@ -8,6 +9,7 @@ import Popover, { usePopover } from '@src/components/Popover';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
+import styles from './gallerySettingsPopover.module.scss';
 
 interface GallerySettingsPopoverProps {
   isSubmitting: boolean;
@@ -62,11 +64,11 @@ export const GallerySettingsPopover = ({
       </Popover>
 
       <FloatingActionButton
-        css={[settingsPopover.isExpanded && tw`transition-opacity opacity-50`]}
+        className={cx(styles.fab, settingsPopover.isExpanded && styles.fabExpanded)}
         onClick={() => setIsAddingArtwork(true)}
         disabled={isSubmitting}
         title="Add new artwork">
-        <span css={tw`block transform rotate-45`}>
+        <span className={styles.fabIcon}>
           <Close />
         </span>
       </FloatingActionButton>

@@ -12,7 +12,7 @@
   overflow-y: hidden;
 }
 
-$grid-y-margin: 30px;
+$grid-y-margin: sz(2);
 
 .grid {
   // Center the grid vertically in the root container

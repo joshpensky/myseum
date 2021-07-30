@@ -1,0 +1,11 @@
+.fab {
+  &.fab--expanded {
+    opacity: 0.5;
+    transition: opacity 150ms ease;
+  }
+}
+
+.fab__icon {
+  display: block;
+  transform: rotate(45deg);
+}
