@@ -47,6 +47,7 @@ export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapVi
 export const MuseumHomeLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
   <LayoutContext.Provider
     value={{
+      updateNavVisibility: () => {},
       navOverrides: {
         left: (
           <Link
@@ -67,6 +68,7 @@ export const MuseumHomeLayout = ({ children, pageProps }: SubLayoutProps<MuseumM
 export const MuseumAboutLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
   <LayoutContext.Provider
     value={{
+      updateNavVisibility: () => {},
       navOverrides: {
         left: (
           <Link passHref href={{ pathname: pageProps.basePath }}>
@@ -84,6 +86,7 @@ export const MuseumGalleryLayout = ({ children, pageProps }: SubLayoutProps<Gall
     {({ museum }) => (
       <LayoutContext.Provider
         value={{
+          updateNavVisibility: () => {},
           navOverrides: {
             left: (
               <Link passHref href={{ pathname: pageProps.basePath }}>

@@ -184,7 +184,7 @@ const FeatureFormModal = ({
             ref={contentRef}
             id={`${id}-content`}
             css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
-            <header css={tw`flex items-center border-b border-white px-6 py-5`}>
+            <header css={tw`flex items-center border-b border-white p-4`}>
               <div css={tw`mr-5`}>
                 <IconButton
                   ref={cancelBtnRef}

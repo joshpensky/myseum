@@ -1,0 +1,72 @@
+.wrapper {
+  max-width: 100%;
+  position: relative;
+  color: c('text');
+
+  &::before {
+    @include absolute(sz(-2) x x sz(-2));
+    @include size(calc(100% + #{sz(4)}));
+    content: '';
+    border-radius: sz(1);
+    pointer-events: none;
+    touch-action: none;
+    transition: background-color 150ms ease;
+  }
+
+  &::before {
+    background-color: c('bg-tint', 0);
+  }
+
+  &.wrapper--disabled {
+    opacity: 0.5;
+
+    &::before {
+      background-color: c('bg-tint', 0.5);
+    }
+  }
+
+  &:not(.wrapper--disabled) {
+    &:hover,
+    &:focus-within {
+      &::before {
+        background-color: c('bg-tint', 1);
+      }
+    }
+  }
+}
+
+.fake-input {
+  visibility: hidden;
+  white-space: nowrap;
+  user-select: none;
+  touch-action: none;
+  pointer-events: none;
+}
+
+.input {
+  @include absolute(0 x x 0);
+  background-color: transparent;
+  color: c('text');
+  text-align: center;
+  width: 100%;
+
+  &:focus {
+    @include outline-none;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: c('text', 0.5);
+  }
+
+  &::selection {
+    background-color: c('text', 0.25);
+  }
+}
+
+:export {
+  varColorWhite: $c-white;
+}

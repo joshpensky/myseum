@@ -40,6 +40,7 @@ enum GalleryColor {
   navy
   pink
   paper
+  ink
 }
 
 model Gallery {
@@ -102,10 +103,10 @@ model Artwork {
   createdAt   DateTime @default(now())
   acquiredAt  DateTime @default(now())
 
-  frame Frame? @relation(fields: [frameId], references: [id])
+  frame   Frame? @relation(fields: [frameId], references: [id])
   frameId Int?
 
-  artist Artist? @relation(fields: [artistId], references: [id])
+  artist   Artist? @relation(fields: [artistId], references: [id])
   artistId Int?
 
   galleries GalleryArtwork[]
@@ -117,10 +118,10 @@ model GalleryArtwork {
   xPosition Int
   yPosition Int
 
-  artwork Artwork @relation(fields: [artworkId], references: [id])
+  artwork   Artwork @relation(fields: [artworkId], references: [id])
   artworkId Int
 
-  gallery Gallery @relation(fields: [galleryId], references: [id])
+  gallery   Gallery @relation(fields: [galleryId], references: [id])
   galleryId Int
 
   @@id(fields: [artworkId, galleryId])

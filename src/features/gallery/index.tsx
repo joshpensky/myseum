@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Head from 'next/head';
-import tw from 'twin.macro';
 import { Museum, User } from '@prisma/client';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
 import { ArtworkProps } from '@src/components/Artwork';
 import AutofitTextField from '@src/components/AutofitTextField';
+import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
+import IconButton from '@src/components/IconButton';
+import { useLayout } from '@src/components/Layout';
 import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
-import Portal from '@src/components/Portal';
 import { Grid } from '@src/features/grid';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
+import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
 import { GalleryEditActions } from './GalleryEditActions';
 import { GridArtwork, GridArtworkItem } from './GridArtwork';
@@ -28,6 +30,7 @@ export interface GalleryViewProps {
 
 export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const { museum } = useMuseum();
+  const layout = useLayout();
 
   const [gallery, setGallery] = useState(data);
 
@@ -117,9 +120,17 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const exitEditMode = () => {
+    setIsEditing(false);
+    layout.updateNavVisibility(true);
+  };
+
   const onEdit = () => {
     // Update editing mode
+    layout.updateNavVisibility(false);
+    // setTimeout(() => {
     setIsEditing(true);
+    // }, 500);
   };
 
   const onCancel = () => {
@@ -129,7 +140,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     setWallHeight(gallery.height);
     setArtworkItems(getArtworkItems(gallery));
     // Exit editing mode
-    setIsEditing(false);
+    exitEditMode();
   };
 
   /**
@@ -172,7 +183,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       setWallWidth(getWallWidth(newArtworkItems) + 5);
       setArtworkItems(newArtworkItems);
 
-      setIsEditing(false);
+      exitEditMode();
       toast.success('Gallery updated!');
     } catch (error) {
       toast.error(error.message);
@@ -190,48 +201,41 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       </Head>
 
       <div className={cx(`theme--${wallColor}`, styles.page)}>
-        {isEditing && (
-          <Portal to="nav" prepend>
-            <div css={tw`bg-black py-2 px-4 text-white flex flex-col`}>
-              <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
-              <div css={tw`flex flex-1`}>
-                <div css={tw`flex flex-1 items-center justify-start`}>
-                  <button
-                    css={[tw`disabled:opacity-50`]}
-                    disabled={isSubmitting}
-                    onClick={() => onCancel()}>
-                    Cancel
-                  </button>
+        <ThemeProvider theme={{ color: isEditing ? 'ink' : wallColor }}>
+          <header className={cx(styles.header, isEditing && [`theme--ink`, styles.headerEditing])}>
+            {!isEditing ? (
+              <h2 className={styles.title}>{gallery.name}</h2>
+            ) : (
+              <Fragment>
+                <div className={styles.headerSection}>
+                  <IconButton disabled={isSubmitting} onClick={() => onCancel()} title="Cancel">
+                    <Close />
+                  </IconButton>
+                  <h1 className={styles.editTitle}>Editing gallery</h1>
                 </div>
-                <div css={tw`flex flex-1 items-center justify-center`}>
+
+                <div className={styles.headerSection}>
                   <AutofitTextField
                     id="gallery-name"
-                    css={[tw`pb-0.5`]}
-                    inputCss={[tw`font-serif leading-none text-3xl disabled:opacity-50`]}
+                    className={styles.titleInput}
+                    inputClassName={cx(styles.title)}
                     label="Gallery name"
+                    placeholder="Name"
                     disabled={isSubmitting}
                     value={name}
-                    onChange={setName}
+                    onChange={name => setName(name)}
                   />
                 </div>
-                <div css={tw`flex flex-1 items-center justify-end`}>
-                  <button
-                    css={[tw`disabled:opacity-50`]}
-                    disabled={isSubmitting}
-                    onClick={() => onSave()}>
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Portal>
-        )}
 
-        {!isEditing && (
-          <header className={styles.header}>
-            <h2 className={styles.title}>{gallery.name}</h2>
+                <div className={styles.headerSection}>
+                  <Button disabled={isSubmitting} onClick={() => onSave()}>
+                    Save
+                  </Button>
+                </div>
+              </Fragment>
+            )}
           </header>
-        )}
+        </ThemeProvider>
 
         <div className={styles.fab}>
           {!isEditing ? (

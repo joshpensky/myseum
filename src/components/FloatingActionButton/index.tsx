@@ -1,11 +1,9 @@
 import { forwardRef, MouseEvent, PropsWithChildren } from 'react';
-import { ForwardRefComponent } from '@radix-ui/react-polymorphic';
 import cx from 'classnames';
 import { useTheme } from '@src/providers/ThemeProvider';
 import styles from './floatingActionButton.module.scss';
 
 export interface FloatingActionButtonProps {
-  as?: 'button' | ForwardRefComponent<'button', any>;
   'aria-controls'?: string;
   'aria-expanded'?: boolean;
   className?: string;
@@ -19,7 +17,6 @@ const FloatingActionButton = forwardRef<
   PropsWithChildren<FloatingActionButtonProps>
 >(function FloatingActionButton(
   {
-    as,
     className,
     children,
     disabled,
@@ -31,10 +28,9 @@ const FloatingActionButton = forwardRef<
   ref,
 ) {
   const theme = useTheme();
-  const Component = as ?? 'button';
 
   return (
-    <Component
+    <button
       ref={ref}
       className={cx(`theme--${theme.color}`, styles.button, className)}
       title={title}
@@ -44,7 +40,7 @@ const FloatingActionButton = forwardRef<
       aria-expanded={ariaExpanded}>
       <span className="sr-only">{title}</span>
       <span className={styles.icon}>{children}</span>
-    </Component>
+    </button>
   );
 });
 

@@ -20,7 +20,7 @@ const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(fun
       id={id}
       className={['group', className].join(' ')}
       css={[
-        tw`relative px-3 py-1.5 rounded-full`,
+        tw`relative px-3 py-1 rounded-full`,
         tw`disabled:(opacity-50 cursor-not-allowed) not-disabled:focus:(outline-none)`,
         filled && tw`bg-current`,
         customCss,

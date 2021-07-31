@@ -1,13 +1,39 @@
-import { PropsWithChildren } from 'react';
-import { Content, Root, Close, Trigger, PopoverContentOwnProps } from '@radix-ui/react-popover';
+import { createContext, PropsWithChildren, useRef, useState } from 'react';
+import {
+  Content,
+  Root,
+  Close,
+  Trigger,
+  PopoverContentOwnProps,
+  PopoverOwnProps,
+} from '@radix-ui/react-popover';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
-import { useTheme } from '@src/providers/ThemeProvider';
 import CloseIcon from '@src/svgs/Close';
 import styles from './popover.module.scss';
 
-const POPOVER_OFFSET = Number.parseInt(styles.varPopoverOffset);
+const ANIMATION_DURATION = Number.parseInt(styles.varAnimDuration, 10);
+const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
+
+const PopoverContext = createContext({ open: false });
+
+const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverOwnProps>) => {
+  const [open, setOpen] = useState(props.defaultOpen ?? false);
+
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+    props.onOpenChange?.(open);
+  };
+
+  return (
+    <PopoverContext.Provider value={{ open }}>
+      <Root {...props} onOpenChange={onOpenChange}>
+        {children}
+      </Root>
+    </PopoverContext.Provider>
+  );
+};
 
 interface PopoverContentProps extends PopoverContentOwnProps {
   className?: string;
@@ -18,13 +44,14 @@ const PopoverContent = ({
   className,
   ...props
 }: PropsWithChildren<PopoverContentProps>) => {
-  const theme = useTheme();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   return (
     <Content
       {...props}
-      className={cx(`theme--${theme.color}`, styles.popover, className)}
-      sideOffset={props.sideOffset ?? POPOVER_OFFSET}>
+      ref={contentRef}
+      className={cx(`theme--paper`, styles.popover, className)}
+      sideOffset={props.sideOffset ?? SIDE_OFFSET}>
       {children}
     </Content>
   );
@@ -55,7 +82,11 @@ const PopoverBody = ({ children, className }: PropsWithChildren<PopoverBodyProps
 );
 
 export const Popover = {
-  Root,
+  constants: {
+    AnimationDuration: ANIMATION_DURATION,
+  },
+  Context: PopoverContext,
+  Root: PopoverRoot,
   Trigger,
   Content: PopoverContent,
   Header: PopoverHeader,

@@ -1,7 +1,7 @@
 import { ChangeEvent, Fragment, MouseEvent as ReactMouseEvent, useEffect, useState } from 'react';
 import tw, { css, TwStyle } from 'twin.macro';
+import { GalleryColor } from '@prisma/client';
 import { createGlobalStyle } from 'styled-components';
-import { GalleryColor } from '@src/types';
 
 type GallerySettingsProps = {
   disabled?: boolean;
@@ -114,6 +114,11 @@ const GallerySettings = ({
       value: 'paper',
       label: 'Paper',
       color: tw`bg-paper-200 border-mint-300`,
+    },
+    {
+      value: 'ink',
+      label: 'Ink',
+      color: tw`bg-black border-white`,
     },
   ];
 

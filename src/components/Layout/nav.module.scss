@@ -1,0 +1,39 @@
+@keyframes nav-enter {
+  0% {
+    max-height: 0px;
+  }
+  99% {
+    max-height: var(--nav-height);
+  }
+  100% {
+    max-height: initial;
+  }
+}
+
+@keyframes nav-leave {
+  0% {
+    max-height: var(--nav-height);
+    visibility: visible;
+  }
+  99% {
+    max-height: 0px;
+    visibility: visible;
+  }
+  100% {
+    max-height: 0px;
+    visibility: hidden;
+  }
+}
+
+.root {
+  overflow: hidden;
+
+  &.root--visible {
+    animation: nav-enter 500ms $ease-out-expo 1 forwards;
+  }
+
+  &.root--hidden {
+    animation: nav-leave 500ms $ease-out-expo 1 forwards;
+    visibility: hidden;
+  }
+}

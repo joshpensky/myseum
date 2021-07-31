@@ -102,19 +102,21 @@ export const GridArtwork = ({
           // When dragging, scale the artwork up by 1/4 of a grid unit
           '--drag-scale': 1 + 1 / (frameHeight * 4),
         }}>
-        {isLoaded && (
-          <Fragment>
-            <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowSm }} />
-            <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowLg }} />
-            <div className={cx(styles.artworkShadow)} style={{ '--shadow': highlight }} />
-          </Fragment>
-        )}
+        <div className={styles.artworkInner}>
+          {isLoaded && (
+            <Fragment>
+              <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowSm }} />
+              <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowLg }} />
+              <div className={cx(styles.artworkShadow)} style={{ '--shadow': highlight }} />
+            </Fragment>
+          )}
 
-        <Artwork
-          data={item.artwork}
-          disabled={disabled || isEditing}
-          onLoad={() => setIsLoaded(true)}
-        />
+          <Artwork
+            data={item.artwork}
+            disabled={disabled || isEditing}
+            onLoad={() => setIsLoaded(true)}
+          />
+        </div>
       </div>
 
       {isEditing && (

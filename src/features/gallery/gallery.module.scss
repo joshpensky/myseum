@@ -3,22 +3,59 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  &:global(.theme--paper) {
+    box-shadow: 0 -1px 0 0 c('border', 0.25);
+  }
 }
 
 .header {
+  @include padding(sz(4));
+  align-items: center;
+  background-color: c('bg');
+  color: c('text');
   display: flex;
-  justify-content: center;
-  padding-left: sz(4);
-  padding-right: sz(4);
-  padding-top: sz(4);
+  flex-direction: column;
   margin-bottom: sz(-1.5);
+
+  &--editing {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.header__section {
+  align-items: center;
+  display: flex;
+  flex: 1;
+
+  &:nth-child(1) {
+    justify-content: flex-start;
+  }
+
+  &:nth-child(2) {
+    justify-content: center;
+  }
+
+  &:nth-child(3) {
+    justify-content: flex-end;
+  }
+}
+
+.edit-title {
+  font-weight: $fw-medium;
+  margin-left: sz(4);
 }
 
 .title {
-  font-family: $ff-serif;
-  line-height: 1;
-  font-size: $fs-3xl;
   color: c('text');
+  font-family: $ff-serif;
+  font-size: $fs-3xl;
+  line-height: 1;
+}
+
+.title-input {
+  height: $fs-3xl;
 }
 
 .fab {

@@ -20,6 +20,8 @@
   }
 }
 
+$popover-anim-duration: 150ms;
+
 .popover {
   border-radius: sz(2);
   background-color: c('shadow', 0.2);
@@ -29,11 +31,11 @@
   z-index: $z-popover;
 
   &[data-state='open'] {
-    animation: popover-enter 150ms ease-out forwards 1;
+    animation: popover-enter $popover-anim-duration ease-out forwards 1;
   }
 
   &[data-state='closed'] {
-    animation: popover-leave 150ms ease-out forwards 1;
+    animation: popover-leave $popover-anim-duration ease-out forwards 1;
   }
 }
 
@@ -77,5 +79,6 @@
 }
 
 :export {
-  varPopoverOffset: sz(2, $convert: 'px');
+  varAnimDuration: $popover-anim-duration;
+  varSideOffset: sz(2, $convert: 'px');
 }

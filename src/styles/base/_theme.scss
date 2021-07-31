@@ -48,3 +48,13 @@
   --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
 }
+
+.theme--ink {
+  --c-bg: #{hex-to-rgb($c-black)};
+  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 20%))};
+  --c-icon: #{hex-to-rgb($c-white)};
+  --c-text: #{hex-to-rgb($c-white)};
+  --c-border: #{hex-to-rgb($c-white)};
+  --c-shadow: #{hex-to-rgb($c-navy-50)}; // TODO: replace
+  --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
+}

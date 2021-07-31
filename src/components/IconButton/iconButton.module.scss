@@ -1,11 +1,18 @@
+.wrapper {
+  &.wrapper--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .button {
   @include padding(sz(2));
   position: relative;
 
-  &::after {
+  &::before {
     @include absolute(0);
-    background-color: currentColor;
-    border-radius: 8px;
+    background-color: c('bg-tint');
+    border-radius: sz(2);
     content: '';
     pointer-events: none;
     touch-action: none;
@@ -14,21 +21,20 @@
   }
 
   &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    pointer-events: none;
   }
 
   &:not(:disabled) {
     &:hover,
     &:focus {
-      &::after {
-        opacity: 0.1;
+      &::before {
+        opacity: 0.5;
       }
     }
 
     &:focus {
-      &::after {
-        opacity: 0.15;
+      &::before {
+        opacity: 1;
         transform: scale(1);
         transition: transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease;
       }
@@ -42,5 +48,59 @@
 
 .icon {
   @include size(sz(4));
+  color: c('text');
   display: block;
+  position: relative;
+}
+
+@keyframes tooltip-enter {
+  from {
+    opacity: 0;
+    transform: scale(var(--start-scale));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tooltip-leave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.tooltip {
+  @include padding(sz(1) sz(2));
+  background-color: c('bg-tint');
+  border-radius: sz(2);
+  color: c('text');
+  font-size: $fs-sm;
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+
+  &.tooltip--disabled {
+    color: c('text', 0.5);
+  }
+
+  &[data-state='instant-open'],
+  &[data-state='delayed-open'] {
+    animation: tooltip-enter 100ms ease-out forwards 1;
+  }
+
+  &[data-state='delayed-open'] {
+    --start-scale: 0.95;
+  }
+
+  &[data-state='closed'] {
+    animation: tooltip-leave 75ms ease-out forwards 1;
+  }
+}
+
+:export {
+  varSideOffset: sz(1.25, $convert: 'px');
 }

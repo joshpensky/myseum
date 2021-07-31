@@ -1,17 +1,28 @@
-import { createContext, Fragment, PropsWithChildren, ReactNode, useContext } from 'react';
+import { createContext, Fragment, PropsWithChildren, useContext, useState } from 'react';
 import tw from 'twin.macro';
 import Nav, { NavProps } from '@src/components/Layout/Nav';
 
 export interface LayoutContextValue {
+  updateNavVisibility(visible: boolean): void;
   navOverrides?: NavProps['overrides'];
 }
 export const LayoutContext = createContext<LayoutContextValue | null>(null);
+
+export const useLayout = () => {
+  const value = useContext(LayoutContext);
+  if (!value) {
+    throw new Error('useLayout must be used within context of LayoutContext.Provider.');
+  }
+  return value;
+};
 
 export interface LayoutProps {
   navOverrides?: NavProps['overrides'];
 }
 const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
-  const layoutCtx = useContext(LayoutContext);
+  const layoutCtx = useLayout();
+
+  const [isNavVisible, setIsNavVisible] = useState(true);
 
   const overrides = {
     left: (
@@ -35,10 +46,12 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
   };
 
   return (
-    <div css={tw`flex flex-col flex-1 min-h-screen`}>
-      <Nav overrides={overrides} />
-      <main css={tw`flex flex-col flex-1`}>{children}</main>
-    </div>
+    <LayoutContext.Provider value={{ updateNavVisibility: visible => setIsNavVisible(visible) }}>
+      <div css={tw`flex flex-col flex-1 min-h-screen`}>
+        <Nav overrides={overrides} visible={isNavVisible} />
+        <main css={tw`flex flex-col flex-1`}>{children}</main>
+      </div>
+    </LayoutContext.Provider>
   );
 };
 

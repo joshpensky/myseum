@@ -101,13 +101,15 @@ $remove-anim-duration: 150ms;
   }
 }
 
+.artwork__inner {
+  height: 100%;
+  // Add relative position so shadows take shape of artwork, and not grid position!
+  position: relative;
+}
+
 .artwork__shadow {
+  @include absolute(0);
   box-shadow: var(--shadow);
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   // transition: box-shadow 150ms ease;
 }
 
