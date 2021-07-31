@@ -8,6 +8,8 @@ import Trash from '@src/svgs/Trash';
 import { Dimensions, Position } from '@src/types';
 import styles from './gridArtwork.module.scss';
 
+const REMOVE_ANIM_DURATION = Number.parseInt(styles.varRemoveAnimDuration, 10);
+
 export interface GridArtworkItem {
   artwork: ArtworkProps['data'];
   position: Position;
@@ -40,10 +42,12 @@ export const GridArtwork = ({
 
   const [isRemoving, setIsRemoving] = useState(false);
   const handleRemove = () => {
+    // Show the removing animation
     setIsRemoving(true);
+    // Then handle actually removing the item after the animation has finished
     setTimeout(() => {
       onRemove?.();
-    }, 200);
+    }, REMOVE_ANIM_DURATION);
   };
 
   /**

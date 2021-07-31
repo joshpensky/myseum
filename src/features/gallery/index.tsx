@@ -13,7 +13,7 @@ import { Grid } from '@src/features/grid';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Edit from '@src/svgs/Edit';
-import { GallerySettingsPopover } from './GallerySettingsPopover';
+import { GalleryEditActions } from './GalleryEditActions';
 import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';
 
@@ -80,6 +80,8 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const onAddArtwork = (artwork: ArtworkProps['data']) => {
     // Expand the wall width to accomodate the new artwork
     setWallWidth(getWallWidth(artworkItems) + 1 + (artwork.frame?.width ?? artwork.width) + 5);
+    // Expand the wall height to accomodate the new artwork
+    setWallHeight(Math.max(wallHeight, Math.ceil(artwork.frame?.height ?? artwork.height)));
     // Add the artwork to the wall, 1 unit to the right of the currently rightmost artwork
     setArtworkItems([
       ...artworkItems,
@@ -237,7 +239,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               <Edit />
             </FloatingActionButton>
           ) : (
-            <GallerySettingsPopover
+            <GalleryEditActions
               isSubmitting={isSubmitting}
               minHeight={minHeight}
               wallHeight={wallHeight}

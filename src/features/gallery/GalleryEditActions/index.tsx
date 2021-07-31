@@ -8,12 +8,12 @@ import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import { Popover } from '@src/components/Popover';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
+import { GridArtworkItem } from '@src/features/gallery/GridArtwork';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
-import styles from './gallerySettingsPopover.module.scss';
-import { GridArtworkItem } from '../GridArtwork';
+import styles from './galleryEditActions.module.scss';
 
-interface GallerySettingsPopoverProps {
+interface GalleryEditActionsProps {
   isSubmitting: boolean;
   minHeight: number;
   wallHeight: number;
@@ -24,7 +24,7 @@ interface GallerySettingsPopoverProps {
   onAddArtwork(artwork: ArtworkProps['data']): void;
 }
 
-export const GallerySettingsPopover = ({
+export const GalleryEditActions = ({
   isSubmitting,
   minHeight,
   wallHeight,
@@ -33,16 +33,18 @@ export const GallerySettingsPopover = ({
   onColorChange,
   artworkItems,
   onAddArtwork,
-}: GallerySettingsPopoverProps) => {
+}: GalleryEditActionsProps) => {
   const [isSettingsPopoverOpen, setIsSettingsPopoverOpen] = useState(false);
 
   const addArtworkButtonRef = useRef<HTMLButtonElement>(null);
   const [isAddingArtwork, setIsAddingArtwork] = useState(false);
   const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
 
-  const artworksSwr = useSWR<ArtworkProps['data'][]>(`/api/artworks`);
+  const [shouldLoadArtworks, setShouldLoadArtworks] = useState(false);
+  const artworksSwr = useSWR<ArtworkProps['data'][]>(shouldLoadArtworks ? `/api/artworks` : null);
   const areArtworksLoading = !artworksSwr.error && !artworksSwr.data;
 
+  // Filter the artworks data to exclude any artworks currently on the gallery wall
   const existingArtworkIdSet = new Set(artworkItems.map(item => item.artwork.id));
   const artworks = (artworksSwr.data ?? []).filter(
     artwork => !existingArtworkIdSet.has(artwork.id),
@@ -85,7 +87,12 @@ export const GallerySettingsPopover = ({
 
       <Popover.Root
         open={isArtworkPopoverOpen}
-        onOpenChange={open => setIsArtworkPopoverOpen(open)}>
+        onOpenChange={open => {
+          setIsArtworkPopoverOpen(open);
+          if (open) {
+            setShouldLoadArtworks(true);
+          }
+        }}>
         <Popover.Trigger as={Slot}>
           <FloatingActionButton
             ref={addArtworkButtonRef}
@@ -141,7 +148,7 @@ export const GallerySettingsPopover = ({
             <button
               className={styles.uploadButton}
               onClick={() => {
-                // Close the popover (TODO: fix so we don't need to do this!!)
+                // Close the popover (TODO: fix modal so we don't need to do this!!)
                 setIsArtworkPopoverOpen(false);
                 // Then open the add artwork modal
                 setIsAddingArtwork(true);
@@ -157,7 +164,7 @@ export const GallerySettingsPopover = ({
           onClose={() => {
             // Update the modal state
             setIsAddingArtwork(false);
-            // Then focus the add artwork button (TODO: fix so we don't need to do this!!)
+            // Then focus the add artwork button (TODO: fix modal so we don't need to do this!!)
             addArtworkButtonRef.current?.focus();
           }}
         />

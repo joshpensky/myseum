@@ -4,8 +4,6 @@ import { Gallery, GalleryArtwork, Artwork, Frame, Artist } from '@prisma/client'
 import dayjs from 'dayjs';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { Grid } from '@src/features/grid';
-// import Grid from '@src/components/Grid';
-// import GridItem from '@src/components/GridItem';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 
@@ -53,6 +51,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
                   <div
                     css={tw`absolute inset-0 size-full flex flex-col origin-bottom-left transform scale-125`}>
                     <Grid
+                      className={`theme--${gallery.color}`}
                       preview
                       size={{ width: gridWidth, height: gallery.height }}
                       items={gallery.artworks.map(item => ({
