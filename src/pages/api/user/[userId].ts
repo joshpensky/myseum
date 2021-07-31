@@ -35,9 +35,10 @@ const userDetailController: NextApiHandler = async (req, res) => {
         break;
       }
 
-      // Otherwise, throw 404
+      // Otherwise, endpoint not found
       default: {
-        res.status(404).json({ message: 'Not found.' });
+        res.setHeader('Allow', 'GET, PATCH');
+        res.status(405).end('Method Not Allowed');
       }
     }
   } catch (error) {

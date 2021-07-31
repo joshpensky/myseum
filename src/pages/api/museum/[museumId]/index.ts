@@ -11,7 +11,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
-      // Updates the chosen user
+      // Updates the museum with the given ID
       case 'PATCH': {
         const museum = await MuseumRepository.findOne(museumId.data);
         if (!museum) {
@@ -23,9 +23,10 @@ const museumDetailController: NextApiHandler = async (req, res) => {
         break;
       }
 
-      // Otherwise, throw 404
+      // Otherwise, endpoint not found
       default: {
-        res.status(404).json({ message: 'Not found.' });
+        res.setHeader('Allow', 'PATCH');
+        res.status(405).end('Method Not Allowed');
       }
     }
   } catch (error) {

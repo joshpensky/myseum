@@ -1,0 +1,30 @@
+div.toast {
+  background-color: c('bg');
+  border: 1px solid c('border');
+  box-shadow: 0 20px 25px -5px c('shadow', 0.2), 0 10px 10px -5px c('shadow', 0.2);
+  color: c('text');
+
+  &.toast--error {
+    border-color: c('red');
+    color: c('red');
+  }
+}
+
+.icon {
+  @include size(sz(5));
+  display: flex;
+  flex-shrink: 0;
+  color: c('shadow');
+}
+
+.icon--error {
+  align-items: center;
+  border: 1px solid c('red');
+  border-radius: 50%;
+  color: c('red');
+  justify-content: center;
+
+  svg {
+    @include size(sz(3));
+  }
+}

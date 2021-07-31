@@ -1,6 +1,5 @@
 import React, { ReactNode, useRef } from 'react';
 import classNames from 'classnames/bind';
-import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions, Position } from '@src/types';
 import styles from './styles.module.scss';
 import {
@@ -49,16 +48,12 @@ export function GridItem({
     position,
     onPositionChange,
     onPositionProjectionChange,
+    onMoveTypeChange,
   });
 
   const mouseDragHandleProps = useMouseMove(controller);
   const touchDragHandleProps = useTouchMove(controller);
   const keyboardDragHandleProps = useKeyboardMove(controller);
-
-  // Update the move controller
-  useIsomorphicLayoutEffect(() => {
-    onMoveTypeChange(controller.move.type);
-  }, [controller.move.type]);
 
   const instructionsId = `grid-item-${id}-instructions`;
   const dragHandleProps: DragHandleProps = {

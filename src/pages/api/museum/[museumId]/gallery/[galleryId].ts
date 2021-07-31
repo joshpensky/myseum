@@ -15,7 +15,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
-      // Updates the chosen user
+      // Updates the chosen gallery
       case 'PATCH': {
         const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
         if (!gallery) {
@@ -27,9 +27,10 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
         break;
       }
 
-      // Otherwise, throw 404
+      // Otherwise, endpoint not found
       default: {
-        res.status(404).json({ message: 'Not found.' });
+        res.setHeader('Allow', 'PATCH');
+        res.status(405).end('Method Not Allowed');
       }
     }
   } catch (error) {

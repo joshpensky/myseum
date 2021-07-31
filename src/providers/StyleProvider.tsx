@@ -1,14 +1,5 @@
 import { Fragment, ReactNode } from 'react';
-import tw, { GlobalStyles as GlobalTwinStyles, theme } from 'twin.macro';
-import { createGlobalStyle } from 'styled-components';
-
-const GlobalCustomStyles = createGlobalStyle`
-  /* Adding base body styles */
-  body {
-    background-color: ${theme`colors.off-white`};
-    ${tw`font-sans`}
-  }
-`;
+import { GlobalStyles as GlobalTwinStyles } from 'twin.macro';
 
 export type StyleProviderProps = {
   children: ReactNode;
@@ -16,7 +7,6 @@ export type StyleProviderProps = {
 const StyleProvider = ({ children }: StyleProviderProps) => (
   <Fragment>
     <GlobalTwinStyles />
-    <GlobalCustomStyles />
     {children}
   </Fragment>
 );

@@ -18,7 +18,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
-      // Updates the chosen user
+      // Get the collection for the museum with the given ID
       case 'GET': {
         const museum = await MuseumRepository.findOne(museumId.data);
         if (!museum) {
@@ -26,6 +26,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
           return;
         }
 
+        const uniqueIdSet = new Set<number>();
         const collection: MuseumCollectionItem[] = museum.galleries
           .map(({ artworks, ...gallery }) =>
             artworks.map(item => ({
@@ -33,15 +34,23 @@ const museumDetailController: NextApiHandler = async (req, res) => {
               gallery,
             })),
           )
-          .flat();
+          .flat()
+          .filter(item => {
+            if (!uniqueIdSet.has(item.artwork.id)) {
+              uniqueIdSet.add(item.artwork.id);
+              return true;
+            }
+            return false;
+          });
 
         res.status(200).json(collection);
         break;
       }
 
-      // Otherwise, throw 404
+      // Otherwise, endpoint not found
       default: {
-        res.status(404).json({ message: 'Not found.' });
+        res.setHeader('Allow', 'GET');
+        res.status(405).end('Method Not Allowed');
       }
     }
   } catch (error) {

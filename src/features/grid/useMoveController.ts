@@ -24,6 +24,7 @@ export interface UseMoveControllerOpts {
   position: Position;
   onPositionChange(position: Position): Position;
   onPositionProjectionChange(position: Position): void;
+  onMoveTypeChange(type: MoveControllerType | null): void;
 }
 
 export type MoveControllerType = 'mouse' | 'keyboard' | 'touch';
@@ -46,6 +47,7 @@ export interface MoveController {
 
 export function useMoveController({
   position,
+  onMoveTypeChange,
   onPositionChange,
   onPositionProjectionChange,
 }: UseMoveControllerOpts): MoveController {
@@ -55,6 +57,11 @@ export function useMoveController({
   const animatedItemRef = useRef<HTMLDivElement>(null);
 
   const [moveType, setMoveType] = useState<MoveControllerType | null>(null);
+  const updateMoveType = (type: MoveControllerType | null) => {
+    onMoveTypeChange(type);
+    setMoveType(type);
+  };
+
   const [itemTranslatePx, setItemTranslatePx] = useState<Position>({ x: 0, y: 0 });
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -214,7 +221,7 @@ export function useMoveController({
     }
 
     if (!isAnimating && !moveType) {
-      setMoveType(nextMoveType);
+      updateMoveType(nextMoveType);
     }
   };
 
@@ -235,7 +242,7 @@ export function useMoveController({
     }
 
     // Remove the existing move type
-    setMoveType(null);
+    updateMoveType(null);
 
     // Update position state
     const projectedPosition = getProjectedPosition(position, itemTranslatePx);
@@ -265,7 +272,7 @@ export function useMoveController({
   // Reset state when moved to `readOnly` mode
   useEffect(() => {
     if (grid.readOnly) {
-      setMoveType(null);
+      updateMoveType(null);
       setItemTranslatePx({ x: 0, y: 0 });
       setParentOffsetPx({ x: 0, y: 0 });
     }
