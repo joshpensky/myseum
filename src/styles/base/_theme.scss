@@ -11,6 +11,7 @@
 
 .theme--mint {
   --c-bg: #{hex-to-rgb($c-mint-200)};
+  --c-bg-tint: #{hex-to-rgb($c-mint-300)};
   --c-icon: #{hex-to-rgb($c-mint-900)};
   --c-text: #{hex-to-rgb($c-black)};
   --c-border: #{hex-to-rgb($c-mint-700)};
@@ -20,6 +21,7 @@
 
 .theme--pink {
   --c-bg: #{hex-to-rgb($c-pink-200)};
+  --c-bg-tint: #{hex-to-rgb($c-mint-300)}; // TODO: replace
   --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
   --c-text: #{hex-to-rgb($c-black)};
   --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
@@ -29,6 +31,7 @@
 
 .theme--navy {
   --c-bg: #{hex-to-rgb($c-navy-200)};
+  --c-bg-tint: #{hex-to-rgb($c-navy-100)};
   --c-icon: #{hex-to-rgb($c-navy-800)};
   --c-text: #{hex-to-rgb($c-white)};
   --c-border: #{hex-to-rgb($c-navy-800)};
@@ -38,6 +41,7 @@
 
 .theme--paper {
   --c-bg: #{hex-to-rgb($c-paper-200)};
+  --c-bg-tint: #{hex-to-rgb($c-mint-300)}; // TODO: replace
   --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
   --c-text: #{hex-to-rgb($c-black)};
   --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace

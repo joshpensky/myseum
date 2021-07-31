@@ -1,0 +1,59 @@
+.trigger {
+  @include absolute(0);
+  @include size(100%);
+  border-radius: sz(0.25);
+  box-shadow: 0 0 0 0 c('shadow', 0);
+  cursor: pointer;
+  transition: box-shadow 150ms ease;
+
+  &:focus {
+    @include outline-none;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 6px c('shadow', 0.2);
+  }
+}
+
+.header__buttons {
+  display: flex;
+  align-items: center;
+}
+
+.header__buttons__item {
+  margin-right: sz(1);
+}
+
+.body__top {
+  margin-bottom: sz(2);
+}
+
+.title {
+  font-family: $ff-serif;
+  font-size: $fs-2xl;
+  margin-bottom: sz(-1);
+}
+
+.credit {
+  font-size: $fs-lg;
+}
+
+.description {
+  margin-bottom: sz(6);
+}
+
+.body__footer {
+  font-style: italic;
+}
+
+.acquisition {
+  font-size: $fs-sm;
+}
+
+.feature {
+  font-size: $fs-sm;
+
+  a {
+    text-decoration: underline;
+  }
+}

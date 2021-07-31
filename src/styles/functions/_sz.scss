@@ -1,3 +1,9 @@
-@function sz($value) {
-  @return $value * 0.25rem;
+@function sz($value, $convert: '') {
+  $rem: $value * 0.25rem;
+
+  @if $convert == 'px' {
+    @return strip-units($rem) * 16px;
+  } @else {
+    @return $rem;
+  }
 }

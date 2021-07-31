@@ -39,7 +39,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
               paper: tw`bg-paper-200`,
             }[gallery.color],
           ]}>
-          <ThemeProvider color={gallery.color}>
+          <ThemeProvider theme={{ color: gallery.color }}>
             <div css={tw`absolute inset-0 size-full flex flex-col flex-1`}>
               <div css={tw`relative flex-1`}>
                 {gallery.artworks.length > 0 && (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
@@ -15,7 +15,6 @@ import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useAuth } from '@src/providers/AuthProvider';
 import { useMuseum } from '@src/providers/MuseumProvider';
-import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Edit from '@src/svgs/Edit';
 
 const updateMuseumSchema = z.object({
@@ -120,7 +119,7 @@ const MuseumMapView = () => {
   };
 
   return (
-    <ThemeProvider color="paper">
+    <Fragment>
       <Head>
         <title>{museum.name} | Myseum</title>
       </Head>
@@ -169,7 +168,7 @@ const MuseumMapView = () => {
         galleries={museum.galleries}
         editMode={isEditing ? { galleries, setGalleries } : undefined}
       />
-    </ThemeProvider>
+    </Fragment>
   );
 };
 

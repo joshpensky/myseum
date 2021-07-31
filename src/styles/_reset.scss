@@ -537,3 +537,10 @@ video {
 [hidden] {
   display: none;
 }
+
+/**
+ * Remove default underline from abbreviations.
+ */
+abbr[title] {
+  text-decoration: none !important;
+}

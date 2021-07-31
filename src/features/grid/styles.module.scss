@@ -12,12 +12,9 @@
   overflow-y: hidden;
 }
 
-$grid-y-margin: sz(2);
-
 .grid {
   // Center the grid vertically in the root container
-  margin-top: $grid-y-margin;
-  margin-bottom: $grid-y-margin;
+  @include margin(sz(8) x);
 
   // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
@@ -96,5 +93,5 @@ $grid-y-margin: sz(2);
 }
 
 :export {
-  varGridYMargin: $grid-y-margin;
+  varGridYMargin: sz(8, $convert: 'px');
 }

@@ -4,7 +4,8 @@ import * as z from 'zod';
 import { ArtworkProps } from '@src/components/Artwork';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 
-export type MuseumCollectionItem = ArtworkProps['data'] & {
+export type MuseumCollectionItem = {
+  artwork: ArtworkProps['data'];
   gallery: Gallery;
 };
 
@@ -27,8 +28,8 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
         const collection: MuseumCollectionItem[] = museum.galleries
           .map(({ artworks, ...gallery }) =>
-            artworks.map(artwork => ({
-              ...artwork.artwork,
+            artworks.map(item => ({
+              artwork: item.artwork,
               gallery,
             })),
           )

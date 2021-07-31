@@ -1,15 +1,15 @@
 import tw from 'twin.macro';
+import { Slot } from '@radix-ui/react-slot';
 import dayjs from 'dayjs';
 import { DraggableProvidedDragHandleProps, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import AutofitTextField from '@src/components/AutofitTextField';
 import IconButton from '@src/components/IconButton';
 import { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
-import Close from '@src/svgs/Close';
+import { Popover } from '@src/components/Popover';
 import Cog from '@src/svgs/Cog';
 import DragHandle from '@src/svgs/DragHandle';
 import Trash from '@src/svgs/Trash';
 import GallerySettings from '../GallerySettings';
-import Popover, { usePopover } from '../Popover';
 
 interface EditGalleryBlockProps {
   disabled?: boolean;
@@ -30,7 +30,7 @@ const EditGalleryBlock = ({
 }: EditGalleryBlockProps) => {
   const galleryId = gallery.id ?? dayjs(gallery.createdAt).valueOf();
 
-  const settingsPopover = usePopover(`gallery-${galleryId}-settings`);
+  // const settingsPopover = usePopover(`gallery-${galleryId}-settings`);
 
   const blockColor = {
     mint: tw`bg-mint-200`,
@@ -47,8 +47,7 @@ const EditGalleryBlock = ({
           tw`bg-black bg-opacity-0 ring-black ring-opacity-0 transition-all`,
           snapshot.isDragging && tw` bg-opacity-20 ring-opacity-20 shadow-popover`,
         ]}>
-        <div
-          css={[tw`py-3.5 px-4 flex flex-shrink-0 justify-between mb-px rounded-t-lg`, blockColor]}>
+        <div css={[tw`p-2 flex flex-shrink-0 justify-between mb-px rounded-t-lg`, blockColor]}>
           <div css={tw`flex`}>
             <IconButton {...dragHandleProps} title="Drag" disabled={disabled}>
               <DragHandle />
@@ -56,37 +55,30 @@ const EditGalleryBlock = ({
           </div>
 
           <div css={tw`flex`}>
-            <Popover
-              {...settingsPopover.wrapperProps}
-              css={tw`flex ml-5`}
-              origin="top left"
-              disabled={disabled}>
-              <IconButton
-                {...settingsPopover.anchorProps}
-                title="Open gallery settings"
-                disabled={disabled}>
-                <Cog />
-              </IconButton>
-              <Popover.Body>
-                <header
-                  css={tw`py-2 px-5 bg-white rounded-t-lg mb-px flex items-center justify-between`}>
-                  <h1 css={tw`font-serif leading-none text-xl mt-1 mr-3`}>Settings</h1>
-                  <IconButton title="Close settings" onClick={() => settingsPopover.close(true)}>
-                    <Close />
-                  </IconButton>
-                </header>
-                <section css={tw`px-5 pt-4 pb-5 bg-white rounded-b-lg`}>
+            <Popover.Root open={disabled ? false : undefined}>
+              <Popover.Trigger as={Slot}>
+                <IconButton title="Open gallery settings" disabled={disabled}>
+                  <Cog />
+                </IconButton>
+              </Popover.Trigger>
+
+              <Popover.Content side="bottom" align="center" aria-label="Gallery settings">
+                <Popover.Header>
+                  <h2>Settings</h2>
+                </Popover.Header>
+
+                <Popover.Body>
                   <GallerySettings
                     id={`gallery-${galleryId}`}
                     disabled={disabled}
                     wallColor={gallery.color}
                     onWallColorChange={color => onChange({ ...gallery, color })}
                   />
-                </section>
-              </Popover.Body>
-            </Popover>
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Root>
 
-            <div css={tw`flex ml-5`}>
+            <div css={tw`flex ml-1`}>
               <IconButton title="Delete" disabled={disabled} onClick={() => onDelete()}>
                 <Trash />
               </IconButton>

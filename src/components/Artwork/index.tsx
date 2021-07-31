@@ -1,32 +1,40 @@
-import { Fragment, useState } from 'react';
-import tw, { theme } from 'twin.macro';
-import { Artist, Artwork, Frame, Gallery } from '@prisma/client';
-import ArtworkDetails from '@src/components/ArtworkDetails';
-import { useGrid } from '@src/features/grid';
+import { Fragment, Suspense, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Artist, Artwork as ArtworkDto, Frame, Gallery } from '@prisma/client';
+import cx from 'classnames';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { useTheme } from '@src/providers/ThemeProvider';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
+import styles from './artwork.module.scss';
 
-export type ArtworkProps = {
-  data: Artwork & {
+const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
+
+export interface ArtworkProps {
+  data: ArtworkDto & {
     frame: Frame | null;
     artist: Artist | null;
-    gallery?: Gallery;
   };
   disabled?: boolean;
-};
+  gallery?: Gallery;
+  onLoad?(): void;
+}
 
 const BEZEL = 0.05;
 
-const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
-  const themeCtx = useTheme();
-  const gridCtx = useGrid(true);
+export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
+  const theme = useTheme();
 
   const { id, title, frame, src, alt } = data;
 
   const [isFrameLoaded, setIsFrameLoaded] = useState(!frame);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
   const isLoaded = isFrameLoaded && isArtworkLoaded;
+
+  useEffect(() => {
+    if (isLoaded && onLoad) {
+      onLoad();
+    }
+  }, [isLoaded]);
 
   // Loads the image and artwork on mount
   useIsomorphicLayoutEffect(() => {
@@ -53,27 +61,16 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
   const artworkX = (frameWidth - artworkWidth) / 2;
   const artworkY = (frameHeight - artworkHeight) / 2;
 
-  const backgroundStyle = {
-    mint: tw`text-mint-200`,
-    pink: tw`text-pink-200`,
-    navy: tw`text-navy-200`,
-    paper: tw`text-paper-200`,
-  }[themeCtx?.color ?? 'mint'];
-
   return (
-    <ArtworkDetails data={data} disabled={!isLoaded || !gridCtx || disabled}>
+    <div className={styles.wrapper}>
       <svg
         id={`artwork-${id}`}
-        css={[
-          tw`h-full`,
-          {
-            mint: tw`bg-mint-300`,
-            pink: tw`bg-mint-300`, // TODO: update
-            navy: tw`bg-navy-100`,
-            paper: tw`bg-mint-300`, // TODO: update
-          }[themeCtx?.color ?? 'mint'],
-          // !!gridCtx && isLoaded && css({ boxShadow }),
-        ]}
+        className={cx(`theme--${theme}`, styles.root)}
+        css={
+          [
+            // !!gridCtx && isLoaded && css({ boxShadow }),
+          ]
+        }
         xmlns="http://www.w3.org/2000/svg"
         aria-labelledby={`artwork-${id}-title`}
         aria-describedby={`artwork-${id}-desc`}
@@ -116,7 +113,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
                 {/* Invert the drop shadow to create an inner shadow */}
                 <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse" />
                 {/* Color & opacity */}
-                <feFlood floodColor={theme`colors.black`} floodOpacity={0.5} result="color" />
+                <feFlood floodColor="black" floodOpacity={0.5} result="color" />
                 {/* Clip color inside shadow */}
                 <feComposite operator="in" in="color" in2="inverse" result="shadow" />
                 {/* Shadow opacity */}
@@ -134,7 +131,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
 
             {/* Render frame */}
             <image
-              css={[!isLoaded && tw`opacity-0`]}
+              className={cx(styles.frame, isLoaded && styles.frameLoaded)}
               href={frame.src}
               preserveAspectRatio="none"
               x={0}
@@ -145,7 +142,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
 
             {/* Render frame window when loading, and frame mat when loaded */}
             <use
-              css={[tw`fill-current`, isArtworkLoaded ? tw`text-paper-200` : backgroundStyle]}
+              className={cx(styles.window, isArtworkLoaded && styles.windowLoaded)}
               href={`#artwork-${id}-window`}
             />
 
@@ -154,7 +151,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
               <g id={`artwork-${id}-mat-bezel`} mask={`url(#artwork-${id}-window-mask)`}>
                 {/* Render base light of the bezel */}
                 <rect
-                  css={tw`fill-current text-white`}
+                  fill="white"
                   x={artworkX - BEZEL}
                   y={artworkY - BEZEL}
                   width={artworkWidth + BEZEL * 2}
@@ -162,7 +159,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
                 />
                 {/* Render shadow sides of bezel */}
                 <path
-                  css={tw`fill-current text-black text-opacity-40`}
+                  className={styles.bezelShadow}
                   d={CanvasUtils.getLineCommands([
                     {
                       x: artworkX + artworkWidth + BEZEL,
@@ -188,7 +185,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
                 />
                 {/* Render darker top shadow of bezel */}
                 <path
-                  css={tw`fill-current text-black text-opacity-20`}
+                  className={styles.bezelShadow}
                   d={CanvasUtils.getLineCommands([
                     {
                       x: artworkX + artworkWidth + BEZEL,
@@ -210,7 +207,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
                 />
                 {/* Render back of frame under mat */}
                 <rect
-                  css={tw`fill-current text-paper-300`}
+                  className={styles.mat}
                   x={artworkX}
                   y={artworkY}
                   width={artworkWidth}
@@ -223,7 +220,7 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
 
         {/* Render artwork image, centered in frame */}
         <image
-          css={[!isLoaded && tw`opacity-0`]}
+          className={cx(styles.artwork, isLoaded && styles.artworkLoaded)}
           href={src}
           preserveAspectRatio="xMinYMin slice"
           x={artworkX}
@@ -236,14 +233,18 @@ const ArtworkComponent = ({ data, disabled }: ArtworkProps) => {
         {/* Render frame inner shadow */}
         {isArtworkLoaded && frame && (
           <use
-            css={[tw`fill-current`]}
+            className={styles.frameInnerShadow}
             href={`#artwork-${id}-window`}
             filter={`url(#artwork-${id}-inner-shadow)`}
           />
         )}
       </svg>
-    </ArtworkDetails>
+
+      {isLoaded && !disabled && (
+        <Suspense fallback={null}>
+          <ArtworkDetails data={data} gallery={gallery} />
+        </Suspense>
+      )}
+    </div>
   );
 };
-
-export default ArtworkComponent;

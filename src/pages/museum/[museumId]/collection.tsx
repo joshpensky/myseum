@@ -5,7 +5,7 @@ import tw from 'twin.macro';
 import { Museum } from '@prisma/client';
 import useSWR from 'swr';
 import * as z from 'zod';
-import Artwork from '@src/components/Artwork';
+import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumHomeLayout } from '@src/layouts/museum';
@@ -57,9 +57,9 @@ const MuseumCollectionView = () => {
       )}
 
       <ul css={tw`-mb-5 flex flex-wrap`}>
-        {(collection.data ?? []).map(artwork => (
-          <li key={artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
-            <Artwork data={artwork} />
+        {(collection.data ?? []).map(item => (
+          <li key={item.artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
+            <Artwork data={item.artwork} gallery={item.gallery} />
           </li>
         ))}
       </ul>

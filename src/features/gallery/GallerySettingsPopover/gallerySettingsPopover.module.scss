@@ -1,4 +1,8 @@
 .fab {
+  + .fab {
+    margin-top: sz(2);
+  }
+
   &.fab--expanded {
     opacity: 0.5;
     transition: opacity 150ms ease;

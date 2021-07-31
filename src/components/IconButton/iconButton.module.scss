@@ -1,0 +1,46 @@
+.button {
+  @include padding(sz(2));
+  position: relative;
+
+  &::after {
+    @include absolute(0);
+    background-color: currentColor;
+    border-radius: 8px;
+    content: '';
+    pointer-events: none;
+    touch-action: none;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled) {
+    &:hover,
+    &:focus {
+      &::after {
+        opacity: 0.1;
+      }
+    }
+
+    &:focus {
+      &::after {
+        opacity: 0.15;
+        transform: scale(1);
+        transition: transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease;
+      }
+    }
+  }
+
+  &:focus {
+    @include outline-none;
+  }
+}
+
+.icon {
+  @include size(sz(4));
+  display: block;
+}

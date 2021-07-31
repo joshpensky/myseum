@@ -1,0 +1,49 @@
+.wrapper {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
+.root {
+  background-color: c('bg-tint');
+  height: 100%;
+}
+
+.frame {
+  opacity: 0;
+
+  &.frame--loaded {
+    opacity: 1;
+  }
+}
+
+.window {
+  color: c('bg');
+  fill: currentColor;
+
+  &.window--loaded {
+    color: $c-paper-200;
+  }
+}
+
+.bezel-shadow {
+  color: c('black', 0.2);
+  fill: currentColor;
+}
+
+.mat {
+  color: $c-paper-300;
+  fill: currentColor;
+}
+
+.artwork {
+  opacity: 0;
+
+  &.artwork--loaded {
+    opacity: 1;
+  }
+}
+
+.frame-inner-shadow {
+  fill: currentColor;
+}

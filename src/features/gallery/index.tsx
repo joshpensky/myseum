@@ -31,17 +31,23 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const [gallery, setGallery] = useState(data);
 
   const getArtworkItems = (gallery: GalleryBlockProps['gallery']) =>
-    gallery.artworks.map(({ artwork, xPosition, yPosition }) => ({
-      artwork: artwork,
-      position: {
-        x: xPosition,
-        y: yPosition,
-      },
-      size: {
-        width: Math.ceil(artwork.frame?.width ?? artwork.width),
-        height: Math.ceil(artwork.frame?.height ?? artwork.height),
-      },
-    }));
+    gallery.artworks
+      .map(({ artwork, xPosition, yPosition }) => ({
+        artwork: artwork,
+        position: {
+          x: xPosition,
+          y: yPosition,
+        },
+        size: {
+          width: Math.ceil(artwork.frame?.width ?? artwork.width),
+          height: Math.ceil(artwork.frame?.height ?? artwork.height),
+        },
+      }))
+      .sort((a, b) => {
+        // Sort from left-to-right, top-to-bottom for a logical focus order
+        const xDiff = a.position.x - b.position.x;
+        return xDiff || a.position.y - b.position.y;
+      });
 
   const getWallWidth = (gallery: GalleryBlockProps['gallery']) => {
     // Generates min columns based on the frame positioned furthest to the right
@@ -49,7 +55,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
       return Math.max(acc, x2);
     }, 1);
-    // Then add buffer
+    // Then add 5 unit buffer
     return minWidth + 5;
   };
 
@@ -129,7 +135,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   };
 
   return (
-    <ThemeProvider color={wallColor}>
+    <ThemeProvider theme={{ color: wallColor }}>
       <Head>
         <title>
           {gallery.name} | {museum.name} | Myseum
@@ -202,7 +208,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
             className={cx(styles.grid, isEditing && styles.gridEditing)}
             size={{ width: wallWidth, height: wallHeight }}
             items={artworkItems}
-            step={0.5}
+            step={1}
             getItemId={item => String(item.artwork.id)}
             onSizeChange={size => setWallWidth(size.width)}
             onItemChange={

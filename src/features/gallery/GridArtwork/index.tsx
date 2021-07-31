@@ -1,16 +1,13 @@
-import { Artist, Artwork, Frame } from '@prisma/client';
+import { Fragment, useState } from 'react';
 import cx from 'classnames';
-import ArtworkComponent from '@src/components/Artwork';
+import { Artwork, ArtworkProps } from '@src/components/Artwork';
 import { useGrid } from '@src/features/grid';
 import { GridRenderItemProps } from '@src/features/grid/Grid';
 import DragHandle from '@src/svgs/DragHandle';
 import styles from './gridArtwork.module.scss';
 
 interface GridArtworkItem {
-  artwork: Artwork & {
-    frame: Frame | null;
-    artist: Artist | null;
-  };
+  artwork: ArtworkProps['data'];
   position: {
     x: number;
     y: number;
@@ -35,6 +32,8 @@ export const GridArtwork = ({
   dragHandleProps,
 }: GridArtworkProps) => {
   const gridCtx = useGrid();
+
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const isDragging = !!moveType;
   const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
@@ -87,10 +86,19 @@ export const GridArtwork = ({
           // When dragging, scale the artwork up by 1/4 of a grid unit
           '--drag-scale': 1 + 1 / (frameHeight * 4),
         }}>
-        <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowSm }} />
-        <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowLg }} />
-        <div className={cx(styles.artworkShadow)} style={{ '--shadow': highlight }} />
-        <ArtworkComponent data={item.artwork} disabled={disabled || isEditing} />
+        {isLoaded && (
+          <Fragment>
+            <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowSm }} />
+            <div className={cx(styles.artworkShadow)} style={{ '--shadow': shadowLg }} />
+            <div className={cx(styles.artworkShadow)} style={{ '--shadow': highlight }} />
+          </Fragment>
+        )}
+
+        <Artwork
+          data={item.artwork}
+          disabled={disabled || isEditing}
+          onLoad={() => setIsLoaded(true)}
+        />
       </div>
 
       {isEditing && (
