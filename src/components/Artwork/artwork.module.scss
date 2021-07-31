@@ -18,22 +18,19 @@
 }
 
 .window {
-  color: c('bg');
-  fill: currentColor;
+  fill: c('bg');
 
   &.window--loaded {
-    color: $c-paper-200;
+    fill: $c-paper-200;
   }
 }
 
 .bezel-shadow {
-  color: c('black', 0.2);
-  fill: currentColor;
+  fill: c('black', 0.2);
 }
 
 .mat {
-  color: $c-paper-300;
-  fill: currentColor;
+  fill: $c-paper-300;
 }
 
 .artwork {
@@ -45,5 +42,5 @@
 }
 
 .frame-inner-shadow {
-  fill: currentColor;
+  fill: c('black');
 }

@@ -4,23 +4,21 @@ import { Artwork, ArtworkProps } from '@src/components/Artwork';
 import { useGrid } from '@src/features/grid';
 import { GridRenderItemProps } from '@src/features/grid/Grid';
 import DragHandle from '@src/svgs/DragHandle';
+import Trash from '@src/svgs/Trash';
+import { Dimensions, Position } from '@src/types';
 import styles from './gridArtwork.module.scss';
 
-interface GridArtworkItem {
+export interface GridArtworkItem {
   artwork: ArtworkProps['data'];
-  position: {
-    x: number;
-    y: number;
-  };
-  size: {
-    width: number;
-    height: number;
-  };
+  position: Position;
+  size: Dimensions;
+  new?: boolean;
 }
 
 interface GridArtworkProps extends GridRenderItemProps {
   item: GridArtworkItem;
   isEditing?: boolean;
+  onRemove?(): void;
 }
 
 export const GridArtwork = ({
@@ -30,6 +28,7 @@ export const GridArtwork = ({
   moveType,
   error,
   dragHandleProps,
+  onRemove,
 }: GridArtworkProps) => {
   const gridCtx = useGrid();
 
@@ -38,6 +37,14 @@ export const GridArtwork = ({
   const isDragging = !!moveType;
   const frameHeight = item.artwork.frame?.height ?? item.artwork.height;
   const frameDepth = item.artwork.frame?.depth ?? 0;
+
+  const [isRemoving, setIsRemoving] = useState(false);
+  const handleRemove = () => {
+    setIsRemoving(true);
+    setTimeout(() => {
+      onRemove?.();
+    }, 200);
+  };
 
   /**
    * Gets the pixel value for a shadow, scaled to the grid item size.
@@ -74,7 +81,12 @@ export const GridArtwork = ({
   ].join(' ');
 
   return (
-    <div className={cx(styles.wrapper)}>
+    <div
+      className={cx(
+        styles.wrapper,
+        item.new && styles.wrapperAdding,
+        isRemoving && styles.wrapperRemoving,
+      )}>
       <div
         className={cx(
           styles.artwork,
@@ -102,11 +114,31 @@ export const GridArtwork = ({
       </div>
 
       {isEditing && (
-        <button className={cx(styles.dragHandle)} {...dragHandleProps} aria-label="Drag">
-          <span>
-            <DragHandle />
-          </span>
-        </button>
+        <div className={styles.actions}>
+          <button
+            {...dragHandleProps}
+            className={styles.actionsItem}
+            disabled={disabled}
+            title="Move"
+            aria-label="Move">
+            <span>
+              <DragHandle />
+            </span>
+          </button>
+
+          {onRemove && (
+            <button
+              className={styles.actionsItem}
+              disabled={disabled}
+              onClick={() => handleRemove()}
+              title="Remove"
+              aria-label="Remove from gallery">
+              <span>
+                <Trash />
+              </span>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

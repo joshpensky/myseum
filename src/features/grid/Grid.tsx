@@ -22,17 +22,19 @@ export interface GridRenderItemProps extends GridItemChildProps {
 
 interface GridProps<Item extends GridItemDto> {
   className?: string;
+  preview?: boolean;
   items: Item[];
   getItemId(item: Item): string;
   size: Dimensions;
   step?: number;
   onItemChange?: ((index: number, value: Item) => void) | false;
   onSizeChange?(value: Dimensions): void;
-  renderItem(item: Item, props: GridRenderItemProps): ReactNode;
+  renderItem(item: Item, props: GridRenderItemProps, index: number): ReactNode;
 }
 
 export function Grid<Item extends GridItemDto>({
   className,
+  preview,
   items,
   size,
   step,
@@ -190,7 +192,14 @@ export function Grid<Item extends GridItemDto>({
   }, [gridMoveType]);
 
   return (
-    <GridContext.Provider value={{ size, unitPx: 0, readOnly, step: step ?? 1 }}>
+    <GridContext.Provider
+      value={{
+        size,
+        unitPx: 0,
+        readOnly,
+        step: step ?? 1,
+        preview: preview ?? false,
+      }}>
       <GridBase className={className}>
         {items.map((item, idx) => (
           <GridItem
@@ -204,9 +213,9 @@ export function Grid<Item extends GridItemDto>({
             onPositionProjectionChange={action => onPositionProjectionChange(idx, action)}>
             {itemProps => {
               // Disabled if an item is moving and it's NOT this one
-              const disabled = !!gridMoveType && !itemProps.moveType;
+              const disabled = preview || (!!gridMoveType && !itemProps.moveType);
 
-              return renderItem(item, { ...itemProps, disabled });
+              return renderItem(item, { ...itemProps, disabled }, idx);
             }}
           </GridItem>
         ))}

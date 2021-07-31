@@ -37,11 +37,26 @@
   }
 }
 
+.popover__header,
+.popover__body {
+  &:first-child {
+    border-top-left-radius: sz(2);
+    border-top-right-radius: sz(2);
+  }
+
+  &:not(:last-child) {
+    margin-bottom: 1px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: sz(2);
+    border-bottom-right-radius: sz(2);
+  }
+}
+
 .popover__header {
   @include padding(sz(2) sz(2) sz(2));
   background-color: c('white');
-  border-top-left-radius: sz(2);
-  border-top-right-radius: sz(2);
   margin-bottom: 1px;
   display: flex;
   align-items: center;
@@ -58,8 +73,7 @@
 .popover__body {
   @include padding(sz(4) sz(5) sz(5));
   background-color: c('white');
-  border-bottom-left-radius: sz(2);
-  border-bottom-right-radius: sz(2);
+  position: relative;
 }
 
 :export {

@@ -6,6 +6,7 @@ interface GridContextValue {
   unitPx: number;
   readOnly: boolean;
   step: number;
+  preview: boolean;
 }
 
 export const GridContext = createContext<GridContextValue | null>(null);

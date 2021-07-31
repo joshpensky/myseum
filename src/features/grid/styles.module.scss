@@ -10,21 +10,22 @@
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+
+  &.root--preview {
+    overflow-x: hidden;
+  }
 }
 
 .grid {
-  // Center the grid vertically in the root container
-  @include margin(sz(8) x);
-
   // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
   width: calc(var(--grid-width) * var(--unit-px));
 
   position: relative;
-  overflow: hidden;
 
   // Render the bottom line, since the bg-image doesn't do so!
   border-bottom: currentColor 1px solid;
+  color: transparent;
 
   &::before,
   &::after {
@@ -69,6 +70,11 @@
     &::after {
       display: none;
     }
+  }
+
+  &:not(.grid--preview) {
+    // Center the grid vertically in the root container
+    @include margin(sz(8) x);
   }
 }
 

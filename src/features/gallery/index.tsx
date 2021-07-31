@@ -4,6 +4,7 @@ import tw from 'twin.macro';
 import { Museum, User } from '@prisma/client';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
+import { ArtworkProps } from '@src/components/Artwork';
 import AutofitTextField from '@src/components/AutofitTextField';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
@@ -13,7 +14,7 @@ import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Edit from '@src/svgs/Edit';
 import { GallerySettingsPopover } from './GallerySettingsPopover';
-import { GridArtwork } from './GridArtwork';
+import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';
 
 export interface GalleryViewProps {
@@ -30,7 +31,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const [gallery, setGallery] = useState(data);
 
-  const getArtworkItems = (gallery: GalleryBlockProps['gallery']) =>
+  const getArtworkItems = (gallery: GalleryBlockProps['gallery']): GridArtworkItem[] =>
     gallery.artworks
       .map(({ artwork, xPosition, yPosition }) => ({
         artwork: artwork,
@@ -49,28 +50,68 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         return xDiff || a.position.y - b.position.y;
       });
 
-  const getWallWidth = (gallery: GalleryBlockProps['gallery']) => {
+  const getWallWidth = (artworkItems: GridArtworkItem[]) => {
     // Generates min columns based on the frame positioned furthest to the right
-    const minWidth = gallery.artworks.reduce((acc, item) => {
-      const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
+    const minWidth = artworkItems.reduce((acc, item) => {
+      const x2 = item.position.x + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
       return Math.max(acc, x2);
     }, 1);
-    // Then add 5 unit buffer
-    return minWidth + 5;
+    return minWidth;
   };
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(gallery.name);
   const [wallColor, setWallColor] = useState(gallery.color);
   const [wallHeight, setWallHeight] = useState(gallery.height);
-  const [wallWidth, setWallWidth] = useState(() => getWallWidth(gallery));
   const [artworkItems, setArtworkItems] = useState(() => getArtworkItems(gallery));
+  const [wallWidth, setWallWidth] = useState(() => getWallWidth(artworkItems) + 5);
 
   // Generates min height based on the lowest-positioned frame
   const minHeight = artworkItems.reduce((acc, item) => {
     const y2 = item.position.y + Math.ceil(item.artwork.frame?.height ?? item.artwork.height);
     return Math.max(acc, y2);
   }, 1);
+
+  /**
+   * Adds a new artwork to the current editing state.
+   *
+   * @param artwork the artwork to add
+   */
+  const onAddArtwork = (artwork: ArtworkProps['data']) => {
+    // Expand the wall width to accomodate the new artwork
+    setWallWidth(getWallWidth(artworkItems) + 1 + (artwork.frame?.width ?? artwork.width) + 5);
+    // Add the artwork to the wall, 1 unit to the right of the currently rightmost artwork
+    setArtworkItems([
+      ...artworkItems,
+      {
+        artwork,
+        position: {
+          x: getWallWidth(artworkItems) + 1,
+          y: 0,
+        },
+        size: {
+          width: Math.ceil(artwork.frame?.width ?? artwork.width),
+          height: Math.ceil(artwork.frame?.height ?? artwork.height),
+        },
+        new: true,
+      },
+    ]);
+    // Spawn a success toast!
+    toast.success(`"${artwork.title}" was added to the gallery.`);
+  };
+
+  /**
+   * Removes an artwork from the current editing state.
+   *
+   * @param index the index of artwork to remove
+   */
+  const onRemoveArtwork = (index: number) => {
+    // Update the toast to remove the item
+    setArtworkItems([...artworkItems.slice(0, index), ...artworkItems.slice(index + 1)]);
+    // Spawn a success toast!
+    const deletedItem = artworkItems[index];
+    toast.success(`"${deletedItem.artwork.title}" was removed from the gallery.`);
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -118,13 +159,17 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       }
 
       const data = await res.json();
+
       // Update state
       setGallery(gallery => ({
         ...gallery,
         ...data,
       }));
-      setWallWidth(getWallWidth(data));
-      setArtworkItems(getArtworkItems(data));
+
+      const newArtworkItems = getArtworkItems(data);
+      setWallWidth(getWallWidth(newArtworkItems) + 5);
+      setArtworkItems(newArtworkItems);
+
       setIsEditing(false);
       toast.success('Gallery updated!');
     } catch (error) {
@@ -196,9 +241,11 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               isSubmitting={isSubmitting}
               minHeight={minHeight}
               wallHeight={wallHeight}
-              setWallHeight={setWallHeight}
+              onHeightChange={height => setWallHeight(height)}
               wallColor={wallColor}
-              setWallColor={setWallColor}
+              onColorChange={color => setWallColor(color)}
+              artworkItems={artworkItems}
+              onAddArtwork={artwork => onAddArtwork(artwork)}
             />
           )}
         </div>
@@ -221,12 +268,13 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 ]);
               })
             }
-            renderItem={(item, props) => (
+            renderItem={(item, props, index) => (
               <GridArtwork
                 {...props}
                 item={item}
                 isEditing={isEditing}
                 disabled={props.disabled || isSubmitting}
+                onRemove={() => onRemoveArtwork(index)}
               />
             )}
           />

@@ -65,12 +65,7 @@ export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
     <div className={styles.wrapper}>
       <svg
         id={`artwork-${id}`}
-        className={cx(`theme--${theme}`, styles.root)}
-        css={
-          [
-            // !!gridCtx && isLoaded && css({ boxShadow }),
-          ]
-        }
+        className={cx(`theme--${theme.color}`, styles.root)}
         xmlns="http://www.w3.org/2000/svg"
         aria-labelledby={`artwork-${id}-title`}
         aria-describedby={`artwork-${id}-desc`}

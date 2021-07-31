@@ -311,7 +311,7 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
                                           ref={provided.innerRef}
                                           css={[tw`block w-96`]}
                                           {...provided.draggableProps}
-                                          style={provided.draggableProps.style}>
+                                          style={{ ...provided.draggableProps.style }}>
                                           <EditGalleryBlock
                                             disabled={disabled}
                                             gallery={gallery}

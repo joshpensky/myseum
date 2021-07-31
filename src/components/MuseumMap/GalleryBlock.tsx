@@ -2,8 +2,10 @@ import Link from 'next/link';
 import tw from 'twin.macro';
 import { Gallery, GalleryArtwork, Artwork, Frame, Artist } from '@prisma/client';
 import dayjs from 'dayjs';
-import Grid from '@src/components/Grid';
-import GridItem from '@src/components/GridItem';
+import { GridArtwork } from '@src/features/gallery/GridArtwork';
+import { Grid } from '@src/features/grid';
+// import Grid from '@src/components/Grid';
+// import GridItem from '@src/components/GridItem';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 
@@ -20,6 +22,11 @@ export interface GalleryBlockProps {
 
 const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
   const { basePath } = useMuseum();
+
+  const gridWidth = gallery.artworks.reduce((acc, item) => {
+    const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
+    return Math.max(acc, x2);
+  }, 1);
 
   return (
     <div css={tw`flex flex-shrink-0 m-2.5`}>
@@ -45,15 +52,23 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
                 {gallery.artworks.length > 0 && (
                   <div
                     css={tw`absolute inset-0 size-full flex flex-col origin-bottom-left transform scale-125`}>
-                    <Grid asPreview rows={gallery.height}>
-                      {gallery.artworks.map((item, idx) => (
-                        <GridItem
-                          key={idx}
-                          item={item.artwork}
-                          position={{ x: item.xPosition, y: item.yPosition }}
-                        />
-                      ))}
-                    </Grid>
+                    <Grid
+                      preview
+                      size={{ width: gridWidth, height: gallery.height }}
+                      items={gallery.artworks.map(item => ({
+                        artwork: item.artwork,
+                        position: {
+                          x: item.xPosition,
+                          y: item.yPosition,
+                        },
+                        size: {
+                          width: item.artwork.frame?.width ?? item.artwork.width,
+                          height: item.artwork.frame?.height ?? item.artwork.height,
+                        },
+                      }))}
+                      getItemId={item => String(item.artwork.id)}
+                      renderItem={(item, props) => <GridArtwork {...props} item={item} />}
+                    />
                   </div>
                 )}
               </div>

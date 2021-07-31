@@ -1,8 +1,9 @@
-import { Fragment, useState } from 'react';
-import tw from 'twin.macro';
+import { Fragment, useRef, useState } from 'react';
 import { GalleryColor } from '@prisma/client';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
+import useSWR from 'swr';
+import { Artwork, ArtworkProps } from '@src/components/Artwork';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import { Popover } from '@src/components/Popover';
@@ -10,34 +11,52 @@ import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
 import styles from './gallerySettingsPopover.module.scss';
+import { GridArtworkItem } from '../GridArtwork';
 
 interface GallerySettingsPopoverProps {
   isSubmitting: boolean;
   minHeight: number;
   wallHeight: number;
-  setWallHeight(nextWallHeight: number): void;
+  onHeightChange(nextWallHeight: number): void;
   wallColor: GalleryColor;
-  setWallColor(nextWallColor: GalleryColor): void;
+  onColorChange(nextWallColor: GalleryColor): void;
+  artworkItems: GridArtworkItem[];
+  onAddArtwork(artwork: ArtworkProps['data']): void;
 }
 
 export const GallerySettingsPopover = ({
   isSubmitting,
   minHeight,
   wallHeight,
-  setWallHeight,
+  onHeightChange,
   wallColor,
-  setWallColor,
+  onColorChange,
+  artworkItems,
+  onAddArtwork,
 }: GallerySettingsPopoverProps) => {
-  const [isAddingArtwork, setIsAddingArtwork] = useState(false);
-
   const [isSettingsPopoverOpen, setIsSettingsPopoverOpen] = useState(false);
+
+  const addArtworkButtonRef = useRef<HTMLButtonElement>(null);
+  const [isAddingArtwork, setIsAddingArtwork] = useState(false);
+  const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
+
+  const artworksSwr = useSWR<ArtworkProps['data'][]>(`/api/artworks`);
+  const areArtworksLoading = !artworksSwr.error && !artworksSwr.data;
+
+  const existingArtworkIdSet = new Set(artworkItems.map(item => item.artwork.id));
+  const artworks = (artworksSwr.data ?? []).filter(
+    artwork => !existingArtworkIdSet.has(artwork.id),
+  );
 
   return (
     <Fragment>
       <Popover.Root onOpenChange={open => setIsSettingsPopoverOpen(open)}>
         <Popover.Trigger as={Slot}>
-          <FloatingActionButton className={styles.fab} title="Open gallery settings">
-            <span css={tw`block transform scale-110`}>
+          <FloatingActionButton
+            className={styles.fab}
+            disabled={isSubmitting}
+            title="Open gallery settings">
+            <span className={styles.settingsIcon}>
               <Cog />
             </span>
           </FloatingActionButton>
@@ -55,26 +74,94 @@ export const GallerySettingsPopover = ({
               wallHeight={{
                 minValue: minHeight,
                 value: wallHeight,
-                onChange: setWallHeight,
+                onChange: height => onHeightChange(height),
               }}
               wallColor={wallColor}
-              onWallColorChange={setWallColor}
+              onWallColorChange={color => onColorChange(color)}
             />
           </Popover.Body>
         </Popover.Content>
       </Popover.Root>
 
-      <FloatingActionButton
-        className={cx(styles.fab, isSettingsPopoverOpen && styles.fabExpanded)}
-        onClick={() => setIsAddingArtwork(true)}
-        disabled={isSubmitting}
-        title="Add new artwork">
-        <span className={styles.fabIcon}>
-          <Close />
-        </span>
-      </FloatingActionButton>
+      <Popover.Root
+        open={isArtworkPopoverOpen}
+        onOpenChange={open => setIsArtworkPopoverOpen(open)}>
+        <Popover.Trigger as={Slot}>
+          <FloatingActionButton
+            ref={addArtworkButtonRef}
+            className={styles.fab}
+            disabled={isSubmitting || isSettingsPopoverOpen}
+            title="Add new artwork">
+            <span className={cx(styles.closeIcon, !isArtworkPopoverOpen && styles.addIcon)}>
+              <Close />
+            </span>
+          </FloatingActionButton>
+        </Popover.Trigger>
 
-      {isAddingArtwork && <AddArtworkRoot onClose={() => setIsAddingArtwork(false)} />}
+        <Popover.Content side="top" align="end" aria-label="Add artwork">
+          <Popover.Body className={styles.collectionSection}>
+            <h2 className={styles.collectionTitle}>Choose artwork</h2>
+
+            <div className={styles.collectionScrollable}>
+              {areArtworksLoading && (
+                <div className={styles.collectionLoading}>
+                  {new Array(4).fill(null).map((_, idx) => (
+                    <div key={idx} aria-hidden="true" />
+                  ))}
+                  <span className="sr-only">Loading</span>
+                </div>
+              )}
+
+              {!areArtworksLoading && !artworks.length ? (
+                <p className={styles.collectionEmpty}>You've added every artwork!</p>
+              ) : (
+                <ul className={styles.collection} aria-busy={areArtworksLoading}>
+                  {artworks.map(item => (
+                    <li key={item.id} className={styles.collectionItem}>
+                      <Artwork data={item} disabled />
+                      <button
+                        className={styles.addArtworkButton}
+                        onClick={() => {
+                          // Add the artwork to the gallery
+                          onAddArtwork(item);
+                          // Then close the popover
+                          setIsArtworkPopoverOpen(false);
+                        }}
+                        title={`Add artwork "${item.title}"`}
+                        aria-label={`Add artwork "${item.title}"`}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </Popover.Body>
+
+          <Popover.Body className={styles.uploadSection}>
+            <button
+              className={styles.uploadButton}
+              onClick={() => {
+                // Close the popover (TODO: fix so we don't need to do this!!)
+                setIsArtworkPopoverOpen(false);
+                // Then open the add artwork modal
+                setIsAddingArtwork(true);
+              }}>
+              Upload new artwork
+            </button>
+          </Popover.Body>
+        </Popover.Content>
+      </Popover.Root>
+
+      {isAddingArtwork && (
+        <AddArtworkRoot
+          onClose={() => {
+            // Update the modal state
+            setIsAddingArtwork(false);
+            // Then focus the add artwork button (TODO: fix so we don't need to do this!!)
+            addArtworkButtonRef.current?.focus();
+          }}
+        />
+      )}
     </Fragment>
   );
 };

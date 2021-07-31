@@ -1,16 +1,18 @@
-import { Gallery } from '@prisma/client';
+import { Gallery, Prisma } from '@prisma/client';
 import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
+
+interface UpdateGalleryArtworkDto {
+  artworkId: number;
+  xPosition: number;
+  yPosition: number;
+}
 
 interface UpdateGalleryDto {
   name?: string;
   color?: Gallery['color'];
   height?: number;
-  artworks?: {
-    artworkId: number;
-    xPosition: number;
-    yPosition: number;
-  }[];
+  artworks?: UpdateGalleryArtworkDto[];
 }
 
 export class GalleryRepository {
@@ -103,20 +105,45 @@ export class GalleryRepository {
   }
 
   static async update(gallery: Gallery, data: UpdateGalleryDto) {
+    let artworksToDelete:
+      | Prisma.Enumerable<Prisma.GalleryArtworkScalarWhereInput>
+      | undefined = undefined;
+
+    if (data.artworks) {
+      if (data.artworks.length === 0) {
+        // Delete all artworks if empty array passed
+        artworksToDelete = {};
+      } else {
+        // Otherwise, delete any artworks not included in update
+        const updatedArtworkIdSet = new Set(data.artworks.map(artwork => artwork.artworkId));
+        artworksToDelete = {
+          artworkId: {
+            notIn: Array.from(updatedArtworkIdSet),
+          },
+        };
+      }
+    }
+
     const updatedGallery = await prisma.gallery.update({
       data: {
         name: data.name,
         color: data.color,
         height: data.height,
         artworks: {
-          update: (data.artworks ?? []).map(artwork => ({
-            data: {
-              xPosition: artwork.xPosition,
-              yPosition: artwork.yPosition,
+          deleteMany: artworksToDelete,
+          upsert: (data.artworks ?? []).map(item => ({
+            create: {
+              artworkId: item.artworkId,
+              xPosition: item.xPosition,
+              yPosition: item.yPosition,
+            },
+            update: {
+              xPosition: item.xPosition,
+              yPosition: item.yPosition,
             },
             where: {
               artworkId_galleryId: {
-                artworkId: artwork.artworkId,
+                artworkId: item.artworkId,
                 galleryId: gallery.id,
               },
             },

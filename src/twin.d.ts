@@ -17,10 +17,3 @@ declare module 'react' {
     css?: CSSProp;
   }
 }
-
-// The 'as' prop on styled components
-declare global {
-  namespace JSX {
-    type IntrinsicAttributes<T> = DOMAttributes<T>;
-  }
-}
