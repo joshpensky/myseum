@@ -1,7 +1,8 @@
-import { Fragment, Suspense, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Artist, Artwork as ArtworkDto, Frame, Gallery } from '@prisma/client';
 import cx from 'classnames';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { GalleryDto } from '@src/data/GallerySerializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { useTheme } from '@src/providers/ThemeProvider';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
@@ -10,12 +11,9 @@ import styles from './artwork.module.scss';
 const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
 
 export interface ArtworkProps {
-  data: ArtworkDto & {
-    frame: Frame | null;
-    artist: Artist | null;
-  };
+  data: ArtworkDto;
   disabled?: boolean;
-  gallery?: Gallery;
+  gallery?: Omit<GalleryDto, 'artworks'>;
   onLoad?(): void;
 }
 
@@ -53,10 +51,10 @@ export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
     }
   }, [src]);
 
-  const { width: artworkWidth, height: artworkHeight } = data;
-  const frameWidth = frame?.width ?? artworkWidth;
-  const frameHeight = frame?.height ?? artworkHeight;
-  const frameDepth = frame?.depth ?? 0;
+  const { width: artworkWidth, height: artworkHeight } = data.size;
+  const frameWidth = frame?.size.width ?? artworkWidth;
+  const frameHeight = frame?.size.height ?? artworkHeight;
+  const frameDepth = frame?.size.depth ?? 0;
 
   const artworkX = (frameWidth - artworkWidth) / 2;
   const artworkY = (frameHeight - artworkHeight) / 2;
@@ -77,27 +75,7 @@ export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
           <Fragment>
             <defs>
               {/* Define window path */}
-              <path
-                id={`artwork-${id}-window`}
-                d={CanvasUtils.getLineCommands([
-                  {
-                    x: frame.windowX1,
-                    y: frame.windowY1,
-                  },
-                  {
-                    x: frame.windowX2,
-                    y: frame.windowY2,
-                  },
-                  {
-                    x: frame.windowX3,
-                    y: frame.windowY3,
-                  },
-                  {
-                    x: frame.windowX4,
-                    y: frame.windowY4,
-                  },
-                ])}
-              />
+              <path id={`artwork-${id}-window`} d={CanvasUtils.getLineCommands(frame.window)} />
 
               {/* Define window inner shadow (https://stackoverflow.com/a/53503687) */}
               <filter id={`artwork-${id}-inner-shadow`}>
@@ -235,11 +213,7 @@ export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
         )}
       </svg>
 
-      {isLoaded && !disabled && (
-        <Suspense fallback={null}>
-          <ArtworkDetails data={data} gallery={gallery} />
-        </Suspense>
-      )}
+      {isLoaded && !disabled && <ArtworkDetails data={data} gallery={gallery} />}
     </div>
   );
 };

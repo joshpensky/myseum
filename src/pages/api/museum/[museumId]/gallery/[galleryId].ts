@@ -1,6 +1,7 @@
 import { NextApiHandler } from 'next';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/GalleryRepository';
+import { GallerySerializer } from '@src/data/GallerySerializer';
 
 const galleryDetailHandler: NextApiHandler = async (req, res) => {
   const museumId = z.number().int().safeParse(Number(req.query.museumId));
@@ -23,7 +24,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
           return;
         }
         const updatedGallery = await GalleryRepository.update(gallery, req.body);
-        res.status(200).json(updatedGallery);
+        res.status(200).json(GallerySerializer.serialize(updatedGallery));
         break;
       }
 

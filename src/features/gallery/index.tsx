@@ -1,15 +1,16 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
-import { Museum, User } from '@prisma/client';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
-import { ArtworkProps } from '@src/components/Artwork';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
 import { useLayout } from '@src/components/Layout';
-import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { UpdateGalleryDto } from '@src/data/GalleryRepository';
+import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
+import { MuseumDto } from '@src/data/MuseumSerializer';
 import { Grid } from '@src/features/grid';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
@@ -20,11 +21,8 @@ import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';
 
 export interface GalleryViewProps {
-  gallery: GalleryBlockProps['gallery'];
-  museum: Museum & {
-    galleries: GalleryBlockProps['gallery'][];
-    curator: User;
-  };
+  gallery: GalleryDto;
+  museum: MuseumDto;
 }
 
 export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
@@ -36,31 +34,19 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const [gallery, setGallery] = useState(data);
 
-  const getArtworkItems = (gallery: GalleryBlockProps['gallery']): GridArtworkItem[] =>
-    gallery.artworks
-      .map(({ artwork, xPosition, yPosition }) => ({
-        artwork: artwork,
-        position: {
-          x: xPosition,
-          y: yPosition,
-        },
-        size: {
-          width: Math.ceil(artwork.frame?.width ?? artwork.width),
-          height: Math.ceil(artwork.frame?.height ?? artwork.height),
-        },
-      }))
-      .sort((a, b) => {
-        // Sort from left-to-right, top-to-bottom for a logical focus order
-        const xDiff = a.position.x - b.position.x;
-        return xDiff || a.position.y - b.position.y;
-      });
+  const getGalleryArtworks = (gallery: GalleryDto): GridArtworkItem[] =>
+    [...gallery.artworks].sort((a, b) => {
+      // Sort from left-to-right, top-to-bottom for a logical focus order
+      const xDiff = a.position.x - b.position.x;
+      return xDiff || a.position.y - b.position.y;
+    });
 
-  const getWallWidth = (artworkItems: GridArtworkItem[]) => {
+  const getWallWidth = (galleryArtworks: GalleryArtworkDto[]) => {
     // Generates min columns based on the frame positioned furthest to the right
-    const minWidth = artworkItems.reduce((acc, item) => {
-      const x2 = item.position.x + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
-      return Math.max(acc, x2);
-    }, 1);
+    const minWidth = galleryArtworks.reduce(
+      (acc, item) => Math.max(acc, item.position.x + item.artwork.fullSize.width),
+      1,
+    );
     return minWidth;
   };
 
@@ -68,37 +54,33 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const [name, setName] = useState(gallery.name);
   const [wallColor, setWallColor] = useState(gallery.color);
   const [wallHeight, setWallHeight] = useState(gallery.height);
-  const [artworkItems, setArtworkItems] = useState(() => getArtworkItems(gallery));
-  const [wallWidth, setWallWidth] = useState(() => getWallWidth(artworkItems) + 5);
+  const [galleryArtworks, setGalleryArtworks] = useState(() => getGalleryArtworks(gallery));
+  const [wallWidth, setWallWidth] = useState(() => getWallWidth(galleryArtworks) + 5);
 
   // Generates min height based on the lowest-positioned frame
-  const minHeight = artworkItems.reduce((acc, item) => {
-    const y2 = item.position.y + Math.ceil(item.artwork.frame?.height ?? item.artwork.height);
-    return Math.max(acc, y2);
-  }, 1);
+  const minHeight = galleryArtworks.reduce(
+    (acc, item) => Math.max(acc, item.position.y + item.artwork.fullSize.height),
+    1,
+  );
 
   /**
    * Adds a new artwork to the current editing state.
    *
    * @param artwork the artwork to add
    */
-  const onAddArtwork = (artwork: ArtworkProps['data']) => {
+  const onAddArtwork = (artwork: ArtworkDto) => {
     // Expand the wall width to accomodate the new artwork
-    setWallWidth(getWallWidth(artworkItems) + 1 + (artwork.frame?.width ?? artwork.width) + 5);
+    setWallWidth(getWallWidth(galleryArtworks) + 1 + artwork.fullSize.width + 5);
     // Expand the wall height to accomodate the new artwork
-    setWallHeight(Math.max(wallHeight, Math.ceil(artwork.frame?.height ?? artwork.height)));
+    setWallHeight(Math.max(wallHeight, artwork.fullSize.height));
     // Add the artwork to the wall, 1 unit to the right of the currently rightmost artwork
-    setArtworkItems([
-      ...artworkItems,
+    setGalleryArtworks([
+      ...galleryArtworks,
       {
         artwork,
         position: {
-          x: getWallWidth(artworkItems) + 1,
+          x: getWallWidth(galleryArtworks) + 1,
           y: 0,
-        },
-        size: {
-          width: Math.ceil(artwork.frame?.width ?? artwork.width),
-          height: Math.ceil(artwork.frame?.height ?? artwork.height),
         },
         new: true,
       },
@@ -114,9 +96,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
    */
   const onRemoveArtwork = (index: number) => {
     // Update the toast to remove the item
-    setArtworkItems([...artworkItems.slice(0, index), ...artworkItems.slice(index + 1)]);
+    setGalleryArtworks([...galleryArtworks.slice(0, index), ...galleryArtworks.slice(index + 1)]);
     // Spawn a success toast!
-    const deletedItem = artworkItems[index];
+    const deletedItem = galleryArtworks[index];
     toast.success(`"${deletedItem.artwork.title}" was removed from the gallery.`);
   };
 
@@ -124,6 +106,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const exitEditMode = () => {
     setIsEditing(false);
+    setWallWidth(getWallWidth(galleryArtworks) + 5);
     layout.updateNavVisibility(true);
     // Focus the edit button when edit mode has been exited
     window.requestAnimationFrame(() => {
@@ -145,7 +128,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     setName(gallery.name);
     setWallColor(gallery.color);
     setWallHeight(gallery.height);
-    setArtworkItems(getArtworkItems(gallery));
+    setGalleryArtworks(getGalleryArtworks(gallery));
     // Exit editing mode
     exitEditMode();
   };
@@ -156,21 +139,22 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const onSave = async () => {
     setIsSubmitting(true);
     try {
+      const updateData: UpdateGalleryDto = {
+        name,
+        color: wallColor,
+        height: wallHeight,
+        artworks: galleryArtworks.map(item => ({
+          artworkId: item.artwork.id,
+          position: item.position,
+        })),
+      };
+
       const res = await fetch(`/api/museum/${museum.id}/gallery/${gallery.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
         }),
-        body: JSON.stringify({
-          name,
-          color: wallColor,
-          height: wallHeight,
-          artworks: artworkItems.map(item => ({
-            artworkId: item.artwork.id,
-            xPosition: item.position.x,
-            yPosition: item.position.y,
-          })),
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!res.ok) {
@@ -186,9 +170,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         ...data,
       }));
 
-      const newArtworkItems = getArtworkItems(data);
-      setWallWidth(getWallWidth(newArtworkItems) + 5);
-      setArtworkItems(newArtworkItems);
+      const newGalleryArtworks = getGalleryArtworks(data);
+      setWallWidth(getWallWidth(newGalleryArtworks) + 5);
+      setGalleryArtworks(newGalleryArtworks);
 
       exitEditMode();
       toast.success('Gallery updated!');
@@ -284,7 +268,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               onHeightChange={height => setWallHeight(height)}
               wallColor={wallColor}
               onColorChange={color => setWallColor(color)}
-              artworkItems={artworkItems}
+              galleryArtworks={galleryArtworks}
               onAddArtwork={artwork => onAddArtwork(artwork)}
             />
           )}
@@ -294,17 +278,21 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           <Grid
             className={cx(styles.grid, isEditing && styles.gridEditing)}
             size={{ width: wallWidth, height: wallHeight }}
-            items={artworkItems}
+            items={galleryArtworks.map(item => ({
+              artwork: item.artwork,
+              position: item.position,
+              size: item.artwork.fullSize,
+            }))}
             step={1}
             getItemId={item => String(item.artwork.id)}
             onSizeChange={size => setWallWidth(size.width)}
             onItemChange={
               isEditing &&
               ((index, item) => {
-                setArtworkItems([
-                  ...artworkItems.slice(0, index),
-                  item,
-                  ...artworkItems.slice(index + 1),
+                setGalleryArtworks([
+                  ...galleryArtworks.slice(0, index),
+                  { ...galleryArtworks[index], position: item.position },
+                  ...galleryArtworks.slice(index + 1),
                 ]);
               })
             }

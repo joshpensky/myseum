@@ -1,18 +1,18 @@
 import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Gallery } from '@prisma/client';
 import dayjs from 'dayjs';
-import type { ArtworkProps } from '@src/components/Artwork';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { GalleryDto } from '@src/data/GallerySerializer';
 import Edit from '@src/svgs/Edit';
 import Fullscreen from '@src/svgs/Fullscreen';
 import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {
-  data: ArtworkProps['data'];
-  gallery?: Gallery;
+  data: ArtworkDto;
+  gallery?: Omit<GalleryDto, 'artworks'>;
 }
 
 const ArtworkDetails = ({ children, data, gallery }: PropsWithChildren<ArtworkDetailProps>) => {

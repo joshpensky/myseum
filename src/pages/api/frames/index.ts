@@ -1,5 +1,6 @@
 import { NextApiHandler } from 'next';
 import { FrameRepository } from '@src/data/FrameRepository';
+import { FrameSerializer } from '@src/data/FrameSerializer';
 
 const frameIndexController: NextApiHandler = async (req, res) => {
   try {
@@ -7,14 +8,15 @@ const frameIndexController: NextApiHandler = async (req, res) => {
       // Gets all frames
       case 'GET': {
         const frames = await FrameRepository.findAll();
-        res.status(200).json(frames);
+        const serializedFrames = frames.map(frame => FrameSerializer.serialize(frame));
+        res.status(200).json(serializedFrames);
         break;
       }
 
       // Create new frame
       case 'POST': {
         const frame = await FrameRepository.create(req.body);
-        res.status(200).json(frame);
+        res.status(200).json(FrameSerializer.serialize(frame));
         break;
       }
 

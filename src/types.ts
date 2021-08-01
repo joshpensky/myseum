@@ -18,6 +18,11 @@ export type Dimensions = {
   width: number;
   height: number;
 };
+export type Dimensions3D = {
+  width: number;
+  height: number;
+  depth: number;
+};
 
 export type Frame = {
   id: Id;
@@ -85,8 +90,4 @@ export type Museum<T = Gallery> = {
   name: string;
   galleries: ListItem<T>[];
   createdAt: Date;
-};
-
-export type MuseumCollectionItem = Artwork & {
-  gallery: Omit<Gallery, 'artworks'>;
 };

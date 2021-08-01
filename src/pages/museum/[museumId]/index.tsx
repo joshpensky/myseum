@@ -2,16 +2,18 @@ import { Fragment, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import tw from 'twin.macro';
-import { GalleryColor, Museum, User } from '@prisma/client';
+import { GalleryColor } from '@prisma/client';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
-import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 import Portal from '@src/components/Portal';
-import { MuseumRepository } from '@src/data/MuseumRepository';
+import { GalleryRepository } from '@src/data/GalleryRepository';
+import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
+import { MuseumRepository, UpdateMuseumDto } from '@src/data/MuseumRepository';
+import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useAuth } from '@src/providers/AuthProvider';
 import { useMuseum } from '@src/providers/MuseumProvider';
@@ -30,14 +32,16 @@ const updateMuseumSchema = z.object({
         }),
         color: z.nativeEnum(GalleryColor),
         height: z.number().positive().int(),
-        xPosition: z.number().int(),
-        yPosition: z.number().nonnegative().int(),
+        position: z.object({
+          x: z.number().int(),
+          y: z.number().nonnegative().int(),
+        }),
       }),
     )
     .refine(
       galleries => {
         const entranceGallery = galleries.find(
-          gallery => gallery.xPosition === 0 && gallery.yPosition === 0,
+          gallery => gallery.position.x === 0 && gallery.position.y === 0,
         );
         return !!entranceGallery;
       },
@@ -48,26 +52,24 @@ const updateMuseumSchema = z.object({
 });
 
 export interface MuseumMapViewProps {
-  museum: Museum & {
-    curator: User;
-    galleries: GalleryBlockProps['gallery'][];
-  };
+  museum: MuseumDto;
+  galleries: GalleryDto[];
 }
 
-const MuseumMapView = () => {
+const MuseumMapView = (props: MuseumMapViewProps) => {
   const auth = useAuth();
 
   const { museum, setMuseum } = useMuseum();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
-  const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>([]);
+  const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>(props.galleries);
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
   const onEdit = () => {
     setName(museum.name);
-    setGalleries(museum.galleries);
+    setGalleries(props.galleries);
     setIsEditing(true);
   };
 
@@ -75,15 +77,14 @@ const MuseumMapView = () => {
     setIsFormSubmitting(true);
     try {
       // Validates the museum
-      const updateMuseumDto = updateMuseumSchema.parse({
+      const updateMuseumDto: UpdateMuseumDto = updateMuseumSchema.parse({
         name,
         galleries: galleries.map(gallery => ({
           id: gallery.id,
           name: gallery.name,
           color: gallery.color,
           height: gallery.height,
-          xPosition: gallery.xPosition,
-          yPosition: gallery.yPosition,
+          position: gallery.position,
         })),
       });
 
@@ -103,8 +104,9 @@ const MuseumMapView = () => {
       }
 
       // Update state
-      const data = await res.json();
-      setMuseum(data.museum);
+      const data = (await res.json()) as MuseumDto & { galleries: GalleryDto[] };
+      setMuseum(data);
+      setGalleries(data.galleries);
       setIsEditing(false);
       // Send success toast
       toast.success('Museum updated!');
@@ -123,7 +125,7 @@ const MuseumMapView = () => {
         <title>{museum.name} | Myseum</title>
       </Head>
 
-      {!isEditing && auth.user && auth.user.id === museum.curatorId && (
+      {!isEditing && auth.user && auth.user.id === museum.curator.id && (
         <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
           <FloatingActionButton title="Edit museum" onClick={() => onEdit()}>
             <Edit />
@@ -164,8 +166,40 @@ const MuseumMapView = () => {
 
       <MuseumMap
         disabled={isFormSubmitting}
-        galleries={museum.galleries}
-        editMode={isEditing ? { galleries, setGalleries } : undefined}
+        galleries={galleries}
+        isEditing={isEditing}
+        onGalleryCreate={position => {
+          setGalleries([
+            ...galleries,
+            {
+              museumId: museum.id,
+              name: 'New Gallery',
+              color: 'paper',
+              height: 40,
+              position,
+              artworks: [],
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ]);
+        }}
+        onGalleryUpdate={(position, updatedGallery) => {
+          setGalleries(
+            galleries.map(gallery => {
+              if (gallery.position.x === position.x && gallery.position.y === position.y) {
+                return updatedGallery;
+              }
+              return gallery;
+            }),
+          );
+        }}
+        onGalleryDelete={position => {
+          setGalleries(
+            galleries.filter(
+              gallery => !(gallery.position.x === position.x && gallery.position.y === position.y),
+            ),
+          );
+        }}
       />
     </Fragment>
   );
@@ -192,9 +226,12 @@ export const getServerSideProps: GetServerSideProps<
       throw new Error('Museum not found.');
     }
 
+    const galleries = await GalleryRepository.findAllByMuseum(museum.id);
+
     return {
       props: {
-        museum,
+        museum: MuseumSerializer.serialize(museum),
+        galleries: galleries.map(gallery => GallerySerializer.serialize(gallery)),
       },
     };
   } catch (error) {

@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Museum } from '@prisma/client';
+import { Museum, User as PrismaUser } from '@prisma/client';
 import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
 import { supabase } from '@src/data/supabase';
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
         toast.error('Could not fetch user data.');
       } else if (!abortController.signal.aborted) {
         // Otherwise, update user data if not aborted
-        const { user } = await res.json();
+        const user = (await res.json()) as PrismaUser & { museum: Museum };
         setUser({
           ...authUser,
           ...user,

@@ -1,5 +1,6 @@
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { GetServerSideProps } from 'next';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import tw from 'twin.macro';
 import { Museum } from '@prisma/client';
@@ -13,7 +14,7 @@ import { MuseumCollectionItem } from '@src/pages/api/museum/[museumId]/collectio
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
 
-const AddArtworkRoot = lazy(() => import('@src/features/add-artwork/AddArtworkRoot'));
+const AddArtworkRoot = dynamic(() => import('@src/features/add-artwork/AddArtworkRoot'));
 
 export interface MuseumCollectionViewProps {
   museum: Museum;
@@ -50,11 +51,7 @@ const MuseumCollectionView = () => {
         </Button>
       </header>
 
-      {isAddingItem && (
-        <Suspense fallback={null}>
-          <AddArtworkRoot onClose={() => setIsAddingItem(false)} />
-        </Suspense>
-      )}
+      {isAddingItem && <AddArtworkRoot onClose={() => setIsAddingItem(false)} />}
 
       <ul css={tw`-mb-5 flex flex-wrap`}>
         {(collection.data ?? []).map(item => (

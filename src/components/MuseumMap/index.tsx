@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import tw from 'twin.macro';
 import { GalleryColor } from '@prisma/client';
 import dayjs from 'dayjs';
@@ -9,7 +9,9 @@ import {
   OnDragEndResponder,
   OnDragStartResponder,
 } from 'react-beautiful-dnd';
+import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import { Position } from '@src/types';
 import EditGalleryBlock from './EditGalleryBlock';
 import Entrance from './Entrance';
 import GalleryBlock, { GalleryBlockProps } from './GalleryBlock';
@@ -20,97 +22,52 @@ export interface CreateUpdateGalleryDto {
   name: string;
   color: GalleryColor;
   height: number;
-  xPosition: number;
-  yPosition: number;
+  position: Position;
   createdAt: string | Date;
-  artworks: GalleryBlockProps['gallery']['artworks'];
+  updatedAt: string | Date;
+  museumId: number;
+  artworks: GalleryArtworkDto[];
 }
 
 type MuseumMapProps = {
   disabled?: boolean;
-  galleries: GalleryBlockProps['gallery'][];
-  editMode?: {
-    galleries: CreateUpdateGalleryDto[];
-    setGalleries: Dispatch<SetStateAction<CreateUpdateGalleryDto[]>>;
-  };
+  galleries: CreateUpdateGalleryDto[];
+  onGalleryCreate(position: Position): void;
+  onGalleryUpdate(position: Position, gallery: CreateUpdateGalleryDto): void;
+  onGalleryDelete(position: Position): void;
+  isEditing?: boolean;
 };
 
-const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
+const MuseumMap = ({
+  disabled,
+  galleries,
+  isEditing,
+  onGalleryCreate,
+  onGalleryUpdate,
+  onGalleryDelete,
+}: MuseumMapProps) => {
   const [droppableSourceId, setDroppableSourceId] = useState<string | null>(null);
 
   let minX = 0;
   let maxX = 0;
   let maxY = 0;
 
-  const galleryMap = new Map<
-    number,
-    Map<number, GalleryBlockProps['gallery'] | CreateUpdateGalleryDto>
-  >();
+  const galleryMap = new Map<number, Map<number, CreateUpdateGalleryDto>>();
 
   // A map of coordinates to galleries
   // { [xPos]: { [yPos]: Gallery } }
-  (editMode?.galleries ?? galleries).forEach(gallery => {
-    const { xPosition, yPosition } = gallery;
+  galleries.forEach(gallery => {
     // Update the min and max X/Y coords for grid positioning
-    minX = Math.min(minX, xPosition);
-    maxX = Math.max(maxX, xPosition);
-    maxY = Math.max(maxY, yPosition);
+    minX = Math.min(minX, gallery.position.x);
+    maxX = Math.max(maxX, gallery.position.x);
+    maxY = Math.max(maxY, gallery.position.y);
 
     // Add the gallery to the map
     const galleryMapForX =
-      galleryMap.get(xPosition) ?? new Map<number, GalleryBlockProps['gallery']>();
-    galleryMapForX.set(yPosition, gallery);
-    galleryMap.set(xPosition, galleryMapForX);
+      galleryMap.get(gallery.position.x) ?? new Map<number, GalleryBlockProps['gallery']>();
+    galleryMapForX.set(gallery.position.y, gallery);
+    galleryMap.set(gallery.position.x, galleryMapForX);
   });
-
-  /**
-   * Type check to ensure the gallery is strictly a gallery, and not a form DTO.
-   */
-  const isStrictGallery = (
-    untypedGallery: GalleryBlockProps['gallery'] | CreateUpdateGalleryDto,
-  ): untypedGallery is GalleryBlockProps['gallery'] => !editMode;
-
-  const createGallery = (xPosition: number, yPosition: number) => {
-    editMode?.setGalleries(galleries => [
-      ...galleries,
-      {
-        name: 'New Gallery',
-        color: 'paper',
-        height: 40,
-        xPosition,
-        yPosition,
-        createdAt: new Date(),
-        artworks: [],
-      },
-    ]);
-  };
-
-  const updateGallery = (
-    xPosition: number,
-    yPosition: number,
-    updatedGallery: CreateUpdateGalleryDto,
-  ) => {
-    editMode?.setGalleries(galleries =>
-      galleries.map(gallery => {
-        if (gallery.xPosition === xPosition && gallery.yPosition === yPosition) {
-          return {
-            ...gallery,
-            ...updatedGallery,
-          };
-        }
-        return gallery;
-      }),
-    );
-  };
-
-  // TODO: add confirmation modal
-  const deleteGallery = (xPosition: number, yPosition: number) => {
-    editMode?.setGalleries(galleries =>
-      galleries.filter(
-        gallery => !(gallery.xPosition === xPosition && gallery.yPosition === yPosition),
-      ),
-    );
-  };
 
   const isGalleryAdjacentToPosition = (xPosition: number, yPosition: number) => {
     const isGalleryAbove =
@@ -147,18 +104,22 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
         .split(':')
         .map(str => Number.parseInt(str));
 
-      editMode?.setGalleries(galleries =>
-        galleries.map(gallery => {
-          if (gallery.xPosition === srcXPosition && gallery.yPosition === srcYPosition) {
-            return {
-              ...gallery,
-              xPosition: dstXPosition,
-              yPosition: dstYPosition,
-            };
-          }
-          return gallery;
-        }),
+      const gallery = galleries.find(
+        gallery => gallery.position.x === srcXPosition && gallery.position.y === srcYPosition,
       );
+
+      if (gallery) {
+        onGalleryUpdate(
+          { x: srcXPosition, y: srcYPosition },
+          {
+            ...gallery,
+            position: {
+              x: dstXPosition,
+              y: dstYPosition,
+            },
+          },
+        );
+      }
     } finally {
       setDroppableSourceId(null);
     }
@@ -169,7 +130,7 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
   // Grid height = max y + 1 (y will ALWAYS be greater than 0)
   let gridHeight = maxY + 1;
 
-  if (editMode) {
+  if (isEditing) {
     gridWidth += 2;
     gridHeight += 1;
   }
@@ -185,7 +146,7 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
       scrollContainerRef.current.scrollLeft =
         (scrollAreaRef.current.clientWidth - scrollContainerRef.current.clientWidth) / 2;
     }
-  }, [!!editMode]);
+  }, [isEditing]);
 
   return (
     <div css={[tw`relative flex-1 w-full`]}>
@@ -216,7 +177,7 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
                           return (
                             <div key={droppableId} css={tw`flex flex-shrink-0 m-2.5`}>
                               <div css={[tw`relative block w-96 ratio-4-3 rounded-lg bg-gray-100`]}>
-                                {!!editMode && (
+                                {isEditing && (
                                   <Droppable
                                     droppableId={droppableId}
                                     isDropDisabled={disabled || !isDroppable}>
@@ -243,7 +204,9 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
 
                                         {isDroppable && !droppableSourceId && (
                                           <Button
-                                            onClick={() => createGallery(xPosition, yPosition)}>
+                                            onClick={() =>
+                                              onGalleryCreate({ x: xPosition, y: yPosition })
+                                            }>
                                             Add gallery
                                           </Button>
                                         )}
@@ -258,8 +221,9 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
                           );
                         }
 
-                        if (isStrictGallery(gallery)) {
-                          return <GalleryBlock key={gallery.id} gallery={gallery} />;
+                        if (!isEditing && typeof gallery.id === 'number') {
+                          // Safe casting
+                          return <GalleryBlock key={gallery.id} gallery={gallery as GalleryDto} />;
                         }
 
                         // Assign gallery ID, or temporary one based on create date
@@ -315,10 +279,15 @@ const MuseumMap = ({ disabled, galleries, editMode }: MuseumMapProps) => {
                                           <EditGalleryBlock
                                             disabled={disabled}
                                             gallery={gallery}
-                                            onChange={updatedGallery =>
-                                              updateGallery(xPosition, yPosition, updatedGallery)
-                                            }
-                                            onDelete={() => deleteGallery(xPosition, yPosition)}
+                                            onChange={updatedGallery => {
+                                              onGalleryUpdate(
+                                                { x: xPosition, y: yPosition },
+                                                updatedGallery,
+                                              );
+                                            }}
+                                            onDelete={() => {
+                                              onGalleryDelete({ x: xPosition, y: yPosition });
+                                            }}
                                             snapshot={snapshot}
                                             dragHandleProps={provided.dragHandleProps}
                                           />

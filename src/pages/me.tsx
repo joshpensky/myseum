@@ -116,7 +116,6 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async ctx =>
   }
 
   const user = await UserRepository.findOne(auth.user);
-  console.log(user);
 
   // Otherwise, continue onward!
   return {

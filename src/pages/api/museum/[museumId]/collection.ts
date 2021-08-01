@@ -1,12 +1,12 @@
 import { NextApiHandler } from 'next';
-import { Gallery } from '@prisma/client';
 import * as z from 'zod';
-import { ArtworkProps } from '@src/components/Artwork';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 
 export type MuseumCollectionItem = {
-  artwork: ArtworkProps['data'];
-  gallery: Gallery;
+  artwork: ArtworkDto;
+  gallery: Omit<GalleryDto, 'artworks'>;
 };
 
 const museumDetailController: NextApiHandler = async (req, res) => {
@@ -28,12 +28,11 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
         const uniqueIdSet = new Set<number>();
         const collection: MuseumCollectionItem[] = museum.galleries
-          .map(({ artworks, ...gallery }) =>
-            artworks.map(item => ({
-              artwork: item.artwork,
-              gallery,
-            })),
-          )
+          .map(gallery => {
+            const serializedGallery = GallerySerializer.serialize(gallery);
+            const { artworks, ...galleryDto } = serializedGallery;
+            return artworks.map(item => ({ artwork: item.artwork, gallery: galleryDto }));
+          })
           .flat()
           .filter(item => {
             if (!uniqueIdSet.has(item.artwork.id)) {

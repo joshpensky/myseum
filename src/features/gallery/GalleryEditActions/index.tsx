@@ -3,10 +3,11 @@ import { GalleryColor } from '@prisma/client';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
 import useSWR from 'swr';
-import { Artwork, ArtworkProps } from '@src/components/Artwork';
+import { Artwork } from '@src/components/Artwork';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import { Popover } from '@src/components/Popover';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
 import { GridArtworkItem } from '@src/features/gallery/GridArtwork';
 import Close from '@src/svgs/Close';
@@ -20,8 +21,8 @@ interface GalleryEditActionsProps {
   onHeightChange(nextWallHeight: number): void;
   wallColor: GalleryColor;
   onColorChange(nextWallColor: GalleryColor): void;
-  artworkItems: GridArtworkItem[];
-  onAddArtwork(artwork: ArtworkProps['data']): void;
+  galleryArtworks: GridArtworkItem[];
+  onAddArtwork(artwork: ArtworkDto): void;
 }
 
 export const GalleryEditActions = ({
@@ -31,7 +32,7 @@ export const GalleryEditActions = ({
   onHeightChange,
   wallColor,
   onColorChange,
-  artworkItems,
+  galleryArtworks,
   onAddArtwork,
 }: GalleryEditActionsProps) => {
   const [isSettingsPopoverOpen, setIsSettingsPopoverOpen] = useState(false);
@@ -41,11 +42,11 @@ export const GalleryEditActions = ({
   const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
 
   const [shouldLoadArtworks, setShouldLoadArtworks] = useState(false);
-  const artworksSwr = useSWR<ArtworkProps['data'][]>(shouldLoadArtworks ? `/api/artworks` : null);
+  const artworksSwr = useSWR<ArtworkDto[]>(shouldLoadArtworks ? `/api/artworks` : null);
   const areArtworksLoading = !artworksSwr.error && !artworksSwr.data;
 
   // Filter the artworks data to exclude any artworks currently on the gallery wall
-  const existingArtworkIdSet = new Set(artworkItems.map(item => item.artwork.id));
+  const existingArtworkIdSet = new Set(galleryArtworks.map(item => item.artwork.id));
   const artworks = (artworksSwr.data ?? []).filter(
     artwork => !existingArtworkIdSet.has(artwork.id),
   );

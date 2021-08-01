@@ -1,6 +1,6 @@
-import { Gallery, Museum, Prisma, User } from '@prisma/client';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { Gallery, Museum, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
+import { Position } from '@src/types';
 
 interface GalleryDto {
   name: string;
@@ -9,13 +9,11 @@ interface GalleryDto {
 }
 interface CreateGalleryDto extends GalleryDto {
   id?: never;
-  xPosition: number;
-  yPosition: number;
+  position: Position;
 }
 interface UpdateGalleryDto extends GalleryDto {
   id: number;
-  xPosition?: number;
-  yPosition?: number;
+  position?: Position;
 }
 
 export interface UpdateMuseumDto {
@@ -29,55 +27,12 @@ export class MuseumRepository {
       where: { id },
       include: {
         curator: true,
-        galleries: {
-          include: {
-            artworks: {
-              include: {
-                artwork: {
-                  include: {
-                    frame: true,
-                    artist: true,
-                  },
-                },
-              },
-            },
-          },
-        },
       },
     });
     return museum;
   }
 
-  static async findOneByUser(user: User | SupabaseUser) {
-    const museum = await prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .museum({
-        include: {
-          curator: true,
-          galleries: {
-            include: {
-              artworks: {
-                include: {
-                  artwork: {
-                    include: {
-                      frame: true,
-                      artist: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-    return museum;
-  }
-
-  static async update(museum: Museum & { galleries: Gallery[] }, updateMuseumDto: UpdateMuseumDto) {
+  static async update(museum: Museum, updateMuseumDto: UpdateMuseumDto) {
     let galleriesToDelete:
       | Prisma.Enumerable<Prisma.GalleryScalarWhereInput>
       | undefined = undefined;
@@ -113,8 +68,8 @@ export class MuseumRepository {
               name: gallery.name,
               color: gallery.color,
               height: gallery.height,
-              xPosition: gallery.xPosition,
-              yPosition: gallery.yPosition,
+              xPosition: gallery.position.x,
+              yPosition: gallery.position.y,
             })),
           },
           update: ((updateMuseumDto.galleries ?? []).filter(
@@ -124,8 +79,8 @@ export class MuseumRepository {
               name: gallery.name,
               color: gallery.color,
               height: gallery.height,
-              xPosition: gallery.xPosition,
-              yPosition: gallery.yPosition,
+              xPosition: gallery.position?.x,
+              yPosition: gallery.position?.y,
             },
             where: {
               id: gallery.id,
@@ -138,20 +93,6 @@ export class MuseumRepository {
       },
       include: {
         curator: true,
-        galleries: {
-          include: {
-            artworks: {
-              include: {
-                artwork: {
-                  include: {
-                    artist: true,
-                    frame: true,
-                  },
-                },
-              },
-            },
-          },
-        },
       },
     });
 

@@ -1,14 +1,13 @@
 import { Gallery, Prisma } from '@prisma/client';
-import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
+import { Position } from '@src/types';
 
 interface UpdateGalleryArtworkDto {
   artworkId: number;
-  xPosition: number;
-  yPosition: number;
+  position: Position;
 }
 
-interface UpdateGalleryDto {
+export interface UpdateGalleryDto {
   name?: string;
   color?: Gallery['color'];
   height?: number;
@@ -16,6 +15,27 @@ interface UpdateGalleryDto {
 }
 
 export class GalleryRepository {
+  static async findAllByMuseum(museumId: number) {
+    const galleries = await prisma.gallery.findMany({
+      where: {
+        museumId,
+      },
+      include: {
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                frame: true,
+                artist: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return galleries;
+  }
+
   static async findOneByMuseum(museumId: number, galleryId: number) {
     const gallery = await prisma.gallery.findFirst({
       where: {
@@ -23,25 +43,6 @@ export class GalleryRepository {
         museumId,
       },
       include: {
-        museum: {
-          include: {
-            galleries: {
-              include: {
-                artworks: {
-                  include: {
-                    artwork: {
-                      include: {
-                        frame: true,
-                        artist: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            curator: true,
-          },
-        },
         artworks: {
           include: {
             artwork: {
@@ -54,56 +55,9 @@ export class GalleryRepository {
         },
       },
     });
+
     return gallery;
   }
-
-  static async findOneByUser(userId: string, galleryId: number) {
-    if (!z.string().uuid().check(userId)) {
-      throw new Error('User ID must be a valid UUID.');
-    }
-
-    const gallery = await prisma.gallery.findFirst({
-      where: {
-        id: galleryId,
-        museum: {
-          curatorId: userId,
-        },
-      },
-      include: {
-        museum: {
-          include: {
-            galleries: {
-              include: {
-                artworks: {
-                  include: {
-                    artwork: {
-                      include: {
-                        frame: true,
-                        artist: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            curator: true,
-          },
-        },
-        artworks: {
-          include: {
-            artwork: {
-              include: {
-                frame: true,
-                artist: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    return gallery;
-  }
-
   static async update(gallery: Gallery, data: UpdateGalleryDto) {
     let artworksToDelete:
       | Prisma.Enumerable<Prisma.GalleryArtworkScalarWhereInput>
@@ -134,12 +88,12 @@ export class GalleryRepository {
           upsert: (data.artworks ?? []).map(item => ({
             create: {
               artworkId: item.artworkId,
-              xPosition: item.xPosition,
-              yPosition: item.yPosition,
+              xPosition: item.position.x,
+              yPosition: item.position.y,
             },
             update: {
-              xPosition: item.xPosition,
-              yPosition: item.yPosition,
+              xPosition: item.position.x,
+              yPosition: item.position.y,
             },
             where: {
               artworkId_galleryId: {

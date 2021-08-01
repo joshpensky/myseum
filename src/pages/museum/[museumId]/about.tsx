@@ -1,15 +1,13 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import { Museum, User } from '@prisma/client';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
+import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
 import { MuseumAboutLayout } from '@src/layouts/museum';
 import { useMuseum } from '@src/providers/MuseumProvider';
 
 export interface MuseumAboutProps {
-  museum: Museum & {
-    curator: User;
-  };
+  museum: MuseumDto;
 }
 
 const MuseumAbout = () => {
@@ -51,7 +49,7 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        museum,
+        museum: MuseumSerializer.serialize(museum),
       },
     };
   } catch (error) {

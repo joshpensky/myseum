@@ -1,12 +1,8 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
-import { Museum, User } from '@prisma/client';
-import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
+import { MuseumDto } from '@src/data/MuseumSerializer';
 
 export interface MuseumContextValue {
-  museum: Museum & {
-    galleries: GalleryBlockProps['gallery'][];
-    curator: User;
-  };
+  museum: MuseumDto;
   setMuseum: Dispatch<SetStateAction<MuseumContextValue['museum']>>;
 }
 export const MuseumContext = createContext<MuseumContextValue | null>(null);

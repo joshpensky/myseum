@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import dayjs from 'dayjs';
 import { DraggableProvidedDragHandleProps, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import AutofitTextField from '@src/components/AutofitTextField';
+import GallerySettings from '@src/components/GallerySettings';
 import IconButton from '@src/components/IconButton';
 import { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
 import { Popover } from '@src/components/Popover';
@@ -10,7 +11,6 @@ import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Cog from '@src/svgs/Cog';
 import DragHandle from '@src/svgs/DragHandle';
 import Trash from '@src/svgs/Trash';
-import GallerySettings from '../GallerySettings';
 
 interface EditGalleryBlockProps {
   disabled?: boolean;
