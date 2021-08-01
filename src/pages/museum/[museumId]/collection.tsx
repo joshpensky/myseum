@@ -90,7 +90,6 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        basePath: `/museum/${museum.id}`,
         museum,
       },
     };

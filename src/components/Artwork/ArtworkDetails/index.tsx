@@ -8,7 +8,6 @@ import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import Edit from '@src/svgs/Edit';
 import Fullscreen from '@src/svgs/Fullscreen';
-import Trash from '@src/svgs/Trash';
 import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {
@@ -40,9 +39,6 @@ const ArtworkDetails = ({ children, data, gallery }: PropsWithChildren<ArtworkDe
             </IconButton>
             <IconButton className={styles.headerButtonsItem} title="Edit artwork">
               <Edit />
-            </IconButton>
-            <IconButton className={styles.headerButtonsItem} title="Delete artwork">
-              <Trash />
             </IconButton>
           </div>
         </Popover.Header>

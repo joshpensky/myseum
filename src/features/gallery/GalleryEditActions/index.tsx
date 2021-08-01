@@ -71,7 +71,6 @@ export const GalleryEditActions = ({
 
           <Popover.Body>
             <GallerySettings
-              id="gallery"
               disabled={isSubmitting}
               wallHeight={{
                 minValue: minHeight,

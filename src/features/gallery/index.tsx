@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import { Museum, User } from '@prisma/client';
 import cx from 'classnames';
@@ -20,7 +20,6 @@ import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';
 
 export interface GalleryViewProps {
-  basePath: string;
   gallery: GalleryBlockProps['gallery'];
   museum: Museum & {
     galleries: GalleryBlockProps['gallery'][];
@@ -31,6 +30,9 @@ export interface GalleryViewProps {
 export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const { museum } = useMuseum();
   const layout = useLayout();
+
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const [gallery, setGallery] = useState(data);
 
@@ -123,14 +125,19 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const exitEditMode = () => {
     setIsEditing(false);
     layout.updateNavVisibility(true);
+    // Focus the edit button when edit mode has been exited
+    window.requestAnimationFrame(() => {
+      editButtonRef.current?.focus();
+    });
   };
 
-  const onEdit = () => {
-    // Update editing mode
-    layout.updateNavVisibility(false);
-    // setTimeout(() => {
+  const openExitMode = () => {
     setIsEditing(true);
-    // }, 500);
+    layout.updateNavVisibility(false);
+    // Focus the cancel button when edit mode has been started
+    window.requestAnimationFrame(() => {
+      cancelButtonRef.current?.focus();
+    });
   };
 
   const onCancel = () => {
@@ -192,6 +199,26 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     }
   };
 
+  // Allow saving via cmd+S
+  useEffect(() => {
+    if (isEditing && !isSubmitting) {
+      const onKeyDown = (evt: KeyboardEvent) => {
+        const isOSX = /(Mac OS X)/gi.test(navigator.userAgent);
+        const withCmdModifier = (isOSX ? evt.metaKey : evt.ctrlKey) && !evt.altKey;
+        if (withCmdModifier && evt.key === 's') {
+          evt.preventDefault();
+          onSave();
+          return;
+        }
+      };
+
+      window.addEventListener('keydown', onKeyDown);
+      return () => {
+        window.removeEventListener('keydown', onKeyDown);
+      };
+    }
+  }, [isEditing, isSubmitting]);
+
   return (
     <ThemeProvider theme={{ color: wallColor }}>
       <Head>
@@ -208,7 +235,11 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
             ) : (
               <Fragment>
                 <div className={styles.headerSection}>
-                  <IconButton disabled={isSubmitting} onClick={() => onCancel()} title="Cancel">
+                  <IconButton
+                    ref={cancelButtonRef}
+                    disabled={isSubmitting}
+                    onClick={() => onCancel()}
+                    title="Cancel">
                     <Close />
                   </IconButton>
                   <h1 className={styles.editTitle}>Editing gallery</h1>
@@ -239,7 +270,10 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
         <div className={styles.fab}>
           {!isEditing ? (
-            <FloatingActionButton title="Edit gallery" onClick={() => onEdit()}>
+            <FloatingActionButton
+              ref={editButtonRef}
+              title="Edit gallery"
+              onClick={() => openExitMode()}>
               <Edit />
             </FloatingActionButton>
           ) : (

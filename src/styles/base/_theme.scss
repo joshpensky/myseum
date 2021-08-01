@@ -14,6 +14,7 @@
   --c-bg-tint: #{hex-to-rgb($c-mint-300)};
   --c-icon: #{hex-to-rgb($c-mint-900)};
   --c-text: #{hex-to-rgb($c-black)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)};
   --c-border: #{hex-to-rgb($c-mint-700)};
   --c-shadow: #{hex-to-rgb($c-mint-800)};
   --c-highlight: #{hex-to-rgb($c-white)};
@@ -24,6 +25,7 @@
   --c-bg-tint: #{hex-to-rgb($c-mint-300)}; // TODO: replace
   --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
   --c-text: #{hex-to-rgb($c-black)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
   --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
   --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
@@ -34,6 +36,7 @@
   --c-bg-tint: #{hex-to-rgb($c-navy-100)};
   --c-icon: #{hex-to-rgb($c-navy-800)};
   --c-text: #{hex-to-rgb($c-white)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
   --c-border: #{hex-to-rgb($c-navy-800)};
   --c-shadow: #{hex-to-rgb($c-navy-50)};
   --c-highlight: #{hex-to-rgb($c-navy-800)};
@@ -44,6 +47,7 @@
   --c-bg-tint: #{hex-to-rgb($c-mint-300)}; // TODO: replace
   --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
   --c-text: #{hex-to-rgb($c-black)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
   --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
   --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
@@ -54,6 +58,7 @@
   --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 20%))};
   --c-icon: #{hex-to-rgb($c-white)};
   --c-text: #{hex-to-rgb($c-white)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
   --c-border: #{hex-to-rgb($c-white)};
   --c-shadow: #{hex-to-rgb($c-navy-50)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace

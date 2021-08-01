@@ -1,22 +1,72 @@
-.grabbing * {
+body.grabbing * {
   cursor: -webkit-grabbing !important;
 }
 
+body.scroll-dragging {
+  user-select: none;
+}
+
 .root {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
+  @include absolute(0);
+  @include size(100%);
   overflow-x: auto;
   overflow-y: hidden;
 
   &.root--preview {
     overflow-x: hidden;
   }
+
+  // Hide the actual scrollbar
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.scrollbar-wrapper {
+  $scrollbar-height: sz(8);
+  @include fixed(x x sz(4) 50%);
+  border: 1px solid c('border');
+  border-radius: sz(1.5);
+  height: $scrollbar-height;
+  transform: translateX(-50%);
+  max-width: sz(96);
+  overflow: hidden;
+  // If height is capped at $scrollbar-height,
+  // Calculate the ratio of width:height and multiply by the capped height
+  width: calc((var(--grid-width) / var(--grid-height)) * #{$scrollbar-height});
+}
+
+.scrollbar__inner {
+  @include absolute(0 x x 0);
+  @include size(100%);
+}
+
+.scrollbar__svg {
+  @include size(100%);
+  pointer-events: none;
+  touch-action: none;
+  display: block;
+  opacity: 0.4;
+}
+
+.scrollbar__grid-item {
+  fill: c('black');
+  transition: fill 100ms ease-out;
+
+  &.scrollbar__grid-item--moving {
+    fill: c('black', 0.75);
+  }
 }
 
 .grid {
+  .root:not(.root--preview) & {
+    // Place the grid vertically in the root container
+    @include margin(sz(8) x sz(16));
+  }
+
   // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
   width: calc(var(--grid-width) * var(--unit-px));
@@ -70,11 +120,6 @@
     &::after {
       display: none;
     }
-  }
-
-  &:not(.grid--preview) {
-    // Center the grid vertically in the root container
-    @include margin(sz(8) x);
   }
 }
 

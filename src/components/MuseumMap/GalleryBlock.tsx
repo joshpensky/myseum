@@ -19,7 +19,7 @@ export interface GalleryBlockProps {
 }
 
 const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
-  const { basePath } = useMuseum();
+  const { museum } = useMuseum();
 
   const gridWidth = gallery.artworks.reduce((acc, item) => {
     const x2 = item.xPosition + Math.ceil(item.artwork.frame?.width ?? item.artwork.width);
@@ -29,12 +29,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
   return (
     <div css={tw`flex flex-shrink-0 m-2.5`}>
       <ThemeProvider theme={{ color: gallery.color }}>
-        <Link
-          passHref
-          href={{
-            pathname: `${basePath}/gallery/[galleryId]`,
-            query: { galleryId: gallery.id },
-          }}>
+        <Link passHref href={`/museum/${museum.id}/gallery/${gallery.id}`}>
           <a
             className={`theme--${gallery.color}`}
             css={[tw`block w-96 ratio-4-3 relative rounded-lg overflow-hidden`]}>

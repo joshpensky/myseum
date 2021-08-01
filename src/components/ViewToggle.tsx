@@ -1,15 +1,14 @@
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
+import { useMuseum } from '@src/providers/MuseumProvider';
 import CollectionViewIcon from '@src/svgs/CollectionViewIcon';
 import MapViewIcon from '@src/svgs/MapViewIcon';
 
-interface ViewToggleProps {
-  basePath: string;
-}
-
-const ViewToggle = ({ basePath }: ViewToggleProps) => {
+const ViewToggle = () => {
+  const { museum } = useMuseum();
   const router = useRouter();
 
+  const basePath = `/museum/${museum.id}`;
   const isCollectionView = router.asPath === `${basePath}/collection`;
 
   const toggleView = () => {

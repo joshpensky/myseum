@@ -1,11 +1,38 @@
 import { ChangeEvent, Fragment, MouseEvent as ReactMouseEvent, useEffect, useState } from 'react';
-import tw, { css, TwStyle } from 'twin.macro';
 import { GalleryColor } from '@prisma/client';
-import { createGlobalStyle } from 'styled-components';
+import { useId } from '@radix-ui/react-id';
+import cx from 'classnames';
+import styles from './gallerySettings.module.scss';
+
+interface WallColorOption {
+  value: GalleryColor;
+  label: string;
+}
+const wallColorOptions: WallColorOption[] = [
+  {
+    value: 'mint',
+    label: 'Mint',
+  },
+  {
+    value: 'pink',
+    label: 'Dusty Pink',
+  },
+  {
+    value: 'navy',
+    label: 'Navy',
+  },
+  {
+    value: 'paper',
+    label: 'Paper',
+  },
+  {
+    value: 'ink',
+    label: 'Ink',
+  },
+];
 
 type GallerySettingsProps = {
   disabled?: boolean;
-  id: string;
   wallColor: GalleryColor;
   onWallColorChange(nextWallColor: GalleryColor): void;
   wallHeight?: {
@@ -13,30 +40,19 @@ type GallerySettingsProps = {
     value: number;
     onChange(nextWallHeight: number): void;
   };
-  // minWallHeight: number;
-  // wallHeight: number;
-  // onWallHeightChange(nextWallHeight: number): void;
 };
-
-// Sets the global cursor to "ew-resize" so it remains the same
-// no matter where on the screen the user is dragging
-// TODO: allow for cursor to appear on other side of screen, ala Figma input dragging?
-const GlobalResizeCursor = createGlobalStyle`
-  * {
-    ${tw`cursor-ew-resize!`}
-  }
-`;
 
 const GallerySettings = ({
   disabled,
-  id,
   wallColor,
   onWallColorChange,
   wallHeight,
 }: GallerySettingsProps) => {
+  const id = useId();
+
   const [startingDragPosition, setStartingDragPosition] = useState<number | null>(null);
 
-  const _onWallHeightChange = (evt: ChangeEvent<HTMLInputElement>) => {
+  const handleWallHeightChange = (evt: ChangeEvent<HTMLInputElement>) => {
     let value = evt.target.valueAsNumber;
     if (Number.isNaN(value)) {
       value = 0;
@@ -88,109 +104,65 @@ const GallerySettings = ({
     }
   }, [startingDragPosition, disabled]);
 
-  type WallColorOption = {
-    value: GalleryColor;
-    label: string;
-    color: TwStyle;
-  };
-
-  const wallColorOptions: WallColorOption[] = [
-    {
-      value: 'mint',
-      label: 'Mint',
-      color: tw`bg-mint-200 border-mint-300`,
-    },
-    {
-      value: 'pink',
-      label: 'Dusty Pink',
-      color: tw`bg-pink-200 border-mint-300`,
-    },
-    {
-      value: 'navy',
-      label: 'Navy',
-      color: tw`bg-navy-200 border-navy-800`,
-    },
-    {
-      value: 'paper',
-      label: 'Paper',
-      color: tw`bg-paper-200 border-mint-300`,
-    },
-    {
-      value: 'ink',
-      label: 'Ink',
-      color: tw`bg-black border-white`,
-    },
-  ];
+  // Sets the global cursor to "ew-resize" so it remains the same
+  // no matter where on the screen the user is dragging
+  // TODO: allow for cursor to appear on other side of screen, ala Figma input dragging?
+  useEffect(() => {
+    const isDragging = startingDragPosition !== null;
+    document.documentElement.classList.toggle(styles.dragging, isDragging);
+  }, [startingDragPosition]);
 
   return (
     <Fragment>
-      <fieldset css={tw`flex flex-col mb-1`}>
-        <legend css={tw`text-sm mb-1.5`}>Wall color</legend>
-        <div css={tw`flex`}>
-          {wallColorOptions.map(({ value, label, color }) => (
-            <label
-              key={value}
-              className="group"
-              css={tw`cursor-pointer not-last:mr-2 rounded-full`}>
+      <fieldset className={styles.colorFieldset}>
+        <legend className={styles.formLabel}>Wall color</legend>
+        <ul className={styles.colorList}>
+          {wallColorOptions.map(({ value, label }) => (
+            <li key={value} className={styles.colorOption}>
               <input
-                css={tw`sr-only checked:sibling:ring-1 focus:checked:sibling:ring-2`}
+                className={cx('sr-only', styles.colorInput)}
+                id={`${id}-wallColor-${value}`}
+                name={`${id}-wallColor`}
                 type="radio"
                 disabled={disabled}
                 checked={value === wallColor}
                 onChange={() => onWallColorChange(value)}
-                name={`${id}-wallColor`}
               />
-              <span
-                css={[
-                  tw`flex size-8 rounded-full border ring-0 ring-black transition-shadow`,
-                  color,
-                ]}
-              />
-              <span css={tw`sr-only`}>{label}</span>
-            </label>
+              <label
+                className={cx(`theme--${value}`, styles.colorOptionItem)}
+                htmlFor={`${id}-wallColor-${value}`}>
+                <span className="sr-only">{label}</span>
+              </label>
+            </li>
           ))}
-        </div>
+        </ul>
       </fieldset>
 
       {wallHeight && (
-        <div css={tw`flex flex-col items-start mt-3`}>
-          <label css={tw`text-sm`} htmlFor="wallHeight">
+        <div className={styles.heightFieldset}>
+          <label className={styles.formLabel} htmlFor="wallHeight">
             Wall height
           </label>
-          <div css={tw`flex border-b border-mint-300 transition-colors focus-within:border-black`}>
-            <div css={tw`relative`}>
-              <span css={tw`invisible`} aria-hidden="true">
+          <div className={styles.heightInput}>
+            <div className={styles.heightInputInner}>
+              <span className={styles.heightInputFakeValue} aria-hidden="true">
                 {wallHeight.value}
               </span>
               <input
-                css={[
-                  tw`absolute left-0 m-0 w-full cursor-ew-resize focus:outline-none`,
-                  css`
-                    /* Chrome, Safari, Edge, Opera */
-                    &::-webkit-outer-spin-button,
-                    &::-webkit-inner-spin-button {
-                      -webkit-appearance: none;
-                    }
-                    /* Firefox */
-                    &[type='number'] {
-                      -moz-appearance: textfield;
-                    }
-                  `,
-                ]}
                 id={`${id}-wallHeight`}
+                className={styles.heightInputActual}
                 type="number"
                 step={1}
                 disabled={disabled}
                 min={wallHeight.minValue}
                 value={wallHeight.value === 0 ? '' : wallHeight.value}
-                onChange={_onWallHeightChange}
+                onChange={handleWallHeightChange}
                 onMouseDown={onInputMouseDown}
               />
-              {startingDragPosition !== null && <GlobalResizeCursor />}
             </div>
-            <span css={tw`ml-1 text-mint-600`}>
-              in<span css={tw`sr-only`}>ches</span>
-            </span>
+            <abbr className={styles.heightInputSuffix} title="inches">
+              in
+            </abbr>
           </div>
         </div>
       )}

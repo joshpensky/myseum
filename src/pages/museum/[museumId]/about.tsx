@@ -7,7 +7,6 @@ import { MuseumAboutLayout } from '@src/layouts/museum';
 import { useMuseum } from '@src/providers/MuseumProvider';
 
 export interface MuseumAboutProps {
-  basePath: string;
   museum: Museum & {
     curator: User;
   };
@@ -52,7 +51,6 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        basePath: `/museum/${museum.id}`,
         museum,
       },
     };

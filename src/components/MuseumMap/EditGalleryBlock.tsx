@@ -63,7 +63,6 @@ const EditGalleryBlock = ({
 
                   <Popover.Body>
                     <GallerySettings
-                      id={`gallery-${galleryId}`}
                       disabled={disabled}
                       wallColor={gallery.color}
                       onWallColorChange={color => onChange({ ...gallery, color })}

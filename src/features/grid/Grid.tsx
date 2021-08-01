@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useState } from 'react';
-import classNames from 'classnames/bind';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions, Position } from '@src/types';
 import { GridBase } from './GridBase';
@@ -8,8 +7,6 @@ import { isInBounds } from './bounds';
 import styles from './styles.module.scss';
 import { GridContext } from './useGrid';
 import { MoveControllerType } from './useMoveController';
-
-const cx = classNames.bind(styles);
 
 export interface GridItemDto {
   position: Position;
@@ -80,7 +77,7 @@ export function Grid<Item extends GridItemDto>({
 
   // Declare projection states
   const [itemErrorMap, setItemErrorMap] = useState(new Map<string, GridItemError>());
-  const [projectedItem, setProjectedItem] = useState<GridItemDto | null>(null);
+  const [projectedItem, setProjectedItem] = useState<Item | null>(null);
 
   const onPositionProjectionChange = (index: number, position: Position) => {
     const referredItem = items[index];
@@ -111,20 +108,15 @@ export function Grid<Item extends GridItemDto>({
     if (overlapStates.some(Boolean)) {
       // If there are any overlapping items, update moving item's state!
       newItemErrorMap.set(getItemId(projectedItem), 'overlapping');
-      setProjectedItem(null);
     } else if (!isItemInBounds(projectedItem)) {
       // If moving item is out of bounds (and the grid doesn't auto-expand), update state!
       newItemErrorMap.set(getItemId(projectedItem), 'out-of-bounds');
-      setProjectedItem(null);
     } else {
       // Otherwise, clear state
       newItemErrorMap.delete(getItemId(projectedItem));
-      setProjectedItem({
-        position: projectedItem.position,
-        size: projectedItem.size,
-      });
     }
 
+    setProjectedItem(projectedItem);
     setItemErrorMap(newItemErrorMap);
   };
 
@@ -188,12 +180,15 @@ export function Grid<Item extends GridItemDto>({
 
   // When a mouse item is moving, use the grabbing cursor
   useEffect(() => {
-    document.body.classList.toggle(cx('grabbing'), gridMoveType === 'mouse');
+    document.body.classList.toggle(styles.grabbing, gridMoveType === 'mouse');
   }, [gridMoveType]);
 
   return (
     <GridContext.Provider
       value={{
+        items,
+        projectedItem,
+        getItemId,
         size,
         unitPx: 0,
         readOnly,

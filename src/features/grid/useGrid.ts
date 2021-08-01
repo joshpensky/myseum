@@ -1,7 +1,11 @@
 import { createContext, useContext } from 'react';
 import { Dimensions } from '@src/types';
+import { GridItemDto } from './Grid';
 
 interface GridContextValue {
+  items: GridItemDto[];
+  projectedItem: GridItemDto | null;
+  getItemId(item: GridItemDto): string;
   size: Dimensions;
   unitPx: number;
   readOnly: boolean;

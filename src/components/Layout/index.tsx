@@ -8,19 +8,24 @@ export interface LayoutContextValue {
 }
 export const LayoutContext = createContext<LayoutContextValue | null>(null);
 
-export const useLayout = () => {
+export function useLayout(): LayoutContextValue;
+export function useLayout(__dangerous_useOutsideContext: true): LayoutContextValue | null;
+export function useLayout(__dangerous_useOutsideContext?: true): LayoutContextValue | null {
   const value = useContext(LayoutContext);
+  if (__dangerous_useOutsideContext) {
+    return value;
+  }
   if (!value) {
     throw new Error('useLayout must be used within context of LayoutContext.Provider.');
   }
   return value;
-};
+}
 
 export interface LayoutProps {
   navOverrides?: NavProps['overrides'];
 }
 const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
-  const layoutCtx = useLayout();
+  const layoutCtx = useLayout(true);
 
   const [isNavVisible, setIsNavVisible] = useState(true);
 

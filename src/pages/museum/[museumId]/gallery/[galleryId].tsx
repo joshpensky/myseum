@@ -34,7 +34,6 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        basePath: `/museum/${gallery.museum.id}`,
         museum: gallery.museum,
         gallery,
       },

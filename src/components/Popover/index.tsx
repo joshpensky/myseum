@@ -10,6 +10,7 @@ import {
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
+import { ThemeProvider } from '@src/providers/ThemeProvider';
 import CloseIcon from '@src/svgs/Close';
 import styles from './popover.module.scss';
 
@@ -47,13 +48,15 @@ const PopoverContent = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <Content
-      {...props}
-      ref={contentRef}
-      className={cx(`theme--paper`, styles.popover, className)}
-      sideOffset={props.sideOffset ?? SIDE_OFFSET}>
-      {children}
-    </Content>
+    <ThemeProvider theme={{ color: 'paper' }}>
+      <Content
+        {...props}
+        ref={contentRef}
+        className={cx(`theme--paper`, styles.popover, className)}
+        sideOffset={props.sideOffset ?? SIDE_OFFSET}>
+        {children}
+      </Content>
+    </ThemeProvider>
   );
 };
 

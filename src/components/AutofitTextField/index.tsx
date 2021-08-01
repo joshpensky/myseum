@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { Fragment, ReactNode, useRef } from 'react';
 import cx from 'classnames';
 import styles from './autofitTextField.module.scss';
 
@@ -27,6 +27,13 @@ const AutofitTextField = ({
 }: AutofitTextFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  let fakeValue: ReactNode = placeholder ?? <span>&nbsp;</span>;
+  if (value) {
+    fakeValue = value
+      .split('')
+      .map((char, i) => <span key={i}>{char === ' ' ? <Fragment>&nbsp;</Fragment> : char}</span>);
+  }
+
   return (
     <div className={cx(styles.wrapper, disabled && styles.wrapperDisabled, className)}>
       <label className="sr-only" htmlFor={id}>
@@ -34,9 +41,7 @@ const AutofitTextField = ({
       </label>
 
       <span className={cx(styles.fakeInput, inputClassName)} aria-hidden="true">
-        {!value
-          ? placeholder
-          : value.split('').map(char => (char === ' ' ? <span>&nbsp;</span> : char))}
+        {fakeValue}
       </span>
 
       <input

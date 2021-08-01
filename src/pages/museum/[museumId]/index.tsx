@@ -48,7 +48,6 @@ const updateMuseumSchema = z.object({
 });
 
 export interface MuseumMapViewProps {
-  basePath: string;
   museum: Museum & {
     curator: User;
     galleries: GalleryBlockProps['gallery'][];
@@ -145,8 +144,8 @@ const MuseumMapView = () => {
               <div css={tw`flex flex-1 items-center justify-center`}>
                 <AutofitTextField
                   id="museum-name"
-                  css={[tw`pb-0.5`]}
-                  inputCss={[tw`font-serif leading-none text-3xl`]}
+                  // css={[tw`pb-0.5`]}
+                  // inputCss={[tw`font-serif leading-none text-3xl`]}
                   label="Museum name"
                   disabled={isFormSubmitting}
                   value={name}
@@ -195,7 +194,6 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        basePath: `/museum/${museum.id}`,
         museum,
       },
     };

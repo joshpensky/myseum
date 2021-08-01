@@ -3,7 +3,6 @@ import { Museum, User } from '@prisma/client';
 import { GalleryBlockProps } from '@src/components/MuseumMap/GalleryBlock';
 
 export interface MuseumContextValue {
-  basePath: string;
   museum: Museum & {
     galleries: GalleryBlockProps['gallery'][];
     curator: User;
@@ -13,20 +12,15 @@ export interface MuseumContextValue {
 export const MuseumContext = createContext<MuseumContextValue | null>(null);
 
 interface MuseumProviderProps {
-  basePath: string;
   children: ReactNode | ((context: MuseumContextValue) => ReactNode);
   museum: MuseumContextValue['museum'];
 }
-export const MuseumProvider = ({
-  basePath,
-  children,
-  museum: initialMuseum,
-}: MuseumProviderProps) => {
+export const MuseumProvider = ({ children, museum: initialMuseum }: MuseumProviderProps) => {
   const museumCtx = useContext(MuseumContext);
 
   const [museum, setMuseum] = useState(initialMuseum);
 
-  const value = museumCtx ?? { basePath, museum, setMuseum };
+  const value = museumCtx ?? { museum, setMuseum };
 
   return (
     <MuseumContext.Provider value={value}>
