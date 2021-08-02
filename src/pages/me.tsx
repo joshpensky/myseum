@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
 import { UserRepository } from '@src/data/UserRepository';
+import { UserSerializer } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
 import { AuthUser, useAuth } from '@src/providers/AuthProvider';
 
@@ -123,7 +124,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async ctx =>
       user: JSON.parse(
         JSON.stringify({
           ...auth.user,
-          ...user,
+          ...UserSerializer.serialize(user),
           email: auth.user.email as string,
         }),
       ),

@@ -9,8 +9,8 @@ import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import { MuseumRepository } from '@src/data/MuseumRepository';
+import { MuseumCollectionItemDto } from '@src/data/MuseumSerializer';
 import { MuseumHomeLayout } from '@src/layouts/museum';
-import { MuseumCollectionItem } from '@src/pages/api/museum/[museumId]/collection';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
 
@@ -23,7 +23,7 @@ export interface MuseumCollectionViewProps {
 const MuseumCollectionView = () => {
   const { museum } = useMuseum();
 
-  const collection = useSWR<MuseumCollectionItem[]>(`/api/museum/${museum.id}/collection`);
+  const collection = useSWR<MuseumCollectionItemDto[]>(`/api/museum/${museum.id}/collection`);
 
   const [isAddingItem, setIsAddingItem] = useState(false);
 
@@ -56,7 +56,7 @@ const MuseumCollectionView = () => {
       <ul css={tw`-mb-5 flex flex-wrap`}>
         {(collection.data ?? []).map(item => (
           <li key={item.artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
-            <Artwork data={item.artwork} gallery={item.gallery} />
+            <Artwork data={item.artwork} galleries={item.galleries} />
           </li>
         ))}
       </ul>

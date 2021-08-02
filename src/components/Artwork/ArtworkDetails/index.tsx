@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { Fragment, PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
@@ -12,10 +12,10 @@ import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {
   data: ArtworkDto;
-  gallery?: Omit<GalleryDto, 'artworks'>;
+  galleries?: Omit<GalleryDto, 'artworks'>[];
 }
 
-const ArtworkDetails = ({ children, data, gallery }: PropsWithChildren<ArtworkDetailProps>) => {
+const ArtworkDetails = ({ children, data, galleries }: PropsWithChildren<ArtworkDetailProps>) => {
   const router = useRouter();
   const museumId = router.query.museumId;
 
@@ -51,13 +51,14 @@ const ArtworkDetails = ({ children, data, gallery }: PropsWithChildren<ArtworkDe
               <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
             </p>
             <p>
-              {data.width} <abbr title="by">x</abbr> {data.height} <abbr title="inches">in.</abbr>
+              {data.size.width} <abbr title="by">x</abbr> {data.size.height}{' '}
+              <abbr title="inches">in.</abbr>
             </p>
           </div>
 
           <p className={styles.description}>{description}</p>
 
-          {(acquiredAt || gallery) && (
+          {(acquiredAt || galleries?.length) && (
             <div className={styles.bodyFooter}>
               {acquiredAt && (
                 <p className={styles.acquisition}>
@@ -65,17 +66,35 @@ const ArtworkDetails = ({ children, data, gallery }: PropsWithChildren<ArtworkDe
                 </p>
               )}
 
-              {gallery && (
+              {galleries?.length && (
                 <p className={styles.feature}>
-                  Featured in the{' '}
-                  <Link
-                    passHref
-                    href={{
-                      pathname: `/museum/[museumId]/gallery/[galleryId]`,
-                      query: { museumId, galleryId: gallery.id },
-                    }}>
-                    <a>{gallery.name}</a>
-                  </Link>
+                  Featured in{' '}
+                  {galleries.map((gallery, idx) => {
+                    let separator = '';
+                    if (galleries.length === 2 && idx === 0) {
+                      separator = ' and ';
+                    } else if (galleries.length >= 3) {
+                      if (idx === galleries.length - 2) {
+                        separator = ', and ';
+                      } else if (idx < galleries.length - 2) {
+                        separator = ', ';
+                      }
+                    }
+
+                    return (
+                      <Fragment key={gallery.id}>
+                        <Link
+                          passHref
+                          href={{
+                            pathname: `/museum/[museumId]/gallery/[galleryId]`,
+                            query: { museumId, galleryId: gallery.id },
+                          }}>
+                          <a>{gallery.name}</a>
+                        </Link>
+                        {separator}
+                      </Fragment>
+                    );
+                  })}
                 </p>
               )}
             </div>

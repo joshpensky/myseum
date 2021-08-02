@@ -1,6 +1,7 @@
 import { Gallery, Museum, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
+import { PrismaMuseumCollectionItem } from './MuseumSerializer';
 
 interface GalleryDto {
   name: string;
@@ -30,6 +31,32 @@ export class MuseumRepository {
       },
     });
     return museum;
+  }
+
+  static async getCollection(museum: Museum): Promise<PrismaMuseumCollectionItem[]> {
+    const artworks = await prisma.artwork.findMany({
+      distinct: 'id',
+      where: {
+        galleries: {
+          some: {
+            gallery: {
+              museumId: museum.id,
+            },
+          },
+        },
+      },
+      include: {
+        frame: true,
+        artist: true,
+        galleries: {
+          include: {
+            gallery: true,
+          },
+        },
+      },
+    });
+
+    return artworks;
   }
 
   static async update(museum: Museum, updateMuseumDto: UpdateMuseumDto) {

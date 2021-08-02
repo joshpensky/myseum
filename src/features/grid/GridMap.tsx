@@ -119,7 +119,6 @@ export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
         y={refItem.position.y}
         width={refItem.size.width}
         height={refItem.size.height}
-        fill="currentColor"
       />
     );
   });
@@ -133,12 +132,12 @@ export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
   // Renders the scrollbar thumb
   const scrollbarThumb = (
     <rect
-      fill="currentColor"
-      transform={`translate(${percentScrolled * width} 0)`}
+      className={styles.scrollbarThumb}
       x={0}
       y={0}
       width={percentVisible * width}
       height={height}
+      transform={`translate(${percentScrolled * width} 0)`}
     />
   );
 

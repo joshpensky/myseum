@@ -1,7 +1,7 @@
 @keyframes popover-enter {
   from {
     opacity: 0;
-    transform: translateY(sz(1)) scale(0.95);
+    transform: translateY(var(--translate-y, 0)) scale(0.95);
   }
   to {
     opacity: 1;
@@ -16,7 +16,7 @@
   }
   to {
     opacity: 0;
-    transform: translateY(sz(1)) scale(0.95);
+    transform: translateY(var(--translate-y, 0)) scale(0.95);
   }
 }
 
@@ -29,6 +29,14 @@ $popover-anim-duration: 150ms;
   transform-origin: var(--radix-popover-content-transform-origin);
   width: sz(96);
   z-index: $z-popover;
+
+  &[data-side='top'] {
+    --translate-y: #{sz(1)};
+  }
+
+  &[data-side='bottom'] {
+    --translate-y: #{sz(-1)};
+  }
 
   &[data-state='open'] {
     animation: popover-enter $popover-anim-duration ease-out forwards 1;

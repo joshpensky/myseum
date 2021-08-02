@@ -1,15 +1,12 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Museum, User as PrismaUser } from '@prisma/client';
-import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
+import { UserDto } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
 
-export interface AuthUser extends User {
+export interface AuthUser extends SupabaseUser, UserDto {
   email: string;
-  bio?: string | null;
-  avatar?: string | null;
-  museum?: Museum;
 }
 
 interface AuthContextValue {
@@ -38,7 +35,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
    * @param authUser the Supabase-authenticated user
    * @returns the update promise and an abort controller to cancel the update
    */
-  const updateUser = (authUser: User): [AbortController, Promise<void>] => {
+  const updateUser = (authUser: SupabaseUser): [AbortController, Promise<void>] => {
     const abortController = new AbortController();
     const updatePromise = (async () => {
       const res = await fetch(`/api/user/${authUser.id}`);
@@ -50,7 +47,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
         toast.error('Could not fetch user data.');
       } else if (!abortController.signal.aborted) {
         // Otherwise, update user data if not aborted
-        const user = (await res.json()) as PrismaUser & { museum: Museum };
+        const user = (await res.json()) as UserDto;
         setUser({
           ...authUser,
           ...user,

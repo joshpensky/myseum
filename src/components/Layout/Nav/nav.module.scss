@@ -37,3 +37,39 @@
     visibility: hidden;
   }
 }
+
+.nav__replaceable-content {
+  > *:not(:global(.no-replace)):not(:first-child) {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+.nav__sections {
+  @include padding(sz(2.5) sz(4));
+  display: flex;
+  flex: 1;
+}
+
+.nav__sections__item {
+  display: flex;
+  flex: 1;
+  align-items: center;
+
+  &:nth-child(1) {
+    justify-content: flex-start;
+  }
+
+  &:nth-child(2) {
+    justify-content: center;
+  }
+
+  &:nth-child(3) {
+    justify-content: flex-end;
+  }
+}
+
+.nav__logo {
+  display: flex;
+  height: sz(8);
+}

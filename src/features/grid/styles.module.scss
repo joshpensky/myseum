@@ -46,18 +46,26 @@ body.scroll-dragging {
 
 .scrollbar__svg {
   @include size(100%);
-  pointer-events: none;
-  touch-action: none;
   display: block;
-  opacity: 0.4;
+}
+
+.scrollbar__thumb {
+  fill: currentColor;
+
+  g & {
+    color: c('border', 0.5);
+  }
 }
 
 .scrollbar__grid-item {
-  fill: c('black');
-  transition: fill 100ms ease-out;
+  fill: currentColor;
+
+  g & {
+    color: c('border', 0.5);
+  }
 
   &.scrollbar__grid-item--moving {
-    fill: c('black', 0.75);
+    opacity: 0.75;
   }
 }
 

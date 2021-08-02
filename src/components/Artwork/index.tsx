@@ -13,13 +13,13 @@ const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDeta
 export interface ArtworkProps {
   data: ArtworkDto;
   disabled?: boolean;
-  gallery?: Omit<GalleryDto, 'artworks'>;
+  galleries?: Omit<GalleryDto, 'artworks'>[];
   onLoad?(): void;
 }
 
 const BEZEL = 0.05;
 
-export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
+export const Artwork = ({ data, disabled, galleries, onLoad }: ArtworkProps) => {
   const theme = useTheme();
 
   const { id, title, frame, src, alt } = data;
@@ -213,7 +213,7 @@ export const Artwork = ({ data, disabled, gallery, onLoad }: ArtworkProps) => {
         )}
       </svg>
 
-      {isLoaded && !disabled && <ArtworkDetails data={data} gallery={gallery} />}
+      {isLoaded && !disabled && <ArtworkDetails data={data} galleries={galleries} />}
     </div>
   );
 };

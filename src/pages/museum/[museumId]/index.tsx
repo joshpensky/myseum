@@ -62,7 +62,7 @@ const MuseumMapView = (props: MuseumMapViewProps) => {
   const { museum, setMuseum } = useMuseum();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(museum.name);
   const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>(props.galleries);
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);

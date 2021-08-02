@@ -2,12 +2,12 @@ import Link from 'next/link';
 import tw from 'twin.macro';
 import Layout, { LayoutContext, SubLayoutProps } from '@src/components/Layout';
 import ViewToggle from '@src/components/ViewToggle';
+import { MuseumDto } from '@src/data/MuseumSerializer';
 import type { GalleryViewProps } from '@src/features/gallery';
-import type { MuseumMapViewProps } from '@src/pages/museum/[museumId]';
 import { MuseumProvider } from '@src/providers/MuseumProvider';
 import Arrow from '@src/svgs/Arrow';
 
-export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
+export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<{ museum: MuseumDto }>) => (
   <MuseumProvider museum={pageProps.museum}>
     {({ museum }) => (
       <Layout
@@ -26,7 +26,10 @@ export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapVi
   </MuseumProvider>
 );
 
-export const MuseumHomeLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
+export const MuseumHomeLayout = ({
+  children,
+  pageProps,
+}: SubLayoutProps<{ museum: MuseumDto }>) => (
   <LayoutContext.Provider
     value={{
       updateNavVisibility: () => {},
@@ -43,7 +46,10 @@ export const MuseumHomeLayout = ({ children, pageProps }: SubLayoutProps<MuseumM
   </LayoutContext.Provider>
 );
 
-export const MuseumAboutLayout = ({ children, pageProps }: SubLayoutProps<MuseumMapViewProps>) => (
+export const MuseumAboutLayout = ({
+  children,
+  pageProps,
+}: SubLayoutProps<{ museum: MuseumDto }>) => (
   <LayoutContext.Provider
     value={{
       updateNavVisibility: () => {},

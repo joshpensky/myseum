@@ -1,13 +1,7 @@
 import { NextApiHandler } from 'next';
 import * as z from 'zod';
-import { ArtworkDto } from '@src/data/ArtworkSerializer';
-import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
 import { MuseumRepository } from '@src/data/MuseumRepository';
-
-export type MuseumCollectionItem = {
-  artwork: ArtworkDto;
-  gallery: Omit<GalleryDto, 'artworks'>;
-};
+import { MuseumSerializer } from '@src/data/MuseumSerializer';
 
 const museumDetailController: NextApiHandler = async (req, res) => {
   const museumId = z.number().int().safeParse(Number(req.query.museumId));
@@ -25,24 +19,8 @@ const museumDetailController: NextApiHandler = async (req, res) => {
           res.status(404).json({ message: 'Not found.' });
           return;
         }
-
-        const uniqueIdSet = new Set<number>();
-        const collection: MuseumCollectionItem[] = museum.galleries
-          .map(gallery => {
-            const serializedGallery = GallerySerializer.serialize(gallery);
-            const { artworks, ...galleryDto } = serializedGallery;
-            return artworks.map(item => ({ artwork: item.artwork, gallery: galleryDto }));
-          })
-          .flat()
-          .filter(item => {
-            if (!uniqueIdSet.has(item.artwork.id)) {
-              uniqueIdSet.add(item.artwork.id);
-              return true;
-            }
-            return false;
-          });
-
-        res.status(200).json(collection);
+        const collection = await MuseumRepository.getCollection(museum);
+        res.status(200).json(MuseumSerializer.serializeCollection(collection));
         break;
       }
 

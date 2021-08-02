@@ -1,6 +1,6 @@
 import { createContext, Fragment, PropsWithChildren, useContext, useState } from 'react';
-import tw from 'twin.macro';
 import Nav, { NavProps } from '@src/components/Layout/Nav';
+import styles from './layout.module.scss';
 
 export interface LayoutContextValue {
   updateNavVisibility(visible: boolean): void;
@@ -27,7 +27,7 @@ export interface LayoutProps {
 const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
   const layoutCtx = useLayout(true);
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [isNavVisible, setIsNavVisible] = useState<boolean | null>(null);
 
   const overrides = {
     left: (
@@ -52,9 +52,9 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
 
   return (
     <LayoutContext.Provider value={{ updateNavVisibility: visible => setIsNavVisible(visible) }}>
-      <div css={tw`flex flex-col flex-1 min-h-screen`}>
+      <div className={styles.page}>
         <Nav overrides={overrides} visible={isNavVisible} />
-        <main css={tw`flex flex-col flex-1`}>{children}</main>
+        <main className={styles.main}>{children}</main>
       </div>
     </LayoutContext.Provider>
   );

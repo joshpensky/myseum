@@ -1,5 +1,6 @@
 import { NextApiHandler } from 'next';
 import { UserRepository } from '@src/data/UserRepository';
+import { UserSerializer } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
 
 const userDetailController: NextApiHandler = async (req, res) => {
@@ -18,7 +19,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
           res.status(404).json({ message: 'User not found.' });
           return;
         }
-        res.status(200).json(user);
+        res.status(200).json(UserSerializer.serialize(user));
         break;
       }
 
@@ -31,7 +32,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
           return;
         }
         const user = await UserRepository.update(auth.user, req.body);
-        res.status(200).json(user);
+        res.status(200).json(UserSerializer.serialize(user));
         break;
       }
 
