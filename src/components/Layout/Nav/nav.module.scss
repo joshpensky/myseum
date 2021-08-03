@@ -25,15 +25,17 @@
   }
 }
 
+$anim-duration: 500ms;
+
 .root {
   overflow: hidden;
 
   &.root--visible {
-    animation: nav-enter 500ms $ease-out-expo 1 forwards;
+    animation: nav-enter $anim-duration $ease-out-expo 1 forwards;
   }
 
   &.root--hidden {
-    animation: nav-leave 500ms $ease-out-expo 1 forwards;
+    animation: nav-leave $anim-duration $ease-out-expo 1 forwards;
     visibility: hidden;
   }
 }
@@ -72,4 +74,8 @@
 .nav__logo {
   display: flex;
   height: sz(8);
+}
+
+:export {
+  varAnimDuration: $anim-duration;
 }

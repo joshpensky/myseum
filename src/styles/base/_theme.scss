@@ -44,18 +44,18 @@
 
 .theme--paper {
   --c-bg: #{hex-to-rgb($c-paper-200)};
-  --c-bg-tint: #{hex-to-rgb($c-mint-300)}; // TODO: replace
+  --c-bg-tint: #{hex-to-rgb($c-paper-300)}; // TODO: replace
   --c-icon: #{hex-to-rgb($c-mint-900)}; // TODO: replace
   --c-text: #{hex-to-rgb($c-black)};
   --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
-  --c-border: #{hex-to-rgb($c-mint-700)}; // TODO: replace
+  --c-border: #{hex-to-rgb($c-black)}; // TODO: replace
   --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
 }
 
 .theme--ink {
   --c-bg: #{hex-to-rgb($c-black)};
-  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 20%))};
+  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 15%))};
   --c-icon: #{hex-to-rgb($c-black)};
   --c-text: #{hex-to-rgb($c-white)};
   --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace

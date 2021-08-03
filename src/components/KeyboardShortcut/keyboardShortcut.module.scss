@@ -1,0 +1,34 @@
+.root {
+  display: flex;
+}
+
+.key {
+  @include size($fs-sm + sz(2));
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  border-radius: sz(1);
+  background-color: c('bg-tint');
+  border: 1px solid c('border', 0.5);
+  line-height: $fs-sm;
+  font-size: $fs-sm;
+
+  span {
+    color: c('text', 0.8);
+    transform: translateY(3px);
+  }
+
+  &.key--meta {
+    span {
+      transform: translateY(4px);
+    }
+  }
+}
+
+.joiner {
+  @include margin(x sz(1));
+  color: c('text', 0.8);
+  line-height: $fs-sm;
+  font-size: $fs-sm;
+  transform: translateY(4px);
+}

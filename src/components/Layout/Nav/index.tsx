@@ -6,6 +6,8 @@ import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import Logo from '@src/svgs/Logo';
 import styles from './nav.module.scss';
 
+const ANIM_DURATION = Number.parseInt(styles.varAnimDuration, 10);
+
 export interface NavProps {
   overrides?: {
     left?: ReactNode;
@@ -13,11 +15,28 @@ export interface NavProps {
     right?: ReactNode;
   };
   visible: boolean | null;
+  onAnimationChange(isAnimating: boolean): void;
 }
 
-const Nav = ({ overrides, visible }: NavProps) => {
+const Nav = ({ onAnimationChange, overrides, visible }: NavProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const [navHeightPx, setNavHeightPx] = useState(0);
+
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    if (visible !== null) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+
+      onAnimationChange(true);
+      timeoutRef.current = setTimeout(() => {
+        onAnimationChange(false);
+      }, ANIM_DURATION);
+    }
+  }, [visible]);
 
   useIsomorphicLayoutEffect(() => {
     if (navRef.current) {

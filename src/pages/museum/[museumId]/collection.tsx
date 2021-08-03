@@ -36,14 +36,14 @@ const MuseumCollectionView = () => {
       <header css={tw`mb-6`}>
         <h2 css={tw`leading-none font-serif text-3xl`}>Collection</h2>
         {collection.error || !collection.data ? (
-          <p>Loading...</p>
+          <p css={tw`mb-4`}>Loading...</p>
         ) : (
-          <p>
+          <p css={tw`mb-4`}>
             {collection.data.length} item{collection.data.length === 1 ? '' : 's'}
           </p>
         )}
 
-        <Button css={tw`mt-4`} onClick={() => setIsAddingItem(true)}>
+        <Button onClick={() => setIsAddingItem(true)}>
           <span css={tw`block size-3 mr-3 transform rotate-45`}>
             <Close />
           </span>

@@ -1,5 +1,8 @@
 import { createContext, Fragment, PropsWithChildren, useContext, useState } from 'react';
+import cx from 'classnames';
 import Nav, { NavProps } from '@src/components/Layout/Nav';
+import { AnimationStatus } from '@src/providers/AnimationStatus';
+import { useTheme } from '@src/providers/ThemeProvider';
 import styles from './layout.module.scss';
 
 export interface LayoutContextValue {
@@ -26,8 +29,10 @@ export interface LayoutProps {
 }
 const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
   const layoutCtx = useLayout(true);
+  const theme = useTheme();
 
   const [isNavVisible, setIsNavVisible] = useState<boolean | null>(null);
+  const [isNavAnimating, setIsNavAnimating] = useState(false);
 
   const overrides = {
     left: (
@@ -51,12 +56,18 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
   };
 
   return (
-    <LayoutContext.Provider value={{ updateNavVisibility: visible => setIsNavVisible(visible) }}>
-      <div className={styles.page}>
-        <Nav overrides={overrides} visible={isNavVisible} />
-        <main className={styles.main}>{children}</main>
-      </div>
-    </LayoutContext.Provider>
+    <AnimationStatus value={isNavAnimating}>
+      <LayoutContext.Provider value={{ updateNavVisibility: visible => setIsNavVisible(visible) }}>
+        <div className={cx(styles.page, `theme--${theme.color}`)}>
+          <Nav
+            overrides={overrides}
+            visible={isNavVisible}
+            onAnimationChange={isAnimating => setIsNavAnimating(isAnimating)}
+          />
+          <main className={styles.main}>{children}</main>
+        </div>
+      </LayoutContext.Provider>
+    </AnimationStatus>
   );
 };
 

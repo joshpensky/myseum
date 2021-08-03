@@ -6,7 +6,9 @@ import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
+import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
 import { useLayout } from '@src/components/Layout';
+import { Tooltip } from '@src/components/Tooltip';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { UpdateGalleryDto } from '@src/data/GalleryRepository';
 import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
@@ -232,7 +234,6 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 <div className={styles.headerSection}>
                   <AutofitTextField
                     id="gallery-name"
-                    className={styles.titleInput}
                     inputClassName={cx(styles.title)}
                     label="Gallery name"
                     placeholder="Name"
@@ -243,9 +244,13 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 </div>
 
                 <div className={styles.headerSection}>
-                  <Button disabled={isSubmitting} onClick={() => onSave()}>
-                    Save
-                  </Button>
+                  <Tooltip
+                    value={<KeyboardShortcut keys={['meta', 's']} />}
+                    disabled={isSubmitting}>
+                    <Button disabled={isSubmitting} onClick={() => onSave()}>
+                      Save
+                    </Button>
+                  </Tooltip>
                 </div>
               </Fragment>
             )}

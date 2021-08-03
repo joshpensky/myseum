@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useRef, useState } from 'react';
+import { PropsWithChildren, useRef, useState } from 'react';
 import {
   Content,
   Root,
@@ -10,6 +10,7 @@ import {
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
+import { AnimationStatus } from '@src/providers/AnimationStatus';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import CloseIcon from '@src/svgs/Close';
 import styles from './popover.module.scss';
@@ -17,26 +18,35 @@ import styles from './popover.module.scss';
 const ANIMATION_DURATION = Number.parseInt(styles.varAnimDuration, 10);
 const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 
-const PopoverContext = createContext({ open: false });
-
 const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverOwnProps>) => {
-  const [open, setOpen] = useState(props.defaultOpen ?? false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const onOpenChange = (open: boolean) => {
-    setOpen(open);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    setIsAnimating(true);
     props.onOpenChange?.(open);
+
+    timeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, ANIMATION_DURATION + 10);
   };
 
   return (
-    <PopoverContext.Provider value={{ open }}>
+    <AnimationStatus value={isAnimating}>
       <Root {...props} onOpenChange={onOpenChange}>
         {children}
       </Root>
-    </PopoverContext.Provider>
+    </AnimationStatus>
   );
 };
 
-interface PopoverContentProps extends PopoverContentOwnProps {
+interface PopoverContentProps extends Omit<PopoverContentOwnProps, 'id'> {
   className?: string;
 }
 
@@ -85,10 +95,6 @@ const PopoverBody = ({ children, className }: PropsWithChildren<PopoverBodyProps
 );
 
 export const Popover = {
-  constants: {
-    AnimationDuration: ANIMATION_DURATION,
-  },
-  Context: PopoverContext,
   Root: PopoverRoot,
   Trigger,
   Content: PopoverContent,

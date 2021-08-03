@@ -10,15 +10,14 @@
 }
 
 .header {
-  @include padding(sz(4));
-  align-items: center;
+  @include padding(sz(4.5) sz(4));
   background-color: c('bg');
   color: c('text');
   display: flex;
-  flex-direction: column;
+  justify-content: center;
 
-  &--editing {
-    flex-direction: row;
+  &.header--editing {
+    @include padding(sz(4));
     justify-content: space-between;
   }
 }
@@ -53,8 +52,9 @@
   line-height: 1;
 }
 
-.title-input {
-  height: $fs-3xl;
+h2.title {
+  // Fix position difference between h2 title and input
+  transform: translateY(3px);
 }
 
 .fab {
