@@ -35,6 +35,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const [gallery, setGallery] = useState(data);
+  const [openedArtworkId, setOpenedArtworkId] = useState<number | null>(null);
 
   const getGalleryArtworks = (gallery: GalleryDto): GridArtworkItem[] =>
     [...gallery.artworks].sort((a, b) => {
@@ -117,6 +118,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   };
 
   const openExitMode = () => {
+    setOpenedArtworkId(null);
     setIsEditing(true);
     layout.updateNavVisibility(false);
     // Focus the cancel button when edit mode has been started
@@ -306,7 +308,18 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
                 {...props}
                 item={item}
                 isEditing={isEditing}
-                disabled={props.disabled || isSubmitting}
+                disabled={
+                  props.disabled ||
+                  isSubmitting ||
+                  (openedArtworkId !== null && openedArtworkId !== item.artwork.id)
+                }
+                onDetailsOpenChange={open => {
+                  if (open) {
+                    setOpenedArtworkId(item.artwork.id);
+                  } else {
+                    setOpenedArtworkId(null);
+                  }
+                }}
                 onRemove={() => onRemoveArtwork(index)}
               />
             )}

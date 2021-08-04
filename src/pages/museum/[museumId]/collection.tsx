@@ -27,6 +27,8 @@ const MuseumCollectionView = () => {
 
   const [isAddingItem, setIsAddingItem] = useState(false);
 
+  const [openedArtworkId, setOpenedArtworkId] = useState<number | null>(null);
+
   return (
     <div css={tw`pt-2 px-4`}>
       <Head>
@@ -55,8 +57,23 @@ const MuseumCollectionView = () => {
 
       <ul css={tw`-mb-5 flex flex-wrap`}>
         {(collection.data ?? []).map(item => (
-          <li key={item.artwork.id} css={tw`flex items-start h-52 mb-5 mr-5 last:mr-0`}>
-            <Artwork data={item.artwork} galleries={item.galleries} />
+          <li
+            key={item.artwork.id}
+            css={[
+              tw`flex items-start h-52 mb-5 mr-5 last:mr-0`,
+              openedArtworkId !== null && openedArtworkId !== item.artwork.id && tw`opacity-50`,
+            ]}>
+            <Artwork
+              data={item.artwork}
+              galleries={item.galleries}
+              onDetailsOpenChange={open => {
+                if (open) {
+                  setOpenedArtworkId(item.artwork.id);
+                } else {
+                  setOpenedArtworkId(null);
+                }
+              }}
+            />
           </li>
         ))}
       </ul>

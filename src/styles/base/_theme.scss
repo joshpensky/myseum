@@ -55,7 +55,7 @@
 
 .theme--ink {
   --c-bg: #{hex-to-rgb($c-black)};
-  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 20%))};
+  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 15%))};
   --c-icon: #{hex-to-rgb($c-black)};
   --c-text: #{hex-to-rgb($c-white)};
   --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace

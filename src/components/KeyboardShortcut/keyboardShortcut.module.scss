@@ -6,7 +6,7 @@
 .key {
   @include padding(sz(0.5) sz(1.5) sz(1));
   min-width: sz(5.25);
-  background-color: c('bg-tint');
+  background-color: c('bg');
   border-radius: sz(1);
   display: inline-flex;
   font-size: $fs-sm;
@@ -16,7 +16,7 @@
   position: relative;
 
   span {
-    color: c('text', 0.8);
+    color: c('text', 1);
   }
 
   .root--mac &.key--meta {

@@ -17,6 +17,7 @@ export interface GridArtworkItem extends GalleryArtworkDto {
 interface GridArtworkProps extends GridRenderItemProps {
   item: GridArtworkItem;
   isEditing?: boolean;
+  onDetailsOpenChange?(open: boolean): void;
   onRemove?(): void;
 }
 
@@ -27,6 +28,7 @@ export const GridArtwork = ({
   moveType,
   error,
   dragHandleProps,
+  onDetailsOpenChange,
   onRemove,
 }: GridArtworkProps) => {
   const grid = useGrid();
@@ -109,7 +111,8 @@ export const GridArtwork = ({
 
           <Artwork
             data={item.artwork}
-            disabled={disabled || isEditing}
+            disabled={grid.preview || isEditing}
+            onDetailsOpenChange={onDetailsOpenChange}
             onLoad={() => setIsLoaded(true)}
           />
         </div>

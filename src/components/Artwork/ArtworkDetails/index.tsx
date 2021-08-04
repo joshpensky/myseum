@@ -13,16 +13,22 @@ import styles from './artworkDetails.module.scss';
 export interface ArtworkDetailProps {
   data: ArtworkDto;
   galleries?: Omit<GalleryDto, 'artworks'>[];
+  onOpenChange?(open: boolean): void;
 }
 
-const ArtworkDetails = ({ children, data, galleries }: PropsWithChildren<ArtworkDetailProps>) => {
+const ArtworkDetails = ({
+  children,
+  data,
+  galleries,
+  onOpenChange,
+}: PropsWithChildren<ArtworkDetailProps>) => {
   const router = useRouter();
   const museumId = router.query.museumId;
 
   const { title, artist, description, acquiredAt, createdAt } = data;
 
   return (
-    <Popover.Root>
+    <Popover.Root onOpenChange={open => onOpenChange?.(open)}>
       {children}
 
       <Popover.Trigger
@@ -34,10 +40,16 @@ const ArtworkDetails = ({ children, data, galleries }: PropsWithChildren<Artwork
       <Popover.Content side="right" align="start" aria-label={`Details for artwork "${title}"`}>
         <Popover.Header>
           <div className={styles.headerButtons}>
-            <IconButton className={styles.headerButtonsItem} title="Expand artwork">
+            <IconButton
+              className={styles.headerButtonsItem}
+              title="Expand artwork"
+              tooltipProps={{ side: 'top' }}>
               <Fullscreen />
             </IconButton>
-            <IconButton className={styles.headerButtonsItem} title="Edit artwork">
+            <IconButton
+              className={styles.headerButtonsItem}
+              title="Edit artwork"
+              tooltipProps={{ side: 'top' }}>
               <Edit />
             </IconButton>
           </div>

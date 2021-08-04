@@ -15,7 +15,7 @@ import styles from './tooltip.module.scss';
 const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 const COLLISION_TOLERANCE = Number.parseInt(styles.varCollisionTolerance, 10);
 
-interface TooltipProps extends TooltipContentOwnProps {
+export interface TooltipProps extends TooltipContentOwnProps {
   className?: string;
   disabled?: boolean;
   value: ReactNode;

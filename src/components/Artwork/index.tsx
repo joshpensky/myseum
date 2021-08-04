@@ -14,12 +14,19 @@ export interface ArtworkProps {
   data: ArtworkDto;
   disabled?: boolean;
   galleries?: Omit<GalleryDto, 'artworks'>[];
+  onDetailsOpenChange?(open: boolean): void;
   onLoad?(): void;
 }
 
 const BEZEL = 0.05;
 
-export const Artwork = ({ data, disabled, galleries, onLoad }: ArtworkProps) => {
+export const Artwork = ({
+  data,
+  disabled,
+  galleries,
+  onDetailsOpenChange,
+  onLoad,
+}: ArtworkProps) => {
   const theme = useTheme();
 
   const { id, title, frame, src, alt } = data;
@@ -213,7 +220,9 @@ export const Artwork = ({ data, disabled, galleries, onLoad }: ArtworkProps) => 
         )}
       </svg>
 
-      {isLoaded && !disabled && <ArtworkDetails data={data} galleries={galleries} />}
+      {isLoaded && !disabled && (
+        <ArtworkDetails data={data} galleries={galleries} onOpenChange={onDetailsOpenChange} />
+      )}
     </div>
   );
 };

@@ -71,9 +71,12 @@ $remove-anim-duration: 150ms;
     transform: scale(var(--drag-scale));
   }
 
-  &.artwork--error,
-  &.artwork--disabled {
+  &.artwork--error {
     opacity: 0.75;
+  }
+
+  &.artwork--disabled {
+    opacity: 0.5;
   }
 
   &.artwork--error {

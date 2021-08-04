@@ -10,7 +10,7 @@ import Portal from '@src/components/Portal';
 import Close from '@src/svgs/Close';
 import { BaseProps } from '@src/types';
 
-type FeatureFormModalOutsideFormProps = { ''?: unknown };
+type FeatureFormModalOutsideFormProps = Record<never, string>;
 const FeatureFormModalOutsideForm = ({
   children,
 }: PropsWithChildren<FeatureFormModalOutsideFormProps>) => <div>{children}</div>;
