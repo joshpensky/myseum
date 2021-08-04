@@ -55,14 +55,16 @@ export const GalleryEditActions = ({
     <Fragment>
       <Popover.Root onOpenChange={open => setIsSettingsPopoverOpen(open)}>
         <Popover.Trigger as={Slot}>
-          <FloatingActionButton
-            className={styles.fab}
-            disabled={isSubmitting}
-            title="Open gallery settings">
-            <span className={styles.settingsIcon}>
-              <Cog />
-            </span>
-          </FloatingActionButton>
+          <div className={styles.fabWrapper}>
+            <FloatingActionButton
+              className={styles.fab}
+              disabled={isSubmitting}
+              title="Open gallery settings">
+              <span className={styles.settingsIcon}>
+                <Cog />
+              </span>
+            </FloatingActionButton>
+          </div>
         </Popover.Trigger>
 
         <Popover.Content side="top" align="end" aria-label="Gallery settings">
@@ -94,15 +96,17 @@ export const GalleryEditActions = ({
           }
         }}>
         <Popover.Trigger as={Slot}>
-          <FloatingActionButton
-            ref={addArtworkButtonRef}
-            className={styles.fab}
-            disabled={isSubmitting || isSettingsPopoverOpen}
-            title="Add new artwork">
-            <span className={cx(styles.closeIcon, !isArtworkPopoverOpen && styles.addIcon)}>
-              <Close />
-            </span>
-          </FloatingActionButton>
+          <div className={styles.fabWrapper}>
+            <FloatingActionButton
+              ref={addArtworkButtonRef}
+              className={styles.fab}
+              disabled={isSubmitting || isSettingsPopoverOpen}
+              title="Add new artwork">
+              <span className={cx(styles.closeIcon, !isArtworkPopoverOpen && styles.addIcon)}>
+                <Close />
+              </span>
+            </FloatingActionButton>
+          </div>
         </Popover.Trigger>
 
         <Popover.Content side="top" align="end" aria-label="Add artwork">

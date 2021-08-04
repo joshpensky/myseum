@@ -1,7 +1,9 @@
 import { forwardRef, MouseEvent, PropsWithChildren } from 'react';
 import cx from 'classnames';
-import { useTheme } from '@src/providers/ThemeProvider';
+import { Tooltip } from '@src/components/Tooltip';
 import styles from './floatingActionButton.module.scss';
+
+const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 
 export interface FloatingActionButtonProps {
   'aria-controls'?: string;
@@ -27,20 +29,19 @@ const FloatingActionButton = forwardRef<
   },
   ref,
 ) {
-  const theme = useTheme();
-
   return (
-    <button
-      ref={ref}
-      className={cx(`theme--${theme.color}`, styles.button, className)}
-      title={title}
-      onClick={onClick}
-      disabled={disabled}
-      aria-controls={ariaControls}
-      aria-expanded={ariaExpanded}>
-      <span className="sr-only">{title}</span>
-      <span className={styles.icon}>{children}</span>
-    </button>
+    <Tooltip value={title} side="left" align="center" sideOffset={SIDE_OFFSET} disabled={disabled}>
+      <button
+        ref={ref}
+        className={cx(styles.button, className)}
+        onClick={onClick}
+        disabled={disabled}
+        aria-controls={ariaControls}
+        aria-expanded={ariaExpanded}>
+        <span className="sr-only">{title}</span>
+        <span className={styles.icon}>{children}</span>
+      </button>
+    </Tooltip>
   );
 });
 

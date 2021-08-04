@@ -54,8 +54,11 @@ export const Tooltip = ({
   // Once the animation has completed and there's a stored focus event,
   // dispatch the event again so the focus event gets triggered and the tooltip opens
   useEffect(() => {
-    if (!isAnimating && triggerRef.current && focusEventRef.current) {
-      triggerRef.current.dispatchEvent(focusEventRef.current);
+    if (!isAnimating && focusEventRef.current) {
+      // Only re-trigger the focus event if the trigger is still focused!
+      if (triggerRef.current && triggerRef.current.contains(document.activeElement)) {
+        triggerRef.current.dispatchEvent(focusEventRef.current);
+      }
       focusEventRef.current = null;
     }
   }, [isAnimating]);
@@ -75,7 +78,7 @@ export const Tooltip = ({
         )}
         sideOffset={props?.sideOffset ?? SIDE_OFFSET}
         collisionTolerance={props?.collisionTolerance ?? COLLISION_TOLERANCE}>
-        {value}
+        <span className={styles.tooltipContent}>{value}</span>
       </Content>
     </Root>
   );

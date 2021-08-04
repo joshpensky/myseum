@@ -1,8 +1,10 @@
-.fab {
-  + .fab {
+.fab-wrapper {
+  + .fab-wrapper {
     margin-top: sz(3);
   }
+}
 
+.fab {
   &:disabled {
     opacity: 0.5;
     transition: opacity 150ms ease;

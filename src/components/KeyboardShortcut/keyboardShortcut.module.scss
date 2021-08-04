@@ -1,34 +1,31 @@
 .root {
+  @include padding(sz(0.75) x);
   display: flex;
 }
 
 .key {
-  @include size($fs-sm + sz(2));
-  position: relative;
-  display: inline-flex;
-  justify-content: center;
-  border-radius: sz(1);
+  @include padding(sz(0.5) sz(1.5) sz(1));
+  min-width: sz(5.25);
   background-color: c('bg-tint');
-  border: 1px solid c('border', 0.5);
-  line-height: $fs-sm;
+  border-radius: sz(1);
+  display: inline-flex;
   font-size: $fs-sm;
+  text-align: center;
+  justify-content: center;
+  line-height: 1;
+  position: relative;
 
   span {
     color: c('text', 0.8);
-    transform: translateY(3px);
   }
 
-  &.key--meta {
+  .root--mac &.key--meta {
     span {
-      transform: translateY(4px);
+      transform: translateY(1.5px);
     }
   }
-}
 
-.joiner {
-  @include margin(x sz(1));
-  color: c('text', 0.8);
-  line-height: $fs-sm;
-  font-size: $fs-sm;
-  transform: translateY(4px);
+  &:not(:last-child) {
+    margin-right: sz(1);
+  }
 }

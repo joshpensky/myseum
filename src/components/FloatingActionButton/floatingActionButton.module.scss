@@ -23,3 +23,7 @@
   @include size(sz(5));
   color: c('icon');
 }
+
+:export {
+  varSideOffset: sz(2, $convert: 'px');
+}
