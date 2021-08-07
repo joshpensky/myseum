@@ -1,9 +1,10 @@
 import { Fragment, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import cx from 'classnames';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { GalleryDto } from '@src/data/GallerySerializer';
-import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+// import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { useTheme } from '@src/providers/ThemeProvider';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import styles from './artwork.module.scss';
@@ -41,23 +42,6 @@ export const Artwork = ({
     }
   }, [isLoaded]);
 
-  // Loads the image and artwork on mount
-  useIsomorphicLayoutEffect(() => {
-    const artworkImg = new Image();
-    artworkImg.onload = () => {
-      setIsArtworkLoaded(true);
-    };
-    artworkImg.src = src;
-
-    if (frame) {
-      const frameImg = new Image();
-      frameImg.onload = () => {
-        setIsFrameLoaded(true);
-      };
-      frameImg.src = frame.src;
-    }
-  }, [src]);
-
   const { width: artworkWidth, height: artworkHeight } = data.size;
   const frameWidth = frame?.size.width ?? artworkWidth;
   const frameHeight = frame?.size.height ?? artworkHeight;
@@ -68,6 +52,27 @@ export const Artwork = ({
 
   return (
     <div className={styles.wrapper}>
+      {/* Load the images via next/image */}
+      {/* <div className="sr-only" aria-hidden="true"> */}
+      <Image
+        src={src}
+        width={artworkWidth}
+        height={artworkHeight}
+        layout="responsive"
+        onLoad={() => setIsArtworkLoaded(true)}
+      />
+      {frame && (
+        <Image
+          src={frame.src}
+          width={frameWidth}
+          height={frameHeight}
+          layout="responsive"
+          onLoad={() => setIsFrameLoaded(true)}
+        />
+      )}
+      {/* </div> */}
+
+      {/* Then render the artwork through SVG */}
       <svg
         id={`artwork-${id}`}
         className={cx(`theme--${theme.color}`, styles.root)}
@@ -110,15 +115,17 @@ export const Artwork = ({
             </defs>
 
             {/* Render frame */}
-            <image
-              className={cx(styles.frame, isLoaded && styles.frameLoaded)}
-              href={frame.src}
-              preserveAspectRatio="none"
-              x={0}
-              y={0}
-              width={frameWidth}
-              height={frameHeight}
-            />
+            {isFrameLoaded && (
+              <image
+                className={cx(styles.frame, isLoaded && styles.frameLoaded)}
+                href={frame.src}
+                preserveAspectRatio="none"
+                x={0}
+                y={0}
+                width={frameWidth}
+                height={frameHeight}
+              />
+            )}
 
             {/* Render frame window when loading, and frame mat when loaded */}
             <use
@@ -199,16 +206,18 @@ export const Artwork = ({
         )}
 
         {/* Render artwork image, centered in frame */}
-        <image
-          className={cx(styles.artwork, isLoaded && styles.artworkLoaded)}
-          href={src}
-          preserveAspectRatio="xMinYMin slice"
-          x={artworkX}
-          y={artworkY}
-          width={artworkWidth}
-          height={artworkHeight}
-          mask={frame ? `url(#artwork-${id}-window-mask)` : undefined}
-        />
+        {isArtworkLoaded && (
+          <image
+            className={cx(styles.artwork, isLoaded && styles.artworkLoaded)}
+            href={src}
+            preserveAspectRatio="xMinYMin slice"
+            x={artworkX}
+            y={artworkY}
+            width={artworkWidth}
+            height={artworkHeight}
+            mask={frame ? `url(#artwork-${id}-window-mask)` : undefined}
+          />
+        )}
 
         {/* Render frame inner shadow */}
         {isArtworkLoaded && frame && (

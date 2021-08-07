@@ -7,13 +7,13 @@ import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
 import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
-import { useLayout } from '@src/components/Layout';
 import { Tooltip } from '@src/components/Tooltip';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { UpdateGalleryDto } from '@src/data/GalleryRepository';
 import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
 import { MuseumDto } from '@src/data/MuseumSerializer';
 import { Grid } from '@src/features/grid';
+import { useGlobalLayout } from '@src/layouts/GlobalLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
@@ -29,7 +29,7 @@ export interface GalleryViewProps {
 
 export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const { museum } = useMuseum();
-  const layout = useLayout();
+  const layout = useGlobalLayout();
 
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);

@@ -1,16 +1,19 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
-import { MuseumAboutLayout } from '@src/layouts/museum';
+// import { MuseumAboutLayout } from '@src/layouts/museum';
+import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
+import { PageComponent } from '@src/types';
 
 export interface MuseumAboutProps {
   museum: MuseumDto;
 }
 
-const MuseumAbout = () => {
+const MuseumAbout: PageComponent<MuseumAboutProps, MuseumLayoutProps> = () => {
   const { museum } = useMuseum();
 
   return (
@@ -26,7 +29,19 @@ const MuseumAbout = () => {
   );
 };
 
-MuseumAbout.Layout = MuseumAboutLayout;
+MuseumAbout.layout = MuseumLayout;
+MuseumAbout.getPageLayoutProps = pageProps => ({
+  museum: pageProps.museum,
+});
+MuseumAbout.getGlobalLayoutProps = pageProps => ({
+  navOverrides: {
+    left: (
+      <Link passHref href={`/museum/${pageProps.museum.id}`}>
+        <a>Back</a>
+      </Link>
+    ),
+  },
+});
 
 export default MuseumAbout;
 

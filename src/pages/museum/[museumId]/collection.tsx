@@ -2,25 +2,28 @@ import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import Link from 'next/link';
 import tw from 'twin.macro';
-import { Museum } from '@prisma/client';
 import useSWR from 'swr';
 import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
+import ViewToggle from '@src/components/ViewToggle';
 import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumCollectionItemDto } from '@src/data/MuseumSerializer';
-import { MuseumHomeLayout } from '@src/layouts/museum';
+import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
+// import { MuseumHomeLayout } from '@src/layouts/museum';
+import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
+import { PageComponent } from '@src/types';
 
 const AddArtworkRoot = dynamic(() => import('@src/features/add-artwork/AddArtworkRoot'));
 
 export interface MuseumCollectionViewProps {
-  museum: Museum;
+  museum: MuseumDto;
 }
 
-const MuseumCollectionView = () => {
+const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayoutProps> = () => {
   const { museum } = useMuseum();
 
   const collection = useSWR<MuseumCollectionItemDto[]>(`/api/museum/${museum.id}/collection`);
@@ -81,7 +84,20 @@ const MuseumCollectionView = () => {
   );
 };
 
-MuseumCollectionView.Layout = MuseumHomeLayout;
+MuseumCollectionView.layout = MuseumLayout;
+MuseumCollectionView.getPageLayoutProps = pageProps => ({
+  museum: pageProps.museum,
+});
+MuseumCollectionView.getGlobalLayoutProps = pageProps => ({
+  navOverrides: {
+    left: (
+      <Link passHref href={`/museum/${pageProps.museum.id}/about`}>
+        <a>About</a>
+      </Link>
+    ),
+    right: <ViewToggle />,
+  },
+});
 
 export default MuseumCollectionView;
 
@@ -104,7 +120,7 @@ export const getServerSideProps: GetServerSideProps<
 
     return {
       props: {
-        museum,
+        museum: MuseumSerializer.serialize(museum),
       },
     };
   } catch (error) {

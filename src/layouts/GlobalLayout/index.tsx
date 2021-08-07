@@ -1,4 +1,4 @@
-import { createContext, Fragment, PropsWithChildren, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useState } from 'react';
 import cx from 'classnames';
 import Nav, { NavProps } from '@src/components/Layout/Nav';
 import { AnimationStatus } from '@src/providers/AnimationStatus';
@@ -8,54 +8,26 @@ import styles from './layout.module.scss';
 export interface LayoutContextValue {
   hideNav(hide: boolean): void;
   updateNavVisibility(visible: boolean): void;
-  navOverrides?: NavProps['overrides'];
 }
 export const LayoutContext = createContext<LayoutContextValue | null>(null);
-
-export function useLayout(): LayoutContextValue;
-export function useLayout(__dangerous_useOutsideContext: true): LayoutContextValue | null;
-export function useLayout(__dangerous_useOutsideContext?: true): LayoutContextValue | null {
+export function useGlobalLayout(): LayoutContextValue {
   const value = useContext(LayoutContext);
-  if (__dangerous_useOutsideContext) {
-    return value;
-  }
   if (!value) {
-    throw new Error('useLayout must be used within context of LayoutContext.Provider.');
+    throw new Error('useGlobalLayout must be used within context of LayoutContext.Provider.');
   }
   return value;
 }
 
-export interface LayoutProps {
+export interface GlobalLayoutProps {
   navOverrides?: NavProps['overrides'];
 }
-const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
-  const layoutCtx = useLayout(true);
+
+export const GlobalLayout = ({ children, navOverrides }: PropsWithChildren<GlobalLayoutProps>) => {
   const theme = useTheme();
 
   const [isNavVisible, setIsNavVisible] = useState<boolean | null>(null);
   const [hideNav, setHideNav] = useState(false);
   const [isNavAnimating, setIsNavAnimating] = useState(false);
-
-  const overrides = {
-    left: (
-      <Fragment>
-        {layoutCtx?.navOverrides?.left ?? null}
-        {navOverrides?.left ?? null}
-      </Fragment>
-    ),
-    center: (
-      <Fragment>
-        {layoutCtx?.navOverrides?.center ?? null}
-        {navOverrides?.center ?? null}
-      </Fragment>
-    ),
-    right: (
-      <Fragment>
-        {layoutCtx?.navOverrides?.right ?? null}
-        {navOverrides?.right ?? null}
-      </Fragment>
-    ),
-  };
 
   return (
     <AnimationStatus value={isNavAnimating}>
@@ -67,7 +39,7 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
         <div className={cx(styles.page, `theme--${theme.color}`)}>
           {!hideNav && (
             <Nav
-              overrides={overrides}
+              overrides={navOverrides}
               visible={isNavVisible}
               onAnimationChange={isAnimating => setIsNavAnimating(isAnimating)}
             />
@@ -78,7 +50,3 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
     </AnimationStatus>
   );
 };
-
-export default Layout;
-
-export type SubLayoutProps<T = any> = PropsWithChildren<{ pageProps: T }>;

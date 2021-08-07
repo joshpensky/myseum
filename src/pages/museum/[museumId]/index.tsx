@@ -1,28 +1,32 @@
 import { Fragment, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { GalleryColor } from '@prisma/client';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
+import { ClientOnly } from '@src/components/ClientOnly';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
 import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
-import { useLayout } from '@src/components/Layout';
 import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
 import { Tooltip } from '@src/components/Tooltip';
+import ViewToggle from '@src/components/ViewToggle';
 import { GalleryRepository } from '@src/data/GalleryRepository';
 import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
 import { MuseumRepository, UpdateMuseumDto } from '@src/data/MuseumRepository';
 import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
-import { MuseumHomeLayout } from '@src/layouts/museum';
+import { useGlobalLayout } from '@src/layouts/GlobalLayout';
+import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useAuth } from '@src/providers/AuthProvider';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
+import { PageComponent } from '@src/types';
 import styles from './index.module.scss';
 
 const updateMuseumSchema = z.object({
@@ -62,9 +66,11 @@ export interface MuseumMapViewProps {
   galleries: GalleryDto[];
 }
 
-const MuseumMapView = (props: MuseumMapViewProps) => {
+const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
+  props: MuseumMapViewProps,
+) => {
   const auth = useAuth();
-  const layout = useLayout();
+  const layout = useGlobalLayout();
 
   const { museum, setMuseum } = useMuseum();
 
@@ -204,48 +210,64 @@ const MuseumMapView = (props: MuseumMapViewProps) => {
         </ThemeProvider>
       )}
 
-      <MuseumMap
-        disabled={isFormSubmitting}
-        galleries={galleries}
-        isEditing={canEdit && isEditing}
-        onGalleryCreate={position => {
-          setGalleries([
-            ...galleries,
-            {
-              museumId: museum.id,
-              name: 'New Gallery',
-              color: 'paper',
-              height: 40,
-              position,
-              artworks: [],
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-          ]);
-        }}
-        onGalleryUpdate={(position, updatedGallery) => {
-          setGalleries(
-            galleries.map(gallery => {
-              if (gallery.position.x === position.x && gallery.position.y === position.y) {
-                return updatedGallery;
-              }
-              return gallery;
-            }),
-          );
-        }}
-        onGalleryDelete={position => {
-          setGalleries(
-            galleries.filter(
-              gallery => !(gallery.position.x === position.x && gallery.position.y === position.y),
-            ),
-          );
-        }}
-      />
+      <ClientOnly>
+        <MuseumMap
+          disabled={isFormSubmitting}
+          galleries={galleries}
+          isEditing={canEdit && isEditing}
+          onGalleryCreate={position => {
+            setGalleries([
+              ...galleries,
+              {
+                museumId: museum.id,
+                name: 'New Gallery',
+                color: 'paper',
+                height: 40,
+                position,
+                artworks: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            ]);
+          }}
+          onGalleryUpdate={(position, updatedGallery) => {
+            setGalleries(
+              galleries.map(gallery => {
+                if (gallery.position.x === position.x && gallery.position.y === position.y) {
+                  return updatedGallery;
+                }
+                return gallery;
+              }),
+            );
+          }}
+          onGalleryDelete={position => {
+            setGalleries(
+              galleries.filter(
+                gallery =>
+                  !(gallery.position.x === position.x && gallery.position.y === position.y),
+              ),
+            );
+          }}
+        />
+      </ClientOnly>
     </Fragment>
   );
 };
 
-MuseumMapView.Layout = MuseumHomeLayout;
+MuseumMapView.layout = MuseumLayout;
+MuseumMapView.getPageLayoutProps = pageProps => ({
+  museum: pageProps.museum,
+});
+MuseumMapView.getGlobalLayoutProps = pageProps => ({
+  navOverrides: {
+    left: (
+      <Link passHref href={`/museum/${pageProps.museum.id}/about`}>
+        <a>About</a>
+      </Link>
+    ),
+    right: <ViewToggle />,
+  },
+});
 
 export default MuseumMapView;
 

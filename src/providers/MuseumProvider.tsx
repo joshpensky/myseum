@@ -1,4 +1,12 @@
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  PropsWithChildren,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
+} from 'react';
 import { MuseumDto } from '@src/data/MuseumSerializer';
 
 export interface MuseumContextValue {
@@ -11,18 +19,17 @@ interface MuseumProviderProps {
   children: ReactNode | ((context: MuseumContextValue) => ReactNode);
   museum: MuseumContextValue['museum'];
 }
-export const MuseumProvider = ({ children, museum: initialMuseum }: MuseumProviderProps) => {
+export const MuseumProvider = ({
+  children,
+  museum: initialMuseum,
+}: PropsWithChildren<MuseumProviderProps>) => {
   const museumCtx = useContext(MuseumContext);
 
   const [museum, setMuseum] = useState(initialMuseum);
 
   const value = museumCtx ?? { museum, setMuseum };
 
-  return (
-    <MuseumContext.Provider value={value}>
-      {typeof children === 'function' ? children(value) : children}
-    </MuseumContext.Provider>
-  );
+  return <MuseumContext.Provider value={value}>{children}</MuseumContext.Provider>;
 };
 
 export const useMuseum = (): MuseumContextValue => {
