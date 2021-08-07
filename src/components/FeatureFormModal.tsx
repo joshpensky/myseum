@@ -1,12 +1,12 @@
 import { Children, FormEvent, PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
 import tw, { css, theme } from 'twin.macro';
+import * as Portal from '@radix-ui/react-portal';
 import anime from 'animejs';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
-import Portal from '@src/components/Portal';
 import Close from '@src/svgs/Close';
 import { BaseProps } from '@src/types';
 
@@ -15,7 +15,7 @@ const FeatureFormModalOutsideForm = ({
   children,
 }: PropsWithChildren<FeatureFormModalOutsideFormProps>) => <div>{children}</div>;
 
-export type FeatureFormModalProps = {
+export interface FeatureFormModalProps {
   'aria-label': string;
   disabledClose?: boolean;
   disabledSubmit?: boolean;
@@ -24,7 +24,7 @@ export type FeatureFormModalProps = {
   title: ReactNode;
   onClose(): void;
   onSubmit(evt: FormEvent<HTMLFormElement>): boolean | Promise<boolean>;
-};
+}
 
 const FeatureFormModal = ({
   'aria-label': ariaLabel,
@@ -162,7 +162,7 @@ const FeatureFormModal = ({
     child.type.name === FeatureFormModalOutsideForm.name;
 
   return (
-    <Portal to="modal-root">
+    <Portal.Root>
       <FocusLock returnFocus>
         <div
           ref={rootRef}
@@ -225,16 +225,16 @@ const FeatureFormModal = ({
           </div>
         </div>
       </FocusLock>
-    </Portal>
+    </Portal.Root>
   );
 };
 
-type FeatureFormModalMainProps = { ''?: unknown };
+type FeatureFormModalMainProps = Record<never, string>;
 const FeatureFormModalMain = ({ children }: PropsWithChildren<FeatureFormModalMainProps>) => (
   <div css={tw`flex flex-col flex-1`}>{children}</div>
 );
 
-type FeatureFormModalSidebarProps = { ''?: unknown };
+type FeatureFormModalSidebarProps = Record<never, string>;
 const FeatureFormModalSidebar = ({ children }: PropsWithChildren<FeatureFormModalSidebarProps>) => (
   <div css={tw`relative flex-shrink-0 max-w-lg w-full border-l border-white`}>
     <div
@@ -244,10 +244,10 @@ const FeatureFormModalSidebar = ({ children }: PropsWithChildren<FeatureFormModa
   </div>
 );
 
-type FeatureFormModalSidebarPanelProps = BaseProps & {
+interface FeatureFormModalSidebarPanelProps extends BaseProps {
   headerAction?: ReactNode;
   title: string;
-};
+}
 const FeatureFormModalSidebarPanel = ({
   children,
   className,

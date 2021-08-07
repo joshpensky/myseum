@@ -1,15 +1,18 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import tw from 'twin.macro';
 import { GalleryColor } from '@prisma/client';
+import cx from 'classnames';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
 import FloatingActionButton from '@src/components/FloatingActionButton';
+import IconButton from '@src/components/IconButton';
+import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
+import { useLayout } from '@src/components/Layout';
 import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
-import Portal from '@src/components/Portal';
+import { Tooltip } from '@src/components/Tooltip';
 import { GalleryRepository } from '@src/data/GalleryRepository';
 import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
 import { MuseumRepository, UpdateMuseumDto } from '@src/data/MuseumRepository';
@@ -17,7 +20,10 @@ import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
 import { MuseumHomeLayout } from '@src/layouts/museum';
 import { useAuth } from '@src/providers/AuthProvider';
 import { useMuseum } from '@src/providers/MuseumProvider';
+import { ThemeProvider } from '@src/providers/ThemeProvider';
+import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
+import styles from './index.module.scss';
 
 const updateMuseumSchema = z.object({
   name: z.string().refine(string => !!string.trim().length, {
@@ -58,6 +64,7 @@ export interface MuseumMapViewProps {
 
 const MuseumMapView = (props: MuseumMapViewProps) => {
   const auth = useAuth();
+  const layout = useLayout();
 
   const { museum, setMuseum } = useMuseum();
 
@@ -67,10 +74,33 @@ const MuseumMapView = (props: MuseumMapViewProps) => {
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+
   const onEdit = () => {
     setName(museum.name);
     setGalleries(props.galleries);
+    layout.hideNav(true);
     setIsEditing(true);
+    window.requestAnimationFrame(() => {
+      cancelButtonRef.current?.focus();
+    });
+  };
+
+  const exitEditMode = () => {
+    layout.hideNav(false);
+    setIsEditing(false);
+    window.requestAnimationFrame(() => {
+      editButtonRef.current?.focus();
+    });
+  };
+
+  const onCancel = () => {
+    // Reset state
+    setName(museum.name);
+    setGalleries(props.galleries);
+    // Exit editing mode
+    exitEditMode();
   };
 
   const onSave = async () => {
@@ -107,7 +137,7 @@ const MuseumMapView = (props: MuseumMapViewProps) => {
       const data = (await res.json()) as MuseumDto & { galleries: GalleryDto[] };
       setMuseum(data);
       setGalleries(data.galleries);
-      setIsEditing(false);
+      exitEditMode();
       // Send success toast
       toast.success('Museum updated!');
     } catch (error) {
@@ -119,55 +149,65 @@ const MuseumMapView = (props: MuseumMapViewProps) => {
     }
   };
 
+  const canEdit = !!auth.user && auth.user.id === museum.curator.id;
+
   return (
     <Fragment>
       <Head>
         <title>{museum.name} | Myseum</title>
       </Head>
 
-      {!isEditing && auth.user && auth.user.id === museum.curator.id && (
-        <div css={tw`fixed bottom-6 right-6 flex flex-col z-fab`}>
-          <FloatingActionButton title="Edit museum" onClick={() => onEdit()}>
+      {canEdit && !isEditing && (
+        <div className={styles.fab}>
+          <FloatingActionButton ref={editButtonRef} title="Edit museum" onClick={() => onEdit()}>
             <Edit />
           </FloatingActionButton>
         </div>
       )}
 
-      {isEditing && (
-        <Portal to="nav" prepend>
-          <div css={tw`bg-black py-2 px-4 text-white flex flex-col`}>
-            <p css={tw`uppercase text-xs tracking-widest font-bold text-center my-1`}>Editing</p>
-            <div css={tw`flex flex-1`}>
-              <div css={tw`flex flex-1 items-center justify-start`}>
-                <Button onClick={() => setIsEditing(false)} disabled={isFormSubmitting}>
-                  Cancel
-                </Button>
-              </div>
-              <div css={tw`flex flex-1 items-center justify-center`}>
-                <AutofitTextField
-                  id="museum-name"
-                  // css={[tw`pb-0.5`]}
-                  // inputCss={[tw`font-serif leading-none text-3xl`]}
-                  label="Museum name"
-                  disabled={isFormSubmitting}
-                  value={name}
-                  onChange={setName}
-                />
-              </div>
-              <div css={tw`flex flex-1 items-center justify-end`}>
-                <Button onClick={onSave} disabled={isFormSubmitting}>
+      {canEdit && isEditing && (
+        <ThemeProvider theme={{ color: 'ink' }}>
+          <header className={cx(styles.header, `theme--ink`)}>
+            <div className={styles.headerSection}>
+              <IconButton
+                ref={cancelButtonRef}
+                disabled={isFormSubmitting}
+                onClick={() => onCancel()}
+                title="Cancel">
+                <Close />
+              </IconButton>
+              <h1 className={styles.editTitle}>Editing museum</h1>
+            </div>
+
+            <div className={styles.headerSection}>
+              <AutofitTextField
+                id="gallery-name"
+                inputClassName={cx(styles.title)}
+                label="Gallery name"
+                placeholder="Name"
+                disabled={isFormSubmitting}
+                value={name}
+                onChange={name => setName(name)}
+              />
+            </div>
+
+            <div className={styles.headerSection}>
+              <Tooltip
+                value={<KeyboardShortcut keys={['meta', 's']} />}
+                disabled={isFormSubmitting}>
+                <Button disabled={isFormSubmitting} onClick={() => onSave()}>
                   Save
                 </Button>
-              </div>
+              </Tooltip>
             </div>
-          </div>
-        </Portal>
+          </header>
+        </ThemeProvider>
       )}
 
       <MuseumMap
         disabled={isFormSubmitting}
         galleries={galleries}
-        isEditing={isEditing}
+        isEditing={canEdit && isEditing}
         onGalleryCreate={position => {
           setGalleries([
             ...galleries,

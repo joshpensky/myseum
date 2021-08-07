@@ -6,6 +6,7 @@ import { useTheme } from '@src/providers/ThemeProvider';
 import styles from './layout.module.scss';
 
 export interface LayoutContextValue {
+  hideNav(hide: boolean): void;
   updateNavVisibility(visible: boolean): void;
   navOverrides?: NavProps['overrides'];
 }
@@ -32,6 +33,7 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
   const theme = useTheme();
 
   const [isNavVisible, setIsNavVisible] = useState<boolean | null>(null);
+  const [hideNav, setHideNav] = useState(false);
   const [isNavAnimating, setIsNavAnimating] = useState(false);
 
   const overrides = {
@@ -57,13 +59,19 @@ const Layout = ({ children, navOverrides }: PropsWithChildren<LayoutProps>) => {
 
   return (
     <AnimationStatus value={isNavAnimating}>
-      <LayoutContext.Provider value={{ updateNavVisibility: visible => setIsNavVisible(visible) }}>
+      <LayoutContext.Provider
+        value={{
+          hideNav: hide => setHideNav(hide),
+          updateNavVisibility: visible => setIsNavVisible(visible),
+        }}>
         <div className={cx(styles.page, `theme--${theme.color}`)}>
-          <Nav
-            overrides={overrides}
-            visible={isNavVisible}
-            onAnimationChange={isAnimating => setIsNavAnimating(isAnimating)}
-          />
+          {!hideNav && (
+            <Nav
+              overrides={overrides}
+              visible={isNavVisible}
+              onAnimationChange={isAnimating => setIsNavAnimating(isAnimating)}
+            />
+          )}
           <main className={styles.main}>{children}</main>
         </div>
       </LayoutContext.Provider>

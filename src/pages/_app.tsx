@@ -25,7 +25,7 @@ const App = ({ Component, pageProps }: AppProps) => {
             <AppLayout pageProps={pageProps}>
               <Component {...pageProps} />
             </AppLayout>
-            <div id="modal-root" />
+
             <Toaster />
           </StyleProvider>
         </AuthProvider>

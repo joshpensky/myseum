@@ -48,7 +48,7 @@ $anim-duration: 500ms;
 }
 
 .nav__sections {
-  @include padding(sz(2.5) sz(4));
+  @include padding(sz(4.5) sz(4));
   display: flex;
   flex: 1;
 }

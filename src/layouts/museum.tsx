@@ -13,11 +13,11 @@ export const MuseumLayout = ({ children, pageProps }: SubLayoutProps<{ museum: M
       <Layout
         navOverrides={{
           center: (
-            <Link passHref href={`/museum/${pageProps.museum.id}`}>
-              <a css={tw`flex mt-1.5 cursor-pointer`}>
-                <h1 css={tw`font-serif leading-none text-center text-3xl`}>{museum.name}</h1>
-              </a>
-            </Link>
+            <h1 css={tw`font-serif text-3xl leading-none text-center`}>
+              <Link passHref href={`/museum/${pageProps.museum.id}`}>
+                <a css={tw`transform[translateY(3px)]`}>{museum.name}</a>
+              </Link>
+            </h1>
           ),
         }}>
         {children}
@@ -32,6 +32,7 @@ export const MuseumHomeLayout = ({
 }: SubLayoutProps<{ museum: MuseumDto }>) => (
   <LayoutContext.Provider
     value={{
+      hideNav: () => {},
       updateNavVisibility: () => {},
       navOverrides: {
         left: (
@@ -52,6 +53,7 @@ export const MuseumAboutLayout = ({
 }: SubLayoutProps<{ museum: MuseumDto }>) => (
   <LayoutContext.Provider
     value={{
+      hideNav: () => {},
       updateNavVisibility: () => {},
       navOverrides: {
         left: (
@@ -70,6 +72,7 @@ export const MuseumGalleryLayout = ({ children, pageProps }: SubLayoutProps<Gall
     {({ museum }) => (
       <LayoutContext.Provider
         value={{
+          hideNav: () => {},
           updateNavVisibility: () => {},
           navOverrides: {
             left: (
@@ -79,13 +82,6 @@ export const MuseumGalleryLayout = ({ children, pageProps }: SubLayoutProps<Gall
                     <Arrow />
                   </span>
                   <span>Back to map</span>
-                </a>
-              </Link>
-            ),
-            center: (
-              <Link passHref href={`/museum/${pageProps.museum.id}`}>
-                <a css={tw`flex cursor-pointer -mb-1`}>
-                  <h1 css={tw`font-serif leading-none text-center text-xl`}>{museum.name}</h1>
                 </a>
               </Link>
             ),

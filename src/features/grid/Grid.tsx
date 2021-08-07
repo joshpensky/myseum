@@ -208,7 +208,7 @@ export function Grid<Item extends GridItemDto>({
             onPositionProjectionChange={action => onPositionProjectionChange(idx, action)}>
             {itemProps => {
               // Disabled if an item is moving and it's NOT this one
-              const disabled = preview || (!!gridMoveType && !itemProps.moveType);
+              const disabled = !!gridMoveType && !itemProps.moveType;
 
               return renderItem(item, { ...itemProps, disabled }, idx);
             }}
