@@ -1,6 +1,12 @@
+const path = require('path');
+
 module.exports = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   sassOptions: {
-    includePaths: ['./src/styles'],
+    includePaths: [path.resolve(__dirname, 'src/styles')],
   },
 
   webpack: config => {

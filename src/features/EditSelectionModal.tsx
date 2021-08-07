@@ -163,7 +163,7 @@ const EditSelectionModal = ({
               )}
 
               <div css={tw`flex items-center`}>
-                <Button css={tw`mr-3`} type="submit" filled>
+                <Button /*css={tw`mr-3`}*/ type="submit" filled>
                   Update
                 </Button>
                 <Button type="button" onClick={() => onClose()}>

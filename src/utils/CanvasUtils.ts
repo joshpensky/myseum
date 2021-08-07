@@ -184,6 +184,10 @@ export class CanvasUtils {
    * @param closePath whether to close the path, drawing a line back up to the first point
    */
   static getLineCommands(points: Position[], closePath = true): string {
+    if (!points.length) {
+      return '';
+    }
+
     const coordinates = points.map(point => [point.x, point.y].join(' '));
     const lineCommands = ['M', coordinates.join(' L ')];
     if (closePath) {

@@ -153,7 +153,7 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
             <FeatureFormModal.Sidebar>
               <FeatureFormModal.SidebarPanel title="Selection">
                 <Button
-                  css={tw`mt-2`}
+                  // css={tw`mt-2`}
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => setIsEditingSelection(true)}

@@ -1,46 +1,77 @@
 .wrapper {
-  display: flex;
-  height: 100%;
-  position: relative;
-}
-
-.root {
+  @include size(100%);
   background-color: c('bg-tint');
-  height: 100%;
-}
-
-.frame {
-  opacity: 0;
-
-  &.frame--loaded {
-    opacity: 1;
-  }
+  display: flex;
+  position: relative;
+  overflow: hidden;
 }
 
 .window {
-  fill: c('bg');
-
-  &.window--loaded {
-    fill: $c-paper-200;
-  }
-}
-
-.bezel-shadow {
-  fill: c('black', 0.2);
-}
-
-.mat {
-  fill: $c-paper-300;
+  @include absolute(0);
+  @include size(100%);
+  background-color: c('bg');
+  clip-path: path(var(--path));
 }
 
 .artwork {
-  opacity: 0;
+  @include absolute(0);
+  @include size(var(--width), var(--height));
+  transform: translate(var(--x), var(--y));
+}
 
-  &.artwork--loaded {
-    opacity: 1;
+.placeholder {
+  @include absolute(0);
+  @include size(100%);
+  background-color: c('bg-tint');
+
+  &.placeholder--loaded {
+    opacity: 0;
+    pointer-events: none;
+    touch-action: none;
+    transition: opacity 150ms ease-out;
+    user-select: none;
   }
 }
 
-.frame-inner-shadow {
-  fill: c('black');
+.placeholder__window {
+  @include absolute(0);
+  @include size(100%);
+  background-color: c('bg');
+  clip-path: path(var(--path));
 }
+
+// .frame {
+//   opacity: 0;
+
+//   &.frame--loaded {
+//     opacity: 1;
+//   }
+// }
+
+// .window {
+//   fill: c('bg');
+
+//   &.window--loaded {
+//     fill: $c-paper-200;
+//   }
+// }
+
+// .bezel-shadow {
+//   fill: c('black', 0.2);
+// }
+
+// .mat {
+//   fill: $c-paper-300;
+// }
+
+// .artwork {
+//   opacity: 0;
+
+//   &.artwork--loaded {
+//     opacity: 1;
+//   }
+// }
+
+// .frame-inner-shadow {
+//   fill: c('black');
+// }
