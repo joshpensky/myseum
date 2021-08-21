@@ -1,3 +1,74 @@
+export interface Pages {
+  (): {
+    grid(): {
+      pathname: '/grid';
+    };
+    index(): {
+      pathname: '/';
+    };
+    me(): {
+      pathname: '/me';
+    };
+    museum(): {
+      hey(): {
+        pathname: '/museum/hey';
+      };
+    };
+    api(): {
+      auth(): {
+        pathname: '/api/auth';
+      };
+      user(
+        userId: string,
+      ): {
+        index(): {
+          pathname: '/api/user/[userId]';
+          query: {
+            userId: string;
+          };
+        };
+      };
+      museum(
+        museumId: string,
+      ): {
+        collection(): {
+          pathname: '/api/museum/[museumId]/collection';
+          query: {
+            museumId: string;
+          };
+        };
+        index(): {
+          pathname: '/api/museum/[museumId]';
+          query: {
+            museumId: string;
+          };
+        };
+        gallery(
+          galleryId: string,
+        ): {
+          index(): {
+            pathname: '/api/museum/[museumId]/gallery/[galleryId]';
+            query: {
+              museumId: string;
+              galleryId: string;
+            };
+          };
+        };
+      };
+      frames(): {
+        index(): {
+          pathname: '/api/frames';
+        };
+      };
+      artworks(): {
+        index(): {
+          pathname: '/api/artworks';
+        };
+      };
+    };
+  };
+}
+
 function pages() {
   function pages_grid() {
     return {
@@ -134,5 +205,3 @@ function pages() {
     api: pages_api,
   };
 }
-
-export { pages };

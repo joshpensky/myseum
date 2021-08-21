@@ -2,23 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import chokidar from 'chokidar';
 import Handlebars from 'handlebars';
+import { renderPagesInterface } from './interface';
+import { Directory, Parameter } from './types';
 
 const rootDir = path.resolve(__dirname, '..');
 const pagesDir = path.resolve(rootDir, 'src/pages');
 
 const routesPath = path.resolve(__dirname, 'routes.ts');
-
-interface Parameter {
-  name: string;
-  type: string;
-  children: Record<string, Directory>;
-}
-
-interface Directory {
-  pathname: string | null;
-  parameter: Parameter | null;
-  children: Record<string, Directory>;
-}
 
 /**
  * Constructs the pathname given a set of nodes.
@@ -115,78 +105,6 @@ const buildDirectory = (pages: string[]) => {
   return directory;
 };
 
-/**
- * Renders the directory structure type for TypeScript.
- *
- * @param cwd the current working directory to render
- * @param query any query parameters to include in valid path responses
- * @param depth the minimum tab depth to render as a prefix for all lines
- * @returns the directory structure types
- */
-const renderDirectoryStructureType = (
-  cwd: Directory,
-  query: Record<string, string>,
-  depth: number,
-): string => {
-  const { children, parameter, pathname } = cwd;
-
-  const lines: string[] = [];
-
-  // If the directory has a parameter and child paths...
-  if (parameter && Object.keys(parameter.children).length) {
-    // Render the function definiton with the parameter argument
-    lines.push(`(${parameter.name}: ${parameter.type}): {`);
-
-    // Add the parameter to the child directory's query
-    const childQuery = {
-      ...query,
-      [parameter.name]: parameter.type,
-    };
-    // Then render all child paths under the parameter
-    Object.entries(parameter.children).forEach(([childPathNode, childPathDir]) => {
-      lines.push(`\t${childPathNode}: {`);
-      lines.push(...renderDirectoryStructureType(childPathDir, childQuery, 2).split('\n'));
-      lines.push(`\t};`);
-    });
-
-    // Then end the function definition
-    lines.push(`};`);
-  }
-
-  if (Object.keys(children).length) {
-    // If the directory has non-parametrized children...
-    // Render the empty function definition
-    lines.push(`(): {`);
-    // Then render all child paths
-    Object.entries(children).forEach(([childPathNode, childPathDir]) => {
-      lines.push(`\t${childPathNode}: {`);
-      lines.push(...renderDirectoryStructureType(childPathDir, query, 2).split('\n'));
-      lines.push(`\t};`);
-    });
-    // Then end the function definition
-    lines.push(`};`);
-  } else if (pathname) {
-    // If the directory has a valid pathname...
-    // Render the empty function definition
-    lines.push(`(): {`);
-    // Then render the pathname return
-    lines.push(`\tpathname: '${pathname}';`);
-    // If there are any query parameters, render those!
-    if (Object.keys(query).length) {
-      lines.push(`\tquery: {`);
-      Object.entries(query).forEach(([name, type]) => {
-        lines.push(`\t\t${name}: ${type};`);
-      });
-      lines.push('\t};');
-    }
-    // Then end the function definition
-    lines.push(`};`);
-  }
-
-  // Then add global depth tabs, join, and return the rendered type
-  return lines.map(line => `${'\t'.repeat(depth)}${line}`).join('\n');
-};
-
 const overloadedParameterFunctionTemplate = `
 {{#each children}}
 {{renderChild @key this null}}
@@ -260,8 +178,8 @@ function {{node}}() {
 
 const renderPagesFunction = (
   node: string,
-  cwd: Directory,
-  parameters: Parameter[],
+  cwd: Readonly<Directory>,
+  parameters: readonly Parameter[],
   depth = 0,
 ): string => {
   const { parameter, children, pathname } = cwd;
@@ -351,18 +269,12 @@ const renderPagesFunction = (
     .join('\n');
 };
 
-const renderPagesInterface = (directory: Directory) => {
-  const lines: string[] = [];
+const renderPagesContent = (directory: Directory) => {
+  const pagesInterface = renderPagesInterface(directory);
 
-  lines.push('export interface Pages {');
-  lines.push(renderDirectoryStructureType(directory, {}, 1));
-  lines.push('}');
+  const pagesFunction = renderPagesFunction('pages', directory, []);
 
-  return `
-${renderPagesFunction('pages', directory, [])}
-
-export { pages };
-  `;
+  return [pagesInterface, pagesFunction].join('\n');
 };
 
 async function main() {
@@ -383,8 +295,8 @@ async function main() {
 
     // console.dir(directory, { depth: 50 });
     // console.log('--------------------');
-    const pagesInterface = renderPagesInterface(directory);
-    await fs.writeFile(routesPath, pagesInterface);
+    const content = renderPagesContent(directory);
+    await fs.writeFile(routesPath, content);
 
     // console.dir(directory, { depth: 50 });
     // console.log(Array.from(pagesSet));
