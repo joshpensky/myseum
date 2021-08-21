@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import chokidar from 'chokidar';
+import Handlebars from 'handlebars';
 
 const rootDir = path.resolve(__dirname, '..');
 const pagesDir = path.resolve(rootDir, 'src/pages');
@@ -186,132 +187,168 @@ const renderDirectoryStructureType = (
   return lines.map(line => `${'\t'.repeat(depth)}${line}`).join('\n');
 };
 
-// const parameterFunction = `
-// {% for child in children %}
+const overloadedParameterFunctionTemplate = `
+{{#each children}}
+{{renderChild @key this null}}
+{{/each}}
 
-// {% endfor %}
+function {{node}}_{{parameter.name}}({{parameter.name}}: {{parameter.type}}) {
+  {{#each parameter.children}}
+  {{renderChild @key this @root.parameter}}
+  {{/each}}
 
-// function {{ node }}_{{ parameter.name }}({{ parameter.name }}: {{ parameter.type }}) {
-//   {% for }
-// }
-// `
+  return {
+    {{#each parameter.children}}
+    {{@key}}: {{@root.node}}_{{@root.parameter.name}}_{{@key}},
+    {{/each}}
+  };
+}
 
-const renderPagesFunction = (node: string, cwd: Directory, paramaters: Parameter[]): string => {
+function {{node}}(): { {{#each children}} {{@key}}: typeof {{@root.node}}_{{@key}}; {{/each}} };
+function {{node}}({{parameter.name}}: {{parameter.type}}): ReturnType<typeof {{node}}_{{parameter.name}}>;
+function {{node}}({{parameter.name}}?: {{parameter.type}}): { {{#each children}} {{@key}}: typeof {{@root.node}}_{{@key}}; {{/each}} } | ReturnType<typeof {{node}}_{{parameter.name}}> {
+  if (typeof {{parameter.name }} === 'undefined') {
+    return {
+      {{#each children}}
+      {{@key}}: {{@root.node}}_{{@key}},
+      {{/each}}
+    };
+  } else {
+    return {{node}}_{{parameter.name}}({{parameter.name}});
+  }
+}`;
+
+const parameterFunctionTemplate = `
+function {{node}}({{parameter.name}}: {{parameter.type}}) {
+  {{#each parameter.children}}
+  {{renderChild @key this @root.parameter}}
+  {{/each}}
+
+  return {
+    {{#each parameter.children}}
+    {{@key}}: {{@root.node}}_{{@root.parameter.name}}_{{@key}},
+    {{/each}}
+  };
+}`;
+
+const childrenFunctionTemplate = `
+function {{node}}() {
+  {{#each children}}
+  {{renderChild @key this null}}
+  {{/each}}
+
+  return {
+    {{#each children}}
+    {{@key}}: {{@root.node}}_{{@key}},
+    {{/each}}
+  };
+}`;
+
+const pathnameFunctionTemplate = `
+function {{node}}() {
+  return {
+    pathname: '{{pathname}}' as const,
+    {{#if parameters.length}}
+    query: {
+      {{#each parameters}}
+      {{this.name}},
+      {{/each}}
+    },
+    {{/if}}
+  };
+}`;
+
+const renderPagesFunction = (
+  node: string,
+  cwd: Directory,
+  parameters: Parameter[],
+  depth = 0,
+): string => {
   const { parameter, children, pathname } = cwd;
 
+  let template: string | undefined;
+
+  // If there is a parameter...
   if (parameter) {
     const hasUnparametrizedChildren = !!Object.keys(children).length;
     if (hasUnparametrizedChildren) {
-      return `
-${Object.entries(children)
-    .map(([childNode, childDir]) => renderPagesFunction(`${node}_${childNode}`, childDir, paramaters))
-    .join('\n')}
-
-function ${node}_${parameter.name}(${parameter.name}: ${parameter.type}) {
-  ${Object.entries(parameter.children)
-    .map(([childNode, childDir]) =>
-      renderPagesFunction(`${node}_${childNode}`, childDir, [...paramaters, parameter]),
-    )
-    .join('\n')}
-
-  return {
-    ${Object.entries(parameter.children)
-    .map(([childNode]) => `${childNode}: ${node}_${childNode},`)
-    .join('\n\t\t')}
-  };
-}
-
-function ${node}(): { ${Object.entries(children).map(
-  ([childNode]) => `${childNode}: typeof ${node}_${childNode}; `,
-)}};
-function ${node}(${parameter.name}: ${parameter.type}): ReturnType<typeof ${node}_${
-  parameter.name
-}>;
-function ${node}(${parameter.name}?: ${parameter.type}): { ${Object.entries(children).map(
-  ([childNode]) => `${childNode}: typeof ${node}_${childNode}; `,
-)}} | ReturnType<typeof ${node}_${parameter.name}> {
-  if (typeof ${parameter.name} === 'undefined') {
-    return {
-      ${Object.entries(children)
-    .map(([childNode]) => `${childNode}: ${node}_${childNode},`)
-    .join('\n\t\t')}
-    };
-  } else {
-    return ${node}_${parameter.name}(${parameter.name});
-  }
-}
-      `;
+      // If there are children that don't rely on the parameter,
+      // create an overloaded function that could handle both sets of child paths
+      template = overloadedParameterFunctionTemplate;
+    } else {
+      // Otherwise, just create a parametrized function
+      template = parameterFunctionTemplate;
     }
-
-    return `
-function ${node}(${parameter.name}: ${parameter.type}) {
-    ${Object.entries(parameter.children)
-    .map(([childNode, childDir]) =>
-      renderPagesFunction(`${node}_${childNode}`, childDir, [...paramaters, parameter]),
-    )
-    .join('\n')}
-
-  return {
-    ${Object.entries(parameter.children)
-    .map(([childNode]) => `${childNode}: ${node}_${childNode},`)
-    .join('\n\t\t')}
-  };
-}
-    `;
   }
 
   if (Object.keys(children).length) {
-    return `
-function ${node}() {
-  ${Object.entries(children)
-    .map(([childNode, childDir]) =>
-      renderPagesFunction(`${node}_${childNode}`, childDir, paramaters),
-    )
-    .join('\n\t')}
-
-  return {
-    ${Object.entries(children)
-    .map(([childNode]) => `${childNode}: ${node}_${childNode},`)
-    .join('\n\t\t')}
-  };
-}
-    `;
+    // If there are children, create the function for children
+    template = childrenFunctionTemplate;
+  } else if (pathname) {
+    // Otherwise, just create the function to return the path
+    template = pathnameFunctionTemplate;
+    // TODO: hoist these interfaces to the top
+    //     const interfaceName = node
+    //       .split('_')
+    //       .map(p => p.slice(0, 1).toUpperCase() + p.slice(1))
+    //       .join('');
+    //     return `
+    // interface ${interfaceName} {
+    //   pathname: '${pathname}';
+    //   ${
+    //     paramaters.length
+    //       ? `query: {
+    //     ${paramaters.map(parameter => `${parameter.name}: ${parameter.type};`).join('\n')}
+    //   }`
+    //       : ''
+    //   }
+    // }
+    //     `;
   }
 
-  if (pathname) {
-    const interfaceName = node
-      .split('_')
-      .map(p => p.slice(0, 1).toUpperCase() + p.slice(1))
-      .join('');
-    return `
-interface ${interfaceName} {
-  pathname: '${pathname}';
-  ${
-  paramaters.length
-    ? `query: {
-    ${paramaters.map(parameter => `${parameter.name}: ${parameter.type};`).join('\n')}
-  }`
-    : ''
-}
-}
-
-function ${node}() {
-  return {
-    pathname: '${pathname}' as const,
-    ${
-  paramaters.length
-    ? `query: {
-      ${paramaters.map(parameter => `${parameter.name},`).join('\n')}
-    }
-    `
-    : ''
-}
-  }
-}
-    `;
+  // If no template was found, throw an error – something went wrong when building the directory
+  if (!template) {
+    throw new Error('A directory must have at least a parameter, children, or pathname.');
   }
 
-  throw new Error('A directory must have at least a parameter, children, or pathname.');
+  // Otherwise, render the template!
+  const render = Handlebars.compile(template);
+  const renderedString = render(
+    { node, pathname, children, parameter, parameters },
+    {
+      helpers: {
+        /**
+         * Renders the function template for the child.
+         *
+         * @param childNode the child node name
+         * @param childDir the child directory
+         * @param parameter the parent parameter, if there is one
+         * @returns the child's rendered template
+         */
+        renderChild(childNode: string, childDir: Directory, parameter: Parameter | null) {
+          if (parameter) {
+            return new Handlebars.SafeString(
+              renderPagesFunction(
+                `${node}_${parameter.name}_${childNode}`,
+                childDir,
+                [...parameters, parameter],
+                1,
+              ),
+            );
+          } else {
+            return new Handlebars.SafeString(
+              renderPagesFunction(`${node}_${childNode}`, childDir, parameters, 1),
+            );
+          }
+        },
+      },
+    },
+  );
+  // Then adjust tabbing
+  return renderedString
+    .split('\n')
+    .map(str => `${'  '.repeat(depth)}${str}`)
+    .join('\n');
 };
 
 const renderPagesInterface = (directory: Directory) => {
