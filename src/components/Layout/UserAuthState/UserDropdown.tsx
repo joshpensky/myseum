@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { pages } from '@next/pages';
 import { Slot } from '@radix-ui/react-slot';
 import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
@@ -52,14 +53,14 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
         <Popover.Body className={styles.userPopoverLinks}>
           <ul>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href={`/museum/${user.museumId}`}>
+              <Link passHref href={pages.museum(user.museumId).index}>
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Myseum
                 </a>
               </Link>
             </li>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href="/me">
+              <Link passHref href={pages.me}>
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Profile
                 </a>

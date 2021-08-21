@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import tw from 'twin.macro';
+import { pages } from '@next/pages';
 import useSWR from 'swr';
 import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
@@ -11,7 +12,6 @@ import Button from '@src/components/Button';
 import ViewToggle from '@src/components/ViewToggle';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
-// import { MuseumHomeLayout } from '@src/layouts/museum';
 import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
@@ -91,7 +91,7 @@ MuseumCollectionView.getPageLayoutProps = pageProps => ({
 MuseumCollectionView.getGlobalLayoutProps = pageProps => ({
   navOverrides: {
     left: (
-      <Link passHref href={`/museum/${pageProps.museum.id}/about`}>
+      <Link passHref href={pages.museum(pageProps.museum.id).about}>
         <a>About</a>
       </Link>
     ),

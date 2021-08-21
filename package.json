@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "develop": "yarn prisma:watch & next dev",
+    "develop": "yarn watch:prisma & yarn watch:pages & next dev",
     "build": "next build",
     "pre-commit": "pretty-quick --staged && lint-staged",
     "prepare": "husky install",
-    "prisma:watch": "prisma generate --watch",
     "start": "next start",
-    "watch:pages": "ts-node -O '{\"module\":\"commonjs\"}' ./scripts/watch-pages"
+    "watch:pages": "ts-node -O '{\"module\":\"commonjs\"}' ./scripts/watch-pages",
+    "watch:prisma": "prisma generate --watch"
   },
   "dependencies": {
     "@prisma/client": "^2.21.2",

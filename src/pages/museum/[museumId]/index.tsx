@@ -2,6 +2,7 @@ import { Fragment, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { pages } from '@next/pages';
 import { GalleryColor } from '@prisma/client';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
@@ -261,7 +262,7 @@ MuseumMapView.getPageLayoutProps = pageProps => ({
 MuseumMapView.getGlobalLayoutProps = pageProps => ({
   navOverrides: {
     left: (
-      <Link passHref href={`/museum/${pageProps.museum.id}/about`}>
+      <Link passHref href={pages.museum(pageProps.museum.id).about}>
         <a>About</a>
       </Link>
     ),

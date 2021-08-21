@@ -3,6 +3,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
+import { pages } from '@next/pages';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
@@ -53,7 +54,7 @@ const Profile = ({ user }: ProfileProps) => {
   // Client-side redirect if user logs out
   useEffect(() => {
     if (auth.didLogOut) {
-      router.replace('/');
+      router.replace(pages.index);
     }
   }, [auth.didLogOut]);
 

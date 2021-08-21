@@ -3,17 +3,15 @@ import { Directory, Parameter } from './types';
 
 const overloadedParameterFunctionTemplate = `
 {{node}}: {
-  (): {
-    {{#each children}}
-    {{renderChild @key this null}}
-    {{/each}}
-  };
-
   ({{parameter.name}}: {{parameter.type}}): {
     {{#each parameter.children}}
     {{renderChild @key this @root.parameter}}
     {{/each}}
   };
+
+  {{#each children}}
+  {{renderChild @key this null}}
+  {{/each}}
 };
 `.trim();
 
@@ -26,7 +24,7 @@ const parametrizedFunctionTemplate = `
 `.trim();
 
 const childrenFunctionTemplate = `
-{{node}}(): {
+{{node}}: {
   {{#each children}}
   {{renderChild @key this null}}
   {{/each}}
@@ -34,7 +32,7 @@ const childrenFunctionTemplate = `
 `.trim();
 
 const pathnameFunctionTemplate = `
-{{node}}(): {
+{{node}}: {
   pathname: '{{ pathname }}';
   {{#if parameters.length}}
   query: {
@@ -58,6 +56,7 @@ const renderDirectoryFunctionType = (
   node: string,
   cwd: Readonly<Directory>,
   parameters: readonly Parameter[],
+  pre = '',
 ): string => {
   const { children, parameter, pathname } = cwd;
 
@@ -72,9 +71,7 @@ const renderDirectoryFunctionType = (
     } else {
       template = parametrizedFunctionTemplate;
     }
-  }
-
-  if (Object.keys(children).length) {
+  } else if (Object.keys(children).length) {
     // If there are child paths, render those under a function with no parameters
     template = childrenFunctionTemplate;
   } else if (pathname) {
@@ -88,7 +85,7 @@ const renderDirectoryFunctionType = (
   }
 
   // Otherwise, render the template!
-  const render = Handlebars.compile(template, { preventIndent: true });
+  const render = Handlebars.compile(template);
   const renderedString = render(
     { node, pathname, parameter, children, parameters },
     {
@@ -96,11 +93,11 @@ const renderDirectoryFunctionType = (
         renderChild(childNode: string, childDir: Directory, parameter: Parameter | null) {
           if (parameter) {
             return new Handlebars.SafeString(
-              renderDirectoryFunctionType(childNode, childDir, [...parameters, parameter]),
+              renderDirectoryFunctionType(childNode, childDir, [...parameters, parameter], '  '),
             );
           } else {
             return new Handlebars.SafeString(
-              renderDirectoryFunctionType(childNode, childDir, parameters),
+              renderDirectoryFunctionType(childNode, childDir, parameters, '  '),
             );
           }
         },
@@ -108,18 +105,18 @@ const renderDirectoryFunctionType = (
     },
   );
   // Then adjust tabbing
-  return renderedString.replace(/\n/g, `\n  `);
+  return renderedString.replace(/\n/g, `\n${pre}`);
 };
 
-const interfaceTemplate = `
-export interface Pages {
-  {{children}}
+const dtsTemplate = `
+declare module '@next/pages' {
+  const {{children}}
 }
 `.trim();
 
-export const renderPagesInterface = (directory: Readonly<Directory>) => {
-  const children = new Handlebars.SafeString(renderDirectoryFunctionType('', directory, []));
+export const renderPagesDTS = (directory: Readonly<Directory>) => {
+  const children = new Handlebars.SafeString(renderDirectoryFunctionType('pages', directory, []));
 
-  const render = Handlebars.compile(interfaceTemplate);
+  const render = Handlebars.compile(dtsTemplate);
   return render({ children });
 };
