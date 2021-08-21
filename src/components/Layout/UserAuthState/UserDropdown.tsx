@@ -60,7 +60,7 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
               </Link>
             </li>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href={pages.me}>
+              <Link passHref href={pages.museum('hey').index}>
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Profile
                 </a>

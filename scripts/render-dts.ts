@@ -1,9 +1,17 @@
 import Handlebars from 'handlebars';
 import { Directory, Parameter } from './types';
 
+/**
+ * Formats the value into a single TitleCased string.
+ *
+ * @param value the value to format
+ * @returns the formatted string
+ */
+const titleCase = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
 const overloadedParameterFunctionTemplate = `
 {{node}}: {
-  ({{parameter.name}}: {{parameter.type}}): {
+  <{{title parameter.name}} extends {{parameter.type}}>({{parameter.name}}: {{title parameter.name}}): {
     {{#each parameter.children}}
     {{renderChild @key this @root.parameter}}
     {{/each}}
@@ -16,7 +24,7 @@ const overloadedParameterFunctionTemplate = `
 `.trim();
 
 const parametrizedFunctionTemplate = `
-{{node}}({{parameter.name}}: {{parameter.type}}): {
+{{node}}<{{title parameter.name}} extends {{parameter.type}}>({{parameter.name}}: {{title parameter.name}}): {
   {{#each parameter.children}}
   {{renderChild @key this @root.parameter}}
   {{/each}}
@@ -32,17 +40,12 @@ const childrenFunctionTemplate = `
 `.trim();
 
 const pathnameFunctionTemplate = `
-{{node}}: {
-  pathname: '{{ pathname }}';
-  {{#if parameters.length}}
-  query: {
-    {{#each parameters}}
-    {{this.name}}: {{this.type}};
-    {{/each}}
-  }
-  {{/if}}
-};
+{{node}}: \`{{pathnameTemplate}}\`;
 `.trim();
+// {{#hoist}}
+// type {{title pathname "page"}}{{#if parameters.length}}<{{#each parameters}}{{title this.name}}{{#if @last}}{{else}},{{/if}}{{/each}}>{{/if}} = \`{{pathnameTemplate}}\`;
+// {{/hoist}}
+// {{node}}: {{title pathname "page"}}{{#if parameters.length}}<{{#each parameters}}{{title this.name}}{{#if @last}}{{else}},{{/if}}{{/each}}>{{/if}};
 
 /**
  * Renders the directory structure type for TypeScript.
@@ -57,7 +60,7 @@ const renderDirectoryFunctionType = (
   cwd: Readonly<Directory>,
   parameters: readonly Parameter[],
   pre = '',
-): string => {
+): [string, string] => {
   const { children, parameter, pathname } = cwd;
 
   let template = '';
@@ -86,37 +89,77 @@ const renderDirectoryFunctionType = (
 
   // Otherwise, render the template!
   const render = Handlebars.compile(template);
-  const renderedString = render(
-    { node, pathname, parameter, children, parameters },
+
+  let templateLiteral: string | null = null;
+  if (pathname) {
+    let pathnameTemplateLiteral = pathname;
+    parameters.map(({ name }) => {
+      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(
+        `[${name}]`,
+        `$\{${titleCase(name)}}`,
+      );
+    });
+    templateLiteral = pathnameTemplateLiteral;
+  }
+
+  let hoistedRender = '';
+  const mainRender = render(
+    {
+      node,
+      pathname,
+      pathnameTemplate: templateLiteral,
+      parameter,
+      children,
+      parameters,
+    },
     {
       helpers: {
+        title: titleCase,
+        hoist(options: Handlebars.HelperOptions) {
+          hoistedRender += options.fn(this);
+        },
         renderChild(childNode: string, childDir: Directory, parameter: Parameter | null) {
+          const childParameters = [...parameters];
           if (parameter) {
-            return new Handlebars.SafeString(
-              renderDirectoryFunctionType(childNode, childDir, [...parameters, parameter], '  '),
-            );
-          } else {
-            return new Handlebars.SafeString(
-              renderDirectoryFunctionType(childNode, childDir, parameters, '  '),
-            );
+            childParameters.push(parameter);
           }
+
+          const [mainChildRender, hoistedChildRender] = renderDirectoryFunctionType(
+            childNode,
+            childDir,
+            childParameters,
+            '  ',
+          );
+
+          hoistedRender += hoistedChildRender;
+          return new Handlebars.SafeString(mainChildRender);
         },
       },
     },
   );
+
   // Then adjust tabbing
-  return renderedString.replace(/\n/g, `\n${pre}`);
+  return [mainRender.replace(/\n/g, `\n${pre}`), hoistedRender];
 };
 
 const dtsTemplate = `
 declare module '@next/pages' {
+  {{#if hoistedChildren}}
+  {{hoistedChildren}}
+
+  {{/if}}
   const {{children}}
 }
 `.trim();
 
 export const renderPagesDTS = (directory: Readonly<Directory>) => {
-  const children = new Handlebars.SafeString(renderDirectoryFunctionType('pages', directory, []));
+  const [mainRender, hoistedRender] = renderDirectoryFunctionType('pages', directory, []);
+  const children = new Handlebars.SafeString(mainRender);
+  const hoistedChildren = new Handlebars.SafeString(hoistedRender.replace(/\n/g, `\n  `));
 
   const render = Handlebars.compile(dtsTemplate);
-  return render({ children });
+  return render({
+    children,
+    hoistedChildren,
+  });
 };

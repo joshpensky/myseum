@@ -58,16 +58,7 @@ var {{node}} = {
 `.trim();
 
 const pathnameFunctionTemplate = `
-var {{node}} = {
-  pathname: '{{pathname}}',
-  {{#if parameters.length}}
-  query: {
-    {{#each parameters}}
-    {{this.name}},
-    {{/each}}
-  },
-  {{/if}}
-};
+var {{node}} = \`{{pathnameTemplate}}\`;
 `.trim();
 
 const renderPagesFunction = (
@@ -104,10 +95,26 @@ const renderPagesFunction = (
     throw new Error('A directory must have at least a parameter, children, or pathname.');
   }
 
+  let templateLiteral: string | null = null;
+  if (pathname) {
+    let pathnameTemplateLiteral = pathname;
+    parameters.map(({ name }) => {
+      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(`[${name}]`, `$\{${name}}`);
+    });
+    templateLiteral = pathnameTemplateLiteral;
+  }
+
   // Otherwise, render the template!
   const render = Handlebars.compile(template);
   const renderedString = render(
-    { node, pathname, children, parameter, parameters },
+    {
+      node,
+      pathname,
+      pathnameTemplate: templateLiteral,
+      children,
+      parameter,
+      parameters,
+    },
     {
       helpers: {
         /**
