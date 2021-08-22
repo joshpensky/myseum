@@ -2,7 +2,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import tw from 'twin.macro';
-import { pages } from '@next/pages';
+import { pages } from 'next-pages-gen';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/GalleryRepository';
 import { GallerySerializer } from '@src/data/GallerySerializer';

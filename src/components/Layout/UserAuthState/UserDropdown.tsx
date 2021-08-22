@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { pages } from '@next/pages';
 import { Slot } from '@radix-ui/react-slot';
+import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
 import { supabase } from '@src/data/supabase';
@@ -60,7 +60,7 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
               </Link>
             </li>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href={pages.museum('hey').index}>
+              <Link passHref href={pages.me}>
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Profile
                 </a>

@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "develop": "yarn watch:prisma & yarn watch:pages & next dev",
+    "develop": "yarn watch:prisma & yarn generate:pages --watch & next dev",
     "build": "next build",
     "pre-commit": "pretty-quick --staged && lint-staged",
-    "prepare": "husky install",
+    "prepare": "husky install && yarn generate:pages",
     "start": "next start",
-    "watch:pages": "ts-node -O '{\"module\":\"commonjs\"}' ./scripts/watch-pages",
-    "watch:prisma": "prisma generate --watch"
+    "watch:prisma": "prisma generate --watch",
+    "generate:pages": "ts-node -O '{\"module\":\"commonjs\"}' ./scripts/generate-pages"
   },
   "dependencies": {
     "@prisma/client": "^2.21.2",
@@ -46,6 +46,7 @@
     "@types/animejs": "^3.1.3",
     "@types/body-scroll-lock": "^2.6.1",
     "@types/classnames": "^2.3.1",
+    "@types/glob": "^7.1.4",
     "@types/node": "^16.4.4",
     "@types/react": "^17.0.4",
     "@types/react-beautiful-dnd": "^13.0.0",
@@ -67,6 +68,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.23.2",
+    "glob": "^7.1.7",
     "handlebars": "^4.7.7",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",

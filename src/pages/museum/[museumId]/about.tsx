@@ -1,11 +1,10 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { pages } from '@next/pages';
+import { pages } from 'next-pages-gen';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
-// import { MuseumAboutLayout } from '@src/layouts/museum';
 import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import { PageComponent } from '@src/types';

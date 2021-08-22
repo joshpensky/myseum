@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import tw from 'twin.macro';
-import { pages } from '@next/pages';
+import { pages } from 'next-pages-gen';
 import useSWR from 'swr';
 import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
@@ -26,7 +26,7 @@ export interface MuseumCollectionViewProps {
 const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayoutProps> = () => {
   const { museum } = useMuseum();
 
-  const collection = useSWR<MuseumCollectionItemDto[]>(`/api/museum/${museum.id}/collection`);
+  const collection = useSWR<MuseumCollectionItemDto[]>(pages.api.museum(museum.id).collection);
 
   const [isAddingItem, setIsAddingItem] = useState(false);
 

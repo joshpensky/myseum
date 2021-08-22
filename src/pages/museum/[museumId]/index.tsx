@@ -2,9 +2,9 @@ import { Fragment, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { pages } from '@next/pages';
 import { GalleryColor } from '@prisma/client';
 import cx from 'classnames';
+import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
@@ -126,7 +126,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
       });
 
       // If no errors, updates the gallery
-      const res = await fetch(`/api/museum/${museum.id}`, {
+      const res = await fetch(pages.api.museum(museum.id).index, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',

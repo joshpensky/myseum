@@ -2,6 +2,7 @@ import { Fragment, useRef, useState } from 'react';
 import { GalleryColor } from '@prisma/client';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
+import { pages } from 'next-pages-gen';
 import useSWR from 'swr';
 import { Artwork } from '@src/components/Artwork';
 import FloatingActionButton from '@src/components/FloatingActionButton';
@@ -42,7 +43,7 @@ export const GalleryEditActions = ({
   const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
 
   const [shouldLoadArtworks, setShouldLoadArtworks] = useState(false);
-  const artworksSwr = useSWR<ArtworkDto[]>(shouldLoadArtworks ? `/api/artworks` : null);
+  const artworksSwr = useSWR<ArtworkDto[]>(shouldLoadArtworks ? pages.api.artworks.index : null);
   const areArtworksLoading = !artworksSwr.error && !artworksSwr.data;
 
   // Filter the artworks data to exclude any artworks currently on the gallery wall

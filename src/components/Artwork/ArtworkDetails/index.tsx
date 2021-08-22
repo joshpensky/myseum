@@ -1,7 +1,7 @@
 import { Fragment, PropsWithChildren } from 'react';
 import Link from 'next/link';
-import { pages } from '@next/pages';
 import dayjs from 'dayjs';
+import { pages } from 'next-pages-gen';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';

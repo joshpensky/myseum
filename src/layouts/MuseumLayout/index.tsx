@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import tw from 'twin.macro';
-import { pages } from '@next/pages';
+import { pages } from 'next-pages-gen';
 import { MuseumDto } from '@src/data/MuseumSerializer';
 import { MuseumProvider } from '@src/providers/MuseumProvider';
 import { LayoutComponent } from '@src/types';

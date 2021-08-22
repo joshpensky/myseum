@@ -13,20 +13,20 @@ const overloadedParameterFunctionTemplate = `
 {{node}}: {
   <{{title parameter.name}} extends {{parameter.type}}>({{parameter.name}}: {{title parameter.name}}): {
     {{#each parameter.children}}
-    {{renderChild @key this @root.parameter}}
+    {{renderChild @key this @root.parameter "    "}}
     {{/each}}
   };
 
   {{#each children}}
-  {{renderChild @key this null}}
+  {{renderChild @key this null "  "}}
   {{/each}}
 };
 `.trim();
 
-const parametrizedFunctionTemplate = `
+const parameterFunctionTemplate = `
 {{node}}<{{title parameter.name}} extends {{parameter.type}}>({{parameter.name}}: {{title parameter.name}}): {
   {{#each parameter.children}}
-  {{renderChild @key this @root.parameter}}
+  {{renderChild @key this @root.parameter "  "}}
   {{/each}}
 };
 `.trim();
@@ -34,18 +34,14 @@ const parametrizedFunctionTemplate = `
 const childrenFunctionTemplate = `
 {{node}}: {
   {{#each children}}
-  {{renderChild @key this null}}
+  {{renderChild @key this null "  "}}
   {{/each}}
 };
 `.trim();
 
 const pathnameFunctionTemplate = `
-{{node}}: \`{{pathnameTemplate}}\`;
+{{node}}: \`{{pathnameTemplateLiteral}}\`;
 `.trim();
-// {{#hoist}}
-// type {{title pathname "page"}}{{#if parameters.length}}<{{#each parameters}}{{title this.name}}{{#if @last}}{{else}},{{/if}}{{/each}}>{{/if}} = \`{{pathnameTemplate}}\`;
-// {{/hoist}}
-// {{node}}: {{title pathname "page"}}{{#if parameters.length}}<{{#each parameters}}{{title this.name}}{{#if @last}}{{else}},{{/if}}{{/each}}>{{/if}};
 
 /**
  * Renders the directory structure type for TypeScript.
@@ -60,10 +56,11 @@ const renderDirectoryFunctionType = (
   cwd: Readonly<Directory>,
   parameters: readonly Parameter[],
   pre = '',
-): [string, string] => {
+): string => {
   const { children, parameter, pathname } = cwd;
 
   let template = '';
+  let pathnameTemplateLiteral = '';
 
   // If the directory has a parameter...
   if (parameter) {
@@ -72,7 +69,7 @@ const renderDirectoryFunctionType = (
     if (hasUnparametrizedChildren) {
       template = overloadedParameterFunctionTemplate;
     } else {
-      template = parametrizedFunctionTemplate;
+      template = parameterFunctionTemplate;
     }
   } else if (Object.keys(children).length) {
     // If there are child paths, render those under a function with no parameters
@@ -80,6 +77,14 @@ const renderDirectoryFunctionType = (
   } else if (pathname) {
     // If the directory has a valid pathname, return the function that renders that
     template = pathnameFunctionTemplate;
+    // Then update pathname to replace [parameters] with template literal `${GenericType}` names
+    pathnameTemplateLiteral = pathname;
+    parameters.map(({ name }) => {
+      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(
+        `[${name}]`,
+        `$\{${titleCase(name)}}`,
+      );
+    });
   }
 
   // If no template was found, throw an error – something went wrong when building the directory
@@ -89,25 +94,11 @@ const renderDirectoryFunctionType = (
 
   // Otherwise, render the template!
   const render = Handlebars.compile(template);
-
-  let templateLiteral: string | null = null;
-  if (pathname) {
-    let pathnameTemplateLiteral = pathname;
-    parameters.map(({ name }) => {
-      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(
-        `[${name}]`,
-        `$\{${titleCase(name)}}`,
-      );
-    });
-    templateLiteral = pathnameTemplateLiteral;
-  }
-
-  let hoistedRender = '';
-  const mainRender = render(
+  const renderedString = render(
     {
       node,
       pathname,
-      pathnameTemplate: templateLiteral,
+      pathnameTemplateLiteral,
       parameter,
       children,
       parameters,
@@ -115,51 +106,47 @@ const renderDirectoryFunctionType = (
     {
       helpers: {
         title: titleCase,
-        hoist(options: Handlebars.HelperOptions) {
-          hoistedRender += options.fn(this);
-        },
-        renderChild(childNode: string, childDir: Directory, parameter: Parameter | null) {
+        /**
+         * Renders the function template for the child.
+         *
+         * @param childNode the child node name
+         * @param childDir the child directory
+         * @param parameter the parent parameter, if there is one
+         * @param pre the amount of whitespae to include before each line
+         * @returns the child's rendered template
+         */
+        renderChild(childNode: string, childDir: Directory, parameter: Parameter | null, pre = '') {
           const childParameters = [...parameters];
           if (parameter) {
             childParameters.push(parameter);
           }
 
-          const [mainChildRender, hoistedChildRender] = renderDirectoryFunctionType(
+          const renderedString = renderDirectoryFunctionType(
             childNode,
             childDir,
             childParameters,
-            '  ',
+            pre,
           );
 
-          hoistedRender += hoistedChildRender;
-          return new Handlebars.SafeString(mainChildRender);
+          return new Handlebars.SafeString(renderedString);
         },
       },
     },
   );
 
-  // Then adjust tabbing
-  return [mainRender.replace(/\n/g, `\n${pre}`), hoistedRender];
+  // Then update the pre-whitespace for each line
+  return renderedString.replace(/\n/g, `\n${pre}`);
 };
 
 const dtsTemplate = `
-declare module '@next/pages' {
-  {{#if hoistedChildren}}
-  {{hoistedChildren}}
-
-  {{/if}}
+declare module 'next-pages-gen' {
   const {{children}}
 }
 `.trim();
 
 export const renderPagesDTS = (directory: Readonly<Directory>) => {
-  const [mainRender, hoistedRender] = renderDirectoryFunctionType('pages', directory, []);
-  const children = new Handlebars.SafeString(mainRender);
-  const hoistedChildren = new Handlebars.SafeString(hoistedRender.replace(/\n/g, `\n  `));
+  const children = renderDirectoryFunctionType('pages', directory, [], '  ');
 
   const render = Handlebars.compile(dtsTemplate);
-  return render({
-    children,
-    hoistedChildren,
-  });
+  return render({ children: new Handlebars.SafeString(children) });
 };

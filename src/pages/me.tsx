@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
-import { pages } from '@next/pages';
+import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
@@ -29,7 +29,7 @@ const Profile = ({ user }: ProfileProps) => {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch(`/api/user/${user.id}`, {
+      const res = await fetch(pages.api.user(user.id).index, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async ctx =>
   if (!auth.user) {
     return {
       redirect: {
-        destination: '/',
+        destination: pages.index,
         permanent: false,
       },
     };

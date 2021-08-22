@@ -3,12 +3,12 @@ import { Directory, Parameter } from './types';
 
 const overloadedParameterFunctionTemplate = `
 {{#each children}}
-{{renderChild @key this null}}
+{{renderChild @key this null ""}}
 {{/each}}
 
 function {{node}}_{{parameter.name}}({{parameter.name}}) {
   {{#each parameter.children}}
-  {{renderChild @key this @root.parameter}}
+  {{renderChild @key this @root.parameter "  "}}
   {{/each}}
 
   return {
@@ -34,7 +34,7 @@ function {{node}}({{parameter.name}}) {
 const parameterFunctionTemplate = `
 function {{node}}({{parameter.name}}) {
   {{#each parameter.children}}
-  {{renderChild @key this @root.parameter}}
+  {{renderChild @key this @root.parameter "  "}}
   {{/each}}
 
   return {
@@ -47,7 +47,7 @@ function {{node}}({{parameter.name}}) {
 
 const childrenFunctionTemplate = `
 {{#each children}}
-{{renderChild @key this null}}
+{{renderChild @key this null ""}}
 {{/each}}
 
 var {{node}} = {
@@ -58,7 +58,7 @@ var {{node}} = {
 `.trim();
 
 const pathnameFunctionTemplate = `
-var {{node}} = \`{{pathnameTemplate}}\`;
+var {{node}} = \`{{pathnameTemplateLiteral}}\`;
 `.trim();
 
 const renderPagesFunction = (
@@ -69,7 +69,8 @@ const renderPagesFunction = (
 ): string => {
   const { parameter, children, pathname } = cwd;
 
-  let template: string | undefined;
+  let template = '';
+  let pathnameTemplateLiteral = '';
 
   // If there is a parameter...
   if (parameter) {
@@ -88,20 +89,16 @@ const renderPagesFunction = (
   } else if (pathname) {
     // Otherwise, just create the function to return the path
     template = pathnameFunctionTemplate;
+    // Then update pathname to replace [parameters] with template literal `${argument}` names
+    pathnameTemplateLiteral = pathname;
+    parameters.map(({ name }) => {
+      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(`[${name}]`, `$\{${name}}`);
+    });
   }
 
   // If no template was found, throw an error – something went wrong when building the directory
   if (!template) {
     throw new Error('A directory must have at least a parameter, children, or pathname.');
-  }
-
-  let templateLiteral: string | null = null;
-  if (pathname) {
-    let pathnameTemplateLiteral = pathname;
-    parameters.map(({ name }) => {
-      pathnameTemplateLiteral = pathnameTemplateLiteral.replace(`[${name}]`, `$\{${name}}`);
-    });
-    templateLiteral = pathnameTemplateLiteral;
   }
 
   // Otherwise, render the template!
@@ -110,7 +107,7 @@ const renderPagesFunction = (
     {
       node,
       pathname,
-      pathnameTemplate: templateLiteral,
+      pathnameTemplateLiteral,
       children,
       parameter,
       parameters,
@@ -123,26 +120,29 @@ const renderPagesFunction = (
          * @param childNode the child node name
          * @param childDir the child directory
          * @param parameter the parent parameter, if there is one
+         * @param pre the amount of whitespae to include before each line
          * @returns the child's rendered template
          */
-        renderChild(childNode: string, childDir: Directory, parameter: Parameter | null) {
+        renderChild(childNode: string, childDir: Directory, parameter: Parameter | null, pre = '') {
           if (parameter) {
             return new Handlebars.SafeString(
-              renderPagesFunction(`${node}_${parameter.name}_${childNode}`, childDir, [
-                ...parameters,
-                parameter,
-              ]),
+              renderPagesFunction(
+                `${node}_${parameter.name}_${childNode}`,
+                childDir,
+                [...parameters, parameter],
+                pre,
+              ),
             );
           } else {
             return new Handlebars.SafeString(
-              renderPagesFunction(`${node}_${childNode}`, childDir, parameters),
+              renderPagesFunction(`${node}_${childNode}`, childDir, parameters, pre),
             );
           }
         },
       },
     },
   );
-  // Then adjust tabbing
+  // Then update the pre-whitespace for each line
   return renderedString.replace(/\n/g, `\n${pre}`);
 };
 

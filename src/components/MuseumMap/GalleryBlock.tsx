@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import tw from 'twin.macro';
-import { pages } from '@next/pages';
 import dayjs from 'dayjs';
+import { pages } from 'next-pages-gen';
 import { GalleryDto } from '@src/data/GallerySerializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { Grid } from '@src/features/grid';
