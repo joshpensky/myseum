@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import tw from 'twin.macro';
 import dayjs from 'dayjs';
-import { pages } from 'next-pages-gen';
 import { GalleryDto } from '@src/data/GallerySerializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { Grid } from '@src/features/grid';
@@ -23,7 +22,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
   return (
     <div css={tw`flex flex-shrink-0 m-2.5`}>
       <ThemeProvider theme={{ color: gallery.color }}>
-        <Link passHref href={pages.museum(museum.id).gallery(gallery.id).index}>
+        <Link passHref href={`/museum/${museum.id}/gallery/${gallery.id}`}>
           <a
             className={`theme--${gallery.color}`}
             css={[tw`block w-96 ratio-4-3 relative rounded-lg overflow-hidden`]}>

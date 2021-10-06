@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Root, Trigger, Content, TooltipContentOwnProps } from '@radix-ui/react-tooltip';
+import { Root, Trigger, Content, TooltipContentProps } from '@radix-ui/react-tooltip';
 import cx from 'classnames';
 import { useAnimationStatus } from '@src/providers/AnimationStatus';
 import { useTheme } from '@src/providers/ThemeProvider';
@@ -15,7 +15,7 @@ import styles from './tooltip.module.scss';
 const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 const COLLISION_TOLERANCE = Number.parseInt(styles.varCollisionTolerance, 10);
 
-export interface TooltipProps extends TooltipContentOwnProps {
+export interface TooltipProps extends TooltipContentProps {
   className?: string;
   disabled?: boolean;
   value: ReactNode;
@@ -30,7 +30,7 @@ export const Tooltip = ({
 }: PropsWithChildren<TooltipProps>) => {
   const theme = useTheme();
 
-  const triggerRef = useRef<HTMLSpanElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const focusEventRef = useRef<FocusEvent | null>(null);
 
   // Force close the tooltip if a parent element is animating
@@ -65,8 +65,8 @@ export const Tooltip = ({
 
   return (
     <Root open={open} onOpenChange={open => setOpen(open)} delayDuration={300}>
-      <Trigger ref={triggerRef} as="span" onFocusCapture={onTriggerFocusCapture}>
-        {children}
+      <Trigger ref={triggerRef} asChild onFocusCapture={onTriggerFocusCapture}>
+        <span>{children}</span>
       </Trigger>
       <Content
         {...props}

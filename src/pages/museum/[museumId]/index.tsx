@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { GalleryColor } from '@prisma/client';
 import cx from 'classnames';
-import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
@@ -126,7 +125,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
       });
 
       // If no errors, updates the gallery
-      const res = await fetch(pages.api.museum(museum.id).index, {
+      const res = await fetch(`/api/museum/${museum.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
@@ -149,7 +148,9 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
       toast.success('Museum updated!');
     } catch (error) {
       // If error, send error toast
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       // Regardless, update form state
       setIsFormSubmitting(false);
@@ -262,7 +263,7 @@ MuseumMapView.getPageLayoutProps = pageProps => ({
 MuseumMapView.getGlobalLayoutProps = pageProps => ({
   navOverrides: {
     left: (
-      <Link passHref href={pages.museum(pageProps.museum.id).about}>
+      <Link href={`/museum/${pageProps.museum.id}/about`}>
         <a>About</a>
       </Link>
     ),

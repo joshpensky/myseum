@@ -2,7 +2,6 @@ import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import tw from 'twin.macro';
-import { pages } from 'next-pages-gen';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/GalleryRepository';
 import { GallerySerializer } from '@src/data/GallerySerializer';
@@ -25,7 +24,7 @@ GalleryPage.getPageLayoutProps = pageProps => ({
 GalleryPage.getGlobalLayoutProps = pageProps => ({
   navOverrides: {
     left: (
-      <Link passHref href={pages.museum(pageProps.museum.id).index}>
+      <Link passHref href={`/museum/${pageProps.museum.id}`}>
         <a css={tw`flex items-center`}>
           <span css={tw`block size-3 mr-1.5`}>
             <Arrow />

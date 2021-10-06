@@ -1,5 +1,4 @@
 import tw from 'twin.macro';
-import { Slot } from '@radix-ui/react-slot';
 import dayjs from 'dayjs';
 import { DraggableProvidedDragHandleProps, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import AutofitTextField from '@src/components/AutofitTextField';
@@ -50,7 +49,7 @@ const EditGalleryBlock = ({
 
             <div css={tw`flex`}>
               <Popover.Root open={disabled ? false : undefined}>
-                <Popover.Trigger as={Slot}>
+                <Popover.Trigger asChild>
                   <IconButton title="Open gallery settings" disabled={disabled}>
                     <Cog />
                   </IconButton>

@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import cx from 'classnames';
-import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
@@ -154,7 +153,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         })),
       };
 
-      const res = await fetch(pages.api.museum(museum.id).gallery(gallery.id).index, {
+      const res = await fetch(`/api/museum/${museum.id}/gallery/${gallery.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
@@ -182,7 +181,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       exitEditMode();
       toast.success('Gallery updated!');
     } catch (error) {
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,6 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { pages } from 'next-pages-gen';
 import * as z from 'zod';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
@@ -36,7 +35,7 @@ MuseumAbout.getPageLayoutProps = pageProps => ({
 MuseumAbout.getGlobalLayoutProps = pageProps => ({
   navOverrides: {
     left: (
-      <Link passHref href={pages.museum(pageProps.museum.id).index}>
+      <Link passHref href={`/museum/${pageProps.museum.id}`}>
         <a>Back</a>
       </Link>
     ),

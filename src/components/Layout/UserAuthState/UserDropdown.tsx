@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { Slot } from '@radix-ui/react-slot';
-import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
 import { supabase } from '@src/data/supabase';
@@ -31,7 +29,7 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
 
   return (
     <Popover.Root open={isOpen} onOpenChange={open => setIsOpen(open)}>
-      <Popover.Trigger as={Slot}>
+      <Popover.Trigger asChild>
         <button className={styles.trigger}>
           <span className="sr-only">View profile and more</span>
           <span className={styles.avatar} />
@@ -53,14 +51,14 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
         <Popover.Body className={styles.userPopoverLinks}>
           <ul>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href={pages.museum(user.museumId).index}>
+              <Link href={`/museum/${user.museumId}`}>
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Myseum
                 </a>
               </Link>
             </li>
             <li className={styles.userPopoverLinksItem}>
-              <Link passHref href={pages.me}>
+              <Link href="/me">
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Profile
                 </a>

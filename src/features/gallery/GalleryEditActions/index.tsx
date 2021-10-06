@@ -1,8 +1,6 @@
 import { Fragment, useRef, useState } from 'react';
 import { GalleryColor } from '@prisma/client';
-import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
-import { pages } from 'next-pages-gen';
 import useSWR from 'swr';
 import { Artwork } from '@src/components/Artwork';
 import FloatingActionButton from '@src/components/FloatingActionButton';
@@ -43,7 +41,7 @@ export const GalleryEditActions = ({
   const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
 
   const [shouldLoadArtworks, setShouldLoadArtworks] = useState(false);
-  const artworksSwr = useSWR<ArtworkDto[]>(shouldLoadArtworks ? pages.api.artworks.index : null);
+  const artworksSwr = useSWR<ArtworkDto[]>(shouldLoadArtworks ? '/api/artworks' : null);
   const areArtworksLoading = !artworksSwr.error && !artworksSwr.data;
 
   // Filter the artworks data to exclude any artworks currently on the gallery wall
@@ -55,7 +53,7 @@ export const GalleryEditActions = ({
   return (
     <Fragment>
       <Popover.Root onOpenChange={open => setIsSettingsPopoverOpen(open)}>
-        <Popover.Trigger as={Slot}>
+        <Popover.Trigger asChild>
           <div className={styles.fabWrapper}>
             <FloatingActionButton
               className={styles.fab}
@@ -96,7 +94,7 @@ export const GalleryEditActions = ({
             setShouldLoadArtworks(true);
           }
         }}>
-        <Popover.Trigger as={Slot}>
+        <Popover.Trigger asChild>
           <div className={styles.fabWrapper}>
             <FloatingActionButton
               ref={addArtworkButtonRef}

@@ -3,7 +3,6 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import tw from 'twin.macro';
-import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
@@ -29,7 +28,7 @@ const Profile = ({ user }: ProfileProps) => {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch(pages.api.user(user.id).index, {
+      const res = await fetch(`/api/user/${user.id}`, {
         method: 'PATCH',
         headers: new Headers({
           'Content-Type': 'application/json',
@@ -44,7 +43,9 @@ const Profile = ({ user }: ProfileProps) => {
 
       toast.success('Profile updated!');
     } catch (error) {
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       // Regardless, reset form state
       setIsSubmitting(false);
@@ -54,7 +55,7 @@ const Profile = ({ user }: ProfileProps) => {
   // Client-side redirect if user logs out
   useEffect(() => {
     if (auth.didLogOut) {
-      router.replace(pages.index);
+      router.replace('/');
     }
   }, [auth.didLogOut]);
 
@@ -111,7 +112,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async ctx =>
   if (!auth.user) {
     return {
       redirect: {
-        destination: pages.index,
+        destination: '/',
         permanent: false,
       },
     };

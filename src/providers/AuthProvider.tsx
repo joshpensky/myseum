@@ -1,7 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { pages } from 'next-pages-gen';
 import toast from 'react-hot-toast';
 import { UserDto } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
   const updateUser = (authUser: SupabaseUser): [AbortController, Promise<void>] => {
     const abortController = new AbortController();
     const updatePromise = (async () => {
-      const res = await fetch(pages.api.user(authUser.id).index);
+      const res = await fetch(`/api/user/${authUser.id}`);
       if (res.status === 404) {
         // Sign out of user not found
         await supabase.auth.signOut();
@@ -90,7 +89,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
     }
 
     // Update SSR cookie on auth state change
-    fetch(pages.api.auth, {
+    fetch('/api/auth', {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json',

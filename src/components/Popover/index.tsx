@@ -4,10 +4,9 @@ import {
   Root,
   Close,
   Trigger,
-  PopoverContentOwnProps,
-  PopoverOwnProps,
+  PopoverContentProps as RadixPopoverContentProps,
+  PopoverProps,
 } from '@radix-ui/react-popover';
-import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
 import { AnimationStatus } from '@src/providers/AnimationStatus';
@@ -18,7 +17,7 @@ import styles from './popover.module.scss';
 const ANIMATION_DURATION = Number.parseInt(styles.varAnimDuration, 10);
 const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 
-const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverOwnProps>) => {
+const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverProps>) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -46,7 +45,7 @@ const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverOwnProps>)
   );
 };
 
-interface PopoverContentProps extends Omit<PopoverContentOwnProps, 'id'> {
+interface PopoverContentProps extends Omit<RadixPopoverContentProps, 'id'> {
   className?: string;
 }
 
@@ -78,7 +77,7 @@ const PopoverHeader = ({ children, className }: PropsWithChildren<PopoverHeaderP
   <header className={cx(styles.popoverHeader, className)}>
     {children}
 
-    <Close as={Slot}>
+    <Close asChild>
       <IconButton title="Close settings" tooltipProps={{ side: 'top' }}>
         <CloseIcon />
       </IconButton>

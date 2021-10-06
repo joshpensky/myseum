@@ -1,7 +1,6 @@
 import { Fragment, PropsWithChildren } from 'react';
 import Link from 'next/link';
 import dayjs from 'dayjs';
-import { pages } from 'next-pages-gen';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
@@ -95,7 +94,7 @@ const ArtworkDetails = ({
 
                     return (
                       <Fragment key={gallery.id}>
-                        <Link passHref href={pages.museum(museum.id).gallery(gallery.id).index}>
+                        <Link href={`/museum/${museum.id}/gallery/${gallery.id}`}>
                           <a>{gallery.name}</a>
                         </Link>
                         {separator}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import tw, { css, theme } from 'twin.macro';
 import { Frame } from '@prisma/client';
-import { pages } from 'next-pages-gen';
 import FeatureFormModal from '@src/components/FeatureFormModal';
 import IconButton from '@src/components/IconButton';
 import AddFrameRoot from '@src/features/add-frame/AddFrameRoot';
@@ -96,7 +95,7 @@ const FramePanel = () => {
 
   const [frames, setFrames] = useState<Frame[]>([]);
   const fetchFrames = async () => {
-    const res = await fetch(pages.api.frames.index);
+    const res = await fetch('/api/frames');
     const data = await res.json();
     setFrames(data);
   };
