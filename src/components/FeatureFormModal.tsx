@@ -7,6 +7,7 @@ import { rgba } from 'polished';
 import FocusLock from 'react-focus-lock';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
+import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import { BaseProps } from '@src/types';
 
@@ -162,70 +163,73 @@ const FeatureFormModal = ({
     child.type.name === FeatureFormModalOutsideForm.name;
 
   return (
-    <Portal.Root>
-      <FocusLock returnFocus>
-        <div
-          ref={rootRef}
-          id={id}
-          css={[
-            tw`fixed inset-0 bg-black text-white z-modal overflow-hidden`,
-            tw`opacity-0`,
-            css`
-              box-shadow: 0 0 70px 0 ${rgba(theme`colors.white`, 0.5)};
-              & *::selection {
-                background: ${rgba(theme`colors.white`, 0.35)};
-              }
-            `,
-          ]}
-          role="dialog"
-          aria-label={ariaLabel}
-          aria-modal="true">
+    <ThemeProvider theme={{ color: 'ink' }}>
+      <Portal.Root>
+        <FocusLock returnFocus>
           <div
-            ref={contentRef}
-            id={`${id}-content`}
-            css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
-            <header css={tw`flex items-center border-b border-white p-4`}>
-              <div css={tw`mr-5`}>
-                <IconButton
-                  ref={cancelBtnRef}
-                  title="Cancel"
-                  disabled={disabledClose}
-                  onClick={_onClose}>
-                  <Close />
-                </IconButton>
-              </div>
-              <div css={[disabledClose && tw`opacity-50`]}>{title}</div>
-            </header>
-            <div css={tw`flex flex-1 relative`}>
-              <form css={tw`flex flex-1 overflow-hidden`} onSubmit={_onSubmit}>
+            ref={rootRef}
+            id={id}
+            className={`theme--ink`}
+            css={[
+              tw`fixed inset-0 bg-black text-white z-modal overflow-hidden`,
+              tw`opacity-0`,
+              css`
+                box-shadow: 0 0 70px 0 ${rgba(theme`colors.white`, 0.5)};
+                & *::selection {
+                  background: ${rgba(theme`colors.white`, 0.35)};
+                }
+              `,
+            ]}
+            role="dialog"
+            aria-label={ariaLabel}
+            aria-modal="true">
+            <div
+              ref={contentRef}
+              id={`${id}-content`}
+              css={[tw`flex flex-col size-full`, tw`opacity-0`]}>
+              <header css={tw`flex items-center border-b border-white p-4`}>
+                <div css={tw`mr-5`}>
+                  <IconButton
+                    ref={cancelBtnRef}
+                    title="Cancel"
+                    disabled={disabledClose}
+                    onClick={_onClose}>
+                    <Close />
+                  </IconButton>
+                </div>
+                <div css={[disabledClose && tw`opacity-50`]}>{title}</div>
+              </header>
+              <div css={tw`flex flex-1 relative`}>
+                <form css={tw`flex flex-1 overflow-hidden`} onSubmit={_onSubmit}>
+                  {Children.map(children, child => {
+                    if (isChildOutsideForm(child)) {
+                      return null;
+                    }
+                    return child;
+                  })}
+
+                  {/* Render Save button in top right corner, last in tab order */}
+                  {!hideSubmit && (
+                    <div css={tw`fixed right-4 top-8 transform -translate-y-1/2`}>
+                      <Button disabled={disabledSubmit} filled type="submit">
+                        Save
+                      </Button>
+                    </div>
+                  )}
+                </form>
+
                 {Children.map(children, child => {
-                  if (isChildOutsideForm(child)) {
+                  if (!isChildOutsideForm(child)) {
                     return null;
                   }
                   return child;
                 })}
-
-                {/* Render Save button in top right corner, last in tab order */}
-                {!hideSubmit && (
-                  <div css={tw`fixed right-4 top-8 transform -translate-y-1/2`}>
-                    <Button disabled={disabledSubmit} filled type="submit">
-                      Save
-                    </Button>
-                  </div>
-                )}
-              </form>
-
-              {Children.map(children, child => {
-                if (!isChildOutsideForm(child)) {
-                  return null;
-                }
-                return child;
-              })}
+              </div>
             </div>
           </div>
-        </div>
-      </FocusLock>
-    </Portal.Root>
+        </FocusLock>
+      </Portal.Root>
+    </ThemeProvider>
   );
 };
 

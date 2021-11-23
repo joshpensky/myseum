@@ -1,0 +1,20 @@
+.wrapper {
+  align-items: center;
+  background-color: c('bg-tint', 0);
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+  display: flex;
+  position: relative;
+
+  &:not(.wrapper--disabled) {
+    @media (hover: hover) {
+      &:hover {
+        background-color: c('bg-tint', 0.5);
+      }
+    }
+
+    &:focus-within {
+      background-color: c('bg-tint', 1);
+    }
+  }
+}

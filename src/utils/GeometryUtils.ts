@@ -1,5 +1,5 @@
 import quickhull from 'quickhull';
-import { SelectionEditorPoints } from '@src/hooks/useSelectionEditor';
+import { SelectionEditorPath } from '@src/features/selection';
 import { Position } from '@src/types';
 
 export type Line = [Position, Position];
@@ -241,21 +241,21 @@ export class GeometryUtils {
   }
 
   // https://cdn.tutors.com/assets/images/courses/math/geometry-help/convex-concave-quadrilateral.jpg
-  static isComplexQuadrilateral(points: SelectionEditorPoints) {
+  static isComplexQuadrilateral(points: SelectionEditorPath) {
     const [a, b, x, y] = points;
     const abIntersectsXy = this.doLinesIntersect([a, b], [x, y]);
     const ayIntersectsBx = this.doLinesIntersect([a, y], [b, x]);
     return abIntersectsXy || ayIntersectsBx;
   }
 
-  static isConcaveQuadrilateral(points: SelectionEditorPoints) {
+  static isConcaveQuadrilateral(points: SelectionEditorPath) {
     // Checks the convex hull of the corner points
     // If the quadrilateral is concave (a.k.a, all points aren't accounted for in hull [1-4 and back again]), it's invalid!
     const hull = quickhull(points);
     return hull.length === points.length;
   }
 
-  static isConvexQuadrilateral(points: SelectionEditorPoints) {
+  static isConvexQuadrilateral(points: SelectionEditorPath) {
     return !this.isComplexQuadrilateral(points) && !this.isConcaveQuadrilateral(points);
   }
 
@@ -273,7 +273,7 @@ export class GeometryUtils {
    *
    * @param points the points that form the convex quadrilateral
    */
-  static sortConvexQuadrilateralPoints(points: SelectionEditorPoints): SelectionEditorPoints {
+  static sortConvexQuadrilateralPoints(points: SelectionEditorPath): SelectionEditorPath {
     // Sort points left to right
     const sortedPoints = [...points].sort((a, b) => a.x - b.x);
 
@@ -306,7 +306,7 @@ export class GeometryUtils {
     } while (p !== leftIndex);
 
     // Return the final hull of points
-    return hull as SelectionEditorPoints;
+    return hull as SelectionEditorPath;
   }
 
   /**
@@ -317,7 +317,7 @@ export class GeometryUtils {
    *
    * @param points the points that form a convex quadrilateral
    */
-  static getAverageRectangle(points: SelectionEditorPoints) {
+  static getAverageRectangle(points: SelectionEditorPath) {
     const beforePoints = this.sortConvexQuadrilateralPoints(points);
     const [a, b, c, d] = beforePoints;
 
@@ -427,7 +427,7 @@ export class GeometryUtils {
    *
    * @param points the quadrilateral's vertices
    */
-  static findConvexQuadrilateralCenter(points: SelectionEditorPoints): Position {
+  static findConvexQuadrilateralCenter(points: SelectionEditorPath): Position {
     const centerABX = GeometryUtils.findTriangleCenter([points[0], points[1], points[2]]); // ◥
     const centerAXY = GeometryUtils.findTriangleCenter([points[0], points[2], points[3]]); // ◣
 
@@ -488,7 +488,7 @@ export class GeometryUtils {
    * @param offset a positive offset representing the distance to place the corrected point (distance from N->X)
    */
   static fixConvexQuadrilateral(
-    path: SelectionEditorPoints,
+    path: SelectionEditorPath,
     invalidPointIndex: number,
     offset: number,
   ) {
@@ -541,8 +541,8 @@ export class GeometryUtils {
    * @param container the containing convex quadrilateral to fit the other inside
    */
   static fitConvexQuadrilateralInAnother(
-    subject: SelectionEditorPoints,
-    container: SelectionEditorPoints,
+    subject: SelectionEditorPath,
+    container: SelectionEditorPath,
   ) {
     const centerPoint = GeometryUtils.findConvexQuadrilateralCenter(subject);
 

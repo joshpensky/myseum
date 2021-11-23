@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import tw from 'twin.macro';
 import FeatureFormModal from '@src/components/FeatureFormModal';
-import Select from '@src/components/Select';
+import { Select } from '@src/components/Select';
 import TextField from '@src/components/TextField';
 import Close from '@src/svgs/Close';
-import { Measurement } from '@src/types';
 import { useAddArtworkContext } from './AddArtworkContext';
 import { Preset } from './types';
 
@@ -65,7 +64,7 @@ const DimensionsPanel = () => {
             id="preset"
             disabled={isSubmitting}
             value={presetType}
-            onChange={value => onPresetUpdate(value as Preset['type'])}
+            onChange={value => onPresetUpdate(value)}
             options={[
               { value: 'custom', display: 'Custom' },
               ...presets.map(preset => ({ value: preset.type, display: preset.display })),
@@ -124,7 +123,7 @@ const DimensionsPanel = () => {
               value={measurement}
               onChange={value => {
                 setPresetType('custom');
-                setMeasurement(value as Measurement);
+                setMeasurement(value);
               }}
               options={[
                 {

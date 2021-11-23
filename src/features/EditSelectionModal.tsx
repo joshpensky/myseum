@@ -5,10 +5,11 @@ import Button from '@src/components/Button';
 import FeatureFormModal from '@src/components/FeatureFormModal';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { LAYER_COLORS, SelectionEditor, useSelectionEditor } from '@src/hooks/useSelectionEditor';
+import { LAYER_COLORS } from '@src/features/selection';
 import Layer from '@src/svgs/Layer';
 import { Dimensions } from '@src/types';
-import { GeometryUtils } from '@src/utils/GeometryUtils';
+// import { GeometryUtils } from '@src/utils/GeometryUtils';
+import { SelectionEditorState } from './selection';
 
 type LayerInputProps = {
   layerIndex: number;
@@ -47,26 +48,30 @@ const LayerInput = ({ layerIndex, activeLayer, onChange }: LayerInputProps) => (
 
 type EditSelectionModalProps = {
   actualDimensions: Dimensions;
-  editor: SelectionEditor;
+  editor: SelectionEditorState;
+  onChange(nextEditor: SelectionEditorState): void;
   image: HTMLImageElement;
-  onClose(newState?: SelectionEditor): void;
+  onClose(): void;
   withLayers?: boolean;
 };
 
 const EditSelectionModal = ({
   actualDimensions,
-  editor,
+  editor: _editor,
+  onChange,
   image,
   onClose,
   withLayers,
 }: EditSelectionModalProps) => {
-  const modalEditor = useSelectionEditor(editor.layers);
-
   const [activeLayer, setActiveLayer] = useState(0);
+
+  // Create editor copy to prevent live changes to initial editor
+  const [editor, setEditor] = useState(() => SelectionEditorState.create(_editor.current));
 
   const onSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    onClose(modalEditor);
+    onChange(editor);
+    onClose();
   };
 
   const onKeyDown = (evt: KeyboardEvent) => {
@@ -78,26 +83,6 @@ const EditSelectionModal = ({
         onClose();
       }
     }
-  };
-
-  // Creates the window layer (if not already added) by scaling the frame layer down
-  const createWindowLayer = () => {
-    modalEditor.setLayers(layers => {
-      const centerPoint = GeometryUtils.findConvexQuadrilateralCenter(layers[0].points);
-      const windowPoints = GeometryUtils.scalePolygonAroundPoint(
-        layers[0].points,
-        centerPoint,
-        0.95, // Scales the frame layer down 5%
-      );
-
-      return [
-        layers[0],
-        {
-          name: 'Window',
-          points: windowPoints,
-        },
-      ];
-    });
   };
 
   useEffect(() => {
@@ -120,7 +105,8 @@ const EditSelectionModal = ({
             <div css={tw`px-6 py-5 size-full relative`}>
               <ImageSelectionEditor
                 activeLayer={activeLayer}
-                editor={modalEditor}
+                editor={editor}
+                onChange={setEditor}
                 actualDimensions={actualDimensions}
                 image={image}
               />
@@ -152,8 +138,8 @@ const EditSelectionModal = ({
                       layerIndex={1}
                       activeLayer={activeLayer}
                       onChange={() => {
-                        if (modalEditor.layers.length === 1) {
-                          createWindowLayer();
+                        if (!editor.current.inner) {
+                          onChange(SelectionEditorState.commit(editor, { type: 'ADD_INNER_PATH' }));
                         }
                         setActiveLayer(1);
                       }}
@@ -175,7 +161,7 @@ const EditSelectionModal = ({
                 <p css={tw`text-sm mb-2 text-gray-300`}>Preview</p>
                 <div css={tw`w-full h-96 bg-white bg-opacity-10 rounded-lg p-4`}>
                   <ImageSelectionPreview
-                    editor={modalEditor}
+                    editor={editor}
                     actualDimensions={actualDimensions}
                     image={image}
                   />

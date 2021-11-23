@@ -9,7 +9,6 @@ import { CreateFrameDto } from '@src/data/FrameRepository';
 import { supabase } from '@src/data/supabase';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import UploadImage from '@src/features/add-artwork/UploadImage';
-import { DEFAULT_POINTS, useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Measurement } from '@src/types';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { AddFrameContext } from './AddFrameContext';
@@ -18,6 +17,7 @@ import DimensionsPanel from './DimensionsPanel';
 import FramePreview from './FramePreview';
 import UploadToast from './UploadToast';
 import EditSelectionModal from '../EditSelectionModal';
+import { SelectionEditorState } from '../selection';
 
 export type AddFrameRootProps = {
   onSubmit(frame: Frame): void;
@@ -30,12 +30,7 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [isUploadToastHidden, setIsUploadToastHidden] = useState(() => !addArtworkContext?.image);
 
-  const editor = useSelectionEditor([
-    {
-      name: 'Frame',
-      points: DEFAULT_POINTS,
-    },
-  ]);
+  const [editor, setEditor] = useState(() => SelectionEditorState.create());
 
   const [image, setImage] = useState<HTMLImageElement>();
   const [actualDimensions, setActualDimensions] = useState<Dimensions>({
@@ -105,7 +100,6 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
         actualDimensions,
         depth,
         description,
-        editor,
         image,
         isSubmitting,
         measurement,
@@ -146,6 +140,7 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
           <Fragment>
             <FeatureFormModal.Main>
               <FramePreview
+                editor={editor}
                 rotated={isPreviewManuallyRotated || isPreviewRotated}
                 setRotated={setIsPreviewManuallyRotated}
               />
@@ -171,13 +166,11 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
           <FeatureFormModal.OutsideForm>
             <EditSelectionModal
               editor={editor}
+              onChange={setEditor}
               actualDimensions={actualDimensions}
               image={image}
               withLayers
-              onClose={modalEditor => {
-                if (modalEditor) {
-                  editor.setLayers(modalEditor.layers); // Save the latest state, if available
-                }
+              onClose={() => {
                 setIsEditingSelection(false); // Close the editor
               }}
             />

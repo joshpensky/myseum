@@ -1,9 +1,8 @@
 import tw from 'twin.macro';
 import FeatureFormModal from '@src/components/FeatureFormModal';
-import Select from '@src/components/Select';
+import { Select } from '@src/components/Select';
 import TextField from '@src/components/TextField';
 import Close from '@src/svgs/Close';
-import { Measurement } from '@src/types';
 import { useAddFrameContext } from './AddFrameContext';
 
 type DimensionsPanelProps = {
@@ -89,7 +88,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
             id="measurement"
             disabled={isSubmitting}
             value={measurement}
-            onChange={value => setMeasurement(value as Measurement)}
+            onChange={value => setMeasurement(value)}
             options={[
               {
                 value: 'inch',

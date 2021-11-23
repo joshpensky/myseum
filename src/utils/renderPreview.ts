@@ -1,6 +1,6 @@
 import * as fx from 'glfx-es6';
 import PerspT from 'perspective-transform';
-import { SelectionEditorLayer } from '@src/hooks/useSelectionEditor';
+import { SelectionEditorSnapshot } from '@src/features/selection';
 import { Dimensions, Position } from '@src/types';
 import { CanvasUtils } from './CanvasUtils';
 import { CommonUtils } from './CommonUtils';
@@ -10,7 +10,7 @@ type RenderPreviewOptions = {
   destCanvas: HTMLCanvasElement;
   dimensions: Dimensions;
   image: HTMLImageElement;
-  layers: SelectionEditorLayer[];
+  paths: SelectionEditorSnapshot;
   position: Position;
   texture: fx.Texture;
   webglCanvas: fx.Canvas;
@@ -20,7 +20,7 @@ export const renderPreview = ({
   destCanvas,
   dimensions,
   image,
-  layers,
+  paths,
   position,
   texture,
   webglCanvas,
@@ -41,7 +41,7 @@ export const renderPreview = ({
   webglCanvas.draw(texture, imgDimensions.width, imgDimensions.height);
   // Perform the perspective transformation to straighten the image
   // We use image dimensions to ensure it's drawn at the highest quality possible
-  const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(layers[0].points);
+  const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(paths.outline);
   const imgSrcMatrix = srcPoints.flatMap(c => [
     c.x * imgDimensions.width,
     c.y * imgDimensions.height,
@@ -70,7 +70,7 @@ export const renderPreview = ({
     dimensions.height,
   );
 
-  if (layers.length > 1) {
+  if (paths.inner) {
     // Get perspective matrix
     const canvasSrcMatrix = srcPoints.flatMap(c => [
       c.x * dimensions.width,
@@ -85,33 +85,28 @@ export const renderPreview = ({
     const perspective = PerspT(canvasSrcMatrix, canvasDestMatrix);
 
     // For each subsequent layer, cut out the window from the transformed image
-    layers.slice(1).forEach(layer => {
-      const windowPoints = layer.points.map(point => {
-        // Transform point from source matrix to projected position on destination matrix
-        const [x, y] = perspective.transform(
-          point.x * dimensions.width,
-          point.y * dimensions.height,
-        );
-        // Return points, positioned correctly on canvas
-        return {
-          x: position.x + x,
-          y: position.y + y,
-        };
-      });
-
-      // Cut out the window from the final canvas
-      destCtx.globalCompositeOperation = 'destination-out';
-      destCtx.beginPath();
-      windowPoints.forEach((point, index) => {
-        if (index === 0) {
-          destCtx.moveTo(point.x, point.y);
-        } else {
-          destCtx.lineTo(point.x, point.y);
-        }
-      });
-      destCtx.closePath();
-      destCtx.fill();
-      destCtx.globalCompositeOperation = 'source-over';
+    const windowPoints = paths.inner.map(point => {
+      // Transform point from source matrix to projected position on destination matrix
+      const [x, y] = perspective.transform(point.x * dimensions.width, point.y * dimensions.height);
+      // Return points, positioned correctly on canvas
+      return {
+        x: position.x + x,
+        y: position.y + y,
+      };
     });
+
+    // Cut out the window from the final canvas
+    destCtx.globalCompositeOperation = 'destination-out';
+    destCtx.beginPath();
+    windowPoints.forEach((point, index) => {
+      if (index === 0) {
+        destCtx.moveTo(point.x, point.y);
+      } else {
+        destCtx.lineTo(point.x, point.y);
+      }
+    });
+    destCtx.closePath();
+    destCtx.fill();
+    destCtx.globalCompositeOperation = 'source-over';
   }
 };

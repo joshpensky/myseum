@@ -5,23 +5,24 @@ import PerspT from 'perspective-transform';
 import { darken, rgb } from 'polished';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { DEFAULT_POINTS } from '@src/hooks/useSelectionEditor';
 import { Position } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { Convert } from '@src/utils/Convert';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { useAddFrameContext } from './AddFrameContext';
+import { SelectionEditorState } from '../selection';
 
 type FramePreviewProps = {
+  editor: SelectionEditorState;
   rotated: boolean;
   setRotated: Dispatch<SetStateAction<boolean>>;
 };
 
 // https://css-tricks.com/css-in-3d-learning-to-think-in-cubes-instead-of-boxes/
 
-const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
-  const { actualDimensions, depth, editor, image, measurement } = useAddFrameContext();
+const FramePreview = ({ editor, rotated, setRotated }: FramePreviewProps) => {
+  const { actualDimensions, depth, image, measurement } = useAddFrameContext();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [wrapperDimensions, setWrapperDimensions] = useState({ width: 0, height: 0 });
@@ -43,16 +44,9 @@ const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
     }
   };
 
-  // Checks if the layers in the editor has been changed at all
-  const isFreshEditor =
-    editor.layers.length === 1 &&
-    editor.layers[0].points.every(
-      (point, index) => point.x === DEFAULT_POINTS[index].x && point.y === DEFAULT_POINTS[index].y,
-    );
-
   // If using fresh editor, calculates the depth color when using vanilla image
   useEffect(() => {
-    if (isFreshEditor && image) {
+    if (editor.isFresh && image) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -63,7 +57,7 @@ const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
         getDepthRgb(canvas);
       }
     }
-  }, [isFreshEditor, image]);
+  }, [editor.isFresh, image]);
 
   // _DEV_
   // Fix light mode animation on fast refresh
@@ -135,8 +129,8 @@ const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
   let windowRightAngle = 0;
   let windowBottomLength = 0;
   let windowBottomAngle = 0;
-  if (editor.layers.length > 1) {
-    const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[0].points);
+  if (editor.current.inner) {
+    const srcPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.current.outline);
     const previewSrcMatrix = srcPoints.flatMap(c => [
       c.x * previewDimensions.width,
       c.y * previewDimensions.height,
@@ -158,7 +152,7 @@ const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
      *  |          |
      * (2)--------(1)
      */
-    windowPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.layers[1].points)
+    windowPoints = GeometryUtils.sortConvexQuadrilateralPoints(editor.current.inner)
       .slice(1) // don't need top-left corner since no visible side uses it
       .map(point => {
         const [x, y] = perspective.transform(
@@ -266,7 +260,7 @@ const FramePreview = ({ rotated, setRotated }: FramePreviewProps) => {
                     scaleY(${previewDimensions.height / imageDimensions.height});
                 `}>
                 {/* Improve performance by rendering only image if using a fresh editor (no changes) */}
-                {isFreshEditor ? (
+                {editor.isFresh ? (
                   <img css={tw`absolute inset-0 size-full object-cover`} src={image.src} alt="" />
                 ) : (
                   <ImageSelectionPreview

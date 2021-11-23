@@ -2,12 +2,8 @@ import { KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from
 import tw, { css, theme } from 'twin.macro';
 import anime from 'animejs';
 import { createGlobalStyle } from 'styled-components';
+import { SelectionEditorState, SelectionEditorPath, LAYER_COLORS } from '@src/features/selection';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import {
-  LAYER_COLORS,
-  SelectionEditor,
-  SelectionEditorPoints,
-} from '@src/hooks/useSelectionEditor';
 import { BaseProps, Dimensions, Position } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
@@ -34,7 +30,8 @@ const GlobalGrabbingCursor = createGlobalStyle`
 export type ImageSelectionEditorProps = BaseProps & {
   activeLayer?: number;
   actualDimensions: Dimensions;
-  editor: SelectionEditor;
+  editor: SelectionEditorState;
+  onChange(editor: SelectionEditorState): void;
   image: HTMLImageElement;
 };
 
@@ -44,6 +41,7 @@ const ImageSelectionEditor = ({
   className,
   css: customCss,
   editor,
+  onChange,
   image,
 }: ImageSelectionEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,101 +62,112 @@ const ImageSelectionEditor = ({
   const updateLayerPoint = (
     activeLayer: number,
     activePointIndex: number,
-    updateCallback: (point: Position) => Position,
-    options: { isDragging?: boolean; lap?: boolean },
+    move: (from: Position) => Position,
+    // options: { isDragging?: boolean; lap?: boolean },
   ) => {
-    editor.setLayers(layers => {
-      const activePoints = layers[activeLayer].points;
-      const unboundedPoint = updateCallback(activePoints[activePointIndex]);
-      const newActivePoints = [
-        ...activePoints.slice(0, activePointIndex),
-        {
-          x: Math.min(1, Math.max(0, unboundedPoint.x)),
-          y: Math.min(1, Math.max(0, unboundedPoint.y)),
+    onChange(
+      SelectionEditorState.commit(editor, {
+        type: 'MOVE_POINT',
+        payload: {
+          path: activeLayer === 0 ? 'outline' : 'inner',
+          pointIndex: activePointIndex as 0 | 1 | 2 | 3,
+          move,
         },
-        ...activePoints.slice(activePointIndex + 1),
-      ] as SelectionEditorPoints;
+      }),
+    );
 
-      let isDraggingOutside = false;
+    // editor.setLayers(layers => {
+    //   const activePoints = layers[activeLayer].points;
+    //   const unboundedPoint = updateCallback(activePoints[activePointIndex]);
+    //   const newActivePoints = [
+    //     ...activePoints.slice(0, activePointIndex),
+    //     {
+    //       x: Math.min(1, Math.max(0, unboundedPoint.x)),
+    //       y: Math.min(1, Math.max(0, unboundedPoint.y)),
+    //     },
+    //     ...activePoints.slice(activePointIndex + 1),
+    //   ] as SelectionEditorPoints;
 
-      const isPathValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
+    //   let isDraggingOutside = false;
 
-      // Show cursor if user is dragging in invalid area
-      if (options.isDragging) {
-        isDraggingOutside = !isPathValid;
-      }
+    //   const isPathValid = GeometryUtils.isConvexQuadrilateral(newActivePoints);
 
-      if (!isPathValid) {
-        // Offset the invalidating point to reform a convex quadrilateral
-        newActivePoints[activePointIndex] = GeometryUtils.fixConvexQuadrilateral(
-          newActivePoints,
-          activePointIndex,
-          0.0025, // Offset by 0.0025
-        );
-      }
+    //   // Show cursor if user is dragging in invalid area
+    //   if (options.isDragging) {
+    //     isDraggingOutside = !isPathValid;
+    //   }
 
-      // HANDLE FRAME LAYER (index 0)
-      if (activeLayer === 0) {
-        // Show cursor if user is dragging in outside image area
-        if (options.isDragging && !isDraggingOutside) {
-          isDraggingOutside =
-            unboundedPoint.x < 0 ||
-            unboundedPoint.x > 1 ||
-            unboundedPoint.y < 0 ||
-            unboundedPoint.y > 1;
-        }
+    //   if (!isPathValid) {
+    //     // Offset the invalidating point to reform a convex quadrilateral
+    //     newActivePoints[activePointIndex] = GeometryUtils.fixConvexQuadrilateral(
+    //       newActivePoints,
+    //       activePointIndex,
+    //       0.0025, // Offset by 0.0025
+    //     );
+    //   }
 
-        setIsDraggingOutside(isDraggingOutside);
+    //   // HANDLE FRAME LAYER (index 0)
+    //   if (activeLayer === 0) {
+    //     // Show cursor if user is dragging in outside image area
+    //     if (options.isDragging && !isDraggingOutside) {
+    //       isDraggingOutside =
+    //         unboundedPoint.x < 0 ||
+    //         unboundedPoint.x > 1 ||
+    //         unboundedPoint.y < 0 ||
+    //         unboundedPoint.y > 1;
+    //     }
 
-        return [
-          {
-            ...layers[0],
-            points: newActivePoints,
-          },
-          // Fit all window layers inside the frame
-          ...layers.slice(1).map(layer => {
-            const fittedPoints = GeometryUtils.fitConvexQuadrilateralInAnother(
-              layer.points,
-              newActivePoints,
-            );
-            return {
-              ...layer,
-              points: fittedPoints,
-            };
-          }),
-        ];
-      }
+    //     setIsDraggingOutside(isDraggingOutside);
 
-      // HANDLE WINDOW LAYER(S) (index 1+)
-      // Limit the size of other layers to fit within the frame
-      const activePoint = newActivePoints[activePointIndex];
-      const framePath = editor.layers[0].points;
-      const isPointInsideFrame = GeometryUtils.isPointInPolygon(activePoint, framePath);
+    //     return [
+    //       {
+    //         ...layers[0],
+    //         points: newActivePoints,
+    //       },
+    //       // Fit all window layers inside the frame
+    //       ...layers.slice(1).map(layer => {
+    //         const fittedPoints = GeometryUtils.fitConvexQuadrilateralInAnother(
+    //           layer.points,
+    //           newActivePoints,
+    //         );
+    //         return {
+    //           ...layer,
+    //           points: fittedPoints,
+    //         };
+    //       }),
+    //     ];
+    //   }
 
-      // Show the cursor if the user is dragging outside frame
-      if (options.isDragging && !isDraggingOutside) {
-        isDraggingOutside = !isPointInsideFrame;
-      }
+    //   // HANDLE WINDOW LAYER(S) (index 1+)
+    //   // Limit the size of other layers to fit within the frame
+    //   const activePoint = newActivePoints[activePointIndex];
+    //   const framePath = editor.layers[0].points;
+    //   const isPointInsideFrame = GeometryUtils.isPointInPolygon(activePoint, framePath);
 
-      // If dragging and point is outside, find closest point to map to
-      if (!isPointInsideFrame) {
-        newActivePoints[activePointIndex] = GeometryUtils.findNearestPointOnPolygon(
-          activePoint,
-          framePath,
-        );
-      }
+    //   // Show the cursor if the user is dragging outside frame
+    //   if (options.isDragging && !isDraggingOutside) {
+    //     isDraggingOutside = !isPointInsideFrame;
+    //   }
 
-      setIsDraggingOutside(isDraggingOutside);
+    //   // If dragging and point is outside, find closest point to map to
+    //   if (!isPointInsideFrame) {
+    //     newActivePoints[activePointIndex] = GeometryUtils.findNearestPointOnPolygon(
+    //       activePoint,
+    //       framePath,
+    //     );
+    //   }
 
-      return [
-        ...layers.slice(0, activeLayer),
-        {
-          ...layers[activeLayer],
-          points: newActivePoints,
-        },
-        ...layers.slice(activeLayer + 1),
-      ];
-    });
+    //   setIsDraggingOutside(isDraggingOutside);
+
+    //   return [
+    //     ...layers.slice(0, activeLayer),
+    //     {
+    //       ...layers[activeLayer],
+    //       points: newActivePoints,
+    //     },
+    //     ...layers.slice(activeLayer + 1),
+    //   ];
+    // });
   };
 
   // Tracks mouse movements on the canvas
@@ -188,6 +197,7 @@ const ImageSelectionEditor = ({
     // If there's a moving index, update corner position
     if (isDragging && movingIndex >= 0) {
       evt.preventDefault();
+
       updateLayerPoint(
         activeLayer,
         movingIndex,
@@ -201,16 +211,17 @@ const ImageSelectionEditor = ({
             y: fy,
           };
         },
-        {
-          isDragging: true,
-        },
+        // {
+        //   isDragging: true,
+        // },
       );
       return;
     }
 
     // Otherwise, update hovering state
     const strokeOffset = STROKE_WIDTH / 2;
-    const hoveringIndex = editor.layers[activeLayer].points.findIndex(point =>
+    const layer = activeLayer === 0 ? editor.current.outline : editor.current.inner;
+    const hoveringIndex = layer?.findIndex(point =>
       GeometryUtils.isPointInCircle(
         {
           x: mouseX,
@@ -223,15 +234,17 @@ const ImageSelectionEditor = ({
         },
       ),
     );
-    setHoveringIndex(hoveringIndex);
+    setHoveringIndex(hoveringIndex ?? -1);
   };
 
   // Creates a new entry in history and updates moving state, if possible
   const onMouseDown = (evt: MouseEvent) => {
     if (hoveringIndex >= 0) {
       evt.preventDefault();
-      // Create new slice in history
-      editor.history.lap();
+      // // Create new slice in history
+      // editor.history.lap();
+      onChange(SelectionEditorState.save(editor));
+
       // Update the moving index
       setMovingIndex(hoveringIndex);
       setIsDragging(true);
@@ -261,10 +274,10 @@ const ImageSelectionEditor = ({
       evt.preventDefault();
       if (evt.shiftKey) {
         // Cmd+Shift+Z
-        editor.history.redo();
+        onChange(SelectionEditorState.redo(editor));
       } else {
         // Cmd+Z
-        editor.history.undo();
+        onChange(SelectionEditorState.undo(editor));
       }
     }
   };
@@ -298,9 +311,14 @@ const ImageSelectionEditor = ({
         setMovingIndex(-1);
       }, 500);
 
-      updateLayerPoint(activeLayer, pointIndex, updateCallback, {
-        lap: true, // Create a new entry in history, if key is being held down repeatedly
-      });
+      updateLayerPoint(
+        activeLayer,
+        pointIndex,
+        updateCallback,
+        //   {
+        //   lap: true, // Create a new entry in history, if key is being held down repeatedly
+        // }
+      );
     };
 
     // Position should change 10x faster when shift key is held
@@ -360,7 +378,7 @@ const ImageSelectionEditor = ({
       INNER_CANVAS_PADDING,
     );
 
-    const getPointsPath = (points: SelectionEditorPoints) => {
+    const getPointsPath = (points: SelectionEditorPath) => {
       const pointsPath = new Path2D();
       points.forEach((point, idx) => {
         if (idx === 0) {
@@ -390,7 +408,7 @@ const ImageSelectionEditor = ({
 
       // Draw overlay window and clip from overlay
       ctx.globalCompositeOperation = 'destination-out';
-      const basePath = getPointsPath(editor.layers[0].points);
+      const basePath = getPointsPath(editor.current.outline);
       ctx.fill(basePath);
 
       // Revert back to regular composition type (drawing atop)
@@ -398,10 +416,10 @@ const ImageSelectionEditor = ({
 
       // Render the window layers over top
       ctx.globalAlpha = 0.9;
-      editor.layers.slice(1).map(layer => {
-        const layerPath = getPointsPath(layer.points);
+      if (editor.current.inner) {
+        const layerPath = getPointsPath(editor.current.inner);
         ctx.fill(layerPath);
-      });
+      }
       ctx.globalAlpha = 1;
     };
 
@@ -524,16 +542,21 @@ const ImageSelectionEditor = ({
     // Renders the layer overlays
     renderOverlays();
 
+    const layers = [editor.current.outline];
+    if (editor.current.inner) {
+      layers.push(editor.current.inner);
+    }
+
     // Renders the other layer paths
-    editor.layers.forEach((layer, index) => {
+    layers.forEach((layer, index) => {
       if (activeLayer !== index) {
-        renderPointsPath(index, getPointsPath(layer.points));
+        renderPointsPath(index, getPointsPath(layer));
       }
     });
 
     // Render the active layer path on top
-    const activePoints = editor.layers[activeLayer].points;
-    renderPointsPath(activeLayer, getPointsPath(activePoints));
+    const activePath = layers[activeLayer];
+    renderPointsPath(activeLayer, getPointsPath(activePath));
 
     // Sort editor points by their magnification (magnified = higher z-index)
     const sortedPointsByZIndex = [0, 1, 2, 3].sort(
@@ -541,7 +564,7 @@ const ImageSelectionEditor = ({
     );
     // Then, render each active point
     sortedPointsByZIndex.forEach(pointIndex => {
-      renderPoint(activeLayer, activePoints[pointIndex], pointIndex);
+      renderPoint(activeLayer, activePath[pointIndex], pointIndex);
     });
   };
 
@@ -579,9 +602,11 @@ const ImageSelectionEditor = ({
     movingIndex,
     magnifyAnimationProgress,
     focusIndex,
-    editor.layers,
+    JSON.stringify(editor.current),
     activeLayer,
   ]);
+
+  console.log(editor);
 
   // Resize the canvas when dimensions change
   useEffect(() => {

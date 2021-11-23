@@ -1,12 +1,10 @@
 import { createContext, Dispatch, SetStateAction, useContext } from 'react';
-import { SelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Measurement } from '@src/types';
 
 export type AddFrameContextValue = {
   actualDimensions: Dimensions;
   depth: number;
   description: string;
-  editor: SelectionEditor;
   image?: HTMLImageElement;
   isSubmitting: boolean;
   measurement: Measurement;

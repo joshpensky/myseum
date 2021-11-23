@@ -22,35 +22,43 @@ yarn develop
 yarn prisma db push --preview-feature
 ```
 
-<!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Styling
 
-## Getting Started
+### Spacing
 
-First, run the development server:
+You can use the `sz` Sass function to apply spacing:
 
-```bash
-yarn develop
+```scss
+height: sz(1);
+// height: 0.25rem; (4px)
+
+height: sz(4);
+// height: 1rem; (16px)
+
+width: sz(8, $convert: 'px');
+// height: 32px;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Theming
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+To apply a theme to a group of elements, add the `theme--{color}` class to the parent element
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+You can then use the `c` Sass function to access colors:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```scss
+color: c('text'); // use the theme's text color
+// color: rgba(var(--c-text), 1);
 
-## Learn More
+color: c('text', 0.5); // use the theme's text color, 50% opacity
+// color: rgba(var(--c-text), 0.5);
+```
 
-To learn more about Next.js, take a look at the following resources:
+> You can also use the `ThemeProvider` to pass the theme color through context to child components
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Valid color themes are:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details. -->
+- mint
+- pink
+- navy
+- paper
+- ink

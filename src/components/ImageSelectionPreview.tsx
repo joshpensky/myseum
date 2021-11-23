@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import tw from 'twin.macro';
 import * as fx from 'glfx-es6';
+import { SelectionEditorState } from '@src/features/selection';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { SelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { renderPreview } from '@src/utils/renderPreview';
@@ -10,7 +10,7 @@ import { renderPreview } from '@src/utils/renderPreview';
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
   actualDimensions: Dimensions;
-  editor: SelectionEditor;
+  editor: SelectionEditorState;
   image: HTMLImageElement;
   onRender?(canvas: HTMLCanvasElement): void;
 };
@@ -43,7 +43,7 @@ const ImageSelectionPreview = ({
         webglCanvas,
         texture,
         image,
-        layers: editor.layers,
+        paths: editor.current,
         dimensions: { width, height },
         position: { x, y },
       });
@@ -66,7 +66,13 @@ const ImageSelectionPreview = ({
   // Render canvas
   useEffect(() => {
     render();
-  }, [actualDimensions.height, actualDimensions.width, editor.layers, texture, webglCanvas]);
+  }, [
+    actualDimensions.height,
+    actualDimensions.width,
+    JSON.stringify(editor),
+    texture,
+    webglCanvas,
+  ]);
 
   // Resize and re-render canvas when dimensions change
   useEffect(() => {

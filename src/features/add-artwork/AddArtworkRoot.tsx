@@ -3,7 +3,6 @@ import tw from 'twin.macro';
 import Button from '@src/components/Button';
 import FeatureFormModal from '@src/components/FeatureFormModal';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import { useSelectionEditor } from '@src/hooks/useSelectionEditor';
 import { Dimensions, Measurement } from '@src/types';
 import { AddArtworkContext } from './AddArtworkContext';
 import DetailsPanel from './DetailsPanel';
@@ -12,13 +11,15 @@ import FramePanel from './FramePanel';
 import UploadImage from './UploadImage';
 import { ArtworkDetails } from './types';
 import EditSelectionModal from '../EditSelectionModal';
+import { SelectionEditorState } from '../selection';
 
 export type AddArtworkRootProps = {
   onClose(): void;
 };
 
 const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
-  const editor = useSelectionEditor();
+  const [editor, setEditor] = useState(() => SelectionEditorState.create());
+
   const [image, setImage] = useState<HTMLImageElement>();
   const [actualDimensions, setActualDimensions] = useState<Dimensions>({
     width: 0,
@@ -58,7 +59,6 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
       value={{
         actualDimensions,
         details,
-        editor,
         frameId,
         image,
         isEscapeDisabled,
@@ -127,7 +127,6 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
             <FeatureFormModal.Sidebar>
               <FeatureFormModal.SidebarPanel title="Selection">
                 <Button
-                  // css={tw`mt-2`}
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => {
@@ -149,12 +148,10 @@ const AddArtworkRoot = ({ onClose }: AddArtworkRootProps) => {
           <FeatureFormModal.OutsideForm>
             <EditSelectionModal
               editor={editor}
+              onChange={setEditor}
               actualDimensions={actualDimensions}
               image={image}
-              onClose={modalEditor => {
-                if (modalEditor) {
-                  editor.setLayers(modalEditor.layers); // Save the latest state, if available
-                }
+              onClose={() => {
                 setIsEditingSelection(false); // Close the editor
                 setIsEscapeDisabled(false);
               }}
