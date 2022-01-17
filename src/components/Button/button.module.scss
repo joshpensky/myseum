@@ -4,6 +4,7 @@
   border-radius: sz(2.5);
   display: flex;
   position: relative;
+  justify-content: center;
 
   &:disabled {
     opacity: 0.5;
@@ -14,6 +15,10 @@
     &:focus {
       @include outline-none;
     }
+  }
+
+  &.button--large {
+    @include padding(sz(3) sz(4));
   }
 
   &.button--filled {

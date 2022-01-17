@@ -27,7 +27,7 @@ const frameIndexController: NextApiHandler = async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: (error as Error).message });
   }
 };
 

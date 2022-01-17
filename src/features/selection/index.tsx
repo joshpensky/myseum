@@ -10,19 +10,29 @@ export const LAYER_COLORS = [
 
 export type SelectionEditorPath = [Position, Position, Position, Position];
 
-// rename to SelectionEditorSnapshot
 export interface SelectionEditorSnapshot {
   outline: SelectionEditorPath;
   inner?: SelectionEditorPath;
 }
 
 export interface SelectionEditorMovePointPayload {
+  /**
+   * The path type to update.
+   */
   path: 'outline' | 'inner';
-  pointIndex: 0 | 1 | 2 | 3;
+  /**
+   * The point index on the path to update (from 0-3).
+   */
+  pointIndex: number;
+  /**
+   * A callback function that determines the new point position.
+   *
+   * @param from the position of the point in the current snapshot
+   * @returns the moved point position
+   */
   move(from: Position): Position;
 }
 
-// union
 export type SelectionEditorAction =
   | {
       type: 'MOVE_POINT';
@@ -32,24 +42,29 @@ export type SelectionEditorAction =
       type: 'ADD_INNER_PATH';
     };
 
-// rename to SelectionEditorSnapshot
 export class SelectionEditorState {
   private static DEFAULT_INITIAL_SNAPSHOT: SelectionEditorSnapshot = {
     outline: [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 1, y: 1 },
-      { x: 0, y: 1 },
+      { x: 0, y: 0 }, // top-left
+      { x: 1, y: 0 }, // top-right
+      { x: 1, y: 1 }, // bottom-right
+      { x: 0, y: 1 }, // bottom-left
     ],
   };
 
   private history: SelectionEditorSnapshot[] = [SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT];
-  private revisionIndex = 0;
+  private snapshotIndex = 0;
 
   private constructor() {
-    // do nothing
+    // Prevent public constructor (must use .create(...))
   }
 
+  /**
+   * Create a new editor state, with an optional initial snapshot.
+   *
+   * @param initialSnapshot the initial state snapshot
+   * @returns the new editor state
+   */
   static create(initialSnapshot?: SelectionEditorSnapshot) {
     const editor = new SelectionEditorState();
     if (initialSnapshot) {
@@ -58,32 +73,38 @@ export class SelectionEditorState {
     return editor;
   }
 
-  private static copy(editor: SelectionEditorState) {
-    const editorCopy = new SelectionEditorState();
-    editorCopy.history = editor.history; // TODO: deep copy
-    editorCopy.revisionIndex = editor.revisionIndex;
-    return editorCopy;
+  /**
+   * Deep copies an existing editor state (for immutability).
+   *
+   * @param state the editor state to copy
+   * @returns the copied state
+   */
+  private static copy(state: SelectionEditorState) {
+    const newState = new SelectionEditorState();
+    newState.history = state.history; // TODO: deep copy
+    newState.snapshotIndex = state.snapshotIndex;
+    return newState;
   }
 
   /**
    * Gets the current editor revision.
    */
   get current() {
-    return this.history[this.revisionIndex];
+    return this.history[this.snapshotIndex];
   }
 
   /**
    * Sets the next editor revision.
    */
   private set current(nextValue) {
-    this.history[this.revisionIndex] = nextValue;
+    this.history[this.snapshotIndex] = nextValue;
   }
 
   /**
-   * Checks whether the editor is fresh, a.k.a has had no changes
+   * Checks whether the editor is fresh, i.e. has had no changes
    */
   get isFresh() {
-    // TODO: better checks—what if there's history?
+    // TODO: better checks — what if there's history?
     return (
       !this.current.inner &&
       this.current.outline.every(
@@ -96,63 +117,79 @@ export class SelectionEditorState {
 
   /**
    * Travels back to the previous revision in history.
+   *
+   * @param state the editor state to update
+   * @returns the updated state
    */
-  static undo(editor: SelectionEditorState) {
-    const newEditor = SelectionEditorState.copy(editor);
+  static undo(state: SelectionEditorState) {
+    const newState = SelectionEditorState.copy(state);
 
-    if (newEditor.revisionIndex > 0) {
-      newEditor.revisionIndex -= 1;
+    if (newState.snapshotIndex > 0) {
+      newState.snapshotIndex -= 1;
     }
 
-    return newEditor;
+    return newState;
   }
 
   /**
    * Travels forward to the next revision in history.
+   *
+   * @param state the editor state to update
+   * @returns the updated state
    */
-  static redo(editor: SelectionEditorState) {
-    const newEditor = SelectionEditorState.copy(editor);
+  static redo(state: SelectionEditorState) {
+    const newState = SelectionEditorState.copy(state);
 
-    if (newEditor.revisionIndex < newEditor.history.length - 1) {
-      newEditor.revisionIndex += 1;
+    if (newState.snapshotIndex < newState.history.length - 1) {
+      newState.snapshotIndex += 1;
     }
 
-    return newEditor;
+    return newState;
   }
 
   /**
    * Saves the current revision in history, and creates a copy for new commits.
+   *
+   * @param state the editor state to update
+   * @returns the updated state
    */
-  static save(editor: SelectionEditorState) {
-    const newEditor = SelectionEditorState.copy(editor);
+  static save(state: SelectionEditorState) {
+    const newState = SelectionEditorState.copy(state);
 
     // Keep history up to and including to the current index
-    const revisions = newEditor.history.slice(0, newEditor.revisionIndex + 1);
+    const revisions = newState.history.slice(0, newState.snapshotIndex + 1);
     // Duplicate the current history item
-    newEditor.history = [
+    newState.history = [
       ...revisions,
       {
-        outline: [...newEditor.current.outline],
-        inner: newEditor.current.inner ? [...newEditor.current.inner] : undefined,
+        outline: [...newState.current.outline],
+        inner: newState.current.inner ? [...newState.current.inner] : undefined,
       },
     ];
     // Update the index
-    newEditor.revisionIndex = newEditor.history.length - 1;
+    newState.snapshotIndex = newState.history.length - 1;
 
-    return newEditor;
+    return newState;
   }
 
-  static commit(editor: SelectionEditorState, action: SelectionEditorAction) {
-    const newEditor = SelectionEditorState.copy(editor);
+  /**
+   * Commits an action to the current state snapshot.
+   *
+   * @param state the editor state to update
+   * @param action the action to apply
+   * @returns the updated state
+   */
+  static commit(state: SelectionEditorState, action: SelectionEditorAction) {
+    const newState = SelectionEditorState.copy(state);
 
     switch (action.type) {
       case 'MOVE_POINT': {
-        newEditor.commitMovePointAction(action.payload);
+        newState.commitMovePointAction(action.payload);
         break;
       }
 
       case 'ADD_INNER_PATH': {
-        newEditor.commitAddInnerPathAction();
+        newState.commitAddInnerPathAction();
         break;
       }
 
@@ -161,18 +198,16 @@ export class SelectionEditorState {
       }
     }
 
-    return newEditor;
+    return newState;
   }
 
+  /**
+   * Adds an inner path to the current snapshot, if one doesn't already exist.
+   */
   private commitAddInnerPathAction() {
     if (this.current.inner) {
       throw new Error('Inner path already exists.');
     }
-
-    // // Commits must occur on a new revision
-    // if (this.revisionIndex === 0) {
-    //   this.save();
-    // }
 
     const centerPoint = GeometryUtils.findConvexQuadrilateralCenter(this.current.outline);
     const innerPath = GeometryUtils.scalePolygonAroundPoint(
@@ -184,6 +219,11 @@ export class SelectionEditorState {
     this.current.inner = innerPath;
   }
 
+  /**
+   * Moves a point on a given path to a given position.
+   *
+   * @param payload the action payload
+   */
   private commitMovePointAction(payload: SelectionEditorMovePointPayload) {
     const { path: type, pointIndex, move } = payload;
 
@@ -193,11 +233,6 @@ export class SelectionEditorState {
     }
     // Shallow copy of path
     path = [...path] as SelectionEditorPath;
-
-    // // Commits must occur on a new revision
-    // if (this.revisionIndex === 0) {
-    //   this.save();
-    // }
 
     // Update point position on path
     const unboundPosition = move(path[pointIndex]);

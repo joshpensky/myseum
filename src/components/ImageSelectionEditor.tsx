@@ -70,7 +70,7 @@ const ImageSelectionEditor = ({
         type: 'MOVE_POINT',
         payload: {
           path: activeLayer === 0 ? 'outline' : 'inner',
-          pointIndex: activePointIndex as 0 | 1 | 2 | 3,
+          pointIndex: activePointIndex,
           move,
         },
       }),
@@ -605,8 +605,6 @@ const ImageSelectionEditor = ({
     JSON.stringify(editor.current),
     activeLayer,
   ]);
-
-  console.log(editor);
 
   // Resize the canvas when dimensions change
   useEffect(() => {

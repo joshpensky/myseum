@@ -14,7 +14,7 @@ export class CanvasUtils {
    *
    * @param context the canvas's 2D context
    */
-  static clear(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  static clear(context: CanvasRenderingContext2D) {
     // Reset any transforms
     context.setTransform(1, 0, 0, 1, 0, 0);
     // Clear the canvas

@@ -6,7 +6,7 @@ import { CanvasUtils } from './CanvasUtils';
 import { CommonUtils } from './CommonUtils';
 import { GeometryUtils } from './GeometryUtils';
 
-type RenderPreviewOptions = {
+export interface RenderPreviewOptions {
   destCanvas: HTMLCanvasElement;
   dimensions: Dimensions;
   image: HTMLImageElement;
@@ -14,7 +14,7 @@ type RenderPreviewOptions = {
   position: Position;
   texture: fx.Texture;
   webglCanvas: fx.Canvas;
-};
+}
 
 export const renderPreview = ({
   destCanvas,

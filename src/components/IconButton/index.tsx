@@ -18,21 +18,21 @@ const IconButton = forwardRef<HTMLButtonElement, PropsWithChildren<IconButtonPro
     { children: icon, className, disabled, id, onClick, title, tooltipProps, type, ...props },
     ref,
   ) {
+    // <Tooltip {...tooltipProps} disabled={disabled} value={title}>
     return (
-      <Tooltip {...tooltipProps} disabled={disabled} value={title}>
-        <button
-          ref={ref}
-          id={id}
-          className={cx(styles.button, className)}
-          type={type}
-          disabled={disabled}
-          onClick={onClick}
-          {...props}>
-          <span className="sr-only">{title}</span>
-          <span className={styles.icon}>{icon}</span>
-        </button>
-      </Tooltip>
+      <button
+        ref={ref}
+        id={id}
+        className={cx(styles.button, className)}
+        type={type}
+        disabled={disabled}
+        onClick={onClick}
+        {...props}>
+        <span className="sr-only">{title}</span>
+        <span className={styles.icon}>{icon}</span>
+      </button>
     );
+    // </Tooltip>
   },
 );
 

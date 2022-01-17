@@ -33,7 +33,7 @@ const LayerInput = ({ layerIndex, activeLayer, onChange }: LayerInputProps) => (
     />
     <span css={tw`flex items-center`}>
       <span css={tw`block size-6 mr-3`}>
-        <Layer as={layerIndex === 0 ? 'frame' : 'window'} />
+        <Layer as={layerIndex === 0 ? 'outline' : 'inner'} />
       </span>
       <span>{layerIndex === 0 ? 'Frame' : 'Window'}</span>
     </span>

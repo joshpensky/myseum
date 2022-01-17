@@ -5,7 +5,7 @@ import { SelectionEditorState } from '@src/features/selection';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { renderPreview } from '@src/utils/renderPreview';
+import { renderPreview, RenderPreviewOptions } from '@src/utils/renderPreview';
 
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
@@ -36,9 +36,7 @@ const ImageSelectionPreview = ({
   const render = () => {
     if (canvasRef.current && texture) {
       const { width, height, x, y } = CanvasUtils.objectContain(canvasDimensions, actualDimensions);
-      // TODO: separate transform render onto separate canvas to speed up?
-      // Render the preview onto the destination canvas
-      renderPreview({
+      const previewOptions: RenderPreviewOptions = {
         destCanvas: canvasRef.current,
         webglCanvas,
         texture,
@@ -46,7 +44,10 @@ const ImageSelectionPreview = ({
         paths: editor.current,
         dimensions: { width, height },
         position: { x, y },
-      });
+      };
+      // TODO: separate transform render onto separate canvas to speed up?
+      // Render the preview onto the destination canvas
+      requestAnimationFrame(() => renderPreview(previewOptions));
 
       onRender?.(canvasRef.current);
     }
