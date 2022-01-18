@@ -31,9 +31,9 @@ export const renderPreview = ({
     return;
   }
 
-  // Cap the max image resolution to 2000px
+  // Cap the max image resolution to 2048px
   const imgDimensions = CanvasUtils.objectContain(
-    { width: 2000, height: 2000 },
+    { width: 2048, height: 2048 },
     CommonUtils.getImageDimensions(image),
   );
 

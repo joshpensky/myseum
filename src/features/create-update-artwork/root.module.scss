@@ -43,7 +43,7 @@
 .header__titles__main {
   font-size: $fs-sm;
   line-height: 1;
-  margin-bottom: sz(1.5);
+  margin-bottom: sz(1);
 }
 
 .header__titles__sub {
@@ -73,6 +73,11 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  input,
+  select {
+    background-color: c('bg-tint');
+  }
 }
 
 .form__actions {
@@ -106,6 +111,7 @@ $active-area-min-width: 450px;
 $bp-with-active-area: $form-area-min-width + $active-area-min-width;
 @include mq($bp-with-active-area) {
   .active-area {
+    border-right: 1px solid c('text');
     display: flex;
     flex: 2;
     min-width: $active-area-min-width;
@@ -118,8 +124,7 @@ $bp-with-active-area: $form-area-min-width + $active-area-min-width;
   .active-content {
     @include absolute(0 x 0 0);
     background-color: c('bg-tint');
-    border-right: 1px solid c('text');
     overflow-y: auto;
-    width: min(calc(100vw - #{$form-area-min-width}), calc(200% / 3));
+    width: min(calc(100vw - #{$form-area-min-width} - 1px), calc(200% / 3 - 1px));
   }
 }
