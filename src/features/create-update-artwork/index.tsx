@@ -14,13 +14,11 @@ import { UploadStep } from './UploadStep';
 import styles from './root.module.scss';
 import { createUpdateArtworkMachine, CreateUpdateArtworkStateValue } from './state';
 
-interface CreateUpdateArtworkProps {
-  open: boolean;
-  onOpenChange(open: boolean): void;
-  trigger: ReactNode;
+interface CreateUpdateArtworkModalProps {
+  onClose(): void;
 }
 
-export const CreateUpdateArtwork = ({ open, onOpenChange, trigger }: CreateUpdateArtworkProps) => {
+export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalProps) => {
   const [state, send] = useMachine(() =>
     createUpdateArtworkMachine.withContext({
       upload: undefined,
@@ -49,16 +47,16 @@ export const CreateUpdateArtwork = ({ open, onOpenChange, trigger }: CreateUpdat
     } else if (state.matches('details')) {
       return <DetailsStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
     } else if (state.matches('review')) {
-      return <ReviewStep state={state} onSubmit={data => send(data)} />;
+      return <ReviewStep state={state} onSubmit={() => onClose()} />;
     } else {
       return null;
     }
   };
 
-  // // Reset state on close
+  // TODO: Reset state on close
   // useEffect(() => {
   //   if (!open) {
-  //     // TODO: reset state
+  //     // ...
   //   }
   // }, [open]);
 
@@ -74,45 +72,63 @@ export const CreateUpdateArtwork = ({ open, onOpenChange, trigger }: CreateUpdat
   let stepIdx = stepKeys.findIndex(value => state.matches(value));
   stepIdx = Math.max(0, stepIdx);
 
+  // Gets the current state's meta data
+  const meta = state.meta[`${createUpdateArtworkMachine.id}.${state.value}`];
+
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+    <ThemeProvider theme={{ color: 'ink' }}>
+      <div className={cx('theme--ink', styles.root)}>
+        <div className={styles.activeArea} />
 
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        <Dialog.Content>
-          <ThemeProvider theme={{ color: 'ink' }}>
-            <div className={cx('theme--ink', styles.root)}>
-              <div className={styles.activeArea} />
-
-              <div className={styles.formArea}>
-                <header
-                  className={styles.header}
-                  style={{ '--stepper-progress': (stepIdx + 1) / stepKeys.length }}>
-                  <div className={styles.headerClose}>
-                    <Dialog.Close asChild>
-                      <IconButton title="Close">
-                        <Close />
-                      </IconButton>
-                    </Dialog.Close>
-                  </div>
-
-                  <div className={styles.headerTitles}>
-                    <Dialog.Title asChild>
-                      <h2 className={styles.headerTitlesMain}>Add Artwork</h2>
-                    </Dialog.Title>
-                    <p className={styles.headerTitlesSub}>
-                      Step {stepIdx + 1} of {stepKeys.length}
-                    </p>
-                  </div>
-                </header>
-
-                {renderStep()}
-              </div>
+        <div className={styles.formArea}>
+          <header
+            className={styles.header}
+            style={{ '--stepper-progress': (stepIdx + 1) / stepKeys.length }}>
+            <div className={styles.headerClose}>
+              <Dialog.Close asChild>
+                <IconButton title="Close">
+                  <Close />
+                </IconButton>
+              </Dialog.Close>
             </div>
-          </ThemeProvider>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+
+            <div className={styles.headerTitles}>
+              <Dialog.Title asChild>
+                <h2 className={styles.headerTitlesMain}>Add Artwork</h2>
+              </Dialog.Title>
+              <p className={styles.headerTitlesSub}>
+                Step {stepIdx + 1} of {stepKeys.length}
+              </p>
+            </div>
+          </header>
+
+          <div className={styles.content}>
+            <h3 className={styles.contentTitle}>{meta.title}</h3>
+            <p className={styles.contentDescription}>{meta.description}</p>
+
+            {renderStep()}
+          </div>
+        </div>
+      </div>
+    </ThemeProvider>
   );
 };
+
+interface CreateUpdateArtworkProps {
+  open: boolean;
+  onOpenChange(open: boolean): void;
+  trigger: ReactNode;
+}
+
+export const CreateUpdateArtwork = ({ open, onOpenChange, trigger }: CreateUpdateArtworkProps) => (
+  <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+
+    <Dialog.Portal>
+      <Dialog.Overlay />
+      <Dialog.Content>
+        <CreateUpdateArtworkModal onClose={() => onOpenChange(false)} />
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root>
+);

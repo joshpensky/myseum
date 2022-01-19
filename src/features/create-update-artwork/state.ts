@@ -1,8 +1,9 @@
 import { assign, createMachine, State } from 'xstate';
+import type { FrameDto } from '@src/data/FrameSerializer';
 import type { SelectionEditorPath } from '@src/features/selection';
 import type { Measurement } from '@src/types';
 
-type SemiRequired<Type, Keys extends keyof Type> = Type & Required<Pick<Type, Keys>>;
+type PickRequired<Type, Keys extends keyof Type> = Type & Required<Pick<Type, Keys>>;
 
 //////////////////////////
 // Context
@@ -26,12 +27,13 @@ export interface SelectionContext {
 export type FramingContext =
   | {
       hasFrame: true;
-      frameId: number;
+      frame: FrameDto;
+      depth?: never;
     }
   | {
       hasFrame: false;
       depth: number;
-      unit: Measurement;
+      frame?: never;
     };
 
 export interface DetailsContext {
@@ -85,18 +87,13 @@ export interface ConfirmDetailsEvent {
   details: DetailsContext;
 }
 
-export interface ConfirmReviewEvent {
-  type: 'CONFIRM_REVIEW';
-}
-
 export type CreateUpdateArtworkEvent =
   | GoBackEvent
   | ConfirmUploadEvent
   | ConfirmDimensionsEvent
   | ConfirmSelectionEvent
   | ConfirmFramingEvent
-  | ConfirmDetailsEvent
-  | ConfirmReviewEvent;
+  | ConfirmDetailsEvent;
 
 //////////////////////////
 // Typestates
@@ -109,22 +106,22 @@ export interface UploadTypestate {
 
 export interface DimensionsTypestate {
   value: 'dimensions';
-  context: SemiRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
+  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
 }
 
 export interface SelectionTypestate {
   value: 'selection';
-  context: SemiRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
+  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
 }
 
 export interface FramingTypestate {
   value: 'framing';
-  context: SemiRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
+  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
 }
 
 export interface DetailsTypestate {
   value: 'details';
-  context: SemiRequired<
+  context: PickRequired<
     CreateUpdateArtworkContext,
     'upload' | 'dimensions' | 'selection' | 'framing'
   >;
@@ -135,19 +132,13 @@ export interface ReviewTypestate {
   context: Required<CreateUpdateArtworkContext>;
 }
 
-export interface CompleteTypestate {
-  value: 'complete';
-  context: Required<CreateUpdateArtworkContext>;
-}
-
 export type CreateUpdateArtworkTypestate =
   | UploadTypestate
   | DimensionsTypestate
   | SelectionTypestate
   | FramingTypestate
   | DetailsTypestate
-  | ReviewTypestate
-  | CompleteTypestate;
+  | ReviewTypestate;
 
 ///////////////////////
 // Utility Types
@@ -160,7 +151,6 @@ export interface CreateUpdateArtworkTypestateMap {
   framing: FramingTypestate;
   details: DetailsTypestate;
   review: ReviewTypestate;
-  complete: CompleteTypestate;
 }
 
 export type CreateUpdateArtworkState<Value extends CreateUpdateArtworkStateValue> = State<
@@ -194,17 +184,25 @@ export const createUpdateArtworkMachine = createMachine<
   },
   states: {
     upload: {
+      meta: {
+        title: 'Upload',
+        description: 'Add a photo of the artwork to get started.',
+      },
       on: {
         CONFIRM_UPLOAD: {
           target: 'dimensions',
           actions: assign((ctx, evt) => ({
             upload: evt.upload,
-            dimensions: evt.dimensions, // TODO: what if they went back?
+            dimensions: evt.dimensions,
           })),
         },
       },
     },
     dimensions: {
+      meta: {
+        title: 'Dimensions',
+        description: 'Adjust to match the size of your artwork.',
+      },
       on: {
         GO_BACK: {
           target: 'upload',
@@ -218,6 +216,10 @@ export const createUpdateArtworkMachine = createMachine<
       },
     },
     selection: {
+      meta: {
+        title: 'Selection',
+        description: 'Drag the handles to outline the artwork.',
+      },
       on: {
         GO_BACK: {
           target: 'dimensions',
@@ -231,6 +233,10 @@ export const createUpdateArtworkMachine = createMachine<
       },
     },
     framing: {
+      meta: {
+        title: 'Framing',
+        description: 'Choose a framing option for the artwork.',
+      },
       on: {
         GO_BACK: {
           target: 'selection',
@@ -244,6 +250,10 @@ export const createUpdateArtworkMachine = createMachine<
       },
     },
     details: {
+      meta: {
+        title: 'Details',
+        description: 'Fill in some information about the artwork.',
+      },
       on: {
         GO_BACK: {
           target: 'framing',
@@ -257,15 +267,14 @@ export const createUpdateArtworkMachine = createMachine<
       },
     },
     review: {
+      type: 'final',
+      meta: {
+        title: 'Review',
+        description: 'Make any last edits and confirm your selections.',
+      },
       on: {
         // TODO: events to go back to each state (e.g., 'EDIT_UPLOAD')
-        CONFIRM_REVIEW: {
-          target: 'complete',
-        },
       },
-    },
-    complete: {
-      type: 'final',
     },
   },
 });

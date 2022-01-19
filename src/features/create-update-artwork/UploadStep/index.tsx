@@ -84,38 +84,33 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
   };
 
   return (
-    <div className={styles.content}>
-      <h3 className={styles.contentTitle}>Upload</h3>
-      <p className={styles.contentDescription}>Add a photo of the artwork to get started.</p>
-
-      <form className={styles.form} onSubmit={onFormSubmit}>
-        <div className={styles.activeContent}>
-          {!image ? (
-            <input
-              id="file"
-              type="file"
-              accept={accept.join(', ')}
-              disabled={isUploading}
-              required
-              onChange={evt => onFileUpload(evt)}
-            />
-          ) : (
-            <img src={image.src} alt="" />
-          )}
-        </div>
-
-        {image && (
-          <Button size="large" type="reset" onClick={() => setImage(null)}>
-            Reset
-          </Button>
+    <form className={styles.form} onSubmit={onFormSubmit}>
+      <div className={styles.activeContent}>
+        {!image ? (
+          <input
+            id="file"
+            type="file"
+            accept={accept.join(', ')}
+            disabled={isUploading}
+            required
+            onChange={evt => onFileUpload(evt)}
+          />
+        ) : (
+          <img src={image.src} alt="" />
         )}
+      </div>
 
-        <div className={styles.formActions}>
-          <Button size="large" type="submit" filled disabled={!image || isUploading}>
-            Next
-          </Button>
-        </div>
-      </form>
-    </div>
+      {image && (
+        <Button size="large" type="reset" onClick={() => setImage(null)}>
+          Reset
+        </Button>
+      )}
+
+      <div className={styles.formActions}>
+        <Button size="large" type="submit" filled disabled={!image || isUploading}>
+          Next
+        </Button>
+      </div>
+    </form>
   );
 };

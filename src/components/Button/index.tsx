@@ -29,7 +29,7 @@ const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(fun
       type={type}
       disabled={disabled}
       onClick={onClick}>
-      {children}
+      <span className={styles.inner}>{children}</span>
     </button>
   );
 });

@@ -1,49 +1,58 @@
 .button {
+  position: relative;
+
+  &::before {
+    @include absolute(0);
+    background-color: c('bg');
+    border-radius: sz(2.5);
+    content: '';
+    z-index: -1;
+  }
+
+  &:not(:disabled):focus {
+    @include outline-none;
+  }
+}
+
+.inner {
   @include padding(sz(1.25) sz(3));
   align-items: center;
   border-radius: sz(2.5);
   display: flex;
-  position: relative;
   justify-content: center;
 
-  &:disabled {
+  .button:disabled & {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &:not(:disabled) {
-    &:focus {
-      @include outline-none;
-    }
-  }
-
-  &.button--large {
+  .button--large & {
     @include padding(sz(3) sz(4));
   }
 
-  &.button--filled {
+  .button--filled & {
     background-color: c('text');
     box-shadow: 0 0 0 0 currentColor;
     color: c('bg');
     transition: box-shadow 150ms ease;
-
-    &:not(:disabled):focus {
-      box-shadow: 0 0 0 4px currentColor;
-    }
   }
 
-  &:not(.button--filled) {
+  .button--filled:not(:disabled):focus & {
+    box-shadow: 0 0 0 4px currentColor;
+  }
+
+  .button:not(.button--filled) & {
     box-shadow: inset 0 0 0 1px c('border', 0.2);
     transition: background-color 150ms ease, box-shadow 150ms ease;
+  }
 
-    &:not(:disabled):hover {
-      background-color: c('bg-tint', 1);
-      box-shadow: inset 0 0 0 1px c('border', 0.4);
-    }
+  .button:not(.button--filled):not(:disabled):hover & {
+    background-color: c('bg-tint');
+    box-shadow: inset 0 0 0 1px c('border', 0.4);
+  }
 
-    &:not(:disabled):focus {
-      background-color: c('bg-tint', 1);
-      box-shadow: inset 0 0 0 1px c('border', 1);
-    }
+  .button:not(.button--filled):not(:disabled):focus & {
+    background-color: c('bg-tint');
+    box-shadow: inset 0 0 0 1px c('border', 1);
   }
 }

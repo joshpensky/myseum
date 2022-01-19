@@ -72,43 +72,38 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
   };
 
   return (
-    <div className={styles.content}>
-      <h3 className={styles.contentTitle}>Selection</h3>
-      <p className={styles.contentDescription}>Drag the handles to outline the artwork.</p>
-
-      <form className={styles.form} onSubmit={onFormSubmit}>
-        <div className={styles.activeContent}>
-          <ImageSelectionEditor
-            activeLayer={0}
-            editor={editor}
-            onChange={setEditor}
-            actualDimensions={{
-              width: state.context.dimensions.width,
-              height: state.context.dimensions.height,
-            }}
-            image={state.context.upload.image}
-          />
-        </div>
-
-        <ImageSelectionPreview
+    <form className={styles.form} onSubmit={onFormSubmit}>
+      <div className={styles.activeContent}>
+        <ImageSelectionEditor
+          activeLayer={0}
           editor={editor}
+          onChange={setEditor}
           actualDimensions={{
             width: state.context.dimensions.width,
             height: state.context.dimensions.height,
           }}
           image={state.context.upload.image}
         />
+      </div>
 
-        <div className={styles.formActions}>
-          <Button size="large" type="button" onClick={onBack}>
-            Back
-          </Button>
+      <ImageSelectionPreview
+        editor={editor}
+        actualDimensions={{
+          width: state.context.dimensions.width,
+          height: state.context.dimensions.height,
+        }}
+        image={state.context.upload.image}
+      />
 
-          <Button size="large" type="submit" filled>
-            Next
-          </Button>
-        </div>
-      </form>
-    </div>
+      <div className={styles.formActions}>
+        <Button size="large" type="button" onClick={onBack}>
+          Back
+        </Button>
+
+        <Button size="large" type="submit" filled>
+          Next
+        </Button>
+      </div>
+    </form>
   );
 };

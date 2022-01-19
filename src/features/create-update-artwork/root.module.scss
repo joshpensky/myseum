@@ -1,3 +1,5 @@
+@import 'root-abstracts';
+
 .root {
   @include fixed(0);
   background-color: c('bg');
@@ -14,13 +16,13 @@
 .header {
   @include padding(sz(3) sz(2));
   align-items: center;
-  border-bottom: 1px solid c('text', 0.5);
+  border-bottom: 1px solid c('border', 0.4);
   display: flex;
   position: relative;
 
   &::after {
     @include absolute(x x -1px 0);
-    background-color: c('text');
+    background-color: c('border');
     box-shadow: 2px 0 0 0 c('bg');
     content: '';
     height: 1px;
@@ -66,6 +68,7 @@
 
 .content__description {
   color: c('secondary-text');
+  margin-bottom: sz(4);
 }
 
 .form {
@@ -88,8 +91,17 @@
   flex: 1;
   width: 100%;
 
+  &::before {
+    @include absolute(0 sz(-4) x);
+    background-color: c('bg', 0.75);
+    backdrop-filter: blur(2px);
+    height: sz(4);
+    mask-image: linear-gradient(to bottom, transparent, black);
+    content: '';
+  }
+
   &::after {
-    @include absolute(50% 0 0);
+    @include absolute(sz(4) sz(-4) 0);
     background-color: c('bg', 0.75);
     backdrop-filter: blur(2px);
     content: '';
@@ -105,13 +117,9 @@
   }
 }
 
-$form-area-min-width: 400px;
-$active-area-min-width: 450px;
-
-$bp-with-active-area: $form-area-min-width + $active-area-min-width;
-@include mq($bp-with-active-area) {
+@include mq($bp-active-area) {
   .active-area {
-    border-right: 1px solid c('text');
+    border-right: 1px solid c('border');
     display: flex;
     flex: 2;
     min-width: $active-area-min-width;

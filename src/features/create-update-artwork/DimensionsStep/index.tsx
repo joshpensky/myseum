@@ -31,54 +31,49 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
   };
 
   return (
-    <div className={styles.content}>
-      <h3 className={styles.contentTitle}>Dimensions</h3>
-      <p className={styles.contentDescription}>Adjust to match the size of your artwork.</p>
+    <form className={styles.form} onSubmit={onFormSubmit}>
+      <div className={styles.activeContent}></div>
 
-      <form className={styles.form} onSubmit={onFormSubmit}>
-        <div className={styles.activeContent}></div>
+      <label htmlFor="width">Width</label>
+      <input
+        id="width"
+        name="width"
+        type="number"
+        value={width}
+        required
+        onChange={evt => setWidth(evt.target.valueAsNumber)}
+      />
 
-        <label htmlFor="width">Width</label>
-        <input
-          id="width"
-          name="width"
-          type="number"
-          value={width}
-          required
-          onChange={evt => setWidth(evt.target.valueAsNumber)}
-        />
+      <label htmlFor="height">Height</label>
+      <input
+        id="height"
+        name="height"
+        type="number"
+        value={height}
+        required
+        onChange={evt => setHeight(evt.target.valueAsNumber)}
+      />
 
-        <label htmlFor="height">Height</label>
-        <input
-          id="height"
-          name="height"
-          type="number"
-          value={height}
-          required
-          onChange={evt => setHeight(evt.target.valueAsNumber)}
-        />
+      <label htmlFor="unit">Unit</label>
+      <select
+        id="unit"
+        name="unit"
+        value={unit}
+        required
+        onChange={evt => setUnit(evt.target.value as Measurement)}>
+        <option value="inch">inches</option>
+        <option value="cm">centimeters</option>
+      </select>
 
-        <label htmlFor="unit">Unit</label>
-        <select
-          id="unit"
-          name="unit"
-          value={unit}
-          required
-          onChange={evt => setUnit(evt.target.value as Measurement)}>
-          <option value="inch">inches</option>
-          <option value="cm">centimeters</option>
-        </select>
+      <div className={styles.formActions}>
+        <Button size="large" type="button" onClick={onBack}>
+          Back
+        </Button>
 
-        <div className={styles.formActions}>
-          <Button size="large" type="button" onClick={onBack}>
-            Back
-          </Button>
-
-          <Button size="large" type="submit" filled>
-            Next
-          </Button>
-        </div>
-      </form>
-    </div>
+        <Button size="large" type="submit" filled>
+          Next
+        </Button>
+      </div>
+    </form>
   );
 };
