@@ -144,6 +144,8 @@ export type CreateUpdateArtworkTypestate =
 // Utility Types
 ///////////////////////
 
+export type CreateUpdateArtworkStateValue = CreateUpdateArtworkTypestate['value'];
+
 export interface CreateUpdateArtworkTypestateMap {
   upload: UploadTypestate;
   dimensions: DimensionsTypestate;
@@ -161,8 +163,6 @@ export type CreateUpdateArtworkState<Value extends CreateUpdateArtworkStateValue
 > & {
   value: Value;
 };
-
-export type CreateUpdateArtworkStateValue = CreateUpdateArtworkTypestate['value'];
 
 ///////////////////////
 // Machine
