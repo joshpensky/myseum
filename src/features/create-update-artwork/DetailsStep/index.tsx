@@ -1,11 +1,34 @@
-import { FormEvent, useState } from 'react';
 import dayjs from 'dayjs';
+import { Field, Form, Formik } from 'formik';
+import { z } from 'zod';
 import Button from '@src/components/Button';
 import styles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmDetailsEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
+import { validateZodSchema } from '@src/utils/validateZodSchema';
+
+const detailsStepSchema = z.object({
+  title: z.string({ required_error: 'Title is required.' }).min(1, 'Title is required.'),
+
+  artist: z.string().optional(),
+
+  description: z
+    .string({ required_error: 'Description is required.' })
+    .min(1, 'Description is required.'),
+
+  altText: z
+    .string({ required_error: 'Alt text is required.' })
+    .min(1, 'Alt text is required.')
+    .max(128, 'Alt text can not be longer than 128 characters.'),
+
+  createdAt: z.date().optional(),
+
+  acquiredAt: z.date({ required_error: 'Acquisition date is required.' }),
+});
+
+type DetailsStepSchema = z.infer<typeof detailsStepSchema>;
 
 interface DetailsStepProps {
   state: CreateUpdateArtworkState<'details'>;
@@ -14,79 +37,82 @@ interface DetailsStepProps {
 }
 
 export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
-  // TODO: Formik + zod?
-  const [title, setTitle] = useState(state.context.details?.title ?? '');
-  const [artist, setArtist] = useState(state.context.details?.artist ?? '');
-  const [description, setDescription] = useState(state.context.details?.description ?? '');
-  const [altText, setAltText] = useState(state.context.details?.altText ?? '');
-  const [createdAt, setCreatedAt] = useState(state.context.details?.createdAt ?? new Date());
-  const [acquiredAt, setAcquiredAt] = useState(state.context.details?.acquiredAt ?? new Date());
-
-  const onFormSubmit = (evt: FormEvent) => {
-    evt.preventDefault();
-    onSubmit({
-      type: 'CONFIRM_DETAILS',
-      details: {
-        title,
-        description,
-        artist,
-        altText,
-        createdAt,
-        acquiredAt,
-      },
-    });
+  const initialValues: DetailsStepSchema = {
+    title: state.context.details?.title ?? '',
+    artist: state.context.details?.artist ?? '',
+    description: state.context.details?.description ?? '',
+    altText: state.context.details?.altText ?? '',
+    createdAt: state.context.details?.createdAt ?? new Date(),
+    acquiredAt: state.context.details?.acquiredAt ?? new Date(),
   };
 
   return (
-    <form className={styles.form} onSubmit={onFormSubmit}>
-      <div className={styles.activeContent}>
-        <img src={state.context.selection.preview.src} alt="" />
-      </div>
+    <Formik<DetailsStepSchema>
+      initialValues={initialValues}
+      validate={validateZodSchema(detailsStepSchema)}
+      onSubmit={values => {
+        onSubmit({
+          type: 'CONFIRM_DETAILS',
+          details: {
+            title: values.title,
+            description: values.description,
+            artist: values.artist,
+            altText: values.altText,
+            createdAt: values.createdAt,
+            acquiredAt: values.acquiredAt,
+          },
+        });
+      }}>
+      {formik => {
+        const { values, isSubmitting, isValid } = formik;
 
-      <label htmlFor="title">Title</label>
-      <input id="title" required value={title} onChange={evt => setTitle(evt.target.value)} />
+        return (
+          <Form className={styles.form}>
+            <div className={styles.activeContent}>
+              <img src={state.context.selection.preview.src} alt="" />
+            </div>
 
-      <label htmlFor="artist">Artist</label>
-      <input id="artist" value={artist} onChange={evt => setArtist(evt.target.value)} />
+            <label htmlFor="title">Title</label>
+            <Field id="title" name="title" required />
 
-      <label htmlFor="description">Description</label>
-      <input
-        id="description"
-        required
-        value={description}
-        onChange={evt => setDescription(evt.target.value)}
-      />
+            <label htmlFor="artist">Artist</label>
+            <Field id="artist" name="artist" />
 
-      <label htmlFor="altText">Alt Text</label>
-      <input id="altText" required value={altText} onChange={evt => setAltText(evt.target.value)} />
+            <label htmlFor="description">Description</label>
+            <Field as="textarea" id="description" name="description" required />
 
-      <label htmlFor="createdAt">Created</label>
-      <input
-        id="createdAt"
-        type="date"
-        value={dayjs(createdAt).format('YYYY-MM-DD')}
-        onChange={evt => setCreatedAt(evt.target.valueAsDate ?? new Date())}
-      />
-      {/* TODO: add checkbox to mark as unknown */}
+            <label htmlFor="altText">Alt Text</label>
+            <Field as="textarea" id="altText" name="altText" required />
 
-      <label htmlFor="acquiredAt">Acquired</label>
-      <input
-        id="acquiredAt"
-        type="date"
-        required
-        value={dayjs(acquiredAt).format('YYYY-MM-DD')}
-        onChange={evt => setAcquiredAt(evt.target.valueAsDate ?? new Date())}
-      />
+            <label htmlFor="createdAt">Created</label>
+            <Field
+              id="createdAt"
+              name="createdAt"
+              type="date"
+              value={dayjs(values.createdAt).format('YYYY-MM-DD')}
+            />
+            {/* TODO: add checkbox to mark as unknown */}
 
-      <div className={styles.formActions}>
-        <Button size="large" type="button" onClick={onBack}>
-          Back
-        </Button>
+            <label htmlFor="acquiredAt">Acquired</label>
+            <Field
+              id="acquiredAt"
+              name="acquiredAt"
+              type="date"
+              value={dayjs(values.acquiredAt).format('YYYY-MM-DD')}
+            />
 
-        <Button size="large" type="submit" filled disabled={!title || !description || !altText}>
-          Next
-        </Button>
-      </div>
-    </form>
+            <div className={styles.formActions}>
+              <Button size="large" type="button" onClick={onBack}>
+                Back
+              </Button>
+
+              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+                Next
+              </Button>
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 };

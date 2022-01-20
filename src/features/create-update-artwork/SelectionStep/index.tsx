@@ -58,7 +58,7 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
     texture.destroy();
 
     // Generate the image src from the canvas contents
-    const previewSrc = destCanvas.toDataURL();
+    const previewSrc = destCanvas.toDataURL('image/jpeg');
     const preview = document.createElement('img');
     preview.src = previewSrc;
 

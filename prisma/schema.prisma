@@ -28,7 +28,7 @@ model Museum {
   updatedAt DateTime @default(now()) @updatedAt
 
   curator   User   @relation(fields: [curatorId], references: [id])
-  curatorId String @db.Uuid
+  curatorId String @unique @db.Uuid
 
   galleries Gallery[]
 
@@ -62,13 +62,19 @@ model Gallery {
   @@map("galleries")
 }
 
+enum MeasureUnit {
+  in
+  cm
+}
+
 model Frame {
-  id          Int    @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   src         String
   description String
   width       Float
   height      Float
   depth       Float
+  unit        MeasureUnit @default(in)
   windowX1    Float
   windowY1    Float
   windowX2    Float
@@ -93,15 +99,17 @@ model Artist {
 }
 
 model Artwork {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   title       String
   description String
   src         String
   alt         String
   width       Float
   height      Float
-  createdAt   DateTime @default(now())
-  acquiredAt  DateTime @default(now())
+  depth       Float       @default(0)
+  unit        MeasureUnit @default(in)
+  createdAt   DateTime    @default(now())
+  acquiredAt  DateTime    @default(now())
 
   frame   Frame? @relation(fields: [frameId], references: [id])
   frameId Int?

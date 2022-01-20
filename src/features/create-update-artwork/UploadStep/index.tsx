@@ -1,11 +1,12 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
+import { MeasureUnit } from '@prisma/client';
+import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import styles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmUploadEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
-import { Measurement } from '@src/types';
 import { CommonUtils } from '@src/utils/CommonUtils';
 
 interface UploadStepProps {
@@ -19,12 +20,14 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
   const [image, setImage] = useState<HTMLImageElement | null>(state.context.upload?.image ?? null);
   const [width, setWidth] = useState(state.context.dimensions?.width ?? 0);
   const [height, setHeight] = useState(state.context.dimensions?.height ?? 0);
-  const [unit, setUnit] = useState<Measurement>(state.context.dimensions?.unit ?? 'inch');
+  const [unit, setUnit] = useState<MeasureUnit>(state.context.dimensions?.unit ?? 'in');
 
   const onFormSubmit = (evt: FormEvent) => {
     evt.preventDefault();
+
     if (!image) {
-      return; // TODO: form error
+      toast.error('You must upload an image to continue.');
+      return;
     }
 
     onSubmit({
@@ -56,7 +59,7 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
       const imageDimensions = CommonUtils.getImageDimensions(img);
       setWidth(getDimension(imageDimensions.width));
       setHeight(getDimension(imageDimensions.height));
-      setUnit('inch');
+      setUnit('in');
     };
     img.src = src;
   };

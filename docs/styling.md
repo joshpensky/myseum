@@ -38,10 +38,15 @@ The follow CSS variables are available under each theme:
 Sizes are defined using the `sz` function. This function imitates [Tailwind's spacing scale](https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale).
 
 ```scss
-padding: sz(4); ///// 1rem      or 16px
-padding: sz(1); ///// 0.25rem   or 4px
-padding: sz(0.25); // 0.0625rem or 1px
-padding: sz(-4); //// -1rem     or -16px;
+padding: sz(4); // 1rem
+padding: sz(1); // 0.25rem
+padding: sz(0.25); // 0.0625rem
+padding: sz(-4); // -1rem
+
+padding: sz(4, 'px'); // 16px
+padding: sz(1, 'px'); // 4px
+padding: sz(0.25, 'px'); // 1px
+padding: sz(-4, 'px'); // -16px
 ```
 
 ### Related Files
@@ -54,7 +59,7 @@ padding: sz(-4); //// -1rem     or -16px;
 Colors are defined using the `c` function. This function allows us to pull in colors defined by the theme and adjust opacity on the fly:
 
 ```scss
-color: c('bg'); ///////// rgba(var(--c-bg), 1);
+color: c('bg'); // rgba(var(--c-bg), 1);
 color: c('text', 0.5); // rgba(var(--c-text), 0.5);
 ```
 

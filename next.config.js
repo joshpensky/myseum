@@ -19,6 +19,7 @@ module.exports = {
     rules.forEach(rule => {
       rule.use.forEach(moduleLoader => {
         if (
+          typeof moduleLoader === 'object' &&
           moduleLoader.loader.includes('css-loader') &&
           typeof moduleLoader.options.modules === 'object'
         ) {
@@ -33,7 +34,7 @@ module.exports = {
           return;
         }
 
-        if (moduleLoader.loader.includes('sass-loader')) {
+        if (typeof moduleLoader === 'object' && moduleLoader.loader.includes('sass-loader')) {
           moduleLoader.options = {
             ...moduleLoader.options,
             // UPDATE SASS LOADER OPTIONS HERE https://webpack.js.org/loaders/sass-loader/#options

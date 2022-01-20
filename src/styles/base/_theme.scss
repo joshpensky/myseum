@@ -21,6 +21,17 @@
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
 }
 
+.theme--ink {
+  --c-bg: #{hex-to-rgb($c-black)};
+  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 15%))};
+  --c-icon: #{hex-to-rgb($c-black)};
+  --c-text: #{hex-to-rgb($c-white)};
+  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
+  --c-border: #{hex-to-rgb($c-white)};
+  --c-shadow: #{hex-to-rgb($c-navy-50)}; // TODO: replace
+  --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
+}
+
 .theme--mint {
   --c-bg: #{hex-to-rgb($c-mint-200)};
   --c-bg-tint: #{hex-to-rgb($c-mint-300)};
@@ -52,15 +63,4 @@
   --c-border: #{hex-to-rgb($c-navy-800)};
   --c-shadow: #{hex-to-rgb($c-navy-50)};
   --c-highlight: #{hex-to-rgb($c-navy-800)};
-}
-
-.theme--ink {
-  --c-bg: #{hex-to-rgb($c-black)};
-  --c-bg-tint: #{hex-to-rgb(mix($c-white, $c-black, 15%))};
-  --c-icon: #{hex-to-rgb($c-black)};
-  --c-text: #{hex-to-rgb($c-white)};
-  --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
-  --c-border: #{hex-to-rgb($c-white)};
-  --c-shadow: #{hex-to-rgb($c-navy-50)}; // TODO: replace
-  --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
 }

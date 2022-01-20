@@ -26,7 +26,12 @@
     box-shadow: 2px 0 0 0 c('bg');
     content: '';
     height: 1px;
-    width: calc(100% * var(--stepper-progress));
+    transform: translateX(calc(-100% * (1 - var(--stepper-progress))));
+    width: 100%;
+
+    @include with-motion {
+      transition: 300ms $ease-out-circ;
+    }
   }
 }
 
@@ -50,8 +55,50 @@
 
 .header__titles__sub {
   color: c('secondary-text');
+  display: flex;
+  flex-direction: column;
   font-size: $fs-xs;
   line-height: 1;
+  position: relative;
+  width: 100%;
+
+  span:nth-child(1) {
+    @include absolute(0 0 x);
+    transform: translateY(30%);
+    opacity: 0;
+  }
+
+  @include with-motion {
+    span:nth-child(1) {
+      transition: 150ms ease-out;
+    }
+
+    span:nth-child(2) {
+      transition: 150ms 75ms ease-out;
+    }
+  }
+
+  &.header__titles__sub--reveal {
+    span:nth-child(1) {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    span:nth-child(2) {
+      transform: translateY(-30%);
+      opacity: 0;
+    }
+
+    @include with-motion {
+      span:nth-child(1) {
+        transition: 150ms 75ms ease-out;
+      }
+
+      span:nth-child(2) {
+        transition: 150ms ease-out;
+      }
+    }
+  }
 }
 
 .content {
@@ -78,6 +125,7 @@
   flex: 1;
 
   input,
+  textarea,
   select {
     background-color: c('bg-tint');
   }
@@ -93,17 +141,17 @@
 
   &::before {
     @include absolute(0 sz(-4) x);
-    background-color: c('bg', 0.75);
     backdrop-filter: blur(2px);
-    height: sz(4);
-    mask-image: linear-gradient(to bottom, transparent, black);
+    background-color: c('bg', 0.7);
+    height: sz(6.5);
+    mask-image: scrim-gradient(to bottom, 'bg');
     content: '';
   }
 
   &::after {
-    @include absolute(sz(4) sz(-4) 0);
-    background-color: c('bg', 0.75);
+    @include absolute(sz(6.5) sz(-4) 0);
     backdrop-filter: blur(2px);
+    background-color: c('bg', 0.7);
     content: '';
   }
 
@@ -135,4 +183,8 @@
     overflow-y: auto;
     width: min(calc(100vw - #{$form-area-min-width} - 1px), calc(200% / 3 - 1px));
   }
+}
+
+:export {
+  varContentMargin: sz(4, 'px') sz(4, 'px') 0px sz(4, 'px');
 }

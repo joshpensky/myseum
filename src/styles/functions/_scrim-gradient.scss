@@ -1,0 +1,35 @@
+/**
+ * Generates a scrim-eased linear gradient of transparency to a given color.
+ *
+ * Inspired by https://css-tricks.com/easing-linear-gradients/
+ *
+ * @param string $direction the direction of the gradient
+ * @param string $color-var a color theme variable
+ * @param number [$alpha] the max alpha value of the color
+ */
+@function scrim-gradient($direction, $color-var, $alpha: 1) {
+  $scrim-coords: (
+    0: 0,
+    1.8: 0.002,
+    4.8: 0.008,
+    9: 0.021,
+    13.9: 0.042,
+    19.8: 0.075,
+    27: 0.126,
+    35: 0.194,
+    43.5: 0.278,
+    53: 0.382,
+    66: 0.541,
+    81: 0.738,
+    100: 1,
+  );
+
+  $stops: ();
+
+  @each $color-stop, $alpha-value in $scrim-coords {
+    $stop: c($color-var, $alpha * $alpha-value) percentage(math.div($color-stop, 100));
+    $stops: append($stops, $stop, comma);
+  }
+
+  @return linear-gradient($direction, $stops);
+}

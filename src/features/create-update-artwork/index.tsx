@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMachine } from '@xstate/react';
 import cx from 'classnames';
@@ -75,6 +75,29 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
   // Gets the current state's meta data
   const meta = state.meta[`${createUpdateArtworkMachine.id}.${state.value}`];
 
+  // Track whether the step title is visible
+  const contentRef = useRef<HTMLDivElement>(null);
+  const stepTitleRef = useRef<HTMLHeadingElement>(null);
+  const [isStepTitleVisible, setIsStepTitleVisible] = useState(true);
+  useLayoutEffect(() => {
+    if (stepTitleRef.current && contentRef.current) {
+      const observer = new IntersectionObserver(
+        entries => {
+          const [stepTitle] = entries;
+          setIsStepTitleVisible(stepTitle.isIntersecting);
+        },
+        {
+          root: contentRef.current,
+          rootMargin: styles.varContentMargin,
+        },
+      );
+      observer.observe(stepTitleRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={{ color: 'ink' }}>
       <div className={cx('theme--ink', styles.root)}>
@@ -96,14 +119,26 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
               <Dialog.Title asChild>
                 <h2 className={styles.headerTitlesMain}>Add Artwork</h2>
               </Dialog.Title>
-              <p className={styles.headerTitlesSub}>
-                Step {stepIdx + 1} of {stepKeys.length}
+              <p
+                className={cx(
+                  styles.headerTitlesSub,
+                  !isStepTitleVisible && styles.headerTitlesSubReveal,
+                )}>
+                <span>
+                  {meta.title}
+                  <span className="sr-only">, </span>
+                </span>
+                <span>
+                  Step {stepIdx + 1} of {stepKeys.length}
+                </span>
               </p>
             </div>
           </header>
 
-          <div className={styles.content}>
-            <h3 className={styles.contentTitle}>{meta.title}</h3>
+          <div ref={contentRef} className={styles.content}>
+            <h3 ref={stepTitleRef} className={styles.contentTitle}>
+              {meta.title}
+            </h3>
             <p className={styles.contentDescription}>{meta.description}</p>
 
             {renderStep()}

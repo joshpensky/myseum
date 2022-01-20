@@ -1,7 +1,7 @@
+import { MeasureUnit } from '@prisma/client';
 import { assign, createMachine, State } from 'xstate';
 import type { FrameDto } from '@src/data/FrameSerializer';
 import type { SelectionEditorPath } from '@src/features/selection';
-import type { Measurement } from '@src/types';
 
 type PickRequired<Type, Keys extends keyof Type> = Type & Required<Pick<Type, Keys>>;
 
@@ -16,7 +16,7 @@ export interface UploadContext {
 export interface DimensionsContext {
   width: number;
   height: number;
-  unit: Measurement;
+  unit: MeasureUnit;
 }
 
 export interface SelectionContext {
@@ -41,7 +41,7 @@ export interface DetailsContext {
   artist?: string;
   description: string;
   altText: string;
-  createdAt: Date;
+  createdAt?: Date;
   acquiredAt: Date;
 }
 
@@ -174,7 +174,6 @@ export const createUpdateArtworkMachine = createMachine<
   CreateUpdateArtworkTypestate
 >({
   id: 'form',
-  initial: 'upload',
   context: {
     upload: undefined,
     dimensions: undefined,
@@ -182,6 +181,7 @@ export const createUpdateArtworkMachine = createMachine<
     framing: undefined,
     details: undefined,
   },
+  initial: 'upload',
   states: {
     upload: {
       meta: {
