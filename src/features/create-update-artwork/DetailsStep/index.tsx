@@ -23,7 +23,8 @@ const detailsStepSchema = z.object({
     .min(1, 'Alt text is required.')
     .max(128, 'Alt text can not be longer than 128 characters.'),
 
-  createdAt: z.date().optional(),
+  createdAt: z.date(),
+  isCreatedAtUnknown: z.boolean(),
 
   acquiredAt: z.date({ required_error: 'Acquisition date is required.' }),
 });
@@ -43,12 +44,17 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
     description: state.context.details?.description ?? '',
     altText: state.context.details?.altText ?? '',
     createdAt: state.context.details?.createdAt ?? new Date(),
+    isCreatedAtUnknown:
+      (state.context.details && typeof state.context.details.createdAt === 'undefined') ?? false,
     acquiredAt: state.context.details?.acquiredAt ?? new Date(),
   };
+
+  const initialErrors = validateZodSchema(detailsStepSchema, 'sync')(initialValues);
 
   return (
     <Formik<DetailsStepSchema>
       initialValues={initialValues}
+      initialErrors={initialErrors}
       validate={validateZodSchema(detailsStepSchema)}
       onSubmit={values => {
         onSubmit({
@@ -58,7 +64,7 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             description: values.description,
             artist: values.artist,
             altText: values.altText,
-            createdAt: values.createdAt,
+            createdAt: values.isCreatedAtUnknown ? undefined : values.createdAt,
             acquiredAt: values.acquiredAt,
           },
         });
@@ -85,13 +91,19 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             <Field as="textarea" id="altText" name="altText" required />
 
             <label htmlFor="createdAt">Created</label>
-            <Field
-              id="createdAt"
-              name="createdAt"
-              type="date"
-              value={dayjs(values.createdAt).format('YYYY-MM-DD')}
-            />
-            {/* TODO: add checkbox to mark as unknown */}
+            {!values.isCreatedAtUnknown ? (
+              <Field
+                id="createdAt"
+                name="createdAt"
+                type="date"
+                value={dayjs(values.createdAt).format('YYYY-MM-DD')}
+              />
+            ) : (
+              <input id="createdAt" name="createdAt-fake" value="Unknown" disabled />
+            )}
+
+            <Field id="isCreatedAtUnknown" name="isCreatedAtUnknown" type="checkbox" />
+            <label htmlFor="isCreatedAtUnknown">Check if created date is unknown</label>
 
             <label htmlFor="acquiredAt">Acquired</label>
             <Field

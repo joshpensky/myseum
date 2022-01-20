@@ -18,13 +18,11 @@ interface FramingStepProps {
 
 const framingStepSchema = z
   .object({
-    hasFrame: z.boolean().optional(),
+    hasFrame: z.boolean({ required_error: 'You must select a framing option.' }),
+
     depth: z.number().nonnegative('Depth must be greater than or equal to 0.'),
+
     frameId: z.number().optional(),
-  })
-  .refine(data => typeof data.hasFrame === 'boolean', {
-    message: 'You must choose a framing option.',
-    path: ['hasFrame'],
   })
   .refine(data => !data.hasFrame || typeof data.frameId === 'number', {
     message: 'You must select a frame.',
@@ -35,15 +33,17 @@ type FramingStepSchema = z.infer<typeof framingStepSchema>;
 
 export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
   const initialValues: FramingStepSchema = {
-    hasFrame: state.context.framing?.hasFrame ?? undefined,
+    hasFrame: state.context.framing?.hasFrame ?? (undefined as any),
     depth: state.context.framing?.depth ?? 0,
     frameId: state.context.framing?.frame?.id ?? undefined,
   };
 
+  const initialErrors = validateZodSchema(framingStepSchema, 'sync')(initialValues);
+
   return (
     <Formik<FramingStepSchema>
       initialValues={initialValues}
-      validateOnMount
+      initialErrors={initialErrors}
       validate={validateZodSchema(framingStepSchema)}
       onSubmit={values => {
         if (values.hasFrame) {

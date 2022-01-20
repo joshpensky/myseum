@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
+import { Form, Formik } from 'formik';
 import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
@@ -30,80 +31,89 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
     return SelectionEditorState.create(initialSnapshot);
   });
 
-  const onFormSubmit = (evt: FormEvent) => {
-    evt.preventDefault();
-
-    // Create a destination canvas to render the preview to
-    const destCanvas = document.createElement('canvas');
-    // Resize the canvas to the highest quality within the image dimensions
-    const image = state.context.upload.image;
-    const destCanvasDimensions = CanvasUtils.objectContain(
-      CommonUtils.getImageDimensions(image),
-      state.context.dimensions,
-    );
-    CanvasUtils.resize(destCanvas, destCanvasDimensions);
-
-    // Render the preview onto the destination canvas
-    const webglCanvas = fx.canvas();
-    const texture = webglCanvas.texture(image);
-    renderPreview({
-      destCanvas,
-      webglCanvas,
-      texture,
-      image,
-      paths: editor.current,
-      dimensions: destCanvasDimensions,
-      position: { x: 0, y: 0 },
-    });
-    texture.destroy();
-
-    // Generate the image src from the canvas contents
-    const previewSrc = destCanvas.toDataURL('image/jpeg');
-    const preview = document.createElement('img');
-    preview.src = previewSrc;
-
-    onSubmit({
-      type: 'CONFIRM_SELECTION',
-      selection: {
-        path: editor.current.outline,
-        preview,
-      },
-    });
-  };
-
   return (
-    <form className={styles.form} onSubmit={onFormSubmit}>
-      <div className={styles.activeContent}>
-        <ImageSelectionEditor
-          activeLayer={0}
-          editor={editor}
-          onChange={setEditor}
-          actualDimensions={{
-            width: state.context.dimensions.width,
-            height: state.context.dimensions.height,
-          }}
-          image={state.context.upload.image}
-        />
-      </div>
+    <Formik
+      initialValues={{}}
+      onSubmit={() => {
+        // TODO: if selection context already exists, do path equivalency check to see
+        // if we need to recreate preview
 
-      <ImageSelectionPreview
-        editor={editor}
-        actualDimensions={{
-          width: state.context.dimensions.width,
-          height: state.context.dimensions.height,
-        }}
-        image={state.context.upload.image}
-      />
+        // Create a destination canvas to render the preview to
+        const destCanvas = document.createElement('canvas');
+        // Resize the canvas to the highest quality within the image dimensions
+        const image = state.context.upload.image;
+        const destCanvasDimensions = CanvasUtils.objectContain(
+          CommonUtils.getImageDimensions(image),
+          state.context.dimensions,
+        );
+        CanvasUtils.resize(destCanvas, destCanvasDimensions);
 
-      <div className={styles.formActions}>
-        <Button size="large" type="button" onClick={onBack}>
-          Back
-        </Button>
+        // Render the preview onto the destination canvas
+        const webglCanvas = fx.canvas();
+        const texture = webglCanvas.texture(image);
+        renderPreview({
+          destCanvas,
+          webglCanvas,
+          texture,
+          image,
+          paths: editor.current,
+          dimensions: destCanvasDimensions,
+          position: { x: 0, y: 0 },
+        });
+        texture.destroy();
 
-        <Button size="large" type="submit" filled>
-          Next
-        </Button>
-      </div>
-    </form>
+        // Generate the image src from the canvas contents
+        const previewSrc = destCanvas.toDataURL('image/jpeg');
+        const preview = document.createElement('img');
+        preview.src = previewSrc;
+
+        onSubmit({
+          type: 'CONFIRM_SELECTION',
+          selection: {
+            path: editor.current.outline,
+            preview,
+          },
+        });
+      }}>
+      {formik => {
+        const { isSubmitting, isValid } = formik;
+
+        return (
+          <Form className={styles.form}>
+            <div className={styles.activeContent}>
+              <ImageSelectionEditor
+                activeLayer={0}
+                editor={editor}
+                onChange={setEditor}
+                actualDimensions={{
+                  width: state.context.dimensions.width,
+                  height: state.context.dimensions.height,
+                }}
+                image={state.context.upload.image}
+              />
+            </div>
+
+            <ImageSelectionPreview
+              editor={editor}
+              actualDimensions={{
+                width: state.context.dimensions.width,
+                height: state.context.dimensions.height,
+              }}
+              image={state.context.upload.image}
+            />
+
+            <div className={styles.formActions}>
+              <Button size="large" type="button" onClick={onBack}>
+                Back
+              </Button>
+
+              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+                Next
+              </Button>
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 };

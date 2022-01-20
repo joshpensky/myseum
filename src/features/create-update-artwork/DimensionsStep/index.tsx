@@ -39,9 +39,12 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
     unit: state.context.dimensions.unit ?? 'in',
   };
 
+  const initialErrors = validateZodSchema(dimensionsStepSchema, 'sync')(initialValues);
+
   return (
     <Formik<DimensionsStepSchema>
       initialValues={initialValues}
+      initialErrors={initialErrors}
       validate={validateZodSchema(dimensionsStepSchema)}
       onSubmit={values => {
         onSubmit({
