@@ -79,7 +79,7 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
         const { isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={styles.activeContent}>
               <ImageSelectionEditor
                 activeLayer={0}

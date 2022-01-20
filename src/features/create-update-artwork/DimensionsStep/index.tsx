@@ -1,7 +1,9 @@
 import { MeasureUnit } from '@prisma/client';
-import { Field, Form, Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { Select } from '@src/components/Select';
+import { TextField } from '@src/components/TextField__New';
 import styles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmDimensionsEvent,
@@ -60,20 +62,23 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
         const { isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={styles.activeContent}></div>
 
             <label htmlFor="width">Width</label>
-            <Field id="width" name="width" type="number" required />
+            <TextField id="width" name="width" type="number" required />
 
             <label htmlFor="height">Height</label>
-            <Field id="height" name="height" type="number" required />
+            <TextField id="height" name="height" type="number" required />
 
             <label htmlFor="unit">Unit</label>
-            <Field as="select" id="unit" name="unit" required>
-              <option value="in">inches</option>
-              <option value="cm">centimeters</option>
-            </Field>
+            <Select<MeasureUnit>
+              name="unit"
+              options={[
+                { value: 'in', display: 'inches' },
+                { value: 'cm', display: 'centimeters' },
+              ]}
+            />
 
             <div className={styles.formActions}>
               <Button size="large" type="button" onClick={onBack}>

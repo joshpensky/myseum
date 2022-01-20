@@ -1,20 +1,52 @@
 .wrapper {
-  align-items: center;
+  position: relative;
+}
+
+.select {
+  @include padding(sz(2) sz(9) sz(2) sz(3));
+  appearance: none;
   background-color: c('bg-tint', 0);
   border: 1px solid c('border', 0.2);
   border-radius: sz(2.5);
+  cursor: pointer;
   display: flex;
-  position: relative;
+  flex: 1;
 
-  &:not(.wrapper--disabled) {
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  &:focus {
+    @include outline-none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled) {
     @media (hover: hover) {
       &:hover {
-        background-color: c('bg-tint', 0.5);
+        background-color: c('bg-tint');
+        border: 1px solid c('border', 0.4);
       }
     }
 
-    &:focus-within {
-      background-color: c('bg-tint', 1);
+    &:focus {
+      background-color: c('bg-tint');
+      border: 1px solid c('border');
     }
+  }
+}
+
+.caret {
+  @include absolute(50% sz(3) x x);
+  @include size(sz(3));
+  transform: translateY(-50%);
+  pointer-events: none;
+
+  .select:disabled + & {
+    opacity: 0.5;
   }
 }

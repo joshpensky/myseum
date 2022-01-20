@@ -37,6 +37,7 @@
 
 .header__close {
   position: absolute;
+  z-index: 2;
 }
 
 .header__titles {
@@ -124,11 +125,11 @@
   flex-direction: column;
   flex: 1;
 
-  input,
-  textarea,
-  select {
-    background-color: c('bg-tint');
-  }
+  // input,
+  // textarea,
+  // select {
+  //   background-color: c('bg-tint');
+  // }
 }
 
 .form__actions {

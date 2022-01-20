@@ -22,7 +22,7 @@ export const ReviewStep = ({ state, onSubmit }: ReviewStepProps) => {
         const { isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={styles.activeContent}>
               <img src={state.context.selection.preview.src} alt="" />
             </div>

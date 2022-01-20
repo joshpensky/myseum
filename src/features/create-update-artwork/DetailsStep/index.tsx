@@ -1,7 +1,7 @@
-import dayjs from 'dayjs';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { TextField } from '@src/components/TextField__New';
 import styles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmDetailsEvent,
@@ -73,45 +73,41 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
         const { values, isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={styles.activeContent}>
               <img src={state.context.selection.preview.src} alt="" />
             </div>
 
             <label htmlFor="title">Title</label>
-            <Field id="title" name="title" required />
+            <TextField id="title" name="title" type="text" required />
 
             <label htmlFor="artist">Artist</label>
-            <Field id="artist" name="artist" />
+            <TextField id="artist" name="artist" type="text" />
 
             <label htmlFor="description">Description</label>
-            <Field as="textarea" id="description" name="description" required />
+            <TextField id="description" name="description" type="text" grow rows={2} required />
 
             <label htmlFor="altText">Alt Text</label>
-            <Field as="textarea" id="altText" name="altText" required />
+            <TextField id="altText" name="altText" type="text" grow rows={2} required />
 
             <label htmlFor="createdAt">Created</label>
             {!values.isCreatedAtUnknown ? (
-              <Field
-                id="createdAt"
-                name="createdAt"
-                type="date"
-                value={dayjs(values.createdAt).format('YYYY-MM-DD')}
-              />
+              <TextField id="createdAt" name="createdAt" type="date" />
             ) : (
-              <input id="createdAt" name="createdAt-fake" value="Unknown" disabled />
+              <TextField
+                id="createdAt"
+                name="createdAt-fake"
+                type="text"
+                value="Unknown"
+                disabled
+              />
             )}
 
             <Field id="isCreatedAtUnknown" name="isCreatedAtUnknown" type="checkbox" />
             <label htmlFor="isCreatedAtUnknown">Check if created date is unknown</label>
 
             <label htmlFor="acquiredAt">Acquired</label>
-            <Field
-              id="acquiredAt"
-              name="acquiredAt"
-              type="date"
-              value={dayjs(values.acquiredAt).format('YYYY-MM-DD')}
-            />
+            <TextField id="acquiredAt" name="acquiredAt" type="date" />
 
             <div className={styles.formActions}>
               <Button size="large" type="button" onClick={onBack}>

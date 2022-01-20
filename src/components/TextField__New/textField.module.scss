@@ -1,0 +1,71 @@
+.field {
+  @include padding(sz(2) sz(3) sz(2));
+  appearance: none;
+  background-color: c('bg-tint', 0);
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  &:focus {
+    @include outline-none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled) {
+    @media (hover: hover) {
+      &:hover {
+        background-color: c('bg-tint');
+        border: 1px solid c('border', 0.4);
+      }
+    }
+
+    &:focus {
+      background-color: c('bg-tint');
+      border: 1px solid c('border');
+    }
+  }
+}
+
+textarea.field {
+  max-height: sz(36);
+  resize: none;
+}
+
+input[type='number'].field {
+  // Disable the up/down arrow buttons on number fields
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  /* Firefox */
+  &[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+input[type='date'].field::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+
+  :global(.theme--ink) & {
+    filter: invert(1);
+  }
+}
+
+// const commonStyles = [
+//     tw`bg-transparent min-w-0 w-full py-2 px-3 border border-white border-opacity-20 bg-white bg-opacity-0 rounded`,
+//     tw`ring-1 ring-black ring-opacity-20 not-disabled:(hover:ring-opacity-40 focus:ring-opacity-100 transition-shadow)`,
+//     tw`placeholder-gray-300 placeholder-opacity-70`,
+//     [
+//       tw`disabled:(text-gray-300 text-opacity-70 placeholder-opacity-50 cursor-not-allowed)`,
+//       tw`not-disabled:hover:(bg-opacity-10) not-disabled:focus:(outline-none bg-opacity-15)`,
+//     ],
+//     customCss,
+//   ];

@@ -2,6 +2,7 @@ import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { TextField } from '@src/components/TextField__New';
 import styles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmFramingEvent,
@@ -68,7 +69,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={cx(styles.activeContent, stepStyles.activeContent)}>
               <img
                 className={stepStyles.preview}
@@ -94,7 +95,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 <p>Adjust the depth of the piece.</p>
 
                 <label htmlFor="depth">Depth</label>
-                <Field id="depth" name="depth" type="number" aria-describedby="depth-unit" />
+                <TextField id="depth" name="depth" type="number" aria-describedby="depth-unit" />
                 <div id="depth-unit" aria-hidden="true">
                   inches
                 </div>

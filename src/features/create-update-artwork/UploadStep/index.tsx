@@ -112,7 +112,7 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
         };
 
         return (
-          <Form className={styles.form}>
+          <Form className={styles.form} noValidate>
             <div className={styles.activeContent}>
               {!values.image ? (
                 <input
