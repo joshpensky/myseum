@@ -1,5 +1,6 @@
 .wrapper {
   position: relative;
+  width: 100%;
 }
 
 .select {
@@ -9,8 +10,7 @@
   border: 1px solid c('border', 0.2);
   border-radius: sz(2.5);
   cursor: pointer;
-  display: flex;
-  flex: 1;
+  width: 100%;
 
   @include with-motion {
     transition: 150ms ease-out;

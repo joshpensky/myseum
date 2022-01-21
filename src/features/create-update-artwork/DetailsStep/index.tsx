@@ -2,7 +2,7 @@ import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import { TextField } from '@src/components/TextField__New';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmDetailsEvent,
   CreateUpdateArtworkState,
@@ -73,8 +73,8 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
         const { values, isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form} noValidate>
-            <div className={styles.activeContent}>
+          <Form className={rootStyles.form} noValidate>
+            <div className={rootStyles.activeContent}>
               <img src={state.context.selection.preview.src} alt="" />
             </div>
 
@@ -109,7 +109,7 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             <label htmlFor="acquiredAt">Acquired</label>
             <TextField id="acquiredAt" name="acquiredAt" type="date" />
 
-            <div className={styles.formActions}>
+            <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>
                 Back
               </Button>

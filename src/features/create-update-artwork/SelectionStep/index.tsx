@@ -4,7 +4,7 @@ import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmSelectionEvent,
   CreateUpdateArtworkState,
@@ -79,8 +79,8 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
         const { isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form} noValidate>
-            <div className={styles.activeContent}>
+          <Form className={rootStyles.form} noValidate>
+            <div className={rootStyles.activeContent}>
               <ImageSelectionEditor
                 activeLayer={0}
                 editor={editor}
@@ -102,7 +102,7 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
               image={state.context.upload.image}
             />
 
-            <div className={styles.formActions}>
+            <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>
                 Back
               </Button>

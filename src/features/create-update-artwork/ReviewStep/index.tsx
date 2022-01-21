@@ -1,6 +1,6 @@
 import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type { CreateUpdateArtworkState } from '@src/features/create-update-artwork/state';
 
 interface ReviewStepProps {
@@ -22,12 +22,12 @@ export const ReviewStep = ({ state, onSubmit }: ReviewStepProps) => {
         const { isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form} noValidate>
-            <div className={styles.activeContent}>
+          <Form className={rootStyles.form} noValidate>
+            <div className={rootStyles.activeContent}>
               <img src={state.context.selection.preview.src} alt="" />
             </div>
 
-            <div className={styles.formActions}>
+            <div className={rootStyles.formActions}>
               <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
                 Save
               </Button>

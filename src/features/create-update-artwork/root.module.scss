@@ -13,15 +13,28 @@
   flex: 1;
 }
 
+.active-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .header {
   @include padding(sz(3) sz(2));
   align-items: center;
-  border-bottom: 1px solid c('border', 0.4);
   display: flex;
   position: relative;
+}
+
+.progress {
+  background-color: c('border', 0.4);
+  height: 1px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 
   &::after {
-    @include absolute(x x -1px 0);
+    @include absolute(x x 0 0);
     background-color: c('border');
     box-shadow: 2px 0 0 0 c('bg');
     content: '';
@@ -108,6 +121,7 @@
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .content__title {
@@ -124,12 +138,6 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-
-  // input,
-  // textarea,
-  // select {
-  //   background-color: c('bg-tint');
-  // }
 }
 
 .form__actions {
@@ -180,7 +188,7 @@
 
   .active-content {
     @include absolute(0 x 0 0);
-    background-color: c('bg-tint');
+    // background-color: c('bg-tint');
     overflow-y: auto;
     width: min(calc(100vw - #{$form-area-min-width} - 1px), calc(200% / 3 - 1px));
   }

@@ -4,6 +4,8 @@
   background-color: c('bg-tint', 0);
   border: 1px solid c('border', 0.2);
   border-radius: sz(2.5);
+  min-width: 0;
+  width: 100%;
 
   @include with-motion {
     transition: 150ms ease-out;
@@ -58,14 +60,3 @@ input[type='date'].field::-webkit-calendar-picker-indicator {
     filter: invert(1);
   }
 }
-
-// const commonStyles = [
-//     tw`bg-transparent min-w-0 w-full py-2 px-3 border border-white border-opacity-20 bg-white bg-opacity-0 rounded`,
-//     tw`ring-1 ring-black ring-opacity-20 not-disabled:(hover:ring-opacity-40 focus:ring-opacity-100 transition-shadow)`,
-//     tw`placeholder-gray-300 placeholder-opacity-70`,
-//     [
-//       tw`disabled:(text-gray-300 text-opacity-70 placeholder-opacity-50 cursor-not-allowed)`,
-//       tw`not-disabled:hover:(bg-opacity-10) not-disabled:focus:(outline-none bg-opacity-15)`,
-//     ],
-//     customCss,
-//   ];

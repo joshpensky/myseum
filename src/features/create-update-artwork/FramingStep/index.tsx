@@ -3,13 +3,13 @@ import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import { TextField } from '@src/components/TextField__New';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmFramingEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
-import stepStyles from './framingStep.module.scss';
+import styles from './framingStep.module.scss';
 
 interface FramingStepProps {
   state: CreateUpdateArtworkState<'framing'>;
@@ -69,16 +69,12 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
         return (
-          <Form className={styles.form} noValidate>
-            <div className={cx(styles.activeContent, stepStyles.activeContent)}>
-              <img
-                className={stepStyles.preview}
-                src={state.context.selection.preview.src}
-                alt=""
-              />
+          <Form className={rootStyles.form} noValidate>
+            <div className={cx(rootStyles.activeContent, styles.activeContent)}>
+              <img className={styles.preview} src={state.context.selection.preview.src} alt="" />
             </div>
 
-            <div className={stepStyles.radioGroup}>
+            <div className={styles.radioGroup}>
               <Field
                 id="hasFrame-false"
                 type="radio"
@@ -102,7 +98,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
               </fieldset>
             </div>
 
-            <div className={stepStyles.radioGroup}>
+            <div className={styles.radioGroup}>
               <Field
                 id="hasFrame-true"
                 type="radio"
@@ -126,7 +122,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
               </fieldset>
             </div>
 
-            <div className={styles.formActions}>
+            <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>
                 Back
               </Button>

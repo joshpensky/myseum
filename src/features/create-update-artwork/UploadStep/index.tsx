@@ -1,15 +1,17 @@
-import { ChangeEvent, useState } from 'react';
+import { DragEvent, Fragment, useState } from 'react';
 import { MeasureUnit } from '@prisma/client';
+import cx from 'classnames';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmUploadEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
+import styles from './uploadStep.module.scss';
 
 const uploadStepSchema = z.object({
   image: z.instanceof(HTMLImageElement, { message: 'Must upload an image.' }),
@@ -36,9 +38,10 @@ interface UploadStepProps {
 }
 
 export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-
   const accept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDropping, setIsDropping] = useState(false);
 
   const initialValues: UploadStepSchema = {
     image: state.context.upload?.image ?? (undefined as any),
@@ -89,13 +92,18 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
           img.src = src;
         };
 
-        const onFileUpload = (evt: ChangeEvent<HTMLInputElement>) => {
+        const onFileUpload = (files: FileList | null) => {
+          if (!files) {
+            return;
+          }
+
           setIsUploading(true);
-          const imageFile = evt.target.files?.item(0);
+          const imageFile = files?.item(0);
           if (!imageFile || !accept.includes(imageFile.type)) {
             setIsUploading(false);
             return;
           }
+
           const reader = new FileReader();
           reader.addEventListener(
             'load',
@@ -111,30 +119,73 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
           reader.readAsDataURL(imageFile);
         };
 
+        /**
+         * Handler for when the user enters the drop area.
+         */
+        const onDropStart = (evt: DragEvent<HTMLLabelElement>) => {
+          evt.preventDefault();
+          setIsDropping(true);
+        };
+
+        /**
+         * Handler for when the user leaves the drop area.
+         */
+        const onDropEnd = (evt: DragEvent<HTMLLabelElement>) => {
+          evt.preventDefault();
+          setIsDropping(false);
+        };
+
+        /**
+         * Handler for when the user drops an image in the drop area.
+         */
+        const onDrop = (evt: DragEvent<HTMLLabelElement>) => {
+          onDropEnd(evt);
+          onFileUpload(evt.dataTransfer.files);
+        };
+
         return (
-          <Form className={styles.form} noValidate>
-            <div className={styles.activeContent}>
+          <Form className={rootStyles.form} noValidate>
+            <div className={rootStyles.activeContent}>
               {!values.image ? (
-                <input
-                  id="file"
-                  type="file"
-                  accept={accept.join(', ')}
-                  disabled={isUploading}
-                  required
-                  onChange={evt => onFileUpload(evt)}
-                />
+                <Fragment>
+                  <input
+                    className="sr-only"
+                    id="file"
+                    type="file"
+                    accept={accept.join(', ')}
+                    disabled={isUploading}
+                    required
+                    onChange={evt => onFileUpload(evt.target.files)}
+                  />
+                  <label
+                    className={cx(styles.fileDrop, isDropping && styles.fileDropActive)}
+                    htmlFor="file"
+                    onDragOver={onDropStart}
+                    onDragEnter={onDropStart}
+                    onDragLeave={onDropEnd}
+                    onDragEnd={onDropEnd}
+                    onDrop={onDrop}>
+                    Tap or drag & drop to upload
+                  </label>
+                </Fragment>
               ) : (
-                <img src={values.image.src} alt="" />
+                <div className={styles.preview}>
+                  <img src={values.image.src} alt="Preview of the uploaded artwork." />
+                </div>
               )}
             </div>
 
-            {values.image && (
-              <Button size="large" type="reset" onClick={() => setFieldValue('image', undefined)}>
+            {!!values.image && (
+              <Button
+                className={styles.reset}
+                size="large"
+                type="reset"
+                onClick={() => setFieldValue('image', undefined)}>
                 Reset
               </Button>
             )}
 
-            <div className={styles.formActions}>
+            <div className={rootStyles.formActions}>
               <Button
                 size="large"
                 type="submit"

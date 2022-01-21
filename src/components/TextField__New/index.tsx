@@ -1,7 +1,15 @@
-import { ChangeEvent, HTMLProps, KeyboardEvent, useEffect, useRef } from 'react';
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  FocusEventHandler,
+  HTMLProps,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+} from 'react';
 import cx from 'classnames';
 import dayjs from 'dayjs';
-import { Field, FormikHandlers, useField } from 'formik';
+import { Field, useField } from 'formik';
 import styles from './textField.module.scss';
 
 interface BaseTextFieldProps {
@@ -10,7 +18,8 @@ interface BaseTextFieldProps {
   disabled?: boolean;
   id?: string;
   name: string;
-  onBlur?: FormikHandlers['handleBlur'];
+  onBlur?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?(): void;
   placeholder?: string;
   required?: boolean;
@@ -42,7 +51,6 @@ type StringTextFieldProps = (
   | EmailTextFieldProps
 ) & {
   // Common props
-  onChange?: FormikHandlers['handleChange'];
   value?: string;
   // Disable number-only props
   min?: never;
@@ -52,7 +60,6 @@ type StringTextFieldProps = (
 interface NumberTextFieldProps {
   // Common props
   type: 'number';
-  onChange?: FormikHandlers['handleChange'];
   value?: number;
   // Number-only props
   min?: number;
@@ -71,7 +78,6 @@ export const TextField = ({
   id,
   name,
   min,
-  grow,
   rows,
   onBlur,
   onFocus,
@@ -84,6 +90,8 @@ export const TextField = ({
 }: TextFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const fieldId = id ?? name;
+
   const updateGrowingHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'inherit';
@@ -93,7 +101,7 @@ export const TextField = ({
   };
 
   useEffect(() => {
-    if (typedProps.type === 'text' && grow && textareaRef.current) {
+    if (typedProps.type === 'text' && typedProps.grow && textareaRef.current) {
       const observer = new ResizeObserver(entries => {
         entries.forEach(updateGrowingHeight);
       });
@@ -107,7 +115,7 @@ export const TextField = ({
 
   const [field, , helpers] = useField(name);
 
-  if (typedProps.type === 'text' && grow) {
+  if (typedProps.type === 'text' && typedProps.grow) {
     const controlProps: Partial<HTMLProps<HTMLTextAreaElement>> = {};
     if (typeof onBlur !== 'undefined') {
       controlProps.onBlur = onBlur;
@@ -117,7 +125,7 @@ export const TextField = ({
       <Field
         as="textarea"
         innerRef={textareaRef}
-        id={id}
+        id={fieldId}
         name={name}
         className={cx(styles.field, className)}
         rows={rows ?? 1}
@@ -159,7 +167,7 @@ export const TextField = ({
   }
 
   if (typeof typedProps.onChange !== 'undefined') {
-    controlProps.onChange = typedProps.onChange;
+    controlProps.onChange = typedProps.onChange as any;
   }
 
   if (typedProps.type === 'number') {
@@ -185,7 +193,7 @@ export const TextField = ({
 
   return (
     <Field
-      id={id}
+      id={fieldId}
       name={name}
       className={cx(styles.field, className)}
       type={typedProps.type}

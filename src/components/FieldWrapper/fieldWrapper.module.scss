@@ -1,0 +1,12 @@
+.wrapper {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.label {
+  font-size: $fs-sm;
+  color: c('secondary-text');
+  margin-bottom: sz(1);
+}

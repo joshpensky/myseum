@@ -1,6 +1,6 @@
-import { HTMLProps } from 'react';
+import { ChangeEventHandler, FocusEventHandler, HTMLProps } from 'react';
 import cx from 'classnames';
-import { Field, FormikHandlers } from 'formik';
+import { Field } from 'formik';
 import Caret from '@src/svgs/Caret';
 import styles from './select.module.scss';
 
@@ -15,8 +15,8 @@ export interface SelectProps<V extends string> {
   id?: string;
   name: string;
   value?: V;
-  onBlur?: FormikHandlers['handleBlur'];
-  onChange?: FormikHandlers['handleChange'];
+  onBlur?: FocusEventHandler<HTMLSelectElement>;
+  onChange?: ChangeEventHandler<HTMLSelectElement>;
   options: SelectOption<V>[];
   required?: boolean;
 }
@@ -32,7 +32,9 @@ export function Select<V extends string>({
   onChange,
   required,
 }: SelectProps<V>) {
-  const controlProps: Partial<HTMLProps<HTMLInputElement>> = {};
+  const fieldId = id ?? name;
+
+  const controlProps: Partial<HTMLProps<HTMLSelectElement>> = {};
   if (typeof value !== 'undefined') {
     controlProps.value = value;
   }
@@ -47,7 +49,7 @@ export function Select<V extends string>({
     <div className={styles.wrapper}>
       <Field
         as="select"
-        id={id}
+        id={fieldId}
         className={cx(styles.select, className)}
         name={name}
         required={required}

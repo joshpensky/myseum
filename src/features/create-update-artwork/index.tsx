@@ -104,9 +104,7 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
         <div className={styles.activeArea} />
 
         <div className={styles.formArea}>
-          <header
-            className={styles.header}
-            style={{ '--stepper-progress': (stepIdx + 1) / stepKeys.length }}>
+          <header className={styles.header}>
             <div className={styles.headerClose}>
               <Dialog.Close asChild>
                 <IconButton title="Close">
@@ -134,6 +132,11 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
               </p>
             </div>
           </header>
+
+          <div
+            className={styles.progress}
+            style={{ '--stepper-progress': (stepIdx + 1) / stepKeys.length }}
+          />
 
           <div ref={contentRef} className={styles.content}>
             <h3 ref={stepTitleRef} className={styles.contentTitle}>

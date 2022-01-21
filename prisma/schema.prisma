@@ -65,6 +65,7 @@ model Gallery {
 enum MeasureUnit {
   in
   cm
+  mm
 }
 
 model Frame {

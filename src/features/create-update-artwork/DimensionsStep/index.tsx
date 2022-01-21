@@ -1,15 +1,20 @@
+import { ChangeEvent } from 'react';
 import { MeasureUnit } from '@prisma/client';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField__New';
-import styles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmDimensionsEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
+import Close from '@src/svgs/Close';
+import Lightbulb from '@src/svgs/Lightbulb';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
+import styles from './dimensionsStep.module.scss';
 
 const dimensionsStepSchema = z.object({
   width: z
@@ -28,6 +33,12 @@ const dimensionsStepSchema = z.object({
 
 type DimensionsStepSchema = z.infer<typeof dimensionsStepSchema>;
 
+interface Preset {
+  value: string;
+  display: string;
+  dimensions: DimensionsStepSchema;
+}
+
 interface DimensionsStepProps {
   state: CreateUpdateArtworkState<'dimensions'>;
   onBack(): void;
@@ -42,6 +53,27 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
   };
 
   const initialErrors = validateZodSchema(dimensionsStepSchema, 'sync')(initialValues);
+
+  const presets: Preset[] = [
+    {
+      value: 'a4',
+      display: 'A4',
+      dimensions: {
+        width: 210,
+        height: 297,
+        unit: 'mm',
+      },
+    },
+    {
+      value: 'poster',
+      display: 'Poster',
+      dimensions: {
+        width: 11,
+        height: 17,
+        unit: 'in',
+      },
+    },
+  ];
 
   return (
     <Formik<DimensionsStepSchema>
@@ -59,28 +91,86 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
         });
       }}>
       {formik => {
-        const { isSubmitting, isValid } = formik;
+        const { handleChange, isSubmitting, isValid, setFieldValue } = formik;
 
         return (
-          <Form className={styles.form} noValidate>
-            <div className={styles.activeContent}></div>
+          <Form className={rootStyles.form} noValidate>
+            <div className={rootStyles.activeContent}></div>
 
-            <label htmlFor="width">Width</label>
-            <TextField id="width" name="width" type="number" required />
+            <div className={styles.row}>
+              <FieldWrapper name="width" label="Width">
+                <TextField
+                  name="width"
+                  type="number"
+                  required
+                  onChange={evt => {
+                    handleChange(evt);
+                    setFieldValue('preset', 'custom');
+                  }}
+                />
+              </FieldWrapper>
 
-            <label htmlFor="height">Height</label>
-            <TextField id="height" name="height" type="number" required />
+              <div className={styles.timesIcon}>
+                <Close />
+              </div>
 
-            <label htmlFor="unit">Unit</label>
-            <Select<MeasureUnit>
-              name="unit"
-              options={[
-                { value: 'in', display: 'inches' },
-                { value: 'cm', display: 'centimeters' },
-              ]}
-            />
+              <FieldWrapper name="height" label="Height">
+                <TextField
+                  name="height"
+                  type="number"
+                  required
+                  onChange={evt => {
+                    handleChange(evt);
+                    setFieldValue('preset', 'custom');
+                  }}
+                />
+              </FieldWrapper>
+            </div>
 
-            <div className={styles.formActions}>
+            <div className={styles.row}>
+              <FieldWrapper name="unit" label="Unit">
+                <Select<MeasureUnit>
+                  name="unit"
+                  options={[
+                    { value: 'in', display: 'inches' },
+                    { value: 'cm', display: 'centimeters' },
+                    { value: 'mm', display: 'millimeters' },
+                  ]}
+                  onChange={evt => {
+                    handleChange(evt);
+                    setFieldValue('preset', 'custom');
+                  }}
+                />
+              </FieldWrapper>
+            </div>
+
+            <div className={styles.hint}>
+              <div className={styles.hintIcon}>
+                <Lightbulb />
+              </div>
+
+              <p className={styles.hintText}>
+                Is your artwork a standard size? Use one of the below presets.
+              </p>
+
+              <FieldWrapper name="preset" label={<span className="sr-only">Preset</span>}>
+                <Select<string>
+                  name="preset"
+                  options={[{ value: 'custom', display: 'Custom' }, ...presets]}
+                  onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
+                    handleChange(evt);
+                    const preset = presets.find(preset => preset.value === evt.target.value);
+                    if (preset) {
+                      setFieldValue('width', preset.dimensions.width);
+                      setFieldValue('height', preset.dimensions.height);
+                      setFieldValue('unit', preset.dimensions.unit);
+                    }
+                  }}
+                />
+              </FieldWrapper>
+            </div>
+
+            <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>
                 Back
               </Button>
