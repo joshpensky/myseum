@@ -1,5 +1,5 @@
 import { Artist, Artwork, Frame } from '@prisma/client';
-import { Dimensions, Dimensions3D } from '@src/types';
+import { Dimensions3D } from '@src/types';
 import { FrameDto, FrameSerializer } from './FrameSerializer';
 
 export interface PrismaArtwork extends Artwork {
@@ -13,7 +13,7 @@ export interface ArtworkDto {
   description: string;
   src: string;
   alt: string;
-  size: Dimensions;
+  size: Dimensions3D;
   fullSize: Dimensions3D;
   frame?: FrameDto;
   artist?: Artist;
@@ -23,9 +23,10 @@ export interface ArtworkDto {
 
 export class ArtworkSerializer {
   static serialize(artwork: PrismaArtwork): ArtworkDto {
-    const size: Dimensions = {
+    const size: Dimensions3D = {
       width: artwork.width,
       height: artwork.height,
+      depth: 0,
     };
 
     let frame: FrameDto | undefined = undefined;

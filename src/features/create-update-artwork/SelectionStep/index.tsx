@@ -38,6 +38,8 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
         // TODO: if selection context already exists, do path equivalency check to see
         // if we need to recreate preview
 
+        // TODO: if path is initial path (00,01,11,10), just reuse the uploaded image
+
         // Create a destination canvas to render the preview to
         const destCanvas = document.createElement('canvas');
         // Resize the canvas to the highest quality within the image dimensions
@@ -63,7 +65,7 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
         texture.destroy();
 
         // Generate the image src from the canvas contents
-        const previewSrc = destCanvas.toDataURL('image/jpeg');
+        const previewSrc = destCanvas.toDataURL('image/png');
         const preview = document.createElement('img');
         preview.src = previewSrc;
 

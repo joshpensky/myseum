@@ -3,14 +3,24 @@
 @include mq(max, $bp-active-area) {
   .active-content {
     @include sticky(0 x x);
+    backdrop-filter: blur(2px);
+    background-color: c('bg', 0.7);
     display: flex;
     justify-content: center;
+    margin-bottom: sz(4);
     padding-bottom: sz(4);
-    width: 100%;
-  }
-
-  .preview {
     height: 250px;
+    width: 100%;
+    z-index: 2;
+
+    &::after {
+      @include absolute(x 0 sz(-4));
+      backdrop-filter: blur(2px);
+      background-color: c('bg', 0.7);
+      height: sz(4);
+      mask-image: scrim-gradient(to top, 'bg');
+      content: '';
+    }
   }
 }
 

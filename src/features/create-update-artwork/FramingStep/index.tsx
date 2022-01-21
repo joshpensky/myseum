@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { Preview3d } from '@src/components/Preview3d';
 import { TextField } from '@src/components/TextField__New';
 import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
@@ -68,11 +70,33 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
       {formik => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
+        const [rotated, setRotated] = useState(false);
+
+        let previewDepth = 0;
+        if (values.hasFrame === false) {
+          previewDepth = values.depth;
+        }
+
         return (
           <Form className={rootStyles.form} noValidate>
             <div className={cx(rootStyles.activeContent, styles.activeContent)}>
-              <img className={styles.preview} src={state.context.selection.preview.src} alt="" />
+              <Preview3d
+                rotated={rotated}
+                artwork={{
+                  src: state.context.selection.preview.src,
+                  alt: 'Preview of the uploaded artwork',
+                  size: {
+                    width: state.context.dimensions.width,
+                    height: state.context.dimensions.height,
+                    depth: previewDepth,
+                  },
+                }}
+              />
             </div>
+
+            <Button type="button" onClick={() => setRotated(!rotated)}>
+              Rotate
+            </Button>
 
             <div className={styles.radioGroup}>
               <Field
@@ -91,7 +115,13 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 <p>Adjust the depth of the piece.</p>
 
                 <label htmlFor="depth">Depth</label>
-                <TextField id="depth" name="depth" type="number" aria-describedby="depth-unit" />
+                <TextField
+                  id="depth"
+                  name="depth"
+                  type="number"
+                  min={0}
+                  aria-describedby="depth-unit"
+                />
                 <div id="depth-unit" aria-hidden="true">
                   inches
                 </div>
