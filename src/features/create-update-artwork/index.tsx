@@ -49,16 +49,9 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
     } else if (state.matches('review')) {
       return <ReviewStep state={state} onSubmit={() => onClose()} />;
     } else {
-      return null;
+      throw new Error('Form has entered unknown state.');
     }
   };
-
-  // TODO: Reset state on close
-  // useEffect(() => {
-  //   if (!open) {
-  //     // ...
-  //   }
-  // }, [open]);
 
   // Get the current step index (sans 'complete')
   const stepKeys: CreateUpdateArtworkStateValue[] = [

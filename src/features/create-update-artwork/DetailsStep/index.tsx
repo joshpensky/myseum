@@ -1,6 +1,11 @@
-import { Field, Form, Formik } from 'formik';
+import { Fragment, useState } from 'react';
+import cx from 'classnames';
+import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { CheckboxField } from '@src/components/CheckboxField';
+import { FieldWrapper } from '@src/components/FieldWrapper';
+import { Preview3d } from '@src/components/Preview3d';
 import { TextField } from '@src/components/TextField__New';
 import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
@@ -8,6 +13,7 @@ import type {
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
+import styles from './detailsStep.module.scss';
 
 const detailsStepSchema = z.object({
   title: z.string({ required_error: 'Title is required.' }).min(1, 'Title is required.'),
@@ -72,42 +78,79 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
       {formik => {
         const { values, isSubmitting, isValid } = formik;
 
+        const [rotated, setRotated] = useState(false);
+
         return (
           <Form className={rootStyles.form} noValidate>
-            <div className={rootStyles.activeContent}>
-              <img src={state.context.selection.preview.src} alt="" />
+            <div className={cx(rootStyles.activeContent, styles.activeContent)}>
+              <div className={styles.preview}>
+                <Preview3d
+                  rotated={rotated}
+                  artwork={{
+                    src: state.context.selection.preview.src,
+                    alt: 'Preview of the uploaded artwork',
+                    size: {
+                      width: state.context.dimensions.width,
+                      height: state.context.dimensions.height,
+                      depth: state.context.framing.depth ?? 0,
+                    },
+                  }}
+                />
+              </div>
+
+              <Button type="button" onClick={() => setRotated(!rotated)}>
+                Rotate
+              </Button>
             </div>
 
-            <label htmlFor="title">Title</label>
-            <TextField id="title" name="title" type="text" required />
+            <FieldWrapper className={styles.field} name="title" label="Title" required>
+              {field => <TextField {...field} type="text" />}
+            </FieldWrapper>
 
-            <label htmlFor="artist">Artist</label>
-            <TextField id="artist" name="artist" type="text" />
+            <FieldWrapper className={styles.field} name="artist" label="Artist">
+              {field => <TextField {...field} type="text" />}
+            </FieldWrapper>
 
-            <label htmlFor="description">Description</label>
-            <TextField id="description" name="description" type="text" grow rows={2} required />
+            <FieldWrapper className={styles.field} name="description" label="Description" required>
+              {field => <TextField {...field} type="text" grow rows={2} />}
+            </FieldWrapper>
 
-            <label htmlFor="altText">Alt Text</label>
-            <TextField id="altText" name="altText" type="text" grow rows={2} required />
+            <FieldWrapper className={styles.field} name="altText" label="Alt Text" required>
+              {field => <TextField {...field} type="text" grow rows={2} />}
+            </FieldWrapper>
 
-            <label htmlFor="createdAt">Created</label>
-            {!values.isCreatedAtUnknown ? (
-              <TextField id="createdAt" name="createdAt" type="date" />
-            ) : (
-              <TextField
-                id="createdAt"
-                name="createdAt-fake"
-                type="text"
-                value="Unknown"
-                disabled
-              />
-            )}
+            <div className={styles.formRow}>
+              <div className={styles.createdAtField}>
+                <FieldWrapper name="createdAt" label="Created" required>
+                  {field =>
+                    !values.isCreatedAtUnknown ? (
+                      <TextField {...field} type="date" />
+                    ) : (
+                      <TextField
+                        {...field}
+                        name="createdAt-fake"
+                        type="text"
+                        value="Unknown"
+                        disabled
+                      />
+                    )
+                  }
+                </FieldWrapper>
 
-            <Field id="isCreatedAtUnknown" name="isCreatedAtUnknown" type="checkbox" />
-            <label htmlFor="isCreatedAtUnknown">Check if created date is unknown</label>
+                <CheckboxField
+                  name="isCreatedAtUnknown"
+                  label={
+                    <Fragment>
+                      Check if <span className="sr-only">created date is</span>&nbsp;unknown
+                    </Fragment>
+                  }
+                />
+              </div>
 
-            <label htmlFor="acquiredAt">Acquired</label>
-            <TextField id="acquiredAt" name="acquiredAt" type="date" />
+              <FieldWrapper name="acquiredAt" label="Acquired" required>
+                {field => <TextField {...field} type="date" />}
+              </FieldWrapper>
+            </div>
 
             <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>

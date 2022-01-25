@@ -98,49 +98,53 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
             <div className={rootStyles.activeContent}></div>
 
             <div className={styles.row}>
-              <FieldWrapper name="width" label="Width">
-                <TextField
-                  name="width"
-                  type="number"
-                  required
-                  onChange={evt => {
-                    handleChange(evt);
-                    setFieldValue('preset', 'custom');
-                  }}
-                />
+              <FieldWrapper name="width" label="Width" required>
+                {field => (
+                  <TextField
+                    {...field}
+                    type="number"
+                    onChange={evt => {
+                      handleChange(evt);
+                      setFieldValue('preset', 'custom');
+                    }}
+                  />
+                )}
               </FieldWrapper>
 
               <div className={styles.timesIcon}>
                 <Close />
               </div>
 
-              <FieldWrapper name="height" label="Height">
-                <TextField
-                  name="height"
-                  type="number"
-                  required
-                  onChange={evt => {
-                    handleChange(evt);
-                    setFieldValue('preset', 'custom');
-                  }}
-                />
+              <FieldWrapper name="height" label="Height" required>
+                {field => (
+                  <TextField
+                    {...field}
+                    type="number"
+                    onChange={evt => {
+                      handleChange(evt);
+                      setFieldValue('preset', 'custom');
+                    }}
+                  />
+                )}
               </FieldWrapper>
             </div>
 
             <div className={styles.row}>
-              <FieldWrapper name="unit" label="Unit">
-                <Select<MeasureUnit>
-                  name="unit"
-                  options={[
-                    { value: 'in', display: 'inches' },
-                    { value: 'cm', display: 'centimeters' },
-                    { value: 'mm', display: 'millimeters' },
-                  ]}
-                  onChange={evt => {
-                    handleChange(evt);
-                    setFieldValue('preset', 'custom');
-                  }}
-                />
+              <FieldWrapper name="unit" label="Unit" required>
+                {field => (
+                  <Select<MeasureUnit>
+                    {...field}
+                    options={[
+                      { value: 'in', display: 'inches' },
+                      { value: 'cm', display: 'centimeters' },
+                      { value: 'mm', display: 'millimeters' },
+                    ]}
+                    onChange={evt => {
+                      handleChange(evt);
+                      setFieldValue('preset', 'custom');
+                    }}
+                  />
+                )}
               </FieldWrapper>
             </div>
 
@@ -153,20 +157,22 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                 Is your artwork a standard size? Use one of the below presets.
               </p>
 
-              <FieldWrapper name="preset" label={<span className="sr-only">Preset</span>}>
-                <Select<string>
-                  name="preset"
-                  options={[{ value: 'custom', display: 'Custom' }, ...presets]}
-                  onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
-                    handleChange(evt);
-                    const preset = presets.find(preset => preset.value === evt.target.value);
-                    if (preset) {
-                      setFieldValue('width', preset.dimensions.width);
-                      setFieldValue('height', preset.dimensions.height);
-                      setFieldValue('unit', preset.dimensions.unit);
-                    }
-                  }}
-                />
+              <FieldWrapper name="preset" label="Preset" labelClassName="sr-only">
+                {field => (
+                  <Select<string>
+                    {...field}
+                    options={[{ value: 'custom', display: 'Custom' }, ...presets]}
+                    onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
+                      handleChange(evt);
+                      const preset = presets.find(preset => preset.value === evt.target.value);
+                      if (preset) {
+                        setFieldValue('width', preset.dimensions.width);
+                        setFieldValue('height', preset.dimensions.height);
+                        setFieldValue('unit', preset.dimensions.unit);
+                      }
+                    }}
+                  />
+                )}
               </FieldWrapper>
             </div>
 

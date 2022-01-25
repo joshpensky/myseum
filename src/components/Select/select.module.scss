@@ -4,6 +4,7 @@
 }
 
 .select {
+  @include outline-none;
   @include padding(sz(2) sz(9) sz(2) sz(3));
   appearance: none;
   background-color: c('bg-tint', 0);
@@ -14,10 +15,6 @@
 
   @include with-motion {
     transition: 150ms ease-out;
-  }
-
-  &:focus {
-    @include outline-none;
   }
 
   &:disabled {
@@ -37,6 +34,10 @@
       background-color: c('bg-tint');
       border: 1px solid c('border');
     }
+  }
+
+  &:not(:disabled).select--error {
+    border: 1px solid c('red');
   }
 }
 

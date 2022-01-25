@@ -35,7 +35,8 @@ export const Preview3d = ({ artwork, rotated }: Preview3dProps) => {
   }, []);
 
   // Get color for the rotated depth sides
-  const [depthColor, setDepthColor] = useState(rgb(124, 124, 124));
+  const DEFAULT_DEPTH_COLOR = rgb(124, 124, 124);
+  const [depthColor, setDepthColor] = useState(DEFAULT_DEPTH_COLOR);
   useEffect(() => {
     const image = new Image();
     image.onload = () => {
@@ -57,7 +58,7 @@ export const Preview3d = ({ artwork, rotated }: Preview3dProps) => {
         setDepthColor(rgb(colorData.data[0], colorData.data[1], colorData.data[2]));
       } catch {
         // If anything fails, use default depth color
-        setDepthColor(rgb(124, 124, 124));
+        setDepthColor(DEFAULT_DEPTH_COLOR);
       }
     };
     image.src = artwork.src;

@@ -9,4 +9,23 @@
   font-size: $fs-sm;
   color: c('secondary-text');
   margin-bottom: sz(1);
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  fieldset:disabled &,
+  .wrapper--disabled & {
+    opacity: 0.5;
+  }
+}
+
+.label__optional {
+  font-size: $fs-xs;
+}
+
+.error {
+  margin-top: sz(1);
+  font-size: $fs-sm;
+  color: c('red');
 }

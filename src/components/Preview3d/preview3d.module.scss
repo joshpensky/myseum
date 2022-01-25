@@ -1,6 +1,6 @@
 .wrapper {
-  @include absolute(sz(4));
-  @include size(calc(100% - #{sz(8)}));
+  @include size(100%);
+  position: relative;
 }
 
 .preview {

@@ -11,20 +11,16 @@ import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Field, useField } from 'formik';
 import styles from './textField.module.scss';
+import { FieldWrapperChildProps } from '../FieldWrapper';
 
-interface BaseTextFieldProps {
+interface BaseTextFieldProps extends FieldWrapperChildProps {
   autoComplete?: 'off' | undefined;
   className?: string;
-  disabled?: boolean;
-  id?: string;
-  name: string;
   onBlur?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?(): void;
   placeholder?: string;
-  required?: boolean;
   readOnly?: boolean;
-  'aria-describedby'?: string;
 }
 
 interface BasicTextFieldProps<Grow extends boolean> {
@@ -72,6 +68,7 @@ interface NumberTextFieldProps {
 type TextFieldProps = BaseTextFieldProps & (StringTextFieldProps | NumberTextFieldProps);
 
 export const TextField = ({
+  'aria-describedby': ariaDescribedby,
   autoComplete,
   className,
   disabled,
@@ -85,12 +82,9 @@ export const TextField = ({
   readOnly,
   required,
   step,
-  'aria-describedby': ariaDescribedby,
   ...typedProps
 }: TextFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const fieldId = id ?? name;
 
   const updateGrowingHeight = () => {
     if (textareaRef.current) {
@@ -113,7 +107,8 @@ export const TextField = ({
     }
   }, []);
 
-  const [field, , helpers] = useField(name);
+  const [field, meta, helpers] = useField(name);
+  const hasError = !!(meta.touched && meta.error);
 
   if (typedProps.type === 'text' && typedProps.grow) {
     const controlProps: Partial<HTMLProps<HTMLTextAreaElement>> = {};
@@ -125,9 +120,9 @@ export const TextField = ({
       <Field
         as="textarea"
         innerRef={textareaRef}
-        id={fieldId}
+        id={id}
         name={name}
-        className={cx(styles.field, className)}
+        className={cx(styles.field, hasError && styles.fieldError, className)}
         rows={rows ?? 1}
         autoComplete={autoComplete}
         disabled={disabled}
@@ -137,11 +132,17 @@ export const TextField = ({
         {...controlProps}
         value={field.value}
         onChange={(evt: ChangeEvent<HTMLTextAreaElement>) => {
-          const { value } = evt.target;
-          helpers.setValue(value.replace(/(\r\n|\n|\r)/gm, ''));
+          const nextValue = evt.target.value.replace(/(\r\n|\n|\r)/gm, '');
+          helpers.setValue(nextValue);
           updateGrowingHeight();
           if (typedProps.onChange) {
-            typedProps.onChange(evt);
+            typedProps.onChange({
+              ...evt,
+              target: {
+                ...evt.target,
+                value: nextValue,
+              },
+            });
           }
         }}
         onFocus={onFocus}
@@ -193,9 +194,9 @@ export const TextField = ({
 
   return (
     <Field
-      id={fieldId}
+      id={id}
       name={name}
-      className={cx(styles.field, className)}
+      className={cx(styles.field, hasError && styles.fieldError, className)}
       type={typedProps.type}
       autoComplete={autoComplete}
       min={min}

@@ -147,14 +147,15 @@
   display: flex;
   flex: 1;
   width: 100%;
+  z-index: 3;
 
   &::before {
     @include absolute(0 sz(-4) x);
     backdrop-filter: blur(2px);
     background-color: c('bg', 0.7);
+    content: '';
     height: sz(6.5);
     mask-image: scrim-gradient(to bottom, 'bg');
-    content: '';
   }
 
   &::after {
@@ -162,6 +163,7 @@
     backdrop-filter: blur(2px);
     background-color: c('bg', 0.7);
     content: '';
+    pointer-events: none;
   }
 
   button {
@@ -188,7 +190,6 @@
 
   .active-content {
     @include absolute(0 x 0 0);
-    // background-color: c('bg-tint');
     overflow-y: auto;
     width: min(calc(100vw - #{$form-area-min-width} - 1px), calc(200% / 3 - 1px));
   }

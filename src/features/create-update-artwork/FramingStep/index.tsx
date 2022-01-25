@@ -1,15 +1,19 @@
 import { useState } from 'react';
+import { MeasureUnit } from '@prisma/client';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
+import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
+import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField__New';
 import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   ConfirmFramingEvent,
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
+import Checkmark from '@src/svgs/Checkmark';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './framingStep.module.scss';
 
@@ -71,6 +75,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
         const [rotated, setRotated] = useState(false);
+        const [isDepthFocused, setIsDepthFocused] = useState(false);
 
         let previewDepth = 0;
         if (values.hasFrame === false) {
@@ -80,27 +85,30 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
         return (
           <Form className={rootStyles.form} noValidate>
             <div className={cx(rootStyles.activeContent, styles.activeContent)}>
-              <Preview3d
-                rotated={rotated}
-                artwork={{
-                  src: state.context.selection.preview.src,
-                  alt: 'Preview of the uploaded artwork',
-                  size: {
-                    width: state.context.dimensions.width,
-                    height: state.context.dimensions.height,
-                    depth: previewDepth,
-                  },
-                }}
-              />
-            </div>
+              <div className={styles.preview}>
+                <Preview3d
+                  rotated={rotated || isDepthFocused}
+                  artwork={{
+                    src: state.context.selection.preview.src,
+                    alt: 'Preview of the uploaded artwork',
+                    size: {
+                      width: state.context.dimensions.width,
+                      height: state.context.dimensions.height,
+                      depth: previewDepth,
+                    },
+                  }}
+                />
+              </div>
 
-            <Button type="button" onClick={() => setRotated(!rotated)}>
-              Rotate
-            </Button>
+              <Button type="button" onClick={() => setRotated(!rotated)}>
+                Rotate
+              </Button>
+            </div>
 
             <div className={styles.radioGroup}>
               <Field
                 id="hasFrame-false"
+                className="sr-only"
                 type="radio"
                 name="hasFrame"
                 required
@@ -108,29 +116,58 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 checked={values.hasFrame === false}
                 onChange={() => setFieldValue('hasFrame', false)}
               />
-              <label htmlFor="hasFrame-false">No Frame</label>
 
-              <fieldset disabled={values.hasFrame !== false}>
+              <label className={styles.radioGroupLabel} htmlFor="hasFrame-false">
+                <span className={styles.radioGroupButton} aria-hidden="true">
+                  <Checkmark />
+                </span>
+                No Frame
+              </label>
+
+              <fieldset className={styles.radioGroupFieldset} disabled={values.hasFrame !== false}>
                 <legend className="sr-only">No Frame</legend>
-                <p>Adjust the depth of the piece.</p>
+                <p className={styles.radioGroupDescription}>Adjust the depth of the piece.</p>
 
-                <label htmlFor="depth">Depth</label>
-                <TextField
-                  id="depth"
-                  name="depth"
-                  type="number"
-                  min={0}
-                  aria-describedby="depth-unit"
-                />
-                <div id="depth-unit" aria-hidden="true">
-                  inches
+                <div className={styles.fieldRow}>
+                  <FieldWrapper className={styles.fieldRowItem} name="depth" label="Depth" required>
+                    {field => (
+                      <TextField
+                        {...field}
+                        type="number"
+                        min={0}
+                        onFocus={() => setIsDepthFocused(true)}
+                        onBlur={() => setIsDepthFocused(false)}
+                      />
+                    )}
+                  </FieldWrapper>
+
+                  <FieldWrapper
+                    className={styles.fieldRowItem}
+                    name="depth-unit"
+                    label="Unit"
+                    disabled
+                    required>
+                    {field => (
+                      <Select<MeasureUnit>
+                        {...field}
+                        options={[
+                          { value: 'in', display: 'inches' },
+                          { value: 'cm', display: 'centimeters' },
+                          { value: 'mm', display: 'millimeters' },
+                        ]}
+                      />
+                    )}
+                  </FieldWrapper>
                 </div>
               </fieldset>
+
+              <div className={styles.radioGroupFrame} />
             </div>
 
             <div className={styles.radioGroup}>
               <Field
                 id="hasFrame-true"
+                className="sr-only"
                 type="radio"
                 name="hasFrame"
                 required
@@ -138,18 +175,26 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 checked={values.hasFrame === true}
                 onChange={() => setFieldValue('hasFrame', true)}
               />
-              <label htmlFor="hasFrame-true">Framed</label>
 
-              <fieldset disabled={values.hasFrame !== true}>
+              <label className={styles.radioGroupLabel} htmlFor="hasFrame-true">
+                <span className={styles.radioGroupButton} aria-hidden="true">
+                  <Checkmark />
+                </span>
+                Framed
+              </label>
+
+              <fieldset className={styles.radioGroupFieldset} disabled={values.hasFrame !== true}>
                 <legend className="sr-only">Framed</legend>
-                <p>Create or choose an existing frame.</p>
+                <p className={styles.radioGroupDescription}>Create or choose an existing frame.</p>
 
                 {/* TODO: frame selection */}
 
-                <Button size="large" type="button">
+                <Button className={styles.createButton} size="large" type="button">
                   Create frame
                 </Button>
               </fieldset>
+
+              <div className={styles.radioGroupFrame} />
             </div>
 
             <div className={rootStyles.formActions}>

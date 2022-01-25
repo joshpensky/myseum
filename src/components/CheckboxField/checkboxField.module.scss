@@ -1,0 +1,68 @@
+.wrapper {
+  margin-top: sz(2);
+  position: relative;
+}
+
+.label {
+  align-items: center;
+  color: c('secondary-text');
+  cursor: pointer;
+  display: inline-flex;
+  font-size: $fs-sm;
+
+  &::before {
+    @include size(sz(4));
+    box-shadow: 0 0 0 1px c('bg'), 0 0 0 0 c('border');
+    display: inline-flex;
+    border: 1px solid c('border', 0.2);
+    border-radius: sz(1);
+    content: '';
+    margin-right: sz(2);
+
+    @include with-motion {
+      transition: 150ms ease-out;
+    }
+
+    @media (hover: hover) {
+      input:not(:disabled):hover + & {
+        border: 1px solid c('border', 0.4);
+        background-color: c('bg-tint');
+      }
+    }
+
+    input:not(:disabled):focus + & {
+      box-shadow: 0 0 0 1px c('bg'), 0 0 0 2px c('border');
+    }
+
+    input:checked + & {
+      background-color: c('border') !important;
+    }
+  }
+
+  &.label--error {
+    &::before {
+      border: 1px solid c('red');
+    }
+  }
+}
+
+.checkmark {
+  @include absolute(sz(1.5) x x sz(0.75));
+  @include size(sz(2.5));
+  color: c('bg');
+  pointer-events: none;
+  stroke-width: 1.2;
+
+  svg {
+    @include size(100%);
+  }
+
+  input:not(:checked) ~ & {
+    opacity: 0;
+  }
+}
+
+.error {
+  font-size: $fs-sm;
+  color: c('red');
+}
