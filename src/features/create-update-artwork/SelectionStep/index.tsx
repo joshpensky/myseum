@@ -21,6 +21,7 @@ interface SelectionStepProps {
 }
 
 export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) => {
+  // TODO: store editor in context to keep history?
   const [editor, setEditor] = useState(() => {
     let initialSnapshot: SelectionEditorSnapshot | undefined = undefined;
     if (state.context.selection) {

@@ -58,6 +58,7 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
       initialErrors={initialErrors}
       validate={validateZodSchema(uploadStepSchema)}
       onSubmit={values => {
+        // TODO: reset full state on image change?
         onSubmit({
           type: 'CONFIRM_UPLOAD',
           upload: {

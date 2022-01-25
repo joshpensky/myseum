@@ -36,3 +36,60 @@
     @include size(calc(100% - #{sz(6)} * 2));
   }
 }
+
+.section {
+  @include padding(sz(3) sz(4));
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+  position: relative;
+  margin-bottom: sz(4);
+  width: 100%;
+  min-height: sz(20);
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      border: 1px solid c('border', 0.4);
+    }
+  }
+
+  &:focus-within {
+    border: 1px solid c('border');
+  }
+
+  dl {
+    color: c('secondary-text');
+
+    dt {
+      font-size: $fs-sm;
+      margin-bottom: sz(0.5);
+    }
+
+    dt,
+    dd {
+      line-height: 1.2;
+    }
+
+    dd + dt {
+      margin-top: sz(2);
+    }
+  }
+}
+
+.section__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+
+  h4 {
+    font-weight: 500;
+    margin-bottom: sz(2);
+  }
+}
+
+.section__edit {
+  @include margin(sz(-2) sz(-1.5) x x);
+}

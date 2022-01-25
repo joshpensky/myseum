@@ -1,18 +1,30 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import cx from 'classnames';
+import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
+import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
 import rootStyles from '@src/features/create-update-artwork/root.module.scss';
-import type { CreateUpdateArtworkState } from '@src/features/create-update-artwork/state';
+import type {
+  CreateUpdateArtworkState,
+  EditDetailsEvent,
+  EditDimensionsEvent,
+  EditFramingEvent,
+  EditSelectionEvent,
+} from '@src/features/create-update-artwork/state';
+import Edit from '@src/svgs/Edit';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
   state: CreateUpdateArtworkState<'review'>;
+  onEdit(
+    event: EditDimensionsEvent | EditSelectionEvent | EditFramingEvent | EditDetailsEvent,
+  ): void;
   onSubmit(): void;
 }
 
-export const ReviewStep = ({ state, onSubmit }: ReviewStepProps) => {
+export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
   const initialValues = {};
 
   return (
@@ -35,7 +47,7 @@ export const ReviewStep = ({ state, onSubmit }: ReviewStepProps) => {
                   rotated={rotated}
                   artwork={{
                     src: state.context.selection.preview.src,
-                    alt: 'Preview of the uploaded artwork',
+                    alt: state.context.details.altText,
                     size: {
                       width: state.context.dimensions.width,
                       height: state.context.dimensions.height,
@@ -49,6 +61,106 @@ export const ReviewStep = ({ state, onSubmit }: ReviewStepProps) => {
                 Rotate
               </Button>
             </div>
+
+            <section className={styles.section}>
+              <header className={styles.sectionHeader}>
+                <h4>Dimensions</h4>
+
+                <IconButton
+                  className={styles.sectionEdit}
+                  title="Edit Dimensions"
+                  onClick={() => onEdit({ type: 'EDIT_DIMENSIONS' })}>
+                  <Edit />
+                </IconButton>
+              </header>
+
+              <dl>
+                <dt className="sr-only">Size</dt>
+                <dd>
+                  {state.context.dimensions.width} x {state.context.dimensions.height}{' '}
+                  {state.context.dimensions.unit}
+                </dd>
+              </dl>
+            </section>
+
+            <section className={styles.section}>
+              <header className={styles.sectionHeader}>
+                <h4>Selection</h4>
+
+                <IconButton
+                  className={styles.sectionEdit}
+                  title="Edit Selection"
+                  onClick={() => onEdit({ type: 'EDIT_SELECTION' })}>
+                  <Edit />
+                </IconButton>
+              </header>
+            </section>
+
+            <section className={styles.section}>
+              <header className={styles.sectionHeader}>
+                <h4>Framing</h4>
+
+                <IconButton
+                  className={styles.sectionEdit}
+                  title="Edit Framing"
+                  onClick={() => onEdit({ type: 'EDIT_FRAMING' })}>
+                  <Edit />
+                </IconButton>
+              </header>
+
+              <dl>
+                <dt>Option</dt>
+                <dd>{state.context.framing.hasFrame ? 'Framed' : 'No Frame'}</dd>
+
+                {state.context.framing.hasFrame ? (
+                  <Fragment>
+                    <dt>Frame</dt>
+                    <dd>{state.context.framing.frame.description}</dd>
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    <dt>Depth</dt>
+                    <dd>
+                      {state.context.framing.depth} {state.context.dimensions.unit}
+                    </dd>
+                  </Fragment>
+                )}
+              </dl>
+            </section>
+
+            <section className={styles.section}>
+              <header className={styles.sectionHeader}>
+                <h4>Details</h4>
+
+                <IconButton
+                  className={styles.sectionEdit}
+                  title="Edit Details"
+                  onClick={() => onEdit({ type: 'EDIT_DETAILS' })}>
+                  <Edit />
+                </IconButton>
+              </header>
+
+              <dl>
+                <dt>Title</dt>
+                <dd>{state.context.details.title}</dd>
+
+                <dt>Artist</dt>
+                <dd>{state.context.details.artist || 'Unknown'}</dd>
+
+                <dt>Description</dt>
+                <dd>{state.context.details.description}</dd>
+
+                <dt>Created</dt>
+                <dd>
+                  {state.context.details.createdAt
+                    ? dayjs(state.context.details.createdAt).format('MMM D, YYYY')
+                    : 'Unknown'}
+                </dd>
+
+                <dt>Acquired</dt>
+                <dd>{dayjs(state.context.details.acquiredAt).format('MMM D, YYYY')}</dd>
+              </dl>
+            </section>
 
             <div className={rootStyles.formActions}>
               <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>

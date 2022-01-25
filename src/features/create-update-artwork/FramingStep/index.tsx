@@ -74,6 +74,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
       {formik => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
+        // TODO: keep rotated state consistent between next few screens?
         const [rotated, setRotated] = useState(false);
         const [isDepthFocused, setIsDepthFocused] = useState(false);
 

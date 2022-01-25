@@ -87,13 +87,33 @@ export interface ConfirmDetailsEvent {
   details: DetailsContext;
 }
 
+export interface EditDimensionsEvent {
+  type: 'EDIT_DIMENSIONS';
+}
+
+export interface EditSelectionEvent {
+  type: 'EDIT_SELECTION';
+}
+
+export interface EditFramingEvent {
+  type: 'EDIT_FRAMING';
+}
+
+export interface EditDetailsEvent {
+  type: 'EDIT_DETAILS';
+}
+
 export type CreateUpdateArtworkEvent =
   | GoBackEvent
   | ConfirmUploadEvent
   | ConfirmDimensionsEvent
   | ConfirmSelectionEvent
   | ConfirmFramingEvent
-  | ConfirmDetailsEvent;
+  | ConfirmDetailsEvent
+  | EditDimensionsEvent
+  | EditSelectionEvent
+  | EditFramingEvent
+  | EditDetailsEvent;
 
 //////////////////////////
 // Typestates
@@ -267,13 +287,24 @@ export const createUpdateArtworkMachine = createMachine<
       },
     },
     review: {
-      type: 'final',
+      // type: 'final',
       meta: {
         title: 'Review',
         description: 'Make any last edits and confirm your selections.',
       },
       on: {
-        // TODO: events to go back to each state (e.g., 'EDIT_UPLOAD')
+        EDIT_DIMENSIONS: {
+          target: 'dimensions',
+        },
+        EDIT_SELECTION: {
+          target: 'selection',
+        },
+        EDIT_FRAMING: {
+          target: 'framing',
+        },
+        EDIT_DETAILS: {
+          target: 'details',
+        },
       },
     },
   },

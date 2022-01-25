@@ -47,7 +47,7 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
     } else if (state.matches('details')) {
       return <DetailsStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
     } else if (state.matches('review')) {
-      return <ReviewStep state={state} onSubmit={() => onClose()} />;
+      return <ReviewStep state={state} onEdit={event => send(event)} onSubmit={() => onClose()} />;
     } else {
       throw new Error('Form has entered unknown state.');
     }
