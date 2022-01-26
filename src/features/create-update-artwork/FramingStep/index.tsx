@@ -151,6 +151,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                     {field => (
                       <Select<MeasureUnit>
                         {...field}
+                        value={state.context.dimensions.unit}
                         options={[
                           { value: 'in', display: 'inches' },
                           { value: 'cm', display: 'centimeters' },

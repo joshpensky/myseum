@@ -31,7 +31,7 @@ export class UserRepository {
     }
 
     // Check that passed ID is a UUID
-    if (!z.string().uuid().check(userId)) {
+    if (!z.string().uuid().safeParse(userId).success) {
       throw new Error('User ID must be a valid UUID.');
     }
 

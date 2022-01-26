@@ -1,6 +1,10 @@
 const path = require('path');
 
 module.exports = {
+  images: {
+    domains: [process.env.NEXT_PUBLIC_SUPABASE_URL.replace('https://', '')],
+  },
+
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -5,6 +5,7 @@ import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
+import { CreateArtworkDto } from '@src/data/ArtworkRepository';
 import rootStyles from '@src/features/create-update-artwork/root.module.scss';
 import type {
   CreateUpdateArtworkState,
@@ -30,9 +31,39 @@ export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={() => {
-        // TODO: send to API
-        onSubmit();
+      onSubmit={async () => {
+        try {
+          const createArtworkData: CreateArtworkDto = {
+            title: state.context.details.title,
+            description: state.context.details.description,
+            src: state.context.selection.preview.src,
+            alt: state.context.details.altText,
+            size: {
+              width: state.context.dimensions.width,
+              height: state.context.dimensions.height,
+              depth: state.context.framing.depth ?? 0,
+            },
+            unit: state.context.dimensions.unit,
+            createdAt: state.context.details.createdAt,
+            acquiredAt: state.context.details.acquiredAt,
+          };
+
+          const res = await fetch('/api/artworks', {
+            method: 'POST',
+            headers: new Headers({
+              'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify(createArtworkData),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw data;
+          }
+          console.log(data);
+          onSubmit();
+        } catch (error) {
+          console.error(error);
+        }
       }}>
       {formik => {
         const { isSubmitting, isValid } = formik;

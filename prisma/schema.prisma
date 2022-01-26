@@ -109,7 +109,7 @@ model Artwork {
   height      Float
   depth       Float       @default(0)
   unit        MeasureUnit @default(in)
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime?
   acquiredAt  DateTime    @default(now())
 
   frame   Frame? @relation(fields: [frameId], references: [id])

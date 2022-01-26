@@ -13,15 +13,30 @@ const artworkIndexController: NextApiHandler = async (req, res) => {
         break;
       }
 
+      // Creates new artwork
+      case 'POST': {
+        const artwork = await ArtworkRepository.create(req.body);
+        res.status(200).json(ArtworkSerializer.serialize(artwork));
+        break;
+      }
+
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'GET');
+        res.setHeader('Allow', 'GET, POST');
         res.status(405).end('Method Not Allowed');
       }
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: (error as Error).message });
   }
 };
 
 export default artworkIndexController;
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};

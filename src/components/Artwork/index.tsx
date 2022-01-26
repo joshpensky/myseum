@@ -4,6 +4,7 @@ import Image from 'next/image';
 import cx from 'classnames';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { GalleryDto } from '@src/data/GallerySerializer';
+import { supabase } from '@src/data/supabase';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import styles from './artwork.module.scss';
@@ -77,13 +78,29 @@ export const Artwork = ({
     })),
   );
 
+  let artworkSrc: string;
+  if (src.startsWith('/')) {
+    artworkSrc = src;
+  } else {
+    const download = supabase.storage.from('artworks').getPublicUrl(src);
+    if (!download.data || download.error) {
+      throw download.error ?? new Error('Cannot access artwork image.');
+    }
+    artworkSrc = download.data.publicURL;
+  }
+
   return (
     <div ref={wrapperRef} className={styles.wrapper}>
       {/* Use an SVG to define the dimensions of the element */}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={[0, 0, frameWidth, frameHeight].join(' ')} />
 
       {!frame ? (
-        <Image src={src} layout="fill" objectFit="fill" onLoad={() => setIsArtworkLoaded(true)} />
+        <Image
+          src={artworkSrc}
+          layout="fill"
+          objectFit="fill"
+          onLoad={() => setIsArtworkLoaded(true)}
+        />
       ) : (
         <Fragment>
           <Image
@@ -114,7 +131,7 @@ export const Artwork = ({
                 '--height': `${artworkHeight * yScale}px`,
               }}>
               <Image
-                src={src}
+                src={artworkSrc}
                 alt={alt}
                 layout="fill"
                 objectFit="fill"

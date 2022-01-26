@@ -10,6 +10,7 @@ import type {
   CreateUpdateArtworkState,
 } from '@src/features/create-update-artwork/state';
 import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/selection';
+import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { renderPreview } from '@src/utils/renderPreview';
@@ -45,11 +46,19 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
         const destCanvas = document.createElement('canvas');
         // Resize the canvas to the highest quality within the image dimensions
         const image = state.context.upload.image;
-        const destCanvasDimensions = CanvasUtils.objectContain(
+        const maxDimensions = CanvasUtils.objectContain(
+          { width: 2000, height: 2000 },
           CommonUtils.getImageDimensions(image),
+        );
+        const destCanvasDimensions = CanvasUtils.objectContain(
+          maxDimensions,
           state.context.dimensions,
         );
-        CanvasUtils.resize(destCanvas, destCanvasDimensions);
+        const destImageDimensions: Dimensions = {
+          width: destCanvasDimensions.width / CanvasUtils.devicePixelRatio,
+          height: destCanvasDimensions.height / CanvasUtils.devicePixelRatio,
+        };
+        CanvasUtils.resize(destCanvas, destImageDimensions);
 
         // Render the preview onto the destination canvas
         const webglCanvas = fx.canvas();
@@ -60,13 +69,13 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
           texture,
           image,
           paths: editor.current,
-          dimensions: destCanvasDimensions,
+          dimensions: destImageDimensions,
           position: { x: 0, y: 0 },
         });
         texture.destroy();
 
         // Generate the image src from the canvas contents
-        const previewSrc = destCanvas.toDataURL('image/png');
+        const previewSrc = destCanvas.toDataURL('image/jpeg');
         const preview = document.createElement('img');
         preview.src = previewSrc;
 

@@ -1,4 +1,4 @@
-import { Artist, Artwork, Frame } from '@prisma/client';
+import { Artist, Artwork, Frame, MeasureUnit } from '@prisma/client';
 import { Dimensions3D } from '@src/types';
 import { FrameDto, FrameSerializer } from './FrameSerializer';
 
@@ -15,9 +15,10 @@ export interface ArtworkDto {
   alt: string;
   size: Dimensions3D;
   fullSize: Dimensions3D;
+  unit: MeasureUnit;
   frame?: FrameDto;
   artist?: Artist;
-  createdAt: Date;
+  createdAt?: Date;
   acquiredAt: Date;
 }
 
@@ -46,9 +47,10 @@ export class ArtworkSerializer {
         height: Math.ceil(frame?.size.height ?? size.height),
         depth: frame?.size.depth ?? 0,
       },
+      unit: artwork.unit,
       frame,
       artist: artwork.artist ?? undefined,
-      createdAt: artwork.createdAt,
+      createdAt: artwork.createdAt ?? undefined,
       acquiredAt: artwork.acquiredAt,
     };
   }
