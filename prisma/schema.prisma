@@ -66,6 +66,7 @@ enum MeasureUnit {
   in
   cm
   mm
+  px
 }
 
 model Frame {

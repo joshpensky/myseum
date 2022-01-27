@@ -1,3 +1,39 @@
+@import '../root-abstracts';
+
+.preview {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include mq(max, $bp-active-area) {
+    @include padding(sz(4));
+    background-color: c('bg-tint');
+    border-radius: sz(2.5);
+    height: 300px;
+    margin-bottom: sz(4);
+    width: 100%;
+  }
+
+  @include mq($bp-active-area) {
+    @include absolute(sz(6));
+  }
+}
+
+.preview__box {
+  background-color: c('bg', 0.5);
+  background-size: var(--unit, 0) var(--unit, 0);
+  background-image: linear-gradient(to right, c('border', 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, c('border', 0.2) 1px, transparent 1px);
+  border: 1px solid c('border');
+  border-radius: 1px;
+  height: var(--height);
+  width: var(--width);
+
+  @include mq($bp-active-area) {
+    background-color: c('bg-tint', 0.5);
+  }
+}
+
 .row {
   align-items: flex-end;
   display: flex;

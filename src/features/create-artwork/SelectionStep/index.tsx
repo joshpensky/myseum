@@ -11,6 +11,7 @@ import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { renderPreview } from '@src/utils/renderPreview';
+import styles from './selectionStep.module.scss';
 
 interface SelectionStepProps {
   state: CreateArtworkState<'selection'>;
@@ -102,14 +103,17 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
               />
             </div>
 
-            <ImageSelectionPreview
-              editor={editor}
-              actualDimensions={{
-                width: state.context.dimensions.width,
-                height: state.context.dimensions.height,
-              }}
-              image={state.context.upload.image}
-            />
+            <h4 className={styles.previewLabel}>Preview</h4>
+            <div className={styles.preview}>
+              <ImageSelectionPreview
+                editor={editor}
+                actualDimensions={{
+                  width: state.context.dimensions.width,
+                  height: state.context.dimensions.height,
+                }}
+                image={state.context.upload.image}
+              />
+            </div>
 
             <div className={rootStyles.formActions}>
               <Button size="large" type="button" onClick={onBack}>

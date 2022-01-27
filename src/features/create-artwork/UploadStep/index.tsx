@@ -77,15 +77,10 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             setFieldValue('image', img);
             setIsUploading(false);
 
-            // Converts image pixel dimensions to inches
-            const getDimension = (value: number) => {
-              const inches = value / 72; // px to in, at 72ppi
-              return Math.round(inches * 100) / 100; // rounded to nearest 0.01
-            };
             const imageDimensions = CommonUtils.getImageDimensions(img);
-            setFieldValue('width', getDimension(imageDimensions.width));
-            setFieldValue('height', getDimension(imageDimensions.height));
-            setFieldValue('unit', 'in');
+            setFieldValue('width', imageDimensions.width);
+            setFieldValue('height', imageDimensions.height);
+            setFieldValue('unit', 'px');
           };
           img.src = src;
         };

@@ -165,7 +165,7 @@ export const CreateArtwork = ({ open, onOpenChange, trigger, onComplete }: Creat
 
     <Dialog.Portal>
       <Dialog.Overlay />
-      <Dialog.Content>
+      <Dialog.Content onEscapeKeyDown={() => onOpenChange(false)}>
         <CreateArtworkModal onComplete={data => onComplete(data)} />
       </Dialog.Content>
     </Dialog.Portal>

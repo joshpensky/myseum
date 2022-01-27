@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { MeasureUnit } from '@prisma/client';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
@@ -11,8 +11,12 @@ import type {
   ConfirmDimensionsEvent,
   CreateArtworkState,
 } from '@src/features/create-artwork/state';
+import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import Close from '@src/svgs/Close';
 import Lightbulb from '@src/svgs/Lightbulb';
+import { Dimensions } from '@src/types';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
+import { convertUnit } from '@src/utils/Convert';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './dimensionsStep.module.scss';
 
@@ -39,6 +43,27 @@ interface Preset {
   dimensions: DimensionsStepSchema;
 }
 
+const presets: Preset[] = [
+  {
+    value: 'a4',
+    display: 'A4',
+    dimensions: {
+      width: 210,
+      height: 297,
+      unit: 'mm',
+    },
+  },
+  {
+    value: 'poster',
+    display: 'Poster',
+    dimensions: {
+      width: 11,
+      height: 17,
+      unit: 'in',
+    },
+  },
+];
+
 interface DimensionsStepProps {
   state: CreateArtworkState<'dimensions'>;
   onBack(): void;
@@ -46,6 +71,28 @@ interface DimensionsStepProps {
 }
 
 export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps) => {
+  // Track preview area dimensions on resize
+  const previewAreaRef = useRef<HTMLDivElement>(null);
+  const [previewAreaDimensions, setPreviewAreaDimensions] = useState<Dimensions>({
+    width: 0,
+    height: 0,
+  });
+  useIsomorphicLayoutEffect(() => {
+    if (previewAreaRef.current) {
+      const observer = new ResizeObserver(entries => {
+        const [previewArea] = entries;
+        setPreviewAreaDimensions({
+          height: previewArea.contentRect.height,
+          width: previewArea.contentRect.width,
+        });
+      });
+      observer.observe(previewAreaRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
+
   const initialValues: DimensionsStepSchema = {
     width: state.context.dimensions.width ?? 0,
     height: state.context.dimensions.height ?? 0,
@@ -53,27 +100,6 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
   };
 
   const initialErrors = validateZodSchema(dimensionsStepSchema, 'sync')(initialValues);
-
-  const presets: Preset[] = [
-    {
-      value: 'a4',
-      display: 'A4',
-      dimensions: {
-        width: 210,
-        height: 297,
-        unit: 'mm',
-      },
-    },
-    {
-      value: 'poster',
-      display: 'Poster',
-      dimensions: {
-        width: 11,
-        height: 17,
-        unit: 'in',
-      },
-    },
-  ];
 
   return (
     <Formik<DimensionsStepSchema>
@@ -91,11 +117,33 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
         });
       }}>
       {formik => {
-        const { handleChange, isSubmitting, isValid, setFieldValue } = formik;
+        const { handleChange, isSubmitting, isValid, values, setFieldValue } = formik;
+
+        const unitPxRatio = convertUnit(1, values.unit, 'px');
+        const pxDimensions: Dimensions = {
+          width: values.width * unitPxRatio,
+          height: values.height * unitPxRatio,
+        };
+
+        const previewDimensions = CanvasUtils.objectScaleDown(previewAreaDimensions, pxDimensions);
+        const previewRatio = previewDimensions.width / pxDimensions.width;
+        const previewUnitSize = previewRatio * unitPxRatio;
 
         return (
           <Form className={rootStyles.form} noValidate>
-            <div className={rootStyles.activeContent}></div>
+            <div className={rootStyles.activeContent}>
+              <div ref={previewAreaRef} className={styles.preview}>
+                <div
+                  className={styles.previewBox}
+                  style={{
+                    '--width': `${previewDimensions.width}px`,
+                    '--height': `${previewDimensions.height}px`,
+                    // Disable grid when unit is 'px'
+                    '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
+                  }}
+                />
+              </div>
+            </div>
 
             <div className={styles.row}>
               <FieldWrapper name="width" label="Width" required>
@@ -103,6 +151,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                   <TextField
                     {...field}
                     type="number"
+                    min={0}
                     onChange={evt => {
                       handleChange(evt);
                       setFieldValue('preset', 'custom');
@@ -120,6 +169,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                   <TextField
                     {...field}
                     type="number"
+                    min={0}
                     onChange={evt => {
                       handleChange(evt);
                       setFieldValue('preset', 'custom');
@@ -135,6 +185,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                   <Select<MeasureUnit>
                     {...field}
                     options={[
+                      { value: 'px', display: 'pixels' },
                       { value: 'in', display: 'inches' },
                       { value: 'cm', display: 'centimeters' },
                       { value: 'mm', display: 'millimeters' },

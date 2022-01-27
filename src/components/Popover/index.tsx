@@ -62,7 +62,13 @@ const PopoverContent = ({
         {...props}
         ref={contentRef}
         className={cx(`theme--paper`, styles.popover, className)}
-        sideOffset={props.sideOffset ?? SIDE_OFFSET}>
+        sideOffset={props.sideOffset ?? SIDE_OFFSET}
+        onEscapeKeyDown={evt => {
+          // Don't close popover on escape if focus isn't inside!
+          if (!contentRef.current?.contains(document.activeElement)) {
+            evt.preventDefault();
+          }
+        }}>
         {children}
       </Content>
     </ThemeProvider>

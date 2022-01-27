@@ -19,7 +19,7 @@
   @include mq(max, $bp-active-area) {
     border: 1px solid c('border', 0.4);
     border-radius: sz(2.5);
-    min-height: 350px;
+    height: 300px;
     width: 100%;
   }
 
@@ -40,7 +40,7 @@
     background-color: c('bg-tint');
     border-radius: sz(2.5);
     margin-bottom: sz(4);
-    min-height: 350px;
+    height: 300px;
     position: relative;
     width: 100%;
   }

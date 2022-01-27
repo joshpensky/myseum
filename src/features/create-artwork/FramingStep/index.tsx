@@ -150,6 +150,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                         {...field}
                         value={state.context.dimensions.unit}
                         options={[
+                          { value: 'px', display: 'pixels' },
                           { value: 'in', display: 'inches' },
                           { value: 'cm', display: 'centimeters' },
                           { value: 'mm', display: 'millimeters' },
