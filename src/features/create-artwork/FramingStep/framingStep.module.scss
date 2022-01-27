@@ -11,8 +11,6 @@
     display: flex;
     justify-content: center;
     margin-bottom: sz(4);
-    padding-bottom: sz(4);
-    height: 250px;
     width: calc(100% + #{sz(4)} * 2);
     transform: translateX(sz(-4));
     z-index: 2;
@@ -27,13 +25,105 @@
       pointer-events: none;
     }
   }
+
+  @include mq($bp-active-area) {
+    @include with-motion {
+      transition: background-color 150ms ease-out;
+    }
+
+    &.active-content--light {
+      background-color: c('border');
+    }
+  }
 }
 
 .preview {
   @include size(100%);
+  position: relative;
 
-  @include mq($bp-active-area) {
-    @include size(calc(100% - #{sz(6)} * 2));
+  @include mq(max, $bp-active-area) {
+    border-radius: sz(2.5);
+    height: 300px;
+    margin-bottom: sz(2);
+    width: calc(100% - #{sz(4)} * 2);
+
+    @include with-motion {
+      transition: background-color 150ms ease-out;
+    }
+
+    .active-content--light & {
+      background-color: c('border');
+    }
+  }
+}
+
+.preview__inner {
+  @include absolute(sz(6));
+
+  @include mq(max, $bp-active-area) {
+    @include absolute(sz(4));
+  }
+}
+
+.toolbar {
+  @include padding(sz(2));
+  background-color: c('bg-tint');
+  border-radius: sz(2.5);
+  display: flex;
+  margin-bottom: sz(4);
+
+  @include mq(max, $bp-active-area) {
+    margin-bottom: sz(2);
+  }
+}
+
+.toolbar__button {
+  @include size(sz(8));
+  box-shadow: 0 0 0 0 c('border'), inset 0 0 0 0 c('bg-tint');
+  border-radius: sz(2.5);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include with-motion {
+    transition: box-shadow 150ms ease-out;
+  }
+
+  &:not(:disabled):focus {
+    @include outline-none;
+    box-shadow: 0 0 0 1px c('border'), inset 0 0 0 1.5px c('bg-tint');
+  }
+
+  &[aria-pressed='true'] {
+    background-color: c('border');
+    color: c('bg');
+  }
+
+  svg {
+    @include size(sz(5));
+    stroke-width: 1.2;
+  }
+
+  + .toolbar__button {
+    margin-left: sz(2);
+  }
+}
+
+.toolbar__button--light {
+  &[aria-pressed='true'] {
+    background-color: c('border', 0.5);
+  }
+}
+
+.toolbar__button--light__icon {
+  @include size(sz(5));
+  border-radius: 50%;
+  border: 1px solid c('border');
+  background-color: c('bg');
+
+  .toolbar__button[aria-pressed='true'] & {
+    border: 1px solid c('bg');
+    background-color: c('border');
   }
 }
 

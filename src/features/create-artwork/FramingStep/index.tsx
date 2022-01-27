@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MeasureUnit } from '@prisma/client';
+import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import { TextField } from '@src/components/TextField__New';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmFramingEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import Checkmark from '@src/svgs/Checkmark';
+import Rotate from '@src/svgs/Cube';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './framingStep.module.scss';
 
@@ -71,8 +73,10 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
       {formik => {
         const { values, setFieldValue, isSubmitting, isValid } = formik;
 
-        // TODO: keep rotated state consistent between next few screens?
+        // TODO: keep rotated + light modestate consistent between next few screens?
         const [rotated, setRotated] = useState(false);
+        const [isLightMode, setIsLightMode] = useState(false);
+
         const [isDepthFocused, setIsDepthFocused] = useState(false);
 
         let previewDepth = 0;
@@ -82,25 +86,45 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
 
         return (
           <Form className={rootStyles.form} noValidate>
-            <div className={cx(rootStyles.activeContent, styles.activeContent)}>
+            <div
+              className={cx(
+                rootStyles.activeContent,
+                styles.activeContent,
+                isLightMode && styles.activeContentLight,
+              )}>
               <div className={styles.preview}>
-                <Preview3d
-                  rotated={rotated || isDepthFocused}
-                  artwork={{
-                    src: state.context.selection.preview.src,
-                    alt: 'Preview of the uploaded artwork',
-                    size: {
-                      width: state.context.dimensions.width,
-                      height: state.context.dimensions.height,
-                      depth: previewDepth,
-                    },
-                  }}
-                />
+                <div className={styles.previewInner}>
+                  <Preview3d
+                    rotated={rotated || isDepthFocused}
+                    artwork={{
+                      src: state.context.selection.preview.src,
+                      alt: 'Preview of the uploaded artwork',
+                      size: {
+                        width: state.context.dimensions.width,
+                        height: state.context.dimensions.height,
+                        depth: previewDepth,
+                      },
+                    }}
+                  />
+                </div>
               </div>
 
-              <Button type="button" onClick={() => setRotated(!rotated)}>
-                Rotate
-              </Button>
+              <div className={styles.toolbar}>
+                <Toggle.Root pressed={isLightMode} onPressedChange={setIsLightMode} asChild>
+                  <button
+                    className={cx(styles.toolbarButton, styles.toolbarButtonLight)}
+                    title="Light Mode"
+                    aria-label="Light Mode">
+                    <div className={styles.toolbarButtonLightIcon} />
+                  </button>
+                </Toggle.Root>
+
+                <Toggle.Root pressed={rotated} onPressedChange={setRotated} asChild>
+                  <button className={styles.toolbarButton} title="Rotate" aria-label="Rotate">
+                    <Rotate />
+                  </button>
+                </Toggle.Root>
+              </div>
             </div>
 
             <div className={styles.radioGroup}>
