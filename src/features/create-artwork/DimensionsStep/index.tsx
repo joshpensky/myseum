@@ -6,11 +6,11 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField__New';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type {
   ConfirmDimensionsEvent,
-  CreateUpdateArtworkState,
-} from '@src/features/create-update-artwork/state';
+  CreateArtworkState,
+} from '@src/features/create-artwork/state';
 import Close from '@src/svgs/Close';
 import Lightbulb from '@src/svgs/Lightbulb';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
@@ -40,7 +40,7 @@ interface Preset {
 }
 
 interface DimensionsStepProps {
-  state: CreateUpdateArtworkState<'dimensions'>;
+  state: CreateArtworkState<'dimensions'>;
   onBack(): void;
   onSubmit(data: ConfirmDimensionsEvent): void;
 }

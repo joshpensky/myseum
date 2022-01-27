@@ -4,11 +4,8 @@ import cx from 'classnames';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
-import type {
-  ConfirmUploadEvent,
-  CreateUpdateArtworkState,
-} from '@src/features/create-update-artwork/state';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
+import type { ConfirmUploadEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './uploadStep.module.scss';
@@ -33,7 +30,7 @@ const uploadStepSchema = z.object({
 type UploadStepSchema = z.infer<typeof uploadStepSchema>;
 
 interface UploadStepProps {
-  state: CreateUpdateArtworkState<'upload'>;
+  state: CreateArtworkState<'upload'>;
   onSubmit(data: ConfirmUploadEvent): void;
 }
 

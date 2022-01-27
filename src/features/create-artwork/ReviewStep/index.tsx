@@ -6,23 +6,24 @@ import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
 import { CreateArtworkDto } from '@src/data/ArtworkRepository';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type {
-  CreateUpdateArtworkState,
+  CreateArtworkState,
   EditDetailsEvent,
   EditDimensionsEvent,
   EditFramingEvent,
   EditSelectionEvent,
-} from '@src/features/create-update-artwork/state';
+} from '@src/features/create-artwork/state';
 import Edit from '@src/svgs/Edit';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
-  state: CreateUpdateArtworkState<'review'>;
+  state: CreateArtworkState<'review'>;
   onEdit(
     event: EditDimensionsEvent | EditSelectionEvent | EditFramingEvent | EditDetailsEvent,
   ): void;
-  onSubmit(): void;
+  onSubmit(data: ArtworkDto): void;
 }
 
 export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
@@ -59,8 +60,7 @@ export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
           if (!res.ok) {
             throw data;
           }
-          console.log(data);
-          onSubmit();
+          onSubmit(data);
         } catch (error) {
           console.error(error);
         }
@@ -176,7 +176,7 @@ export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
                 <dd>{state.context.details.title}</dd>
 
                 <dt>Artist</dt>
-                <dd>{state.context.details.artist || 'Unknown'}</dd>
+                <dd>{state.context.details.artist?.name ?? 'Unknown'}</dd>
 
                 <dt>Description</dt>
                 <dd>{state.context.details.description}</dd>

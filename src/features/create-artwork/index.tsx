@@ -3,6 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useMachine } from '@xstate/react';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
+import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import { DetailsStep } from './DetailsStep';
@@ -12,15 +13,15 @@ import { ReviewStep } from './ReviewStep';
 import { SelectionStep } from './SelectionStep';
 import { UploadStep } from './UploadStep';
 import styles from './root.module.scss';
-import { createUpdateArtworkMachine, CreateUpdateArtworkStateValue } from './state';
+import { createArtworkMachine, CreateArtworkStateValue } from './state';
 
-interface CreateUpdateArtworkModalProps {
-  onClose(): void;
+interface CreateArtworkModalProps {
+  onComplete(data: ArtworkDto): void;
 }
 
-export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalProps) => {
+const CreateArtworkModal = ({ onComplete }: CreateArtworkModalProps) => {
   const [state, send] = useMachine(() =>
-    createUpdateArtworkMachine.withContext({
+    createArtworkMachine.withContext({
       upload: undefined,
       dimensions: undefined,
       selection: undefined,
@@ -47,14 +48,20 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
     } else if (state.matches('details')) {
       return <DetailsStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
     } else if (state.matches('review')) {
-      return <ReviewStep state={state} onEdit={event => send(event)} onSubmit={() => onClose()} />;
+      return (
+        <ReviewStep
+          state={state}
+          onEdit={event => send(event)}
+          onSubmit={data => onComplete(data)}
+        />
+      );
     } else {
       throw new Error('Form has entered unknown state.');
     }
   };
 
   // Get the current step index (sans 'complete')
-  const stepKeys: CreateUpdateArtworkStateValue[] = [
+  const stepKeys: CreateArtworkStateValue[] = [
     'upload',
     'dimensions',
     'selection',
@@ -66,7 +73,7 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
   stepIdx = Math.max(0, stepIdx);
 
   // Gets the current state's meta data
-  const meta = state.meta[`${createUpdateArtworkMachine.id}.${state.value}`];
+  const meta = state.meta[`${createArtworkMachine.id}.${state.value}`];
 
   // Track whether the step title is visible
   const contentRef = useRef<HTMLDivElement>(null);
@@ -145,20 +152,21 @@ export const CreateUpdateArtworkModal = ({ onClose }: CreateUpdateArtworkModalPr
   );
 };
 
-interface CreateUpdateArtworkProps {
+export interface CreateArtworkProps {
   open: boolean;
   onOpenChange(open: boolean): void;
-  trigger: ReactNode;
+  trigger?: ReactNode;
+  onComplete(data: ArtworkDto): void;
 }
 
-export const CreateUpdateArtwork = ({ open, onOpenChange, trigger }: CreateUpdateArtworkProps) => (
+export const CreateArtwork = ({ open, onOpenChange, trigger, onComplete }: CreateArtworkProps) => (
   <Dialog.Root open={open} onOpenChange={onOpenChange}>
-    <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+    {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
 
     <Dialog.Portal>
       <Dialog.Overlay />
       <Dialog.Content>
-        <CreateUpdateArtworkModal onClose={() => onOpenChange(false)} />
+        <CreateArtworkModal onComplete={data => onComplete(data)} />
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>

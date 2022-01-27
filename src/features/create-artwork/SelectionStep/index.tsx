@@ -4,11 +4,8 @@ import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
 import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
-import type {
-  ConfirmSelectionEvent,
-  CreateUpdateArtworkState,
-} from '@src/features/create-update-artwork/state';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
+import type { ConfirmSelectionEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/selection';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
@@ -16,7 +13,7 @@ import { CommonUtils } from '@src/utils/CommonUtils';
 import { renderPreview } from '@src/utils/renderPreview';
 
 interface SelectionStepProps {
-  state: CreateUpdateArtworkState<'selection'>;
+  state: CreateArtworkState<'selection'>;
   onBack(): void;
   onSubmit(data: ConfirmSelectionEvent): void;
 }

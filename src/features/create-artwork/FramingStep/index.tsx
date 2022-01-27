@@ -8,17 +8,14 @@ import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField__New';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
-import type {
-  ConfirmFramingEvent,
-  CreateUpdateArtworkState,
-} from '@src/features/create-update-artwork/state';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
+import type { ConfirmFramingEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import Checkmark from '@src/svgs/Checkmark';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './framingStep.module.scss';
 
 interface FramingStepProps {
-  state: CreateUpdateArtworkState<'framing'>;
+  state: CreateArtworkState<'framing'>;
   onBack(): void;
   onSubmit(data: ConfirmFramingEvent): void;
 }

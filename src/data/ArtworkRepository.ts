@@ -28,7 +28,7 @@ export class ArtworkRepository {
   }
 
   static async create(data: CreateArtworkDto) {
-    // src example: 'type:<contentType>;base64,<data>'
+    // example of data.src: 'type:<contentType>;base64,<data>'
     const fileContentType = data.src.slice(0, data.src.indexOf(';')).replace('data:', '');
     const fileBase64Data = data.src.replace(`data:${fileContentType};base64,`, '');
     const fileExtension = fileContentType.replace('image/', '');

@@ -38,14 +38,17 @@ export type FramingContext =
 
 export interface DetailsContext {
   title: string;
-  artist?: string;
+  artist?: {
+    id?: number;
+    name: string;
+  };
   description: string;
   altText: string;
   createdAt?: Date;
   acquiredAt: Date;
 }
 
-export interface CreateUpdateArtworkContext {
+export interface CreateArtworkContext {
   upload?: UploadContext;
   dimensions?: DimensionsContext;
   selection?: SelectionContext;
@@ -103,7 +106,7 @@ export interface EditDetailsEvent {
   type: 'EDIT_DETAILS';
 }
 
-export type CreateUpdateArtworkEvent =
+export type CreateArtworkEvent =
   | GoBackEvent
   | ConfirmUploadEvent
   | ConfirmDimensionsEvent
@@ -121,38 +124,35 @@ export type CreateUpdateArtworkEvent =
 
 export interface UploadTypestate {
   value: 'upload';
-  context: CreateUpdateArtworkContext;
+  context: CreateArtworkContext;
 }
 
 export interface DimensionsTypestate {
   value: 'dimensions';
-  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
+  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions'>;
 }
 
 export interface SelectionTypestate {
   value: 'selection';
-  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions'>;
+  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions'>;
 }
 
 export interface FramingTypestate {
   value: 'framing';
-  context: PickRequired<CreateUpdateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
+  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
 }
 
 export interface DetailsTypestate {
   value: 'details';
-  context: PickRequired<
-    CreateUpdateArtworkContext,
-    'upload' | 'dimensions' | 'selection' | 'framing'
-  >;
+  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions' | 'selection' | 'framing'>;
 }
 
 export interface ReviewTypestate {
   value: 'review';
-  context: Required<CreateUpdateArtworkContext>;
+  context: Required<CreateArtworkContext>;
 }
 
-export type CreateUpdateArtworkTypestate =
+export type CreateArtworkTypestate =
   | UploadTypestate
   | DimensionsTypestate
   | SelectionTypestate
@@ -164,9 +164,9 @@ export type CreateUpdateArtworkTypestate =
 // Utility Types
 ///////////////////////
 
-export type CreateUpdateArtworkStateValue = CreateUpdateArtworkTypestate['value'];
+export type CreateArtworkStateValue = CreateArtworkTypestate['value'];
 
-export interface CreateUpdateArtworkTypestateMap {
+export interface CreateArtworkTypestateMap {
   upload: UploadTypestate;
   dimensions: DimensionsTypestate;
   selection: SelectionTypestate;
@@ -175,11 +175,11 @@ export interface CreateUpdateArtworkTypestateMap {
   review: ReviewTypestate;
 }
 
-export type CreateUpdateArtworkState<Value extends CreateUpdateArtworkStateValue> = State<
-  CreateUpdateArtworkTypestateMap[Value]['context'],
-  CreateUpdateArtworkEvent,
+export type CreateArtworkState<Value extends CreateArtworkStateValue> = State<
+  CreateArtworkTypestateMap[Value]['context'],
+  CreateArtworkEvent,
   any,
-  CreateUpdateArtworkTypestate
+  CreateArtworkTypestate
 > & {
   value: Value;
 };
@@ -188,10 +188,10 @@ export type CreateUpdateArtworkState<Value extends CreateUpdateArtworkStateValue
 // Machine
 ///////////////////////
 
-export const createUpdateArtworkMachine = createMachine<
-  CreateUpdateArtworkContext,
-  CreateUpdateArtworkEvent,
-  CreateUpdateArtworkTypestate
+export const createArtworkMachine = createMachine<
+  CreateArtworkContext,
+  CreateArtworkEvent,
+  CreateArtworkTypestate
 >({
   id: 'form',
   context: {

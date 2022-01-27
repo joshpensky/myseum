@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { GalleryColor } from '@prisma/client';
 import cx from 'classnames';
 import useSWR from 'swr';
@@ -7,7 +7,7 @@ import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
-import AddArtworkRoot from '@src/features/add-artwork/AddArtworkRoot';
+import { CreateArtwork } from '@src/features/create-artwork';
 import { GridArtworkItem } from '@src/features/gallery/GridArtwork';
 import Close from '@src/svgs/Close';
 import Cog from '@src/svgs/Cog';
@@ -36,7 +36,6 @@ export const GalleryEditActions = ({
 }: GalleryEditActionsProps) => {
   const [isSettingsPopoverOpen, setIsSettingsPopoverOpen] = useState(false);
 
-  const addArtworkButtonRef = useRef<HTMLButtonElement>(null);
   const [isAddingArtwork, setIsAddingArtwork] = useState(false);
   const [isArtworkPopoverOpen, setIsArtworkPopoverOpen] = useState(false);
 
@@ -52,9 +51,10 @@ export const GalleryEditActions = ({
 
   return (
     <Fragment>
-      <Popover.Root onOpenChange={open => setIsSettingsPopoverOpen(open)}>
-        <Popover.Trigger asChild>
-          <div className={styles.fabWrapper}>
+      {/* Settings */}
+      <div className={styles.fabWrapper}>
+        <Popover.Root onOpenChange={open => setIsSettingsPopoverOpen(open)}>
+          <Popover.Trigger asChild>
             <FloatingActionButton
               className={styles.fab}
               disabled={isSubmitting}
@@ -63,41 +63,41 @@ export const GalleryEditActions = ({
                 <Cog />
               </span>
             </FloatingActionButton>
-          </div>
-        </Popover.Trigger>
+          </Popover.Trigger>
 
-        <Popover.Content side="top" align="end" aria-label="Gallery settings">
-          <Popover.Header>
-            <h2>Settings</h2>
-          </Popover.Header>
+          <Popover.Content side="top" align="end" aria-label="Gallery settings">
+            <Popover.Header>
+              <h2>Settings</h2>
+            </Popover.Header>
 
-          <Popover.Body>
-            <GallerySettings
-              disabled={isSubmitting}
-              wallHeight={{
-                minValue: minHeight,
-                value: wallHeight,
-                onChange: height => onHeightChange(height),
-              }}
-              wallColor={wallColor}
-              onWallColorChange={color => onColorChange(color)}
-            />
-          </Popover.Body>
-        </Popover.Content>
-      </Popover.Root>
+            <Popover.Body>
+              <GallerySettings
+                disabled={isSubmitting}
+                wallHeight={{
+                  minValue: minHeight,
+                  value: wallHeight,
+                  onChange: height => onHeightChange(height),
+                }}
+                wallColor={wallColor}
+                onWallColorChange={color => onColorChange(color)}
+              />
+            </Popover.Body>
+          </Popover.Content>
+        </Popover.Root>
+      </div>
 
-      <Popover.Root
-        open={isArtworkPopoverOpen}
-        onOpenChange={open => {
-          setIsArtworkPopoverOpen(open);
-          if (open) {
-            setShouldLoadArtworks(true);
-          }
-        }}>
-        <Popover.Trigger asChild>
-          <div className={styles.fabWrapper}>
+      {/* Artwork */}
+      <div className={styles.fabWrapper}>
+        <Popover.Root
+          open={isArtworkPopoverOpen}
+          onOpenChange={open => {
+            setIsArtworkPopoverOpen(open);
+            if (open) {
+              setShouldLoadArtworks(true);
+            }
+          }}>
+          <Popover.Trigger asChild>
             <FloatingActionButton
-              ref={addArtworkButtonRef}
               className={styles.fab}
               disabled={isSubmitting || isSettingsPopoverOpen}
               title="Add new artwork">
@@ -105,73 +105,62 @@ export const GalleryEditActions = ({
                 <Close />
               </span>
             </FloatingActionButton>
-          </div>
-        </Popover.Trigger>
+          </Popover.Trigger>
 
-        <Popover.Content side="top" align="end" aria-label="Add artwork">
-          <Popover.Body className={styles.collectionSection}>
-            <h2 className={styles.collectionTitle}>Choose artwork</h2>
+          <Popover.Content side="top" align="end" aria-label="Add artwork">
+            <Popover.Body className={styles.collectionSection}>
+              <h2 className={styles.collectionTitle}>Choose artwork</h2>
 
-            <div className={styles.collectionScrollable}>
-              {areArtworksLoading && (
-                <div className={styles.collectionLoading}>
-                  {new Array(4).fill(null).map((_, idx) => (
-                    <div key={idx} aria-hidden="true" />
-                  ))}
-                  <span className="sr-only">Loading</span>
-                </div>
-              )}
+              <div className={styles.collectionScrollable}>
+                {areArtworksLoading && (
+                  <div className={styles.collectionLoading}>
+                    {new Array(4).fill(null).map((_, idx) => (
+                      <div key={idx} aria-hidden="true" />
+                    ))}
+                    <span className="sr-only">Loading</span>
+                  </div>
+                )}
 
-              {!areArtworksLoading && !artworks.length ? (
-                <p className={styles.collectionEmpty}>You've added every artwork!</p>
-              ) : (
-                <ul className={styles.collection} aria-busy={areArtworksLoading}>
-                  {artworks.map(item => (
-                    <li key={item.id} className={styles.collectionItem}>
-                      <Artwork data={item} disabled />
-                      <button
-                        className={styles.addArtworkButton}
-                        onClick={() => {
-                          // Add the artwork to the gallery
-                          onAddArtwork(item);
-                          // Then close the popover
-                          setIsArtworkPopoverOpen(false);
-                        }}
-                        title={`Add artwork "${item.title}"`}
-                        aria-label={`Add artwork "${item.title}"`}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Popover.Body>
+                {!areArtworksLoading && !artworks.length ? (
+                  <p className={styles.collectionEmpty}>You've added every artwork!</p>
+                ) : (
+                  <ul className={styles.collection} aria-busy={areArtworksLoading}>
+                    {artworks.map(item => (
+                      <li key={item.id} className={styles.collectionItem}>
+                        <Artwork data={item} disabled />
+                        <button
+                          className={styles.addArtworkButton}
+                          onClick={() => {
+                            // Add the artwork to the gallery
+                            onAddArtwork(item);
+                            // Then close the popover
+                            setIsArtworkPopoverOpen(false);
+                          }}
+                          title={`Add artwork "${item.title}"`}
+                          aria-label={`Add artwork "${item.title}"`}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </Popover.Body>
 
-          <Popover.Body className={styles.uploadSection}>
-            <button
-              className={styles.uploadButton}
-              onClick={() => {
-                // Close the popover (TODO: fix modal so we don't need to do this!!)
-                setIsArtworkPopoverOpen(false);
-                // Then open the add artwork modal
-                setIsAddingArtwork(true);
-              }}>
-              Upload new artwork
-            </button>
-          </Popover.Body>
-        </Popover.Content>
-      </Popover.Root>
-
-      {isAddingArtwork && (
-        <AddArtworkRoot
-          onClose={() => {
-            // Update the modal state
-            setIsAddingArtwork(false);
-            // Then focus the add artwork button (TODO: fix modal so we don't need to do this!!)
-            addArtworkButtonRef.current?.focus();
-          }}
-        />
-      )}
+            <Popover.Body className={styles.uploadSection}>
+              <CreateArtwork
+                open={isAddingArtwork}
+                onOpenChange={setIsAddingArtwork}
+                onComplete={data => {
+                  onAddArtwork(data);
+                  setIsAddingArtwork(false);
+                  setIsArtworkPopoverOpen(false);
+                }}
+                trigger={<button className={styles.uploadButton}>Upload new artwork</button>}
+              />
+            </Popover.Body>
+          </Popover.Content>
+        </Popover.Root>
+      </div>
     </Fragment>
   );
 };

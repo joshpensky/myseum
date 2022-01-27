@@ -160,6 +160,7 @@ export const TextField = ({
   if (typeof typedProps.value !== 'undefined') {
     controlProps.value = typedProps.value;
   } else if (typedProps.type === 'date') {
+    // TODO: fix for incomplete values
     controlProps.value = dayjs(field.value).format('YYYY-MM-DD');
   }
 

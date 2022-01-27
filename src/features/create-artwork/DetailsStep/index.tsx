@@ -7,18 +7,21 @@ import { CheckboxField } from '@src/components/CheckboxField';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
 import { TextField } from '@src/components/TextField__New';
-import rootStyles from '@src/features/create-update-artwork/root.module.scss';
-import type {
-  ConfirmDetailsEvent,
-  CreateUpdateArtworkState,
-} from '@src/features/create-update-artwork/state';
+// import { ArtistDto } from '@src/data/ArtistSerializer';
+import rootStyles from '@src/features/create-artwork/root.module.scss';
+import type { ConfirmDetailsEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './detailsStep.module.scss';
 
 const detailsStepSchema = z.object({
   title: z.string({ required_error: 'Title is required.' }).min(1, 'Title is required.'),
 
-  artist: z.string().optional(),
+  artist: z
+    .object({
+      id: z.number().optional(),
+      name: z.string(),
+    })
+    .optional(),
 
   description: z
     .string({ required_error: 'Description is required.' })
@@ -38,15 +41,24 @@ const detailsStepSchema = z.object({
 type DetailsStepSchema = z.infer<typeof detailsStepSchema>;
 
 interface DetailsStepProps {
-  state: CreateUpdateArtworkState<'details'>;
+  state: CreateArtworkState<'details'>;
   onBack(): void;
   onSubmit(data: ConfirmDetailsEvent): void;
 }
 
 export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
+  // const [artists, setArtists] = useState<ArtistDto[] | null>(null);
+  // useEffect(() => {
+  //   (async () => {
+  //     const res = await fetch('/api/artists');
+  //     const data = await res.json();
+  //     setArtists(data);
+  //   })();
+  // }, []);
+
   const initialValues: DetailsStepSchema = {
     title: state.context.details?.title ?? '',
-    artist: state.context.details?.artist ?? '',
+    artist: state.context.details?.artist ?? undefined,
     description: state.context.details?.description ?? '',
     altText: state.context.details?.altText ?? '',
     createdAt: state.context.details?.createdAt ?? new Date(),
@@ -107,9 +119,10 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
               {field => <TextField {...field} type="text" />}
             </FieldWrapper>
 
-            <FieldWrapper className={styles.field} name="artist" label="Artist">
+            {/* TODO: artist autocomplete+create */}
+            {/* <FieldWrapper className={styles.field} name="artist" label="Artist">
               {field => <TextField {...field} type="text" />}
-            </FieldWrapper>
+            </FieldWrapper> */}
 
             <FieldWrapper className={styles.field} name="description" label="Description" required>
               {field => <TextField {...field} type="text" grow rows={2} />}

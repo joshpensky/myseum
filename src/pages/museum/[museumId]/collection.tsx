@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { GetServerSideProps } from 'next';
-import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import tw from 'twin.macro';
@@ -11,12 +10,11 @@ import Button from '@src/components/Button';
 import ViewToggle from '@src/components/ViewToggle';
 import { MuseumRepository } from '@src/data/MuseumRepository';
 import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
+import { CreateArtwork } from '@src/features/create-artwork';
 import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useMuseum } from '@src/providers/MuseumProvider';
 import Close from '@src/svgs/Close';
 import { PageComponent } from '@src/types';
-
-const AddArtworkRoot = dynamic(() => import('@src/features/add-artwork/AddArtworkRoot'));
 
 export interface MuseumCollectionViewProps {
   museum: MuseumDto;
@@ -47,15 +45,23 @@ const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayou
           </p>
         )}
 
-        <Button onClick={() => setIsAddingItem(true)}>
-          <span css={tw`block size-3 mr-3 transform rotate-45`}>
-            <Close />
-          </span>
-          <span>Add item</span>
-        </Button>
+        <CreateArtwork
+          open={isAddingItem}
+          onOpenChange={setIsAddingItem}
+          onComplete={() => {
+            collection.revalidate();
+            setIsAddingItem(false);
+          }}
+          trigger={
+            <Button>
+              <span css={tw`block size-3 mr-3 transform rotate-45`}>
+                <Close />
+              </span>
+              Add item
+            </Button>
+          }
+        />
       </header>
-
-      {isAddingItem && <AddArtworkRoot onClose={() => setIsAddingItem(false)} />}
 
       <ul css={tw`-mb-5 flex flex-wrap`}>
         {(collection.data ?? []).map(item => (
