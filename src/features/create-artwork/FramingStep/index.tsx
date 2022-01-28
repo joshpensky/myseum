@@ -14,6 +14,7 @@ import type { ConfirmFramingEvent, CreateArtworkState } from '@src/features/crea
 import Checkmark from '@src/svgs/Checkmark';
 import Rotate from '@src/svgs/Cube';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
+import { FrameSelection } from './FrameSelection';
 import styles from './framingStep.module.scss';
 
 interface FramingStepProps {
@@ -22,17 +23,31 @@ interface FramingStepProps {
   onSubmit(data: ConfirmFramingEvent): void;
 }
 
+const positionSchema = z.object({ x: z.number(), y: z.number() });
+
 const framingStepSchema = z
   .object({
     hasFrame: z.boolean({ required_error: 'You must select a framing option.' }),
 
     depth: z.number().nonnegative('Depth must be greater than or equal to 0.'),
 
-    frameId: z.number().optional(),
+    frame: z
+      .object({
+        id: z.number(),
+        src: z.string(),
+        description: z.string(),
+        size: z.object({
+          width: z.number(),
+          height: z.number(),
+          depth: z.number(),
+        }),
+        window: z.tuple([positionSchema, positionSchema, positionSchema, positionSchema]),
+      })
+      .optional(),
   })
-  .refine(data => !data.hasFrame || typeof data.frameId === 'number', {
+  .refine(data => !(data.hasFrame && typeof data.frame === 'undefined'), {
     message: 'You must select a frame.',
-    path: ['frameId'],
+    path: ['frame'],
   });
 
 type FramingStepSchema = z.infer<typeof framingStepSchema>;
@@ -41,7 +56,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
   const initialValues: FramingStepSchema = {
     hasFrame: state.context.framing?.hasFrame ?? (undefined as any),
     depth: state.context.framing?.depth ?? 0,
-    frameId: state.context.framing?.frame?.id ?? undefined,
+    frame: state.context.framing?.frame ?? undefined,
   };
 
   const initialErrors = validateZodSchema(framingStepSchema, 'sync')(initialValues);
@@ -51,15 +66,19 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
       initialValues={initialValues}
       initialErrors={initialErrors}
       validate={validateZodSchema(framingStepSchema)}
-      onSubmit={values => {
+      onSubmit={(values, helpers) => {
         if (values.hasFrame) {
-          // onSubmit({
-          //   type: 'CONFIRM_FRAMING',
-          //   framing: {
-          //     hasFrame: true,
-          //     frame: { ... }, // TODO: choose frame from API
-          //   },
-          // });
+          if (!values.frame) {
+            helpers.setFieldError('frame', 'You must select a frame.');
+            return;
+          }
+          onSubmit({
+            type: 'CONFIRM_FRAMING',
+            framing: {
+              hasFrame: true,
+              frame: values.frame,
+            },
+          });
         } else {
           onSubmit({
             type: 'CONFIRM_FRAMING',
@@ -113,14 +132,17 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 <Toggle.Root pressed={isLightMode} onPressedChange={setIsLightMode} asChild>
                   <button
                     className={cx(styles.toolbarButton, styles.toolbarButtonLight)}
-                    title="Light Mode"
-                    aria-label="Light Mode">
+                    title="Toggle Light Mode"
+                    aria-label="Toggle Light Mode">
                     <div className={styles.toolbarButtonLightIcon} />
                   </button>
                 </Toggle.Root>
 
                 <Toggle.Root pressed={rotated} onPressedChange={setRotated} asChild>
-                  <button className={styles.toolbarButton} title="Rotate" aria-label="Rotate">
+                  <button
+                    className={styles.toolbarButton}
+                    title="Toggle 3D View"
+                    aria-label="Toggle 3D View">
                     <Rotate />
                   </button>
                 </Toggle.Root>
@@ -211,7 +233,10 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 <legend className="sr-only">Framed</legend>
                 <p className={styles.radioGroupDescription}>Create or choose an existing frame.</p>
 
-                {/* TODO: frame selection */}
+                <FrameSelection
+                  value={values.frame}
+                  onChange={data => setFieldValue('frame', data)}
+                />
 
                 <Button className={styles.createButton} size="large" type="button">
                   Create frame

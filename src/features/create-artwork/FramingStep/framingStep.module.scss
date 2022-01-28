@@ -39,6 +39,7 @@
 
 .preview {
   @include size(100%);
+  overflow: hidden;
   position: relative;
 
   @include mq(max, $bp-active-area) {
@@ -67,10 +68,15 @@
 
 .toolbar {
   @include padding(sz(2));
-  background-color: c('bg-tint');
-  border-radius: sz(2.5);
+  background-color: c('bg-tint', 0.8);
+  backdrop-filter: blur(2px);
+  border-radius: sz(4);
   display: flex;
   margin-bottom: sz(4);
+
+  @include mq($bp-active-area) {
+    @include absolute(x x 0);
+  }
 
   @include mq(max, $bp-active-area) {
     margin-bottom: sz(2);
@@ -234,5 +240,6 @@
 }
 
 .create-button {
+  margin-top: sz(4);
   width: 100%;
 }

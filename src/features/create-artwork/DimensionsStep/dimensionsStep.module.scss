@@ -29,6 +29,14 @@
   height: var(--height);
   width: var(--width);
 
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  &.preview__box--hidden {
+    display: none;
+  }
+
   @include mq($bp-active-area) {
     background-color: c('bg-tint', 0.5);
   }

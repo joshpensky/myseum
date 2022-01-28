@@ -69,8 +69,7 @@ const CreateArtworkModal = ({ onComplete }: CreateArtworkModalProps) => {
     'details',
     'review',
   ];
-  let stepIdx = stepKeys.findIndex(value => state.matches(value));
-  stepIdx = Math.max(0, stepIdx);
+  const stepIdx = stepKeys.findIndex(value => state.matches(value));
 
   // Gets the current state's meta data
   const meta = state.meta[`${createArtworkMachine.id}.${state.value}`];

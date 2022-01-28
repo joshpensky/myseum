@@ -7,6 +7,7 @@ import Button from '@src/components/Button';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmUploadEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { CommonUtils } from '@src/utils/CommonUtils';
+import { convertUnit } from '@src/utils/Convert';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './uploadStep.module.scss';
 
@@ -78,9 +79,9 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             setIsUploading(false);
 
             const imageDimensions = CommonUtils.getImageDimensions(img);
-            setFieldValue('width', imageDimensions.width);
-            setFieldValue('height', imageDimensions.height);
-            setFieldValue('unit', 'px');
+            setFieldValue('width', convertUnit(imageDimensions.width, 'px', 'in'));
+            setFieldValue('height', convertUnit(imageDimensions.height, 'px', 'in'));
+            setFieldValue('unit', 'in');
           };
           img.src = src;
         };

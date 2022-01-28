@@ -1,5 +1,6 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { MeasureUnit } from '@prisma/client';
+import cx from 'classnames';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
@@ -134,7 +135,10 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
             <div className={rootStyles.activeContent}>
               <div ref={previewAreaRef} className={styles.preview}>
                 <div
-                  className={styles.previewBox}
+                  className={cx(
+                    styles.previewBox,
+                    previewAreaDimensions.width === 0 && styles.previewBoxHidden,
+                  )}
                   style={{
                     '--width': `${previewDimensions.width}px`,
                     '--height': `${previewDimensions.height}px`,
