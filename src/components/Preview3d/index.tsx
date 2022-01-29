@@ -137,12 +137,15 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
       const windowMaxX = Math.max(...windowPoints.map(point => point.x));
       const windowMaxY = Math.max(...windowPoints.map(point => point.y));
 
+      const windowDimensions = { width: windowMaxX - windowMinX, height: windowMaxY - windowMinY };
+      const scaledDimensions = CanvasUtils.objectContain(windowDimensions, artwork.size);
+
       artworkStyle = {
-        '--x': windowMinX,
-        '--y': windowMinY,
+        '--x': windowMinX + (windowDimensions.width - scaledDimensions.width) / 2,
+        '--y': windowMinY + (windowDimensions.height - scaledDimensions.height) / 2,
         '--scale': framingOptions.scaling,
-        '--width': windowMaxX - windowMinX,
-        '--height': windowMaxY - windowMinY,
+        '--width': scaledDimensions.width,
+        '--height': scaledDimensions.height,
       };
     }
   }
@@ -173,14 +176,16 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
         <div
           className={cx(
             styles.previewFront,
-            frame && [styles.previewFrontArtwork, styles[`matting--${framingOptions?.matting}`]],
-          )}>
-          <img
-            className={cx(framingOptions?.scaled && styles.scaleToFit)}
-            style={artworkStyle}
-            src={artwork.src}
-            alt={artwork.alt}
-          />
+            frame && [
+              styles.previewFrontArtwork,
+              styles[`matting--${framingOptions?.matting}`],
+              framingOptions?.matting === 'light' && 'theme--paper',
+              framingOptions?.matting === 'dark' && 'theme--ink',
+              framingOptions?.scaled && styles.scaled,
+            ],
+          )}
+          style={artworkStyle}>
+          <img src={artwork.src} alt={artwork.alt} />
         </div>
 
         {/* Frame preview */}

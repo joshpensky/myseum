@@ -79,8 +79,9 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             setIsUploading(false);
 
             const imageDimensions = CommonUtils.getImageDimensions(img);
-            setFieldValue('width', convertUnit(imageDimensions.width, 'px', 'in'));
-            setFieldValue('height', convertUnit(imageDimensions.height, 'px', 'in'));
+            const unit = convertUnit(1, 'px', 'in');
+            setFieldValue('width', Math.round(imageDimensions.width * unit * 100) / 100);
+            setFieldValue('height', Math.round(imageDimensions.height * unit * 100) / 100);
             setFieldValue('unit', 'in');
           };
           img.src = src;

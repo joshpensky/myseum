@@ -1,4 +1,4 @@
-import { MeasureUnit } from '@prisma/client';
+import { Matting, MeasureUnit } from '@prisma/client';
 import { assign, createMachine, State } from 'xstate';
 import type { FrameDto } from '@src/data/FrameSerializer';
 import type { SelectionEditorPath } from '@src/features/selection';
@@ -24,17 +24,23 @@ export interface SelectionContext {
   preview: HTMLImageElement;
 }
 
-export type FramingContext =
+export type FramingContext = (
   | {
       hasFrame: true;
       frame: FrameDto;
-      depth?: never;
     }
   | {
       hasFrame: false;
-      depth: number;
-      frame?: never;
-    };
+      frame?: FrameDto;
+    }
+) & {
+  depth: number;
+  framingOptions: {
+    scaled: boolean;
+    scaling: number;
+    matting: Matting;
+  };
+};
 
 export interface DetailsContext {
   title: string;

@@ -37,10 +37,6 @@
     overflow: hidden;
     transform: translateZ(sz(-4));
 
-    @include with-motion {
-      transition: background-color 150ms ease-out;
-    }
-
     &.matting--dark {
       background-color: $c-mat-dark;
     }
@@ -54,12 +50,38 @@
       width: calc(var(--width, 0) * 1px);
       height: calc(var(--height, 0) * 1px);
       transform: translate(-50%, -50%);
+    }
 
-      &.scale-to-fit {
+    $matting-depth: 3px;
+    &:not(.matting--none)::before {
+      @include absolute(50% x x 50%);
+      box-shadow: inset 0 0 4px 1px c('shadow', 0.5);
+      content: '';
+      width: calc(var(--width, 0) * 1px + #{$matting-depth * 2});
+      height: calc(var(--height, 0) * 1px + #{$matting-depth * 2});
+      transform: translate(-50%, -50%);
+    }
+
+    &.scaled {
+      img {
         top: calc(var(--y, 0) * 1px);
         left: calc(var(--x, 0) * 1px);
-        object-fit: contain;
+        object-fit: fill;
         transform: scale(calc(var(--scale, 100) / 100));
+      }
+
+      &:not(.matting--none)::before {
+        --mat-width: (var(--width, 0) * 1px) * (var(--scale, 100) / 100);
+        --mat-x-delta: ((var(--width, 0) * 1px - var(--mat-width)) / 2);
+
+        --mat-height: (var(--height, 0) * 1px) * (var(--scale, 100) / 100);
+        --mat-y-delta: ((var(--height, 0) * 1px - var(--mat-height)) / 2);
+
+        top: calc((var(--y, 0) * 1px) + var(--mat-y-delta) - #{$matting-depth});
+        left: calc((var(--x, 0) * 1px) + var(--mat-x-delta) - #{$matting-depth});
+        width: calc(var(--mat-width) + #{$matting-depth * 2});
+        height: calc(var(--mat-height) + #{$matting-depth * 2});
+        transform: none;
       }
     }
   }

@@ -28,7 +28,7 @@
   --c-text: #{hex-to-rgb($c-white)};
   --c-secondary-text: #{hex-to-rgb($c-mint-600)}; // TODO: replace
   --c-border: #{hex-to-rgb($c-white)};
-  --c-shadow: #{hex-to-rgb($c-navy-50)}; // TODO: replace
+  --c-shadow: #{hex-to-rgb(mix($c-white, $c-black, 30%))}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
 }
 

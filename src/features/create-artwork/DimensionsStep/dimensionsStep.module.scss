@@ -30,7 +30,7 @@
   width: var(--width);
 
   @include with-motion {
-    transition: 150ms ease-out;
+    transition: 300ms $ease-out-expo;
   }
 
   &.preview__box--hidden {

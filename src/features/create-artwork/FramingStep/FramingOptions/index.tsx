@@ -18,8 +18,10 @@ export const FramingOptions = () => {
 
   return (
     <Fragment>
-      <h4 className={styles.title}>Framing Options</h4>
-      <p className={styles.description}>Customize how your artwork appears in the frame.</p>
+      <h4 className={cx(styles.title, !values.frame && styles.disabled)}>Framing Options</h4>
+      <p className={cx(styles.description, !values.frame && styles.disabled)}>
+        Customize how your artwork appears in the frame.
+      </p>
 
       <fieldset className={styles.fieldGroup} disabled={!values.frame}>
         <legend className={styles.label}>Artwork Size</legend>

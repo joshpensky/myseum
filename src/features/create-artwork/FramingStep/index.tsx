@@ -65,9 +65,9 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
     depth: state.context.framing?.depth ?? 0,
     frame: state.context.framing?.frame ?? undefined,
     framingOptions: {
-      scaled: false,
-      scaling: 100,
-      matting: 'none',
+      scaled: state.context.framing?.framingOptions.scaled ?? false,
+      scaling: state.context.framing?.framingOptions.scaling ?? 100,
+      matting: state.context.framing?.framingOptions.matting ?? 'none',
     },
   };
 
@@ -88,7 +88,9 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
             type: 'CONFIRM_FRAMING',
             framing: {
               hasFrame: true,
+              depth: values.depth,
               frame: values.frame,
+              framingOptions: values.framingOptions,
             },
           });
         } else {
@@ -97,6 +99,8 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
             framing: {
               hasFrame: false,
               depth: values.depth,
+              frame: values.frame,
+              framingOptions: values.framingOptions,
             },
           });
         }
