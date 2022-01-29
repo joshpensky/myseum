@@ -24,19 +24,68 @@
 }
 
 .preview__front {
-  @include absolute(0 x x 0);
-  @include size(100%);
+  @include absolute(0);
 
   img {
     @include absolute(0);
     @include size(100%);
     object-fit: cover;
   }
+
+  &.preview__front--artwork {
+    @include absolute(3px);
+    overflow: hidden;
+    transform: translateZ(sz(-4));
+
+    @include with-motion {
+      transition: background-color 150ms ease-out;
+    }
+
+    &.matting--dark {
+      background-color: $c-mat-dark;
+    }
+
+    &.matting--light {
+      background-color: $c-mat-light;
+    }
+
+    img {
+      @include absolute(50% x x 50%);
+      width: calc(var(--width, 0) * 1px);
+      height: calc(var(--height, 0) * 1px);
+      transform: translate(-50%, -50%);
+
+      &.scale-to-fit {
+        top: calc(var(--y, 0) * 1px);
+        left: calc(var(--x, 0) * 1px);
+        object-fit: contain;
+        transform: scale(calc(var(--scale, 100) / 100));
+      }
+    }
+  }
+
+  &:not(.preview__front--artwork) {
+    img {
+      object-fit: fill;
+    }
+  }
+}
+
+.preview__glass {
+  @include absolute(sz(2));
+  background: radial-gradient(circle at top left, c('white', 0.2), c('white', 0));
+  opacity: 0;
+  transform: translateZ(sz(-4));
+  transition: 150ms ease-out;
+
+  &--shine {
+    opacity: 1;
+  }
 }
 
 .preview__top {
   @include absolute(50% x x 50%);
-  background-color: var(--color);
+  background-color: var(--color, c('bg'));
   height: calc(var(--depth, 0) * 1px);
   transform: translate(-50%, -50%) rotateX(-90deg) rotateY(180deg)
     translate3d(0, calc(var(--depth, 0) * 0.5px), calc(var(--height, 0) * 0.5px));
@@ -47,11 +96,33 @@
 
 .preview__left {
   @include absolute(50% x x 50%);
-  background-color: var(--color-shade);
+  background-color: var(--color-shade, c('bg'));
   height: 100%;
   transform: translate(-50%, -50%) rotateX(0) rotateY(90deg)
     translate3d(calc(var(--depth, 0) * 0.5px), 0, calc(var(--width, 0) * -0.5px));
   transform-origin: center center;
   width: calc(var(--depth, 0) * 1px);
   will-change: transform;
+}
+
+.preview__window-bottom {
+  background-color: var(--color, c('bg'));
+  position: absolute;
+  top: calc(var(--y, 0) * 1px);
+  left: calc(var(--x, 0) * 1px);
+  height: calc(var(--length, 0) * 1px);
+  width: calc(var(--depth, 0) * 1px);
+  transform-origin: top left;
+  transform: rotateZ(calc(var(--angle, 0) * 1deg)) rotateY(90deg);
+}
+
+.preview__window-right {
+  background-color: var(--color-shade, c('bg'));
+  position: absolute;
+  top: calc(var(--y, 0) * 1px);
+  left: calc(var(--x, 0) * 1px);
+  height: calc(var(--length, 0) * 1px);
+  width: calc(var(--depth, 0) * 1px);
+  transform-origin: top left;
+  transform: rotateZ(calc(var(--angle, 0) * 1deg)) rotateY(90deg);
 }

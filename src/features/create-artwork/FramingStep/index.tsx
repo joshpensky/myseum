@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MeasureUnit } from '@prisma/client';
+import { Matting, MeasureUnit } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
@@ -15,6 +15,7 @@ import Checkmark from '@src/svgs/Checkmark';
 import Rotate from '@src/svgs/Cube';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import { FrameSelection } from './FrameSelection';
+import { FramingOptions } from './FramingOptions';
 import styles from './framingStep.module.scss';
 
 interface FramingStepProps {
@@ -44,19 +45,30 @@ const framingStepSchema = z
         window: z.tuple([positionSchema, positionSchema, positionSchema, positionSchema]),
       })
       .optional(),
+
+    framingOptions: z.object({
+      scaled: z.boolean(),
+      scaling: z.number().min(20).max(100),
+      matting: z.nativeEnum(Matting),
+    }),
   })
   .refine(data => !(data.hasFrame && typeof data.frame === 'undefined'), {
     message: 'You must select a frame.',
     path: ['frame'],
   });
 
-type FramingStepSchema = z.infer<typeof framingStepSchema>;
+export type FramingStepSchema = z.infer<typeof framingStepSchema>;
 
 export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
   const initialValues: FramingStepSchema = {
     hasFrame: state.context.framing?.hasFrame ?? (undefined as any),
     depth: state.context.framing?.depth ?? 0,
     frame: state.context.framing?.frame ?? undefined,
+    framingOptions: {
+      scaled: false,
+      scaling: 100,
+      matting: 'none',
+    },
   };
 
   const initialErrors = validateZodSchema(framingStepSchema, 'sync')(initialValues);
@@ -105,13 +117,8 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
 
         return (
           <Form className={rootStyles.form} noValidate>
-            <div
-              className={cx(
-                rootStyles.activeContent,
-                styles.activeContent,
-                isLightMode && styles.activeContentLight,
-              )}>
-              <div className={styles.preview}>
+            <div className={cx(rootStyles.activeContent, styles.activeContent)}>
+              <div className={cx(styles.preview, isLightMode && 'theme--paper')}>
                 <div className={styles.previewInner}>
                   <Preview3d
                     rotated={rotated || isDepthFocused}
@@ -124,6 +131,8 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                         depth: previewDepth,
                       },
                     }}
+                    frame={values.hasFrame && values.frame ? values.frame : undefined}
+                    framingOptions={values.framingOptions}
                   />
                 </div>
               </div>
@@ -238,9 +247,14 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                   onChange={data => setFieldValue('frame', data)}
                 />
 
+                {/* TODO: add create frame modal */}
                 <Button className={styles.createButton} size="large" type="button">
                   Create frame
                 </Button>
+
+                <hr className={styles.separator} />
+
+                <FramingOptions />
               </fieldset>
 
               <div className={styles.radioGroupFrame} />

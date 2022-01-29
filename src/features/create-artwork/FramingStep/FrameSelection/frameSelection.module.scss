@@ -8,6 +8,7 @@
 }
 
 .loading {
+  @include margin(sz(2) x);
   cursor: wait;
   display: flex;
   height: sz(24);

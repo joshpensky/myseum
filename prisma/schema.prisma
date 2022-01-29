@@ -100,6 +100,12 @@ model Artist {
   @@map("artists")
 }
 
+enum Matting {
+  none
+  light
+  dark
+}
+
 model Artwork {
   id          Int         @id @default(autoincrement())
   title       String
@@ -112,6 +118,7 @@ model Artwork {
   unit        MeasureUnit @default(in)
   createdAt   DateTime?
   acquiredAt  DateTime    @default(now())
+  matting     Matting     @default(none)
 
   frame   Frame? @relation(fields: [frameId], references: [id])
   frameId Int?

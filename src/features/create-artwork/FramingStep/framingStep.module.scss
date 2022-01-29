@@ -25,22 +25,16 @@
       pointer-events: none;
     }
   }
-
-  @include mq($bp-active-area) {
-    @include with-motion {
-      transition: background-color 150ms ease-out;
-    }
-
-    &.active-content--light {
-      background-color: c('border');
-    }
-  }
 }
 
 .preview {
   @include size(100%);
   overflow: hidden;
   position: relative;
+
+  @include with-motion {
+    transition: background-color 150ms ease-out;
+  }
 
   @include mq(max, $bp-active-area) {
     border-radius: sz(2.5);
@@ -51,10 +45,10 @@
     @include with-motion {
       transition: background-color 150ms ease-out;
     }
+  }
 
-    .active-content--light & {
-      background-color: c('border');
-    }
+  &:global(.theme--paper) {
+    background-color: c('bg');
   }
 }
 
@@ -242,4 +236,13 @@
 .create-button {
   margin-top: sz(4);
   width: 100%;
+}
+
+.separator {
+  @include margin(sz(5) x sz(4));
+  border-color: c('border', 0.2);
+
+  fieldset:disabled & {
+    opacity: 0.5;
+  }
 }

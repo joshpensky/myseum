@@ -79,7 +79,6 @@
 }
 
 .hint__text {
-  font-size: $fs-sm;
-  color: c('secondary-text');
+  @include label;
   margin-bottom: sz(1.5);
 }

@@ -61,11 +61,13 @@
   }
 
   dl {
-    color: c('secondary-text');
-
     dt {
-      font-size: $fs-sm;
+      @include label;
       margin-bottom: sz(0.5);
+    }
+
+    dd {
+      color: c('secondary-text');
     }
 
     dt,

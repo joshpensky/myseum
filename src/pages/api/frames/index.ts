@@ -9,7 +9,7 @@ const frameIndexController: NextApiHandler = async (req, res) => {
       case 'GET': {
         const frames = await FrameRepository.findAll();
         const serializedFrames = frames.map(frame => FrameSerializer.serialize(frame));
-        // await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         res.status(200).json(serializedFrames);
         break;
       }

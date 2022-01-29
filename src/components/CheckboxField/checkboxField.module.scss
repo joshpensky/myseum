@@ -4,11 +4,10 @@
 }
 
 .label {
+  @include label;
   align-items: center;
-  color: c('secondary-text');
   cursor: pointer;
   display: inline-flex;
-  font-size: $fs-sm;
 
   &::before {
     @include size(sz(4));
