@@ -3,14 +3,12 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
 import { supabase } from '@src/data/supabase';
-import { AuthUser } from '@src/providers/AuthProvider';
+import { useAuth } from '@src/providers/AuthProvider';
 import styles from './userAuthState.module.scss';
 
-interface UserDropdownProps {
-  user: AuthUser;
-}
+export const UserDropdown = () => {
+  const auth = useAuth();
 
-export const UserDropdown = ({ user }: UserDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,44 +35,46 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
         </button>
       </Popover.Trigger>
 
-      <Popover.Content
-        className={styles.userPopover}
-        side="bottom"
-        align="end"
-        aria-label="Profile">
-        <Popover.Body className={styles.userPopoverInfo}>
-          <p className={styles.userPopoverTitle} id="user-dropdown-title">
-            <span className={styles.userPopoverTitleLabel}>Logged in as</span>{' '}
-            <span>{user.email.split('@')[0]}</span>
-          </p>
-        </Popover.Body>
-        <Popover.Body className={styles.userPopoverLinks}>
-          <ul>
-            <li className={styles.userPopoverLinksItem}>
-              <Link href={`/museum/${user.museumId}`}>
-                <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
-                  Myseum
-                </a>
-              </Link>
-            </li>
-            <li className={styles.userPopoverLinksItem}>
-              <Link href="/me">
-                <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
-                  Profile
-                </a>
-              </Link>
-            </li>
-            <li className={styles.userPopoverLinksItem}>
-              <button
-                className={styles.userPopoverLink}
-                disabled={isLoading}
-                onClick={() => logOut()}>
-                Log out
-              </button>
-            </li>
-          </ul>
-        </Popover.Body>
-      </Popover.Content>
+      {auth.user && (
+        <Popover.Content
+          className={styles.userPopover}
+          side="bottom"
+          align="end"
+          aria-label="Profile">
+          <Popover.Body className={styles.userPopoverInfo}>
+            <p className={styles.userPopoverTitle} id="user-dropdown-title">
+              <span className={styles.userPopoverTitleLabel}>Logged in as</span>{' '}
+              <span>{auth.user.email.split('@')[0]}</span>
+            </p>
+          </Popover.Body>
+          <Popover.Body className={styles.userPopoverLinks}>
+            <ul>
+              <li className={styles.userPopoverLinksItem}>
+                <Link href={`/museum/${auth.user.museumId}`}>
+                  <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
+                    Myseum
+                  </a>
+                </Link>
+              </li>
+              <li className={styles.userPopoverLinksItem}>
+                <Link href="/me">
+                  <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
+                    Profile
+                  </a>
+                </Link>
+              </li>
+              <li className={styles.userPopoverLinksItem}>
+                <button
+                  className={styles.userPopoverLink}
+                  disabled={isLoading}
+                  onClick={() => logOut()}>
+                  Log out
+                </button>
+              </li>
+            </ul>
+          </Popover.Body>
+        </Popover.Content>
+      )}
     </Popover.Root>
   );
 };

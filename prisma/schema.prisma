@@ -10,31 +10,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id        String   @id @db.Uuid
-  avatar    String?
-  bio       String?
-  updatedAt DateTime @default(now()) @updatedAt
-
-  museum Museum?
-
-  @@map("users")
-}
-
-model Museum {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  curator   User   @relation(fields: [curatorId], references: [id])
-  curatorId String @unique @db.Uuid
-
-  galleries Gallery[]
-
-  @@map("museums")
-}
-
 enum GalleryColor {
   mint
   navy
@@ -43,23 +18,10 @@ enum GalleryColor {
   ink
 }
 
-model Gallery {
-  id        Int          @id @default(autoincrement())
-  name      String
-  color     GalleryColor @default(paper)
-  height    Int          @default(40)
-  xPosition Int
-  yPosition Int
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now()) @updatedAt
-
-  museum   Museum @relation(fields: [museumId], references: [id])
-  museumId Int
-
-  artworks GalleryArtwork[]
-
-  // @@unique([museumId, xPosition, yPosition])
-  @@map("galleries")
+enum Matting {
+  none
+  light
+  dark
 }
 
 enum MeasureUnit {
@@ -69,26 +31,135 @@ enum MeasureUnit {
   px
 }
 
-model Frame {
-  id          Int         @id @default(autoincrement())
-  src         String
-  description String
-  width       Float
-  height      Float
-  depth       Float
-  unit        MeasureUnit @default(in)
-  windowX1    Float
-  windowY1    Float
-  windowX2    Float
-  windowY2    Float
-  windowX3    Float
-  windowY3    Float
-  windowX4    Float
-  windowY4    Float
+model User {
+  id     String  @id @db.Uuid
+  avatar String?
+  bio    String?
 
+  updatedAt DateTime @default(now()) @updatedAt
+
+  museum   Museum?
+  frames   Frame[]
   artworks Artwork[]
 
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
+  @@map("users")
+}
+
+model Museum {
+  id        Int       @id @default(autoincrement())
+  name      String
+  galleries Gallery[]
+
+  curator   User   @relation(fields: [curatorId], references: [id])
+  curatorId String @unique @db.Uuid
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
+  @@map("museums")
+}
+
+model Gallery {
+  id       Int             @id @default(autoincrement())
+  name     String
+  color    GalleryColor    @default(paper)
+  height   Int             @default(40)
+  artworks PlacedArtwork[]
+
+  posX     Int
+  posY     Int
+  museum   Museum @relation(fields: [museumId], references: [id])
+  museumId Int
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
+  // @@unique([museumId, posX, posY])
+  @@map("galleries")
+}
+
+model PlacedArtwork {
+  artwork   Artwork @relation(fields: [artworkId], references: [id])
+  artworkId Int
+
+  frame    Frame?  @relation(fields: [frameId], references: [id])
+  frameId  Int?
+  isScaled Boolean
+  scaling  Int
+  matting  Matting @default(none)
+
+  posX      Int
+  posY      Int
+  gallery   Gallery @relation(fields: [galleryId], references: [id])
+  galleryId Int
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
+  @@id(fields: [artworkId, galleryId])
+  @@map("placed_artworks")
+}
+
+model Frame {
+  id          Int    @id @default(autoincrement())
+  src         String
+  description String
+
+  width  Float
+  height Float
+  depth  Float
+  unit   MeasureUnit @default(in)
+
+  windowX1 Float
+  windowY1 Float
+  windowX2 Float
+  windowY2 Float
+  windowX3 Float
+  windowY3 Float
+  windowX4 Float
+  windowY4 Float
+
+  placements PlacedArtwork[]
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @db.Uuid
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
   @@map("frames")
+}
+
+model Artwork {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  src         String
+  alt         String
+
+  width  Float
+  height Float
+  depth  Float       @default(0)
+  unit   MeasureUnit @default(in)
+
+  createdAt  DateTime?
+  acquiredAt DateTime  @default(now())
+
+  artist   Artist? @relation(fields: [artistId], references: [id])
+  artistId Int?
+
+  placements PlacedArtwork[]
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @db.Uuid
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
+
+  @@map("artworks")
 }
 
 model Artist {
@@ -98,48 +169,4 @@ model Artist {
   artworks Artwork[]
 
   @@map("artists")
-}
-
-enum Matting {
-  none
-  light
-  dark
-}
-
-model Artwork {
-  id          Int         @id @default(autoincrement())
-  title       String
-  description String
-  src         String
-  alt         String
-  width       Float
-  height      Float
-  depth       Float       @default(0)
-  unit        MeasureUnit @default(in)
-  createdAt   DateTime?
-  acquiredAt  DateTime    @default(now())
-  matting     Matting     @default(none)
-
-  frame   Frame? @relation(fields: [frameId], references: [id])
-  frameId Int?
-
-  artist   Artist? @relation(fields: [artistId], references: [id])
-  artistId Int?
-
-  galleries GalleryArtwork[]
-
-  @@map("artworks")
-}
-
-model GalleryArtwork {
-  xPosition Int
-  yPosition Int
-
-  artwork   Artwork @relation(fields: [artworkId], references: [id])
-  artworkId Int
-
-  gallery   Gallery @relation(fields: [galleryId], references: [id])
-  galleryId Int
-
-  @@id(fields: [artworkId, galleryId])
 }

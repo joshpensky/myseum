@@ -1,12 +1,15 @@
 import { Frame } from '@prisma/client';
-import { Dimensions3D, Position } from '@src/types';
+import { SelectionEditorPath } from '@src/features/selection';
+import { Dimensions3D } from '@src/types';
 
 export interface FrameDto {
   id: number;
   src: string;
   description: string;
   size: Dimensions3D;
-  window: [Position, Position, Position, Position];
+  window: SelectionEditorPath;
+  addedAt: Date;
+  modifiedAt: Date;
 }
 
 export class FrameSerializer {
@@ -38,6 +41,8 @@ export class FrameSerializer {
           y: frame.windowY4,
         },
       ],
+      addedAt: frame.addedAt,
+      modifiedAt: frame.modifiedAt,
     };
   }
 }

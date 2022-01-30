@@ -58,8 +58,12 @@ const ArtworkDetails = ({
           <div className={styles.bodyTop}>
             <h2 className={styles.title}>{title}</h2>
             <p className={styles.credit}>
-              <span>{artist ? artist.name : 'Unknown'}</span>,{' '}
-              <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
+              <span>{artist ? artist.name : 'Unknown'}</span>
+              {createdAt && (
+                <Fragment>
+                  , <time dateTime={createdAt.toString()}>{dayjs(createdAt).year()}</time>
+                </Fragment>
+              )}
             </p>
             <p>
               {data.size.width} <abbr title="by">x</abbr> {data.size.height}{' '}
@@ -77,7 +81,9 @@ const ArtworkDetails = ({
                 </p>
               )}
 
-              {galleries?.length && (
+              {!galleries?.length ? (
+                <p className={styles.feature}>Not featured in museum</p>
+              ) : (
                 <p className={styles.feature}>
                   Featured in{' '}
                   {galleries.map((gallery, idx) => {

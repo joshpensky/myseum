@@ -29,7 +29,7 @@ const UserAuthState = () => {
     setIsLoading(false);
   };
 
-  if (!auth.user) {
+  if (!auth.user && !auth.isUserLoading) {
     return (
       <Button disabled={isLoading} onClick={() => logIn()}>
         Log in
@@ -37,7 +37,7 @@ const UserAuthState = () => {
     );
   }
 
-  return <UserDropdown user={auth.user} />;
+  return <UserDropdown />;
 };
 
 export default UserAuthState;

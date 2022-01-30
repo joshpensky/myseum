@@ -10,7 +10,7 @@ import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
 import { Tooltip } from '@src/components/Tooltip';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
 import { UpdateGalleryDto } from '@src/data/GalleryRepository';
-import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
+import { PlacedArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
 import { MuseumDto } from '@src/data/MuseumSerializer';
 import { Grid } from '@src/features/grid';
 import { useGlobalLayout } from '@src/layouts/GlobalLayout';
@@ -27,14 +27,14 @@ export interface GalleryViewProps {
   museum: MuseumDto;
 }
 
-export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
+export const GalleryView = ({ gallery: initGallery }: GalleryViewProps) => {
   const { museum } = useMuseum();
   const layout = useGlobalLayout();
 
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  const [gallery, setGallery] = useState(data);
+  const [gallery, setGallery] = useState(initGallery);
   const [openedArtworkId, setOpenedArtworkId] = useState<number | null>(null);
 
   const getGalleryArtworks = (gallery: GalleryDto): GridArtworkItem[] =>
@@ -44,10 +44,10 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
       return xDiff || a.position.y - b.position.y;
     });
 
-  const getWallWidth = (galleryArtworks: GalleryArtworkDto[]) => {
+  const getWallWidth = (placedArtworks: PlacedArtworkDto[]) => {
     // Generates min columns based on the frame positioned furthest to the right
-    const minWidth = galleryArtworks.reduce(
-      (acc, item) => Math.max(acc, item.position.x + item.artwork.fullSize.width),
+    const minWidth = placedArtworks.reduce(
+      (acc, item) => Math.max(acc, item.position.x + item.size.width),
       1,
     );
     return minWidth;
@@ -57,12 +57,12 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
   const [name, setName] = useState(gallery.name);
   const [wallColor, setWallColor] = useState(gallery.color);
   const [wallHeight, setWallHeight] = useState(gallery.height);
-  const [galleryArtworks, setGalleryArtworks] = useState(() => getGalleryArtworks(gallery));
-  const [wallWidth, setWallWidth] = useState(() => getWallWidth(galleryArtworks) + 5);
+  const [placedArtworks, setPlacedArtworks] = useState(() => getGalleryArtworks(gallery));
+  const [wallWidth, setWallWidth] = useState(() => getWallWidth(placedArtworks) + 5);
 
   // Generates min height based on the lowest-positioned frame
-  const minHeight = galleryArtworks.reduce(
-    (acc, item) => Math.max(acc, item.position.y + item.artwork.fullSize.height),
+  const minHeight = placedArtworks.reduce(
+    (acc, item) => Math.max(acc, item.position.y + item.size.height),
     1,
   );
 
@@ -72,24 +72,26 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
    * @param artwork the artwork to add
    */
   const onAddArtwork = (artwork: ArtworkDto) => {
-    // Expand the wall width to accomodate the new artwork
-    setWallWidth(getWallWidth(galleryArtworks) + 1 + artwork.fullSize.width + 5);
-    // Expand the wall height to accomodate the new artwork
-    setWallHeight(Math.max(wallHeight, artwork.fullSize.height));
-    // Add the artwork to the wall, 1 unit to the right of the currently rightmost artwork
-    setGalleryArtworks([
-      ...galleryArtworks,
-      {
-        artwork,
-        position: {
-          x: getWallWidth(galleryArtworks) + 1,
-          y: 0,
-        },
-        new: true,
-      },
-    ]);
-    // Spawn a success toast!
-    toast.success(`"${artwork.title}" was added to the gallery.`);
+    // TODO: use PlacedArtworkDto
+    // // Expand the wall width to accomodate the new artwork
+    // setWallWidth(getWallWidth(placedArtworks) + 1 + artwork.fullSize.width + 5);
+    // // Expand the wall height to accomodate the new artwork
+    // setWallHeight(Math.max(wallHeight, artwork.fullSize.height));
+    // // Add the artwork to the wall, 1 unit to the right of the currently rightmost artwork
+    // setPlacedArtworks([
+    //   ...placedArtworks,
+    //   {
+    //     artwork,
+    //     position: {
+    //       x: getWallWidth(placedArtworks) + 1,
+    //       y: 0,
+    //     },
+    //     new: true,
+    //   },
+    // ]);
+    // // TODO: scroll to the new spot
+    // // Spawn a success toast!
+    // toast.success(`"${artwork.title}" was added to the gallery.`);
   };
 
   /**
@@ -99,9 +101,9 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
    */
   const onRemoveArtwork = (index: number) => {
     // Update the toast to remove the item
-    setGalleryArtworks([...galleryArtworks.slice(0, index), ...galleryArtworks.slice(index + 1)]);
+    setPlacedArtworks([...placedArtworks.slice(0, index), ...placedArtworks.slice(index + 1)]);
     // Spawn a success toast!
-    const deletedItem = galleryArtworks[index];
+    const deletedItem = placedArtworks[index];
     toast.success(`"${deletedItem.artwork.title}" was removed from the gallery.`);
   };
 
@@ -109,7 +111,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
   const exitEditMode = () => {
     setIsEditing(false);
-    setWallWidth(getWallWidth(galleryArtworks) + 5);
+    setWallWidth(getWallWidth(placedArtworks) + 5);
     layout.updateNavVisibility(true);
     // Focus the edit button when edit mode has been exited
     window.requestAnimationFrame(() => {
@@ -132,7 +134,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
     setName(gallery.name);
     setWallColor(gallery.color);
     setWallHeight(gallery.height);
-    setGalleryArtworks(getGalleryArtworks(gallery));
+    setPlacedArtworks(getGalleryArtworks(gallery));
     // Exit editing mode
     exitEditMode();
   };
@@ -147,9 +149,11 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
         name,
         color: wallColor,
         height: wallHeight,
-        artworks: galleryArtworks.map(item => ({
+        artworks: placedArtworks.map(item => ({
           artworkId: item.artwork.id,
+          frameId: item.frame?.id,
           position: item.position,
+          framingOptions: item.framingOptions,
         })),
       };
 
@@ -176,7 +180,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
 
       const newGalleryArtworks = getGalleryArtworks(data);
       setWallWidth(getWallWidth(newGalleryArtworks) + 5);
-      setGalleryArtworks(newGalleryArtworks);
+      setPlacedArtworks(newGalleryArtworks);
 
       exitEditMode();
       toast.success('Gallery updated!');
@@ -277,7 +281,7 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
               onHeightChange={height => setWallHeight(height)}
               wallColor={wallColor}
               onColorChange={color => setWallColor(color)}
-              galleryArtworks={galleryArtworks}
+              galleryArtworks={placedArtworks}
               onAddArtwork={artwork => onAddArtwork(artwork)}
             />
           )}
@@ -287,21 +291,17 @@ export const GalleryView = ({ gallery: data }: GalleryViewProps) => {
           <Grid
             className={cx(styles.grid, isEditing && styles.gridEditing)}
             size={{ width: wallWidth, height: wallHeight }}
-            items={galleryArtworks.map(item => ({
-              artwork: item.artwork,
-              position: item.position,
-              size: item.artwork.fullSize,
-            }))}
+            items={placedArtworks}
             step={1}
             getItemId={item => String(item.artwork.id)}
             onSizeChange={size => setWallWidth(size.width)}
             onItemChange={
               isEditing &&
               ((index, item) => {
-                setGalleryArtworks([
-                  ...galleryArtworks.slice(0, index),
-                  { ...galleryArtworks[index], position: item.position },
-                  ...galleryArtworks.slice(index + 1),
+                setPlacedArtworks([
+                  ...placedArtworks.slice(0, index),
+                  { ...placedArtworks[index], position: item.position },
+                  ...placedArtworks.slice(index + 1),
                 ]);
               })
             }

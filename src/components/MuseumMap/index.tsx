@@ -9,7 +9,7 @@ import {
   OnDragEndResponder,
   OnDragStartResponder,
 } from 'react-beautiful-dnd';
-import { GalleryArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
+import { PlacedArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
 import EditGalleryBlock from './EditGalleryBlock';
@@ -23,10 +23,10 @@ export interface CreateUpdateGalleryDto {
   color: GalleryColor;
   height: number;
   position: Position;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  addedAt: string | Date;
+  modifiedAt: string | Date;
   museumId: number;
-  artworks: GalleryArtworkDto[];
+  artworks: PlacedArtworkDto[];
 }
 
 type MuseumMapProps = {
@@ -227,7 +227,7 @@ const MuseumMap = ({
                         }
 
                         // Assign gallery ID, or temporary one based on create date
-                        const galleryId = gallery.id ?? dayjs(gallery.createdAt).valueOf();
+                        const galleryId = gallery.id ?? dayjs(gallery.addedAt).valueOf();
 
                         // Gallery position is invalid if there isn't an adjacent one
                         const isInvalid = !isGalleryAdjacentToPosition(xPosition, yPosition);

@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import axios from 'axios';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
@@ -15,10 +16,12 @@ import type {
   EditFramingEvent,
   EditSelectionEvent,
 } from '@src/features/create-artwork/state';
+import { AuthUserDto } from '@src/providers/AuthProvider';
 import Edit from '@src/svgs/Edit';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
+  user: AuthUserDto;
   state: CreateArtworkState<'review'>;
   onEdit(
     event: EditDimensionsEvent | EditSelectionEvent | EditFramingEvent | EditDetailsEvent,
@@ -26,7 +29,7 @@ interface ReviewStepProps {
   onSubmit(data: ArtworkDto): void;
 }
 
-export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
+export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) => {
   const initialValues = {};
 
   return (
@@ -35,6 +38,7 @@ export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
       onSubmit={async () => {
         try {
           const createArtworkData: CreateArtworkDto = {
+            ownerId: user.id,
             title: state.context.details.title,
             description: state.context.details.description,
             src: state.context.selection.preview.src,
@@ -49,18 +53,8 @@ export const ReviewStep = ({ state, onEdit, onSubmit }: ReviewStepProps) => {
             acquiredAt: state.context.details.acquiredAt,
           };
 
-          const res = await fetch('/api/artworks', {
-            method: 'POST',
-            headers: new Headers({
-              'Content-Type': 'application/json',
-            }),
-            body: JSON.stringify(createArtworkData),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            throw data;
-          }
-          onSubmit(data);
+          const res = await axios.post<ArtworkDto>('/api/artworks', createArtworkData);
+          onSubmit(res.data);
         } catch (error) {
           console.error(error);
         }

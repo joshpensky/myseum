@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import cx from 'classnames';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { FrameDto } from '@src/data/FrameSerializer';
 import { GalleryDto } from '@src/data/GallerySerializer';
 import { supabase } from '@src/data/supabase';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
@@ -12,7 +13,8 @@ import styles from './artwork.module.scss';
 const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
 
 export interface ArtworkProps {
-  data: ArtworkDto;
+  artwork: ArtworkDto;
+  frame?: FrameDto | null;
   disabled?: boolean;
   galleries?: Omit<GalleryDto, 'artworks'>[];
   onDetailsOpenChange?(open: boolean): void;
@@ -22,14 +24,13 @@ export interface ArtworkProps {
 // const BEZEL = 0.05;
 
 export const Artwork = ({
-  data,
+  artwork,
+  frame,
   disabled,
   galleries,
   onDetailsOpenChange,
   onLoad,
 }: ArtworkProps) => {
-  const { /*id, title,*/ frame, src, alt } = data;
-
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
   const isLoaded = (!frame || isFrameLoaded) && isArtworkLoaded;
@@ -58,7 +59,7 @@ export const Artwork = ({
   }, []);
 
   // Get the width and height
-  const { width: artworkWidth, height: artworkHeight } = data.size;
+  const { width: artworkWidth, height: artworkHeight } = artwork.size;
   const frameWidth = frame?.size.width ?? artworkWidth;
   const frameHeight = frame?.size.height ?? artworkHeight;
   // const frameDepth = frame?.size.depth ?? 0;
@@ -79,10 +80,10 @@ export const Artwork = ({
   );
 
   let artworkSrc: string;
-  if (src.startsWith('/')) {
-    artworkSrc = src;
+  if (artwork.src.startsWith('/')) {
+    artworkSrc = artwork.src;
   } else {
-    const download = supabase.storage.from('artworks').getPublicUrl(src);
+    const download = supabase.storage.from('artworks').getPublicUrl(artwork.src);
     if (!download.data || download.error) {
       throw download.error ?? new Error('Cannot access artwork image.');
     }
@@ -132,7 +133,7 @@ export const Artwork = ({
               }}>
               <Image
                 src={artworkSrc}
-                alt={alt}
+                alt={artwork.alt}
                 layout="fill"
                 objectFit="fill"
                 onLoad={evt => {
@@ -158,7 +159,7 @@ export const Artwork = ({
       </div>
 
       {isLoaded && !disabled && (
-        <ArtworkDetails data={data} galleries={galleries} onOpenChange={onDetailsOpenChange} />
+        <ArtworkDetails data={artwork} galleries={galleries} onOpenChange={onDetailsOpenChange} />
       )}
     </div>
   );

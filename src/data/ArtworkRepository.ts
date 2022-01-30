@@ -6,6 +6,7 @@ import { Dimensions3D } from '@src/types';
 import { supabase } from './supabase';
 
 export interface CreateArtworkDto {
+  ownerId: string;
   title: string;
   description: string;
   src: string;
@@ -20,7 +21,6 @@ export class ArtworkRepository {
   static async findAll() {
     const artworks = await prisma.artwork.findMany({
       include: {
-        frame: true,
         artist: true,
       },
     });
@@ -55,11 +55,14 @@ export class ArtworkRepository {
         unit: data.unit,
         createdAt: data.createdAt,
         acquiredAt: data.acquiredAt,
+        owner: {
+          connect: {
+            id: data.ownerId,
+          },
+        },
         // TODO: create or connect artist
-        // TODO: connect frame
       },
       include: {
-        frame: true,
         artist: true,
       },
     });

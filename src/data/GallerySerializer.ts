@@ -1,18 +1,28 @@
-import { Gallery, GalleryArtwork, GalleryColor } from '@prisma/client';
-import { Position } from '@src/types';
+import { Frame, Gallery, GalleryColor, Matting, PlacedArtwork } from '@prisma/client';
+import { Dimensions3D, Position } from '@src/types';
 import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './ArtworkSerializer';
+import { FrameDto, FrameSerializer } from './FrameSerializer';
 
-export interface PrismaGalleryArtwork extends GalleryArtwork {
+export interface PrismaPlacedArtwork extends PlacedArtwork {
   artwork: PrismaArtwork;
+  frame: Frame | null;
 }
-
 export interface PrismaGallery extends Gallery {
-  artworks: PrismaGalleryArtwork[];
+  artworks: PrismaPlacedArtwork[];
 }
 
-export interface GalleryArtworkDto {
+export interface PlacedArtworkDto {
   artwork: ArtworkDto;
+  frame: FrameDto | null;
+  framingOptions: {
+    isScaled: boolean;
+    scaling: number;
+    matting: Matting;
+  };
   position: Position;
+  size: Dimensions3D;
+  addedAt: Date;
+  modifiedAt: Date;
 }
 
 export interface GalleryDto {
@@ -22,9 +32,9 @@ export interface GalleryDto {
   color: GalleryColor;
   height: number;
   position: Position;
-  artworks: GalleryArtworkDto[];
-  createdAt: Date;
-  updatedAt: Date;
+  artworks: PlacedArtworkDto[];
+  addedAt: Date;
+  modifiedAt: Date;
 }
 
 export class GallerySerializer {
@@ -36,25 +46,39 @@ export class GallerySerializer {
       color: gallery.color,
       height: gallery.height,
       position: {
-        x: gallery.xPosition,
-        y: gallery.yPosition,
+        x: gallery.posX,
+        y: gallery.posY,
       },
       artworks: gallery.artworks.map(galleryArtwork =>
         GallerySerializer.serializeArtwork(galleryArtwork),
       ),
-      createdAt: gallery.createdAt,
-      updatedAt: gallery.updatedAt,
+      addedAt: gallery.addedAt,
+      modifiedAt: gallery.modifiedAt,
     };
   }
 
-  static serializeArtwork(galleryArtwork: PrismaGalleryArtwork): GalleryArtworkDto {
-    const artwork = ArtworkSerializer.serialize(galleryArtwork.artwork);
+  static serializeArtwork(placedArtwork: PrismaPlacedArtwork): PlacedArtworkDto {
+    const artwork = ArtworkSerializer.serialize(placedArtwork.artwork);
+    let frame: PlacedArtworkDto['frame'] = null;
+    if (placedArtwork.frame) {
+      frame = FrameSerializer.serialize(placedArtwork.frame);
+    }
+
     return {
       artwork,
-      position: {
-        x: galleryArtwork.xPosition,
-        y: galleryArtwork.yPosition,
+      frame,
+      framingOptions: {
+        isScaled: placedArtwork.isScaled,
+        scaling: placedArtwork.scaling,
+        matting: placedArtwork.matting,
       },
+      position: {
+        x: placedArtwork.posX,
+        y: placedArtwork.posY,
+      },
+      size: frame?.size ?? artwork.size,
+      addedAt: placedArtwork.addedAt,
+      modifiedAt: placedArtwork.modifiedAt,
     };
   }
 }

@@ -127,7 +127,7 @@ export const GalleryEditActions = ({
                   <ul className={styles.collection} aria-busy={areArtworksLoading}>
                     {artworks.map(item => (
                       <li key={item.id} className={styles.collectionItem}>
-                        <Artwork data={item} disabled />
+                        <Artwork artwork={item} disabled />
                         <button
                           className={styles.addArtworkButton}
                           onClick={() => {

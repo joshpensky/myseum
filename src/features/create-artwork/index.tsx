@@ -4,6 +4,7 @@ import { useMachine } from '@xstate/react';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
 import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import { DetailsStep } from './DetailsStep';
@@ -16,10 +17,11 @@ import styles from './root.module.scss';
 import { createArtworkMachine, CreateArtworkStateValue } from './state';
 
 interface CreateArtworkModalProps {
+  user: AuthUserDto;
   onComplete(data: ArtworkDto): void;
 }
 
-const CreateArtworkModal = ({ onComplete }: CreateArtworkModalProps) => {
+const CreateArtworkModal = ({ user, onComplete }: CreateArtworkModalProps) => {
   const [state, send] = useMachine(() =>
     createArtworkMachine.withContext({
       upload: undefined,
@@ -51,6 +53,7 @@ const CreateArtworkModal = ({ onComplete }: CreateArtworkModalProps) => {
       return (
         <ReviewStep
           state={state}
+          user={user}
           onEdit={event => send(event)}
           onSubmit={data => onComplete(data)}
         />
@@ -98,8 +101,8 @@ const CreateArtworkModal = ({ onComplete }: CreateArtworkModalProps) => {
   }, []);
 
   return (
-    <ThemeProvider theme={{ color: 'ink' }}>
-      <div className={cx('theme--ink', styles.root)}>
+    <ThemeProvider theme={{ color: 'paper' }}>
+      <div className={cx('theme--paper', styles.root)}>
         <div className={styles.activeArea} />
 
         <div className={styles.formArea}>
@@ -158,15 +161,25 @@ export interface CreateArtworkProps {
   onComplete(data: ArtworkDto): void;
 }
 
-export const CreateArtwork = ({ open, onOpenChange, trigger, onComplete }: CreateArtworkProps) => (
-  <Dialog.Root open={open} onOpenChange={onOpenChange}>
-    {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
+export const CreateArtwork = ({ open, onOpenChange, trigger, onComplete }: CreateArtworkProps) => {
+  const auth = useAuth();
 
-    <Dialog.Portal>
-      <Dialog.Overlay />
-      <Dialog.Content onEscapeKeyDown={() => onOpenChange(false)}>
-        <CreateArtworkModal onComplete={data => onComplete(data)} />
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root>
-);
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && (
+        <Dialog.Trigger disabled={!auth.user} asChild>
+          {trigger}
+        </Dialog.Trigger>
+      )}
+
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        {auth.user && (
+          <Dialog.Content onEscapeKeyDown={() => onOpenChange(false)}>
+            <CreateArtworkModal user={auth.user} onComplete={data => onComplete(data)} />
+          </Dialog.Content>
+        )}
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};

@@ -227,8 +227,8 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
                 height: 40,
                 position,
                 artworks: [],
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                addedAt: new Date(),
+                modifiedAt: new Date(),
               },
             ]);
           }}

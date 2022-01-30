@@ -37,18 +37,15 @@ export class MuseumRepository {
     const artworks = await prisma.artwork.findMany({
       distinct: 'id',
       where: {
-        galleries: {
-          some: {
-            gallery: {
-              museumId: museum.id,
-            },
+        owner: {
+          museum: {
+            id: museum.id,
           },
         },
       },
       include: {
-        frame: true,
         artist: true,
-        galleries: {
+        placements: {
           include: {
             gallery: true,
           },
@@ -95,8 +92,8 @@ export class MuseumRepository {
               name: gallery.name,
               color: gallery.color,
               height: gallery.height,
-              xPosition: gallery.position.x,
-              yPosition: gallery.position.y,
+              posX: gallery.position.x,
+              posY: gallery.position.y,
             })),
           },
           update: ((updateMuseumDto.galleries ?? []).filter(
@@ -106,8 +103,8 @@ export class MuseumRepository {
               name: gallery.name,
               color: gallery.color,
               height: gallery.height,
-              xPosition: gallery.position?.x,
-              yPosition: gallery.position?.y,
+              posX: gallery.position?.x,
+              posY: gallery.position?.y,
             },
             where: {
               id: gallery.id,

@@ -1,176 +1,135 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
 import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import { UserDto } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
 
-export interface AuthUser extends SupabaseUser, UserDto {
+export interface AuthUserDto extends SupabaseUser, UserDto {
   email: string;
 }
 
 interface AuthContextValue {
   didLogOut: boolean;
-  user: AuthUser | null;
+  isUserLoading: boolean;
+  user: AuthUserDto | null;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
   didLogOut: false,
+  isUserLoading: false,
   user: null,
 });
 
 type AuthProviderProps = Record<never, string>;
+
 export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [didLogOut, setDidLogOut] = useState(false);
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
+  const [userData, setUserData] = useState<UserDto | null>(null);
 
-  const router = useRouter();
+  // Flag for if the user is logged in, but their data is still loading!
+  const isUserLoading = !!supabaseUser && !userData;
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  let user: AuthUserDto | null = null;
+  if (supabaseUser && userData) {
+    user = {
+      ...supabaseUser,
+      ...userData,
+      // Registration is thru Google OAuth, so email guaranteed!
+      email: supabaseUser.email as string,
+    };
+  }
 
-  /**
-   * Updates the current user state from Supabase public data,
-   * with an option to abort via an abort controller.
-   *
-   * @param authUser the Supabase-authenticated user
-   * @returns the update promise and an abort controller to cancel the update
-   */
-  const updateUser = (authUser: SupabaseUser): [AbortController, Promise<void>] => {
-    const abortController = new AbortController();
-    const updatePromise = (async () => {
-      const res = await fetch(`/api/user/${authUser.id}`);
-      if (res.status === 404) {
+  async function updateUserData(user: SupabaseUser, signal: AbortSignal) {
+    try {
+      const res = await axios.get<UserDto>(`/api/user/${user.id}`, { signal });
+      if (!signal.aborted) {
+        // Update user data if not aborted
+        setUserData(res.data);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
         // Sign out of user not found
         await supabase.auth.signOut();
-      } else if (!res.ok) {
+      } else if (!signal.aborted) {
         // Show error if user could not be fetched
         toast.error('Could not fetch user data.');
-      } else if (!abortController.signal.aborted) {
-        // Otherwise, update user data if not aborted
-        const user = (await res.json()) as UserDto;
-        setUser({
-          ...authUser,
-          ...user,
-          email: authUser.email as string,
-        });
       }
-    })();
-    return [abortController, updatePromise];
-  };
-
-  /**
-   * Handler for Supabase auth state changes. Controls updating the user, setting
-   * the auth cookie header, and spawning toasts.
-   *
-   * @param event the state change event
-   * @param session the affected auth session
-   */
-  const onAuthStateChange = async (event: AuthChangeEvent, session: Session | null) => {
-    // Abort any ongoing abort controllers on login-state change
-    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-      abortControllerRef.current?.abort();
     }
-
-    // Update auth state
-    if (session?.user) {
-      // Update user immediately
-      setUser(oldUser => {
-        if (oldUser) {
-          return { ...oldUser, ...session.user };
-        }
-        return null;
-      });
-      // Then update user later with extra data
-      const [changeAbortController, updatePromise] = updateUser(session?.user);
-      abortControllerRef.current = changeAbortController;
-      await updatePromise;
-    } else {
-      setUser(null);
-    }
-
-    // Update SSR cookie on auth state change
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      credentials: 'same-origin',
-      body: JSON.stringify({ event, session }),
-    });
-
-    // Send success toast when logging in or out
-    if (event === 'SIGNED_IN') {
-      toast.success('Logged in!'); // TODO: prevent toast on refresh token (which also triggers SIGNED_IN event)
-      setDidLogOut(false);
-    } else if (event === 'SIGNED_OUT') {
-      setDidLogOut(true);
-      toast.success('Logged out!');
-    }
-  };
+  }
 
   // Manages Supabase auth state
+  const [didLogOut, setDidLogOut] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   useEffect(() => {
-    // Get initial auth state
-    const user = supabase.auth.user();
+    // Abort any ongoing abort controllers on mount
+    abortControllerRef.current?.abort();
 
-    if (user) {
-      // Update user immediately
-      setUser(user as AuthUser);
+    const initUser = supabase.auth.user();
+
+    if (initUser) {
+      setSupabaseUser(initUser);
       // Update user later with extra data
-      const [rootAbortController] = updateUser(user);
-      abortControllerRef.current = rootAbortController;
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      updateUserData(initUser, abortController.signal);
     } else {
-      setUser(null);
+      setSupabaseUser(null);
+      setUserData(null);
     }
 
     // Listen to auth changes
-    const { data: authSubscription } = supabase.auth.onAuthStateChange(onAuthStateChange);
+    const authSubscription = supabase.auth.onAuthStateChange(async function onAuthStateChange(
+      event: AuthChangeEvent,
+      session: Session | null,
+    ) {
+      // Abort any ongoing abort controllers on login-state change
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        abortControllerRef.current?.abort();
+      }
 
-    return () => {
-      authSubscription?.unsubscribe();
-    };
-  }, []);
+      // Update auth state
+      if (session?.user) {
+        setSupabaseUser(session.user);
+        // Then update user later with extra data
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+        await updateUserData(session.user, abortController.signal);
+      } else {
+        setSupabaseUser(null);
+        setUserData(null);
+      }
 
-  // Fix bug with auth leaving an empty '#' after authentication
-  useEffect(() => {
-    const { data: authSubscription } = supabase.auth.onAuthStateChange(event => {
+      // Update SSR cookie on auth state change
+      fetch('/api/auth', {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        credentials: 'same-origin',
+        body: JSON.stringify({ event, session }),
+      });
+
+      // Send success toast when logging in or out
       if (event === 'SIGNED_IN') {
-        const splitPath = router.asPath.split('#');
-        if (splitPath[1] === '' || splitPath[1].startsWith('access_token')) {
-          router.replace(splitPath[0], undefined, { shallow: true });
-        }
+        toast.success('Logged in!');
+        setDidLogOut(false);
+      } else if (event === 'SIGNED_OUT') {
+        setDidLogOut(true);
+        toast.success('Logged out!');
       }
     });
 
     return () => {
-      authSubscription?.unsubscribe();
+      authSubscription.data?.unsubscribe();
     };
-  }, [router.asPath]);
+  }, []);
 
-  // Listens and updates user when Supabase record updates
-  useEffect(() => {
-    if (user) {
-      // Listener to user updates
-      const userSubscription = supabase
-        .from(`users:id=eq.${user.id}`)
-        .on('UPDATE', payload => {
-          setUser(user => ({
-            ...user,
-            ...payload.new,
-          }));
-        })
-        .on('DELETE', () => {
-          supabase.auth.signOut();
-        })
-        .subscribe();
-
-      return () => {
-        userSubscription.unsubscribe();
-      };
-    }
-  }, [user?.id]);
-
-  return <AuthContext.Provider value={{ didLogOut, user }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ didLogOut, isUserLoading, user }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

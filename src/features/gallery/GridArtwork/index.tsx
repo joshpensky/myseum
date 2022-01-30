@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import cx from 'classnames';
 import { Artwork } from '@src/components/Artwork';
-import { GalleryArtworkDto } from '@src/data/GallerySerializer';
+import { PlacedArtworkDto } from '@src/data/GallerySerializer';
 import { useGrid } from '@src/features/grid';
 import { GridRenderItemProps } from '@src/features/grid/Grid';
 import DragHandle from '@src/svgs/DragHandle';
@@ -10,7 +10,7 @@ import styles from './gridArtwork.module.scss';
 
 const REMOVE_ANIM_DURATION = Number.parseInt(styles.varRemoveAnimDuration, 10);
 
-export interface GridArtworkItem extends GalleryArtworkDto {
+export interface GridArtworkItem extends PlacedArtworkDto {
   new?: boolean;
 }
 
@@ -56,7 +56,7 @@ export const GridArtwork = ({
 
   // When dragging, increase the x/y offset of shadows by 150%
   const shadowOffsetMultiplier = isDragging ? 1.5 : 1;
-  const { height, depth } = item.artwork.fullSize;
+  const { height, depth } = item.artwork.size; // item.artwork.fullSize
   // Cast small shadow (bottom right)
   const shadowSm = [
     px(height * 0.25 * shadowOffsetMultiplier),
@@ -110,7 +110,7 @@ export const GridArtwork = ({
           )}
 
           <Artwork
-            data={item.artwork}
+            artwork={item.artwork}
             disabled={grid.preview || isEditing}
             onDetailsOpenChange={onDetailsOpenChange}
             onLoad={() => setIsLoaded(true)}

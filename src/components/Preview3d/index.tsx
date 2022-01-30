@@ -14,7 +14,7 @@ import styles from './preview3d.module.scss';
 interface Preview3dProps {
   rotated: boolean;
   artwork: Pick<ArtworkDto, 'src' | 'alt' | 'size'>;
-  frame?: FrameDto;
+  frame?: Pick<FrameDto, 'src' | 'description' | 'size' | 'window'>;
   framingOptions?: {
     scaled: boolean;
     scaling: number;

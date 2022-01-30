@@ -43,6 +43,8 @@ const framingStepSchema = z
           depth: z.number(),
         }),
         window: z.tuple([positionSchema, positionSchema, positionSchema, positionSchema]),
+        addedAt: z.date(),
+        modifiedAt: z.date(),
       })
       .optional(),
 

@@ -1,17 +1,23 @@
-import { Gallery, Prisma } from '@prisma/client';
+import { Gallery, Matting, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
 
-interface UpdateGalleryArtworkDto {
+interface UpdatePlacedArtworkDto {
   artworkId: number;
+  frameId?: number;
   position: Position;
+  framingOptions: {
+    isScaled: boolean;
+    scaling: number;
+    matting: Matting;
+  };
 }
 
 export interface UpdateGalleryDto {
   name?: string;
   color?: Gallery['color'];
   height?: number;
-  artworks?: UpdateGalleryArtworkDto[];
+  artworks?: UpdatePlacedArtworkDto[];
 }
 
 export class GalleryRepository {
@@ -25,10 +31,10 @@ export class GalleryRepository {
           include: {
             artwork: {
               include: {
-                frame: true,
                 artist: true,
               },
             },
+            frame: true,
           },
         },
       },
@@ -47,10 +53,10 @@ export class GalleryRepository {
           include: {
             artwork: {
               include: {
-                frame: true,
                 artist: true,
               },
             },
+            frame: true,
           },
         },
       },
@@ -60,7 +66,7 @@ export class GalleryRepository {
   }
   static async update(gallery: Gallery, data: UpdateGalleryDto) {
     let artworksToDelete:
-      | Prisma.Enumerable<Prisma.GalleryArtworkScalarWhereInput>
+      | Prisma.Enumerable<Prisma.PlacedArtworkScalarWhereInput>
       | undefined = undefined;
 
     if (data.artworks) {
@@ -88,12 +94,20 @@ export class GalleryRepository {
           upsert: (data.artworks ?? []).map(item => ({
             create: {
               artworkId: item.artworkId,
-              xPosition: item.position.x,
-              yPosition: item.position.y,
+              frameId: item.frameId,
+              posX: item.position.x,
+              posY: item.position.y,
+              isScaled: item.framingOptions.isScaled,
+              scaling: item.framingOptions.scaling,
+              matting: item.framingOptions.matting,
             },
             update: {
-              xPosition: item.position.x,
-              yPosition: item.position.y,
+              frameId: item.frameId,
+              posX: item.position.x,
+              posY: item.position.y,
+              isScaled: item.framingOptions.isScaled,
+              scaling: item.framingOptions.scaling,
+              matting: item.framingOptions.matting,
             },
             where: {
               artworkId_galleryId: {
@@ -112,10 +126,10 @@ export class GalleryRepository {
           include: {
             artwork: {
               include: {
-                frame: true,
                 artist: true,
               },
             },
+            frame: true,
           },
         },
       },

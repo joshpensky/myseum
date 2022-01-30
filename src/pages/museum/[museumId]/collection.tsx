@@ -72,7 +72,7 @@ const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayou
               openedArtworkId !== null && openedArtworkId !== item.artwork.id && tw`opacity-50`,
             ]}>
             <Artwork
-              data={item.artwork}
+              artwork={item.artwork}
               galleries={item.galleries}
               onDetailsOpenChange={open => {
                 if (open) {
