@@ -6,8 +6,8 @@ import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
-import { CreateArtworkDto } from '@src/data/artwork.repository';
-import { ArtworkDto } from '@src/data/artwork.serializer';
+import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type {
   CreateArtworkState,

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import tw from 'twin.macro';
 import dayjs from 'dayjs';
-import { GalleryDto } from '@src/data/gallery.serializer';
-import { MuseumDto } from '@src/data/museum.serializer';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { Grid } from '@src/features/grid';
 import { ThemeProvider } from '@src/providers/ThemeProvider';

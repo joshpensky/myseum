@@ -8,18 +8,15 @@ import toast from 'react-hot-toast';
 import * as z from 'zod';
 import AutofitTextField from '@src/components/AutofitTextField';
 import Button from '@src/components/Button';
-import { ClientOnly } from '@src/components/ClientOnly';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
 import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
-import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
 import { Tooltip } from '@src/components/Tooltip';
 import ViewToggle from '@src/components/ViewToggle';
-import { GalleryRepository } from '@src/data/gallery.repository';
-import { GalleryDto, GallerySerializer } from '@src/data/gallery.serializer';
-import { MuseumRepository, UpdateMuseumDto } from '@src/data/museum.repository';
-import { MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
-import { useGlobalLayout } from '@src/layouts/GlobalLayout';
+import { GalleryRepository } from '@src/data/repositories/gallery.repository';
+import { MuseumRepository, UpdateMuseumDto } from '@src/data/repositories/museum.repository';
+import { GalleryDto, GallerySerializer } from '@src/data/serializers/gallery.serializer';
+import { MuseumDto, MuseumSerializer } from '@src/data/serializers/museum.serializer';
 // import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
@@ -67,13 +64,12 @@ export interface MuseumMapViewProps {
 
 const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewProps) => {
   const auth = useAuth();
-  const layout = useGlobalLayout();
 
   const [museum, setMuseum] = useState(props.museum);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(museum.name);
-  const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>(props.galleries);
+  // const [galleries, setGalleries] = useState<CreateUpdateGalleryDto[]>(props.galleries);
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
@@ -82,8 +78,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
 
   const onEdit = () => {
     setName(museum.name);
-    setGalleries(props.galleries);
-    layout.hideNav(true);
+    // setGalleries(props.galleries);
     setIsEditing(true);
     window.requestAnimationFrame(() => {
       cancelButtonRef.current?.focus();
@@ -91,7 +86,6 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
   };
 
   const exitEditMode = () => {
-    layout.hideNav(false);
     setIsEditing(false);
     window.requestAnimationFrame(() => {
       editButtonRef.current?.focus();
@@ -101,7 +95,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
   const onCancel = () => {
     // Reset state
     setName(museum.name);
-    setGalleries(props.galleries);
+    // setGalleries(props.galleries);
     // Exit editing mode
     exitEditMode();
   };
@@ -112,13 +106,13 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
       // Validates the museum
       const updateMuseumDto: UpdateMuseumDto = updateMuseumSchema.parse({
         name,
-        galleries: galleries.map(gallery => ({
-          id: gallery.id,
-          name: gallery.name,
-          color: gallery.color,
-          height: gallery.height,
-          position: gallery.position,
-        })),
+        // galleries: galleries.map(gallery => ({
+        //   id: gallery.id,
+        //   name: gallery.name,
+        //   color: gallery.color,
+        //   height: gallery.height,
+        //   position: gallery.position,
+        // })),
       });
 
       // If no errors, updates the gallery
@@ -139,7 +133,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
       // Update state
       const data = (await res.json()) as MuseumDto & { galleries: GalleryDto[] };
       setMuseum(data);
-      setGalleries(data.galleries);
+      // setGalleries(data.galleries);
       exitEditMode();
       // Send success toast
       toast.success('Museum updated!');
@@ -208,48 +202,6 @@ const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewPr
           </header>
         </ThemeProvider>
       )}
-
-      <ClientOnly>
-        <MuseumMap
-          museum={museum}
-          disabled={isFormSubmitting}
-          galleries={galleries}
-          isEditing={canEdit && isEditing}
-          onGalleryCreate={position => {
-            setGalleries([
-              ...galleries,
-              {
-                museumId: museum.id,
-                name: 'New Gallery',
-                color: 'paper',
-                height: 40,
-                position,
-                artworks: [],
-                addedAt: new Date(),
-                modifiedAt: new Date(),
-              },
-            ]);
-          }}
-          onGalleryUpdate={(position, updatedGallery) => {
-            setGalleries(
-              galleries.map(gallery => {
-                if (gallery.position.x === position.x && gallery.position.y === position.y) {
-                  return updatedGallery;
-                }
-                return gallery;
-              }),
-            );
-          }}
-          onGalleryDelete={position => {
-            setGalleries(
-              galleries.filter(
-                gallery =>
-                  !(gallery.position.x === position.x && gallery.position.y === position.y),
-              ),
-            );
-          }}
-        />
-      </ClientOnly>
     </Fragment>
   );
 };

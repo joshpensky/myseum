@@ -2,8 +2,8 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import * as z from 'zod';
-import { MuseumRepository } from '@src/data/museum.repository';
-import { MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
+import { MuseumRepository } from '@src/data/repositories/museum.repository';
+import { MuseumDto, MuseumSerializer } from '@src/data/serializers/museum.serializer';
 // import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { PageComponent } from '@src/types';
 

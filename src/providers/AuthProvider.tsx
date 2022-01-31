@@ -2,8 +2,8 @@ import { createContext, PropsWithChildren, useContext, useEffect, useRef, useSta
 import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { UserDto } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
-import { UserDto } from '@src/data/user.serializer';
 
 export interface AuthUserDto extends SupabaseUser, UserDto {
   email: string;

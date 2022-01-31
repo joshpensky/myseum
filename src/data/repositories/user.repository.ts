@@ -4,7 +4,11 @@ import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
 import { PrismaUser } from '@src/data/serializers/user.serializer';
 
-type UpdateUserDto = Partial<Omit<User, 'id'>>;
+interface UpdateUserDto {
+  name: string;
+  bio?: string;
+  headshot?: string;
+}
 
 export class UserRepository {
   /**
@@ -65,7 +69,9 @@ export class UserRepository {
   ): Promise<PrismaUser> {
     const updatedUser = await prisma.user.update({
       data: {
+        name: updateUserDto.name,
         bio: updateUserDto.bio,
+        headshot: updateUserDto.headshot,
       },
       where: {
         id: user.id,

@@ -1,9 +1,9 @@
 import { NextApiHandler } from 'next';
 import * as z from 'zod';
-import { GalleryRepository } from '@src/data/gallery.repository';
-import { GallerySerializer } from '@src/data/gallery.serializer';
-import { MuseumRepository } from '@src/data/museum.repository';
-import { MuseumSerializer } from '@src/data/museum.serializer';
+import { GalleryRepository } from '@src/data/repositories/gallery.repository';
+import { MuseumRepository } from '@src/data/repositories/museum.repository';
+import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
+import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
 
 const museumDetailController: NextApiHandler = async (req, res) => {
   const museumId = z.number().int().safeParse(Number(req.query.museumId));

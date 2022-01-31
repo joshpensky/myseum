@@ -8,8 +8,12 @@ import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import ViewToggle from '@src/components/ViewToggle';
-import { MuseumRepository } from '@src/data/museum.repository';
-import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
+import { MuseumRepository } from '@src/data/repositories/museum.repository';
+import {
+  MuseumCollectionItemDto,
+  MuseumDto,
+  MuseumSerializer,
+} from '@src/data/serializers/museum.serializer';
 import { CreateArtwork } from '@src/features/create-artwork';
 // import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import Close from '@src/svgs/Close';

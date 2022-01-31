@@ -1,6 +1,6 @@
 import { Matting, MeasureUnit } from '@prisma/client';
 import { assign, createMachine, State } from 'xstate';
-import type { FrameDto } from '@src/data/frame.serializer';
+import type { FrameDto } from '@src/data/serializers/frame.serializer';
 import type { SelectionEditorPath } from '@src/features/selection';
 
 type PickRequired<Type, Keys extends keyof Type> = Type & Required<Pick<Type, Keys>>;

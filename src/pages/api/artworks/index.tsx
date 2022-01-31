@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
-import { ArtworkRepository } from '@src/data/artwork.repository';
-import { ArtworkSerializer } from '@src/data/artwork.serializer';
+import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
+import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
 
 const artworkIndexController: NextApiHandler = async (req, res) => {
   try {

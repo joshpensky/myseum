@@ -8,12 +8,11 @@ import FloatingActionButton from '@src/components/FloatingActionButton';
 import IconButton from '@src/components/IconButton';
 import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
 import { Tooltip } from '@src/components/Tooltip';
-import { ArtworkDto } from '@src/data/artwork.serializer';
-import { UpdateGalleryDto } from '@src/data/gallery.repository';
-import { PlacedArtworkDto, GalleryDto } from '@src/data/gallery.serializer';
-import { MuseumDto } from '@src/data/museum.serializer';
+import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { PlacedArtworkDto, GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { Grid } from '@src/features/grid';
-import { useGlobalLayout } from '@src/layouts/GlobalLayout';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
@@ -27,8 +26,6 @@ export interface GalleryViewProps {
 }
 
 export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) => {
-  const layout = useGlobalLayout();
-
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -110,7 +107,6 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
   const exitEditMode = () => {
     setIsEditing(false);
     setWallWidth(getWallWidth(placedArtworks) + 5);
-    layout.updateNavVisibility(true);
     // Focus the edit button when edit mode has been exited
     window.requestAnimationFrame(() => {
       editButtonRef.current?.focus();
@@ -120,7 +116,6 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
   const openExitMode = () => {
     setOpenedArtworkId(null);
     setIsEditing(true);
-    layout.updateNavVisibility(false);
     // Focus the cancel button when edit mode has been started
     window.requestAnimationFrame(() => {
       cancelButtonRef.current?.focus();

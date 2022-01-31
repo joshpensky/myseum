@@ -31,7 +31,6 @@ export interface GalleryDto {
   name: string;
   color: GalleryColor;
   height: number;
-  position: Position;
   artworks: PlacedArtworkDto[];
   addedAt: Date;
   modifiedAt: Date;
@@ -45,10 +44,6 @@ export class GallerySerializer {
       name: gallery.name,
       color: gallery.color,
       height: gallery.height,
-      position: {
-        x: gallery.posX,
-        y: gallery.posY,
-      },
       artworks: gallery.artworks.map(galleryArtwork =>
         GallerySerializer.serializeArtwork(galleryArtwork),
       ),

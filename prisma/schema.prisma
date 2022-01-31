@@ -32,9 +32,10 @@ enum MeasureUnit {
 }
 
 model User {
-  id     String  @id @db.Uuid
-  avatar String?
-  bio    String?
+  id       String  @id @db.Uuid
+  name     String
+  bio      String  @default("")
+  headshot String?
 
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -49,9 +50,10 @@ model User {
 }
 
 model Museum {
-  id        Int       @id @default(autoincrement())
-  name      String
-  galleries Gallery[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String    @default("")
+  galleries   Gallery[]
 
   curator   User   @relation(fields: [curatorId], references: [id])
   curatorId String @unique @db.Uuid
@@ -63,14 +65,13 @@ model Museum {
 }
 
 model Gallery {
-  id       Int             @id @default(autoincrement())
-  name     String
-  color    GalleryColor    @default(paper)
-  height   Int             @default(40)
-  artworks PlacedArtwork[]
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String          @default("")
+  color       GalleryColor    @default(paper)
+  height      Int             @default(40)
+  artworks    PlacedArtwork[]
 
-  posX     Int
-  posY     Int
   museum   Museum @relation(fields: [museumId], references: [id])
   museumId Int
 
@@ -167,6 +168,9 @@ model Artist {
   name String
 
   artworks Artwork[]
+
+  addedAt    DateTime @default(now())
+  modifiedAt DateTime @default(now()) @updatedAt
 
   @@map("artists")
 }

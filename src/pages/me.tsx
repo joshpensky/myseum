@@ -6,13 +6,13 @@ import tw from 'twin.macro';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
+import { UserRepository } from '@src/data/repositories/user.repository';
+import { UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
-import { UserRepository } from '@src/data/user.repository';
-import { UserSerializer } from '@src/data/user.serializer';
-import { AuthUser, useAuth } from '@src/providers/AuthProvider';
+import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
 
 interface ProfileProps {
-  user: AuthUser;
+  user: AuthUserDto;
 }
 
 const Profile = ({ user }: ProfileProps) => {

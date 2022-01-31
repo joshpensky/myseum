@@ -6,7 +6,7 @@ import { Artwork } from '@src/components/Artwork';
 import FloatingActionButton from '@src/components/FloatingActionButton';
 import GallerySettings from '@src/components/GallerySettings';
 import { Popover } from '@src/components/Popover';
-import { ArtworkDto } from '@src/data/artwork.serializer';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { CreateArtwork } from '@src/features/create-artwork';
 import { GridArtworkItem } from '@src/features/gallery/GridArtwork';
 import Close from '@src/svgs/Close';
