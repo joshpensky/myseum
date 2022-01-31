@@ -7,7 +7,7 @@ import Button from '@src/components/Button';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmUploadEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { CommonUtils } from '@src/utils/CommonUtils';
-import { convertUnit } from '@src/utils/Convert';
+import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './uploadStep.module.scss';
 

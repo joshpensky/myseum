@@ -101,8 +101,8 @@ const CreateArtworkModal = ({ user, onComplete }: CreateArtworkModalProps) => {
   }, []);
 
   return (
-    <ThemeProvider theme={{ color: 'paper' }}>
-      <div className={cx('theme--paper', styles.root)}>
+    <ThemeProvider theme={{ color: 'ink' }}>
+      <div className={cx('theme--ink', styles.root)}>
         <div className={styles.activeArea} />
 
         <div className={styles.formArea}>

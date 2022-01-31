@@ -17,7 +17,7 @@ import Close from '@src/svgs/Close';
 import Lightbulb from '@src/svgs/Lightbulb';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { convertUnit } from '@src/utils/Convert';
+import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './dimensionsStep.module.scss';
 

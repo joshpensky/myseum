@@ -31,6 +31,8 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
     return SelectionEditorState.create(initialSnapshot);
   });
 
+  // TODO: mobile version of editor
+
   return (
     <Formik
       initialValues={{}}

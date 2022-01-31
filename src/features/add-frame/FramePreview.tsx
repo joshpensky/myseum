@@ -8,7 +8,6 @@ import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
-import { Convert } from '@src/utils/Convert';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { useAddFrameContext } from './AddFrameContext';
 import { SelectionEditorState } from '../selection';
@@ -117,7 +116,7 @@ const FramePreview = ({ editor, rotated, setRotated }: FramePreviewProps) => {
     }
   }, []);
 
-  const unitSize = Convert.from(1, measurement).to('px').value;
+  const unitSize = 1; //Convert.from(1, measurement).to('px').value;
   const previewDimensions = CanvasUtils.objectScaleDown(wrapperDimensions, {
     width: actualDimensions.width * unitSize,
     height: actualDimensions.height * unitSize,

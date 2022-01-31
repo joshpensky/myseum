@@ -356,6 +356,8 @@ function useAutoScroll(controller: MoveController): AutoScroll {
   };
 }
 
+// TODO: combine mousemove and touchmove into pointermove
+
 export function useMouseMove(
   controller: MoveController,
 ): Pick<DragHandleProps, 'onBlur' | 'onMouseDown'> {
