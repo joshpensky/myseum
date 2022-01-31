@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import cx from 'classnames';
 import { Artwork } from '@src/components/Artwork';
-import { PlacedArtworkDto } from '@src/data/GallerySerializer';
+import { PlacedArtworkDto } from '@src/data/gallery.serializer';
 import { useGrid } from '@src/features/grid';
 import { GridRenderItemProps } from '@src/features/grid/Grid';
 import DragHandle from '@src/svgs/DragHandle';

@@ -2,33 +2,28 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import * as z from 'zod';
-import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
-import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
-import { useMuseum } from '@src/providers/MuseumProvider';
+import { MuseumRepository } from '@src/data/museum.repository';
+import { MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
+// import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { PageComponent } from '@src/types';
 
 export interface MuseumAboutProps {
   museum: MuseumDto;
 }
 
-const MuseumAbout: PageComponent<MuseumAboutProps, MuseumLayoutProps> = () => {
-  const { museum } = useMuseum();
+const MuseumAbout: PageComponent<MuseumAboutProps> = ({ museum }) => (
+  <div>
+    <Head>
+      <title>About | {museum.name} | Myseum</title>
+    </Head>
 
-  return (
-    <div>
-      <Head>
-        <title>About | {museum.name} | Myseum</title>
-      </Head>
+    <h1>About the Curator</h1>
 
-      <h1>About the Curator</h1>
+    <p>{museum.curator.bio}</p>
+  </div>
+);
 
-      <p>{museum.curator.bio}</p>
-    </div>
-  );
-};
-
-MuseumAbout.layout = MuseumLayout;
+// MuseumAbout.layout = MuseumLayout;
 MuseumAbout.getPageLayoutProps = pageProps => ({
   museum: pageProps.museum,
 });

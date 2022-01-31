@@ -2,8 +2,8 @@ import { MeasureUnit } from '@prisma/client';
 import { decode } from 'base64-arraybuffer';
 import * as uuid from 'uuid';
 import { prisma } from '@src/data/prisma';
+import { supabase } from '@src/data/supabase';
 import { Dimensions3D } from '@src/types';
-import { supabase } from './supabase';
 
 export interface CreateArtworkDto {
   ownerId: string;

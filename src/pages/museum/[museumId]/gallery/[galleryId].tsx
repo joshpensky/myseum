@@ -3,20 +3,20 @@ import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import tw from 'twin.macro';
 import * as z from 'zod';
-import { GalleryRepository } from '@src/data/GalleryRepository';
-import { GallerySerializer } from '@src/data/GallerySerializer';
-import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumSerializer } from '@src/data/MuseumSerializer';
+import { GalleryRepository } from '@src/data/gallery.repository';
+import { GallerySerializer } from '@src/data/gallery.serializer';
+import { MuseumRepository } from '@src/data/museum.repository';
+import { MuseumSerializer } from '@src/data/museum.serializer';
 import { GalleryView, GalleryViewProps } from '@src/features/gallery';
-import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
+// import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import Arrow from '@src/svgs/Arrow';
 import { PageComponent } from '@src/types';
 
 type GalleryPageProps = GalleryViewProps;
 
-const GalleryPage: PageComponent<GalleryPageProps, MuseumLayoutProps> = GalleryView;
+const GalleryPage: PageComponent<GalleryPageProps> = GalleryView;
 
-GalleryPage.layout = MuseumLayout;
+// GalleryPage.layout = MuseumLayout;
 GalleryPage.getPageLayoutProps = pageProps => ({
   museum: pageProps.museum,
   forGallery: true,

@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
-import { FrameRepository } from '@src/data/FrameRepository';
-import { FrameSerializer } from '@src/data/FrameSerializer';
+import { FrameRepository } from '@src/data/frame.repository';
+import { FrameSerializer } from '@src/data/frame.serializer';
 
 const frameIndexController: NextApiHandler = async (req, res) => {
   try {

@@ -15,14 +15,13 @@ import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
 import MuseumMap, { CreateUpdateGalleryDto } from '@src/components/MuseumMap';
 import { Tooltip } from '@src/components/Tooltip';
 import ViewToggle from '@src/components/ViewToggle';
-import { GalleryRepository } from '@src/data/GalleryRepository';
-import { GalleryDto, GallerySerializer } from '@src/data/GallerySerializer';
-import { MuseumRepository, UpdateMuseumDto } from '@src/data/MuseumRepository';
-import { MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
+import { GalleryRepository } from '@src/data/gallery.repository';
+import { GalleryDto, GallerySerializer } from '@src/data/gallery.serializer';
+import { MuseumRepository, UpdateMuseumDto } from '@src/data/museum.repository';
+import { MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
 import { useGlobalLayout } from '@src/layouts/GlobalLayout';
-import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
+// import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import { useAuth } from '@src/providers/AuthProvider';
-import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
 import Edit from '@src/svgs/Edit';
@@ -66,13 +65,11 @@ export interface MuseumMapViewProps {
   galleries: GalleryDto[];
 }
 
-const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
-  props: MuseumMapViewProps,
-) => {
+const MuseumMapView: PageComponent<MuseumMapViewProps> = (props: MuseumMapViewProps) => {
   const auth = useAuth();
   const layout = useGlobalLayout();
 
-  const { museum, setMuseum } = useMuseum();
+  const [museum, setMuseum] = useState(props.museum);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(museum.name);
@@ -214,6 +211,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
 
       <ClientOnly>
         <MuseumMap
+          museum={museum}
           disabled={isFormSubmitting}
           galleries={galleries}
           isEditing={canEdit && isEditing}
@@ -256,7 +254,7 @@ const MuseumMapView: PageComponent<MuseumMapViewProps, MuseumLayoutProps> = (
   );
 };
 
-MuseumMapView.layout = MuseumLayout;
+// MuseumMapView.layout = MuseumLayout;
 MuseumMapView.getPageLayoutProps = pageProps => ({
   museum: pageProps.museum,
 });

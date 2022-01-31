@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
-import { UserRepository } from '@src/data/UserRepository';
-import { UserSerializer } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
+import { UserRepository } from '@src/data/user.repository';
+import { UserSerializer } from '@src/data/user.serializer';
 
 const userDetailController: NextApiHandler = async (req, res) => {
   const userId = req.query.userId;

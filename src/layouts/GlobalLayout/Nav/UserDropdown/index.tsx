@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
 import { supabase } from '@src/data/supabase';
 import { useAuth } from '@src/providers/AuthProvider';
-import styles from './userAuthState.module.scss';
+import styles from './userDropdown.module.scss';
 
 export const UserDropdown = () => {
   const auth = useAuth();

@@ -8,11 +8,10 @@ import * as z from 'zod';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import ViewToggle from '@src/components/ViewToggle';
-import { MuseumRepository } from '@src/data/MuseumRepository';
-import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/MuseumSerializer';
+import { MuseumRepository } from '@src/data/museum.repository';
+import { MuseumCollectionItemDto, MuseumDto, MuseumSerializer } from '@src/data/museum.serializer';
 import { CreateArtwork } from '@src/features/create-artwork';
-import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
-import { useMuseum } from '@src/providers/MuseumProvider';
+// import { MuseumLayout, MuseumLayoutProps } from '@src/layouts/MuseumLayout';
 import Close from '@src/svgs/Close';
 import { PageComponent } from '@src/types';
 
@@ -20,9 +19,7 @@ export interface MuseumCollectionViewProps {
   museum: MuseumDto;
 }
 
-const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayoutProps> = () => {
-  const { museum } = useMuseum();
-
+const MuseumCollectionView: PageComponent<MuseumCollectionViewProps> = ({ museum }) => {
   const collection = useSWR<MuseumCollectionItemDto[]>(`/api/museum/${museum.id}/collection`);
 
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -89,7 +86,7 @@ const MuseumCollectionView: PageComponent<MuseumCollectionViewProps, MuseumLayou
   );
 };
 
-MuseumCollectionView.layout = MuseumLayout;
+// MuseumCollectionView.layout = MuseumLayout;
 MuseumCollectionView.getPageLayoutProps = pageProps => ({
   museum: pageProps.museum,
 });

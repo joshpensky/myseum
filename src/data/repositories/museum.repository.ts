@@ -1,7 +1,7 @@
 import { Gallery, Museum, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
+import { PrismaMuseumCollectionItem } from '@src/data/serializers/museum.serializer';
 import { Position } from '@src/types';
-import { PrismaMuseumCollectionItem } from './MuseumSerializer';
 
 interface GalleryDto {
   name: string;

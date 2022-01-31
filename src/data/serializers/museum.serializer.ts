@@ -1,6 +1,6 @@
 import { Gallery, Museum, PlacedArtwork, User } from '@prisma/client';
-import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './ArtworkSerializer';
-import { GalleryDto, GallerySerializer } from './GallerySerializer';
+import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './artwork.serializer';
+import { GalleryDto, GallerySerializer } from './gallery.serializer';
 
 export interface PrismaMuseum extends Museum {
   curator: User;

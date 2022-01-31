@@ -6,9 +6,9 @@ import tw from 'twin.macro';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import TextField from '@src/components/TextField';
-import { UserRepository } from '@src/data/UserRepository';
-import { UserSerializer } from '@src/data/UserSerializer';
 import { supabase } from '@src/data/supabase';
+import { UserRepository } from '@src/data/user.repository';
+import { UserSerializer } from '@src/data/user.serializer';
 import { AuthUser, useAuth } from '@src/providers/AuthProvider';
 
 interface ProfileProps {

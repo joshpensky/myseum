@@ -5,7 +5,7 @@ import { MoveFocusInside } from 'react-focus-lock';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import FeatureFormModal from '@src/components/FeatureFormModal';
-import { CreateFrameDto } from '@src/data/FrameRepository';
+import { CreateFrameDto } from '@src/data/frame.repository';
 import { supabase } from '@src/data/supabase';
 import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 import UploadImage from '@src/features/add-artwork/UploadImage';

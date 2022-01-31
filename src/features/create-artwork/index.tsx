@@ -3,7 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useMachine } from '@xstate/react';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
-import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { ArtworkDto } from '@src/data/artwork.serializer';
 import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';

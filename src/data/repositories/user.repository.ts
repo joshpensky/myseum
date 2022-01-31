@@ -2,7 +2,7 @@ import type { User } from '@prisma/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
-import { PrismaUser } from './UserSerializer';
+import { PrismaUser } from '@src/data/serializers/user.serializer';
 
 type UpdateUserDto = Partial<Omit<User, 'id'>>;
 

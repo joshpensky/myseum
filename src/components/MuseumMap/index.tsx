@@ -9,7 +9,8 @@ import {
   OnDragEndResponder,
   OnDragStartResponder,
 } from 'react-beautiful-dnd';
-import { PlacedArtworkDto, GalleryDto } from '@src/data/GallerySerializer';
+import { PlacedArtworkDto, GalleryDto } from '@src/data/gallery.serializer';
+import { MuseumDto } from '@src/data/museum.serializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Position } from '@src/types';
 import EditGalleryBlock from './EditGalleryBlock';
@@ -30,6 +31,7 @@ export interface CreateUpdateGalleryDto {
 }
 
 type MuseumMapProps = {
+  museum: MuseumDto;
   disabled?: boolean;
   galleries: CreateUpdateGalleryDto[];
   onGalleryCreate(position: Position): void;
@@ -39,6 +41,7 @@ type MuseumMapProps = {
 };
 
 const MuseumMap = ({
+  museum,
   disabled,
   galleries,
   isEditing,
@@ -223,7 +226,13 @@ const MuseumMap = ({
 
                         if (!isEditing && typeof gallery.id === 'number') {
                           // Safe casting
-                          return <GalleryBlock key={gallery.id} gallery={gallery as GalleryDto} />;
+                          return (
+                            <GalleryBlock
+                              key={gallery.id}
+                              museum={museum}
+                              gallery={gallery as GalleryDto}
+                            />
+                          );
                         }
 
                         // Assign gallery ID, or temporary one based on create date

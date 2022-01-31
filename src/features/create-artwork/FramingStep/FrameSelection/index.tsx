@@ -1,7 +1,7 @@
 import { Field } from 'formik';
 import useSWR from 'swr';
 import Button from '@src/components/Button';
-import { FrameDto } from '@src/data/FrameSerializer';
+import { FrameDto } from '@src/data/frame.serializer';
 import Checkmark from '@src/svgs/Checkmark';
 import styles from './frameSelection.module.scss';
 

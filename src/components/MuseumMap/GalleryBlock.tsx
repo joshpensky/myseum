@@ -1,21 +1,20 @@
 import Link from 'next/link';
 import tw from 'twin.macro';
 import dayjs from 'dayjs';
-import { GalleryDto } from '@src/data/GallerySerializer';
+import { GalleryDto } from '@src/data/gallery.serializer';
+import { MuseumDto } from '@src/data/museum.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { Grid } from '@src/features/grid';
-import { useMuseum } from '@src/providers/MuseumProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 
 export interface GalleryBlockProps {
   gallery: GalleryDto;
+  museum: MuseumDto;
 }
 
-const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
-  const { museum } = useMuseum();
-
+const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
   const gridWidth = gallery.artworks.reduce(
-    (acc, item) => Math.max(acc, item.position.x + item.artwork.fullSize.width),
+    (acc, item) => Math.max(acc, item.position.x + item.size.width),
     1,
   );
 
@@ -36,11 +35,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
                     <Grid
                       preview
                       size={{ width: gridWidth, height: gallery.height }}
-                      items={gallery.artworks.map(item => ({
-                        artwork: item.artwork,
-                        position: item.position,
-                        size: item.artwork.fullSize,
-                      }))}
+                      items={gallery.artworks}
                       getItemId={item => String(item.artwork.id)}
                       renderItem={(item, props) => <GridArtwork {...props} item={item} />}
                     />
@@ -54,7 +49,7 @@ const GalleryBlock = ({ gallery }: GalleryBlockProps) => {
                   {gallery.name}
                 </p>
                 <p css={tw`text-sm`} style={{ color: `rgba(var(--c-text), 1)` }}>
-                  Est. {dayjs(gallery.createdAt).year()}
+                  Est. {dayjs(gallery.addedAt).year()}
                 </p>
               </div>
             </div>
