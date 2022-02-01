@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { ApiError } from '@supabase/supabase-js';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
-import { supabase } from '@src/data/supabase';
 import { useAuth } from '@src/providers/AuthProvider';
 import Logo from '@src/svgs/Logo';
 import { UserDropdown } from './UserDropdown';
@@ -12,23 +11,15 @@ import styles from './nav.module.scss';
 
 const Nav = () => {
   const auth = useAuth();
-  const router = useRouter();
 
   const [isSigningIn, setIsSigningIn] = useState(false);
 
-  /**
-   * Signs in the user via Google OAuth.
-   */
   const signIn = async () => {
     setIsSigningIn(true);
-    const { error } = await supabase.auth.signIn(
-      { provider: 'google' },
-      {
-        redirectTo: `${window.location.origin}${router.asPath}`,
-      },
-    );
-    if (error) {
-      toast.error(error.message);
+    try {
+      await auth.signIn();
+    } catch (error) {
+      toast.error((error as ApiError).message);
       setIsSigningIn(false);
     }
   };

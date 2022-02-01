@@ -15,6 +15,7 @@ export interface PrismaMuseumCollectionItem extends PrismaArtwork {
 export interface MuseumDto {
   id: number;
   name: string;
+  description: string;
   curator: User;
   addedAt: Date;
   modifiedAt: Date;
@@ -30,6 +31,7 @@ export class MuseumSerializer {
     return {
       id: museum.id,
       name: museum.name,
+      description: museum.description,
       curator: museum.curator,
       addedAt: museum.addedAt,
       modifiedAt: museum.modifiedAt,

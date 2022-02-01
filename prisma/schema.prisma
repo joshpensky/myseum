@@ -33,7 +33,7 @@ enum MeasureUnit {
 
 model User {
   id       String  @id @db.Uuid
-  name     String
+  name     String  @default("")
   bio      String  @default("")
   headshot String?
 

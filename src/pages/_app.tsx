@@ -33,7 +33,9 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <IdProvider>
       <ThemeProvider theme={{ color: 'paper' }}>
-        <AuthProvider>
+        <AuthProvider
+          initUser={pageProps.__supabaseUser ?? null}
+          initUserData={pageProps.__userData ?? null}>
           <StyleProvider>
             <GlobalLayout {...globalLayoutProps}>
               <PageLayout {...pageLayoutProps}>

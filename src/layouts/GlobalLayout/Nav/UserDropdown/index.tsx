@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { ApiError } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
 import { Popover } from '@src/components/Popover';
-import { supabase } from '@src/data/supabase';
 import { useAuth } from '@src/providers/AuthProvider';
 import styles from './userDropdown.module.scss';
 
@@ -10,18 +10,19 @@ export const UserDropdown = () => {
   const auth = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   /**
-   * Logs the user out.
+   * Signs the user out.
    */
-  const logOut = async () => {
+  const signOut = async () => {
     setIsOpen(false);
-    setIsLoading(true);
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-      setIsLoading(false);
+    setIsSigningOut(true);
+    try {
+      await auth.signOut();
+    } catch (error) {
+      toast.error((error as ApiError).message);
+      setIsSigningOut(false);
     }
   };
 
@@ -66,9 +67,9 @@ export const UserDropdown = () => {
               <li className={styles.userPopoverLinksItem}>
                 <button
                   className={styles.userPopoverLink}
-                  disabled={isLoading}
-                  onClick={() => logOut()}>
-                  Log out
+                  disabled={isSigningOut}
+                  onClick={() => signOut()}>
+                  Sign out
                 </button>
               </li>
             </ul>

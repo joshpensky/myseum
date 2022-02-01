@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import tw from 'twin.macro';
 import dayjs from 'dayjs';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
@@ -13,6 +14,14 @@ export interface GalleryBlockProps {
 }
 
 const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
+  const router = useRouter();
+  let href: string;
+  if (router.pathname === '/') {
+    href = `/gallery/${gallery.id}`;
+  } else {
+    href = `/museum/${museum.id}/gallery/${gallery.id}`;
+  }
+
   const gridWidth = gallery.artworks.reduce(
     (acc, item) => Math.max(acc, item.position.x + item.size.width),
     1,
@@ -21,7 +30,7 @@ const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
   return (
     <div css={tw`flex flex-shrink-0 m-2.5`}>
       <ThemeProvider theme={{ color: gallery.color }}>
-        <Link passHref href={`/museum/${museum.id}/gallery/${gallery.id}`}>
+        <Link passHref href={href}>
           <a
             className={`theme--${gallery.color}`}
             css={[tw`block w-96 ratio-4-3 relative rounded-lg overflow-hidden`]}>

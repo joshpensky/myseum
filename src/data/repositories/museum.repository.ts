@@ -1,6 +1,6 @@
 import { Gallery, Museum, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
-import { PrismaMuseumCollectionItem } from '@src/data/serializers/museum.serializer';
+import { PrismaMuseum, PrismaMuseumCollectionItem } from '@src/data/serializers/museum.serializer';
 import { Position } from '@src/types';
 
 interface GalleryDto {
@@ -23,9 +23,19 @@ export interface UpdateMuseumDto {
 }
 
 export class MuseumRepository {
-  static async findOne(id: number) {
+  static async findOne(id: number): Promise<PrismaMuseum | null> {
     const museum = await prisma.museum.findUnique({
       where: { id },
+      include: {
+        curator: true,
+      },
+    });
+    return museum;
+  }
+
+  static async findOneByCurator(curatorId: string): Promise<PrismaMuseum | null> {
+    const museum = await prisma.museum.findUnique({
+      where: { curatorId },
       include: {
         curator: true,
       },
