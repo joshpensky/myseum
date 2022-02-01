@@ -26,6 +26,8 @@ const Callback = () => {
 
   return (
     <div className={styles.wrapper}>
+      <h1 className="sr-only">Redirecting...</h1>
+
       <Loader size="large" />
     </div>
   );

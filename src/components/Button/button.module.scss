@@ -15,23 +15,19 @@
 }
 
 .inner {
-  @include padding(sz(1.25) sz(3));
+  @include padding(sz(2) sz(5));
   align-items: center;
   border-radius: sz(2.5);
   display: flex;
-  justify-content: center;
 
   @include with-motion {
     transition: 150ms ease;
   }
 
+  .button--busy &,
   .button:disabled & {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  .button--large & {
-    @include padding(sz(3) sz(4));
   }
 
   .button--filled & {
@@ -40,7 +36,7 @@
     color: c('bg');
   }
 
-  .button--filled:not(:disabled):focus & {
+  .button--filled:not(:disabled):not(.button--busy):focus & {
     box-shadow: 0 0 0 1px c('border'), inset 0 0 0 1.5px c('bg');
   }
 
@@ -48,13 +44,51 @@
     box-shadow: inset 0 0 0 1px c('border', 0.2);
   }
 
-  .button:not(.button--filled):not(:disabled):hover & {
+  .button:not(.button--filled):not(:disabled):not(.button--busy):hover & {
     background-color: c('bg-tint');
     box-shadow: inset 0 0 0 1px c('border', 0.4);
   }
 
-  .button:not(.button--filled):not(:disabled):focus & {
+  .button:not(.button--filled):not(:disabled):not(.button--busy):focus & {
     background-color: c('bg-tint');
     box-shadow: inset 0 0 0 1px c('border');
+  }
+}
+
+.icon {
+  @include size(sz(4));
+  color: c('border');
+  margin-right: sz(2);
+
+  svg {
+    stroke-width: 1.2;
+  }
+}
+
+.icon,
+.text {
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  .button--busy & {
+    transform: translateX(sz(-2));
+  }
+}
+
+.loader {
+  @include absolute(50% sz(2.5) x x);
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(sz(1));
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  .button--busy & {
+    opacity: 1;
+    transform: translateY(-50%);
   }
 }

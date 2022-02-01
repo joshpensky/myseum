@@ -17,7 +17,7 @@ import type {
   EditSelectionEvent,
 } from '@src/features/create-artwork/state';
 import { AuthUserDto } from '@src/providers/AuthProvider';
-import Edit from '@src/svgs/Edit';
+import Edit from '@src/svgs/EditIcon';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
@@ -188,7 +188,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
             </section>
 
             <div className={rootStyles.formActions}>
-              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled disabled={!isValid || isSubmitting}>
                 Save
               </Button>
             </div>

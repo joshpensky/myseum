@@ -173,7 +173,6 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             {!!values.image && (
               <Button
                 className={styles.reset}
-                size="large"
                 type="reset"
                 onClick={() => setFieldValue('image', undefined)}>
                 Reset
@@ -181,11 +180,7 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             )}
 
             <div className={rootStyles.formActions}>
-              <Button
-                size="large"
-                type="submit"
-                filled
-                disabled={isUploading || !isValid || isSubmitting}>
+              <Button type="submit" filled disabled={isUploading || !isValid || isSubmitting}>
                 Next
               </Button>
             </div>

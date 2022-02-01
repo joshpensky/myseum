@@ -15,7 +15,7 @@ import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { Grid } from '@src/features/grid';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
-import Edit from '@src/svgs/Edit';
+import Edit from '@src/svgs/EditIcon';
 import { GalleryEditActions } from './GalleryEditActions';
 import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';

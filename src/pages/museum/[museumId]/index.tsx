@@ -19,26 +19,22 @@ export const getServerSideProps: GetServerSideProps<
     };
   }
 
-  try {
-    const museum = await MuseumRepository.findOne(museumId.data);
-    if (!museum) {
-      throw new Error('Museum not found.');
-    }
-
-    const serializedMuseum = MuseumSerializer.serialize(museum);
-
-    const galleries = await GalleryRepository.findAllByMuseum(museum.id);
-    const serializedGalleries = galleries.map(gallery => GallerySerializer.serialize(gallery));
-
-    return {
-      props: {
-        museum: serializedMuseum,
-        galleries: serializedGalleries,
-      },
-    };
-  } catch (error) {
+  const museum = await MuseumRepository.findOne(museumId.data);
+  if (!museum) {
     return {
       notFound: true,
     };
   }
+
+  const serializedMuseum = MuseumSerializer.serialize(museum);
+
+  const galleries = await GalleryRepository.findAllByMuseum(museum.id);
+  const serializedGalleries = galleries.map(gallery => GallerySerializer.serialize(gallery));
+
+  return {
+    props: {
+      museum: serializedMuseum,
+      galleries: serializedGalleries,
+    },
+  };
 };

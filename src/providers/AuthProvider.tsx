@@ -25,19 +25,17 @@ export const AuthContext = createContext<AuthContextValue>({
 });
 
 interface AuthProviderProps {
-  initUser: SupabaseUser | null;
-  initUserData: UserDto | null;
+  initValue: {
+    supabaseUser: SupabaseUser | null;
+    userData: UserDto | null;
+  };
 }
 
-export const AuthProvider = ({
-  children,
-  initUser,
-  initUserData,
-}: PropsWithChildren<AuthProviderProps>) => {
+export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProviderProps>) => {
   const router = useRouter();
 
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(initUser);
-  const [userData, setUserData] = useState<UserDto | null>(initUserData);
+  const [supabaseUser, setSupabaseUser] = useState(initValue.supabaseUser);
+  const [userData, setUserData] = useState(initValue.userData);
 
   // Flag for if the user is logged in, but their data is still loading!
   const isUserLoading = !!supabaseUser && !userData;

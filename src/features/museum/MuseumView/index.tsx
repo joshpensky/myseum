@@ -4,6 +4,8 @@ import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
 import { useAuth } from '@src/providers/AuthProvider';
+import Edit from '@src/svgs/EditIcon';
+import { ShareIcon } from '@src/svgs/ShareIcon';
 
 export interface MuseumViewProps {
   galleries: GalleryDto[];
@@ -20,9 +22,9 @@ export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
       <p>Est. {dayjs(museum.addedAt).year()}</p>
       <p>{museum.description}</p>
 
-      {auth.user?.id === museum.curator.id && <Button>Edit</Button>}
+      {auth.user?.id === museum.curator.id && <Button icon={Edit}>Edit</Button>}
 
-      <Button>Share</Button>
+      <Button icon={ShareIcon}>Share</Button>
 
       <ul>
         {galleries.map(gallery => (
