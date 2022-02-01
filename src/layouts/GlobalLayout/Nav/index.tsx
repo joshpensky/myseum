@@ -35,7 +35,7 @@ const Nav = () => {
       {auth.user || auth.isUserLoading ? (
         <UserDropdown />
       ) : (
-        <Button disabled={isSigningIn} onClick={() => signIn()}>
+        <Button busy={isSigningIn} onClick={() => signIn()}>
           Sign in
         </Button>
       )}

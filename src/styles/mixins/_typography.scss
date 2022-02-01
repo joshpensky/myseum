@@ -1,3 +1,8 @@
+@mixin h1 {
+  font-size: sz(12.5);
+  font-family: $ff-serif;
+}
+
 @mixin label {
   color: c('secondary-text');
   font-size: $fs-sm;

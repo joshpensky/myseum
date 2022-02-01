@@ -5,7 +5,7 @@ import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import Edit from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/EditIcon';
 import Fullscreen from '@src/svgs/Fullscreen';
 import styles from './artworkDetails.module.scss';
 
@@ -48,7 +48,7 @@ const ArtworkDetails = ({
               className={styles.headerButtonsItem}
               title="Edit artwork"
               tooltipProps={{ side: 'top' }}>
-              <Edit />
+              <EditIcon />
             </IconButton>
           </div>
         </Popover.Header>

@@ -1,6 +1,6 @@
 import styles from './_svgs.module.scss';
 
-const EditIcon = () => (
+export const EditIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path
       className={styles.stroke}
@@ -9,5 +9,3 @@ const EditIcon = () => (
     />
   </svg>
 );
-
-export default EditIcon;

@@ -23,7 +23,7 @@ export const AnonymousHome = () => {
     <div>
       <h1>Home</h1>
 
-      <Button disabled={isSigningIn} onClick={() => signIn()}>
+      <Button busy={isSigningIn} onClick={() => signIn()}>
         Sign in
       </Button>
     </div>

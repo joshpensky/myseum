@@ -31,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(fun
       type={type}
       aria-busy={busy}
       disabled={disabled}
-      onClick={onClick}>
+      onClick={busy ? undefined : onClick}>
       <span className={styles.inner}>
         {Icon && (
           <span className={styles.icon} aria-hidden="true">

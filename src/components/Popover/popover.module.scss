@@ -23,9 +23,9 @@
 $popover-anim-duration: 150ms;
 
 .popover {
-  border-radius: sz(2);
-  background-color: c('shadow', 0.2);
-  box-shadow: 0 20px 25px -5px c('shadow', 0.2), 0 10px 10px -5px c('shadow', 0.2);
+  border-radius: sz(3);
+  background-color: c('white');
+  border: 1px solid c('gray');
   transform-origin: var(--radix-popover-content-transform-origin);
   width: sz(96);
   z-index: $z-popover;
@@ -44,23 +44,6 @@ $popover-anim-duration: 150ms;
 
   &[data-state='closed'] {
     animation: popover-leave $popover-anim-duration ease-out forwards 1;
-  }
-}
-
-.popover__header,
-.popover__body {
-  &:first-child {
-    border-top-left-radius: sz(2);
-    border-top-right-radius: sz(2);
-  }
-
-  &:not(:last-child) {
-    margin-bottom: 1px;
-  }
-
-  &:last-child {
-    border-bottom-left-radius: sz(2);
-    border-bottom-right-radius: sz(2);
   }
 }
 

@@ -5,6 +5,7 @@
 :root {
   --c-white: #{hex-to-rgb($c-white)};
   --c-black: #{hex-to-rgb($c-black)};
+  --c-gray: #{hex-to-rgb($c-gray)};
   --c-red: #{hex-to-rgb($c-red-500)};
   --c-yellow: #{hex-to-rgb($c-yellow-500)};
 }

@@ -17,7 +17,7 @@ import type {
   EditSelectionEvent,
 } from '@src/features/create-artwork/state';
 import { AuthUserDto } from '@src/providers/AuthProvider';
-import Edit from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/EditIcon';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
@@ -95,7 +95,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Dimensions"
                   onClick={() => onEdit({ type: 'EDIT_DIMENSIONS' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
@@ -116,7 +116,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Selection"
                   onClick={() => onEdit({ type: 'EDIT_SELECTION' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
             </section>
@@ -129,7 +129,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Framing"
                   onClick={() => onEdit({ type: 'EDIT_FRAMING' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
@@ -161,7 +161,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Details"
                   onClick={() => onEdit({ type: 'EDIT_DETAILS' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
