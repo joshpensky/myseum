@@ -1,8 +1,11 @@
 .root {
   @include padding(sz(4));
+  @include sticky(0 x x 0);
+  height: $nav-height;
   align-items: center;
   display: flex;
   justify-content: space-between;
+  z-index: $z-nav;
 }
 
 .nav__logo {

@@ -1,6 +1,12 @@
 @mixin h1 {
   font-size: sz(12.5);
   font-family: $ff-serif;
+  line-height: 1.2;
+}
+
+@mixin h2 {
+  font-size: sz(6.5);
+  font-family: $ff-serif;
 }
 
 @mixin label {

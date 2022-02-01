@@ -5,7 +5,7 @@ $c-gray: #cccccc;
 $c-mat-light: #fff2e0;
 $c-mat-dark: #141414;
 
-$c-red-500: #ff3737;
+$c-red-500: #ff5d47;
 
 $c-yellow-500: #ffaf37;
 
@@ -53,6 +53,11 @@ $shadow-lg: 0 10px 15px -3px c('black', 0.1), 0 4px 6px -2px c('black', 0.05);
 
 ////////////////////////////////////
 
+$nav-height: sz(16);
+
+////////////////////////////////////
+
+$z-nav: 90;
 $z-fab: 100;
 $z-popover: 110;
 $z-modal: 120;
