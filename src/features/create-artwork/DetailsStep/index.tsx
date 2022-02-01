@@ -166,11 +166,11 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             </div>
 
             <div className={rootStyles.formActions}>
-              <Button size="large" type="button" onClick={onBack}>
+              <Button type="button" onClick={onBack}>
                 Back
               </Button>
 
-              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled disabled={!isValid || isSubmitting}>
                 Next
               </Button>
             </div>

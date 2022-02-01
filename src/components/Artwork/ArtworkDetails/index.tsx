@@ -3,10 +3,9 @@ import Link from 'next/link';
 import dayjs from 'dayjs';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
-import { ArtworkDto } from '@src/data/ArtworkSerializer';
-import { GalleryDto } from '@src/data/GallerySerializer';
-import { useMuseum } from '@src/providers/MuseumProvider';
-import Edit from '@src/svgs/Edit';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { EditIcon } from '@src/svgs/EditIcon';
 import Fullscreen from '@src/svgs/Fullscreen';
 import styles from './artworkDetails.module.scss';
 
@@ -22,7 +21,7 @@ const ArtworkDetails = ({
   galleries,
   onOpenChange,
 }: PropsWithChildren<ArtworkDetailProps>) => {
-  const { museum } = useMuseum();
+  // const { museum } = useMuseum();
 
   const { title, artist, description, acquiredAt, createdAt } = data;
 
@@ -49,7 +48,7 @@ const ArtworkDetails = ({
               className={styles.headerButtonsItem}
               title="Edit artwork"
               tooltipProps={{ side: 'top' }}>
-              <Edit />
+              <EditIcon />
             </IconButton>
           </div>
         </Popover.Header>
@@ -100,7 +99,7 @@ const ArtworkDetails = ({
 
                     return (
                       <Fragment key={gallery.id}>
-                        <Link href={`/museum/${museum.id}/gallery/${gallery.id}`}>
+                        <Link href={`/gallery/${gallery.id}`}>
                           <a>{gallery.name}</a>
                         </Link>
                         {separator}

@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
-import { UserRepository } from '@src/data/UserRepository';
-import { UserSerializer } from '@src/data/UserSerializer';
+import { UserRepository } from '@src/data/repositories/user.repository';
+import { UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
 
 const userDetailController: NextApiHandler = async (req, res) => {

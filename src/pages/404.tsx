@@ -5,8 +5,9 @@ const NotFound = () => (
     <Head>
       <title>Not found</title>
     </Head>
-    <h1>Uh oh! Page not found</h1>
-    <p>Whoopsie</p>
+
+    <h1>Page Not Found</h1>
+    <p>We couldn't find that page.</p>
   </div>
 );
 

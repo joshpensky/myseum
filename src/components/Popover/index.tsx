@@ -1,4 +1,4 @@
-import { PropsWithChildren, useRef, useState } from 'react';
+import { PropsWithChildren, useRef } from 'react';
 import {
   Content,
   Root,
@@ -9,7 +9,6 @@ import {
 } from '@radix-ui/react-popover';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
-import { AnimationStatus } from '@src/providers/AnimationStatus';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import CloseIcon from '@src/svgs/Close';
 import styles from './popover.module.scss';
@@ -20,28 +19,21 @@ const SIDE_OFFSET = Number.parseInt(styles.varSideOffset, 10);
 const PopoverRoot = ({ children, ...props }: PropsWithChildren<PopoverProps>) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [isAnimating, setIsAnimating] = useState(false);
-
   const onOpenChange = (open: boolean) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
 
-    setIsAnimating(true);
     props.onOpenChange?.(open);
 
-    timeoutRef.current = setTimeout(() => {
-      setIsAnimating(false);
-    }, ANIMATION_DURATION + 10);
+    timeoutRef.current = setTimeout(() => {}, ANIMATION_DURATION + 10);
   };
 
   return (
-    <AnimationStatus value={isAnimating}>
-      <Root {...props} onOpenChange={onOpenChange}>
-        {children}
-      </Root>
-    </AnimationStatus>
+    <Root {...props} onOpenChange={onOpenChange}>
+      {children}
+    </Root>
   );
 };
 

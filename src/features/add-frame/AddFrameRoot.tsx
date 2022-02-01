@@ -5,10 +5,10 @@ import { MoveFocusInside } from 'react-focus-lock';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import FeatureFormModal from '@src/components/FeatureFormModal';
-import { CreateFrameDto } from '@src/data/FrameRepository';
+import { CreateFrameDto } from '@src/data/repositories/frame.repository';
 import { supabase } from '@src/data/supabase';
-import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
-import UploadImage from '@src/features/add-artwork/UploadImage';
+// import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
+// import UploadImage from '@src/features/add-artwork/UploadImage';
 import { Dimensions, Measurement } from '@src/types';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { AddFrameContext } from './AddFrameContext';
@@ -25,10 +25,10 @@ export type AddFrameRootProps = {
 };
 
 const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
-  const addArtworkContext = useContext(AddArtworkContext);
+  // const addArtworkContext = useContext(AddArtworkContext);
 
-  const uploadInputRef = useRef<HTMLInputElement>(null);
-  const [isUploadToastHidden, setIsUploadToastHidden] = useState(() => !addArtworkContext?.image);
+  // const uploadInputRef = useRef<HTMLInputElement>(null);
+  // const [isUploadToastHidden, setIsUploadToastHidden] = useState(() => !addArtworkContext?.image);
 
   const [editor, setEditor] = useState(() => SelectionEditorState.create());
 
@@ -120,7 +120,7 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
         onSubmit={handleSubmit}>
         {!image ? (
           <FeatureFormModal.Main>
-            <UploadImage
+            {/* <UploadImage
               ref={uploadInputRef}
               setActualDimensions={setActualDimensions}
               setImage={setImage}
@@ -134,7 +134,7 @@ const AddFrameRoot = ({ onSubmit, onClose }: AddFrameRootProps) => {
                   onClose={() => setIsUploadToastHidden(true)}
                 />
               </MoveFocusInside>
-            )}
+            )} */}
           </FeatureFormModal.Main>
         ) : (
           <Fragment>

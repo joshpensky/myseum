@@ -254,7 +254,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 />
 
                 {/* TODO: add create frame modal */}
-                <Button className={styles.createButton} size="large" type="button">
+                <Button className={styles.createButton} type="button">
                   Create frame
                 </Button>
 
@@ -267,11 +267,11 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
             </div>
 
             <div className={rootStyles.formActions}>
-              <Button size="large" type="button" onClick={onBack}>
+              <Button type="button" onClick={onBack}>
                 Back
               </Button>
 
-              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled disabled={!isValid || isSubmitting}>
                 Next
               </Button>
             </div>

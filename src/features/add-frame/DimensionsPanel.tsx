@@ -84,7 +84,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="measurement">
             Measurement
           </label>
-          <Select
+          {/* <Select
             id="measurement"
             disabled={isSubmitting}
             value={measurement}
@@ -103,7 +103,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
                 display: 'millimeters',
               },
             ]}
-          />
+          /> */}
         </div>
       </div>
     </FeatureFormModal.SidebarPanel>

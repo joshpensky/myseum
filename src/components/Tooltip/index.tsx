@@ -1,14 +1,6 @@
-import {
-  FocusEventHandler,
-  PropsWithChildren,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { PropsWithChildren, ReactNode, useState } from 'react';
 import { Root, Trigger, Content, TooltipContentProps } from '@radix-ui/react-tooltip';
 import cx from 'classnames';
-import { useAnimationStatus } from '@src/providers/AnimationStatus';
 import { useTheme } from '@src/providers/ThemeProvider';
 import styles from './tooltip.module.scss';
 
@@ -30,42 +22,11 @@ export const Tooltip = ({
 }: PropsWithChildren<TooltipProps>) => {
   const theme = useTheme();
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const focusEventRef = useRef<FocusEvent | null>(null);
-
-  // Force close the tooltip if a parent element is animating
-  const isAnimating = useAnimationStatus();
   const [open, setOpen] = useState(false);
-
-  /**
-   * If a trigger child element is focused when a parent element is animating,
-   * stop the event from propogating immediately and store the event to be dispatched
-   * once the animation has stopped.
-   *
-   * @param evt the focus capture event
-   */
-  const onTriggerFocusCapture: FocusEventHandler<HTMLSpanElement> = evt => {
-    if (isAnimating) {
-      evt.stopPropagation();
-      focusEventRef.current = evt.nativeEvent;
-    }
-  };
-
-  // Once the animation has completed and there's a stored focus event,
-  // dispatch the event again so the focus event gets triggered and the tooltip opens
-  useEffect(() => {
-    if (!isAnimating && focusEventRef.current) {
-      // Only re-trigger the focus event if the trigger is still focused!
-      if (triggerRef.current && triggerRef.current.contains(document.activeElement)) {
-        triggerRef.current.dispatchEvent(focusEventRef.current);
-      }
-      focusEventRef.current = null;
-    }
-  }, [isAnimating]);
 
   return (
     <Root open={open} onOpenChange={open => setOpen(open)} delayDuration={300}>
-      <Trigger ref={triggerRef} asChild onFocusCapture={onTriggerFocusCapture}>
+      <Trigger asChild>
         <span>{children}</span>
       </Trigger>
       <Content

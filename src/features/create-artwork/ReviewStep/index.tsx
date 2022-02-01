@@ -6,8 +6,8 @@ import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
-import { CreateArtworkDto } from '@src/data/ArtworkRepository';
-import { ArtworkDto } from '@src/data/ArtworkSerializer';
+import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type {
   CreateArtworkState,
@@ -17,7 +17,7 @@ import type {
   EditSelectionEvent,
 } from '@src/features/create-artwork/state';
 import { AuthUserDto } from '@src/providers/AuthProvider';
-import Edit from '@src/svgs/Edit';
+import { EditIcon } from '@src/svgs/EditIcon';
 import styles from './reviewStep.module.scss';
 
 interface ReviewStepProps {
@@ -95,7 +95,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Dimensions"
                   onClick={() => onEdit({ type: 'EDIT_DIMENSIONS' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
@@ -116,7 +116,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Selection"
                   onClick={() => onEdit({ type: 'EDIT_SELECTION' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
             </section>
@@ -129,7 +129,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Framing"
                   onClick={() => onEdit({ type: 'EDIT_FRAMING' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
@@ -161,7 +161,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                   className={styles.sectionEdit}
                   title="Edit Details"
                   onClick={() => onEdit({ type: 'EDIT_DETAILS' })}>
-                  <Edit />
+                  <EditIcon />
                 </IconButton>
               </header>
 
@@ -188,7 +188,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
             </section>
 
             <div className={rootStyles.formActions}>
-              <Button size="large" type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled disabled={!isValid || isSubmitting}>
                 Save
               </Button>
             </div>

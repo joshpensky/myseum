@@ -1,8 +1,9 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { UserDto } from '@src/data/UserSerializer';
+import { UserDto } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
 
 export interface AuthUserDto extends SupabaseUser, UserDto {
@@ -10,22 +11,31 @@ export interface AuthUserDto extends SupabaseUser, UserDto {
 }
 
 interface AuthContextValue {
-  didLogOut: boolean;
   isUserLoading: boolean;
   user: AuthUserDto | null;
+  signIn(): Promise<void>;
+  signOut(): Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
-  didLogOut: false,
   isUserLoading: false,
   user: null,
+  signIn: async () => {},
+  signOut: async () => {},
 });
 
-type AuthProviderProps = Record<never, string>;
+interface AuthProviderProps {
+  initValue: {
+    supabaseUser: SupabaseUser | null;
+    userData: UserDto | null;
+  };
+}
 
-export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>) => {
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
-  const [userData, setUserData] = useState<UserDto | null>(null);
+export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProviderProps>) => {
+  const router = useRouter();
+
+  const [supabaseUser, setSupabaseUser] = useState(initValue.supabaseUser);
+  const [userData, setUserData] = useState(initValue.userData);
 
   // Flag for if the user is logged in, but their data is still loading!
   const isUserLoading = !!supabaseUser && !userData;
@@ -38,6 +48,31 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
       // Registration is thru Google OAuth, so email guaranteed!
       email: supabaseUser.email as string,
     };
+  }
+
+  /**
+   * Signs in the user via Google OAuth.
+   */
+  async function signIn() {
+    const url = new URL(`${window.location.origin}/callback`);
+    url.searchParams.append('returnTo', router.asPath);
+
+    const { error } = await supabase.auth.signIn(
+      { provider: 'google' },
+      {
+        redirectTo: url.toString(),
+      },
+    );
+    if (error) {
+      throw error;
+    }
+  }
+
+  async function signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
   }
 
   async function updateUserData(user: SupabaseUser, signal: AbortSignal) {
@@ -59,7 +94,6 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
   }
 
   // Manages Supabase auth state
-  const [didLogOut, setDidLogOut] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   useEffect(() => {
     // Abort any ongoing abort controllers on mount
@@ -112,11 +146,10 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
 
       // Send success toast when logging in or out
       if (event === 'SIGNED_IN') {
-        toast.success('Logged in!');
-        setDidLogOut(false);
+        toast.success('Signed in!');
       } else if (event === 'SIGNED_OUT') {
-        setDidLogOut(true);
-        toast.success('Logged out!');
+        toast.success('Signed out!');
+        router.replace('/');
       }
     });
 
@@ -126,7 +159,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<AuthProviderProps>)
   }, []);
 
   return (
-    <AuthContext.Provider value={{ didLogOut, isUserLoading, user }}>
+    <AuthContext.Provider value={{ isUserLoading, user, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
