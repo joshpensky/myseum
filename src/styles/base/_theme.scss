@@ -1,7 +1,3 @@
-@function hex-to-rgb($color) {
-  @return red($color), green($color), blue($color);
-}
-
 :root {
   --c-white: #{hex-to-rgb($c-white)};
   --c-black: #{hex-to-rgb($c-black)};

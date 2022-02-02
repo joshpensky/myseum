@@ -1,0 +1,83 @@
+.overlay {
+  @include fixed(0);
+  background-color: c('white', 0.75);
+  z-index: 1099;
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-leave {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+.root {
+  @include fixed(50% x x 50%);
+  width: calc(100% - #{sz(4) * 2});
+  max-width: sz(120);
+  background-color: c('bg');
+  z-index: 1100;
+  transform: translate(-50%, -50%);
+  color: c('text');
+  border-radius: sz(4);
+  box-shadow: 0 0 0 1px c('border');
+  overflow: hidden;
+
+  &[data-state='open'] {
+    animation: dialog-enter 400ms $ease-out-circ forwards 1;
+  }
+
+  &[data-state='closed'] {
+    animation: dialog-leave 400ms $ease-out-circ forwards 1;
+  }
+}
+
+.title {
+  @include padding(sz(4));
+  font-size: $fs-sm;
+  text-align: center;
+  border-bottom: 1px solid c('border');
+}
+
+.body {
+  @include padding(sz(4));
+  display: flex;
+  flex-direction: column;
+}
+
+.hint {
+  @include label;
+  margin-top: sz(1);
+  margin-bottom: sz(6);
+}
+
+.actions {
+  display: flex;
+
+  button {
+    width: 100%;
+
+    &:first-child {
+      margin-right: sz(1);
+    }
+
+    &:last-child {
+      margin-left: sz(1);
+    }
+  }
+}

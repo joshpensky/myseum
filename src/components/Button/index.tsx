@@ -9,6 +9,7 @@ export interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
   filled?: boolean;
+  danger?: boolean;
   icon?: ComponentType;
   id?: string;
 }
@@ -31,12 +32,13 @@ type ButtonProps = BaseButtonProps & (ButtonAsButtonProps | ButtonAsLinkProps);
 
 const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, PropsWithChildren<ButtonProps>>(
   function Button(props, ref) {
-    const { busy, children, className, disabled, filled, icon: Icon, id } = props;
+    const { busy, children, className, danger, disabled, filled, icon: Icon, id } = props;
 
     const classNames = cx(
       styles.button,
       filled && styles.buttonFilled,
       busy && styles.buttonBusy,
+      danger && styles.buttonDanger,
       className,
     );
 

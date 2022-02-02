@@ -32,6 +32,11 @@
     cursor: not-allowed;
   }
 
+  .button--danger & {
+    --c-border: #{hex-to-rgb($c-red-500)};
+    color: c('border');
+  }
+
   .button--filled & {
     background-color: c('border');
     box-shadow: 0 0 0 0 c('border'), inset 0 0 0 0 c('bg');
