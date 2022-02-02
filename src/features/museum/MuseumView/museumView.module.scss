@@ -5,7 +5,7 @@
 
 .header {
   @include sticky($nav-height x x x);
-  @include padding(x sz(4) sz(4));
+  @include padding(sz(4));
   align-items: flex-start;
   display: flex;
   flex: 1;
@@ -39,7 +39,7 @@
 }
 
 .empty-state {
-  @include padding(x sz(4) sz(4));
+  @include padding(sz(4));
   align-items: center;
   color: c('secondary-text');
   display: flex;

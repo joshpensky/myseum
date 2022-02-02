@@ -15,7 +15,7 @@
 }
 
 .inner {
-  @include padding(sz(2) sz(5));
+  @include padding(sz(2.5) sz(5));
   align-items: center;
   border-radius: sz(3);
   display: flex;

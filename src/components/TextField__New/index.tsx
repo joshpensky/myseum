@@ -24,7 +24,7 @@ interface BaseTextFieldProps extends FieldWrapperChildProps {
 }
 
 interface BasicTextFieldProps<Grow extends boolean> {
-  type: 'text';
+  type: 'text' | 'search';
   grow?: Grow;
   rows?: Grow extends true ? number : never;
 }

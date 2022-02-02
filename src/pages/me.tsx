@@ -2,6 +2,7 @@ import { GetServerSideProps } from 'next';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
+import { UserView } from '@src/features/account/UserView';
 import { useAuth } from '@src/providers/AuthProvider';
 
 const Profile = () => {
@@ -11,14 +12,7 @@ const Profile = () => {
     return null;
   }
 
-  return (
-    <div>
-      <h1>{auth.user.name}</h1>
-
-      <p>{auth.user.email}</p>
-      <p>{auth.user.bio}</p>
-    </div>
-  );
+  return <UserView user={auth.user} />;
 };
 
 export default Profile;
