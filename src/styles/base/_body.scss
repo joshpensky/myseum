@@ -2,3 +2,7 @@ body {
   background-color: c('bg');
   font-family: $ff-sans;
 }
+
+body.dragging * {
+  cursor: grabbing !important;
+}
