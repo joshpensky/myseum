@@ -59,7 +59,7 @@
 }
 
 .empty-state__illo {
-  color: c('gray');
+  color: $c-illo;
   margin-bottom: sz(5);
   width: min(100%, #{sz(100)});
 

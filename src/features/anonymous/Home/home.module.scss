@@ -9,8 +9,12 @@
 
 .illo {
   color: $c-illo;
-  margin-bottom: sz(8);
-  width: min(100%, #{sz(48)});
+  margin-bottom: sz(6);
+  width: min(100%, #{sz(36)});
+
+  svg {
+    stroke-width: 1.2;
+  }
 }
 
 .title {
