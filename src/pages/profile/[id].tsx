@@ -3,7 +3,7 @@ import * as z from 'zod';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { UserDto, UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
-import { UserView, UserViewProps } from '@src/features/account/UserView';
+import { UserView, UserViewProps } from '@src/features/profile/UserView';
 
 export default UserView;
 

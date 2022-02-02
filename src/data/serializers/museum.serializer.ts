@@ -1,6 +1,7 @@
 import { Gallery, Museum, PlacedArtwork, User } from '@prisma/client';
 import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './artwork.serializer';
 import { GalleryDto, GallerySerializer } from './gallery.serializer';
+import { UserDto, UserSerializer } from './user.serializer';
 
 export interface PrismaMuseum extends Museum {
   curator: User;
@@ -16,7 +17,7 @@ export interface MuseumDto {
   id: number;
   name: string;
   description: string;
-  curator: User;
+  curator: UserDto;
   addedAt: Date;
   modifiedAt: Date;
 }
@@ -32,7 +33,7 @@ export class MuseumSerializer {
       id: museum.id,
       name: museum.name,
       description: museum.description,
-      curator: museum.curator,
+      curator: UserSerializer.serialize({ ...museum.curator, museum }),
       addedAt: museum.addedAt,
       modifiedAt: museum.modifiedAt,
     };

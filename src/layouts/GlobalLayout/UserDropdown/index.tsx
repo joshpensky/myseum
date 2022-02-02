@@ -33,7 +33,7 @@ export const UserDropdown = () => {
       <Popover.Trigger asChild>
         <button className={styles.trigger}>
           <span className="sr-only">View profile and more</span>
-          <span className={styles.avatar} />
+          <span className={styles.headshot} />
           <span className={styles.triggerChevron} />
         </button>
       </Popover.Trigger>

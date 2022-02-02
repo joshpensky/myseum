@@ -1,0 +1,15 @@
+.headshot {
+  height: sz(7);
+  width: sz(7) * 0.75;
+  display: inline-flex;
+  background-color: c('gray');
+  border-radius: 50%;
+  transform: translateY(sz(1.75));
+  margin-right: sz(1);
+  position: relative;
+
+  img {
+    @include absolute(0);
+    object-fit: cover;
+  }
+}

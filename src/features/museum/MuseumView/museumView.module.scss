@@ -18,6 +18,11 @@
   @include h1;
 }
 
+.established {
+  @include small;
+  margin-top: sz(1);
+}
+
 .actions {
   align-items: flex-start;
   display: flex;

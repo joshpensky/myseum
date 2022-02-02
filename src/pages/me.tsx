@@ -1,15 +1,23 @@
 import { GetServerSideProps } from 'next';
+import { Loader } from '@src/components/Loader';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
-import { UserView } from '@src/features/account/UserView';
+import { UserView } from '@src/features/profile/UserView';
 import { useAuth } from '@src/providers/AuthProvider';
+import styles from './_styles/me.module.scss';
 
 const Profile = () => {
   const auth = useAuth();
 
   if (!auth.user) {
-    return null;
+    return (
+      <div className={styles.wrapper}>
+        <h1 className="sr-only">Redirecting...</h1>
+
+        <Loader size="large" />
+      </div>
+    );
   }
 
   return <UserView user={auth.user} />;

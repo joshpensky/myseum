@@ -1,15 +1,15 @@
-import { useRouter } from 'next/router';
 import * as Tabs from '@radix-ui/react-tabs';
 import { Form, Formik } from 'formik';
-import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { TextField } from '@src/components/TextField__New';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
+import { LockIcon } from '@src/svgs/LockIcon';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import { ShareIcon } from '@src/svgs/ShareIcon';
+import { shareUrl } from '@src/utils/shareUrl';
 import styles from './userView.module.scss';
 
 export interface UserViewProps {
@@ -18,21 +18,6 @@ export interface UserViewProps {
 
 export const UserView = ({ user }: UserViewProps) => {
   const auth = useAuth();
-  const router = useRouter();
-
-  const shareLink = async () => {
-    const url = `${window.location.origin}${router.pathname}`;
-
-    if ('share' in navigator) {
-      await navigator.share({ url });
-    } else if ('clipboard' in navigator) {
-      await navigator.clipboard.writeText(url);
-      toast.success('Copied link!');
-    } else {
-      document.execCommand('copy', false, url);
-      toast.success('Copied link!');
-    }
-  };
 
   return (
     <div className={styles.page}>
@@ -46,7 +31,14 @@ export const UserView = ({ user }: UserViewProps) => {
         {auth.user?.id === user.id && (
           <dl className={styles.info}>
             <dt>Email</dt>
-            <dd>{auth.user.email}</dd>
+            <dd>
+              {auth.user.email}
+              <span className="sr-only">&nbsp;(Your email is hidden from other users.)</span>
+              <span className={styles.lock} aria-hidden="true">
+                <LockIcon />
+                <span className={styles.lockMessage}>Your email is hidden from other users.</span>
+              </span>
+            </dd>
           </dl>
         )}
 
@@ -56,7 +48,10 @@ export const UserView = ({ user }: UserViewProps) => {
               Edit
             </Button>
           )}
-          <Button className={styles.actionsItem} icon={ShareIcon} onClick={() => shareLink()}>
+          <Button
+            className={styles.actionsItem}
+            icon={ShareIcon}
+            onClick={() => shareUrl(`/profile/${user.id}`)}>
             Share
           </Button>
         </div>

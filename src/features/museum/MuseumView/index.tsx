@@ -1,7 +1,6 @@
-import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
-import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
+import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
@@ -9,6 +8,7 @@ import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { EmptyGalleryIllustration } from '@src/svgs/EmptyGalleryIllustration';
 import { ShareIcon } from '@src/svgs/ShareIcon';
+import { shareUrl } from '@src/utils/shareUrl';
 import styles from './museumView.module.scss';
 
 export interface MuseumViewProps {
@@ -18,28 +18,16 @@ export interface MuseumViewProps {
 
 export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
   const auth = useAuth();
-  const router = useRouter();
-
-  const shareLink = async () => {
-    const url = `${window.location.origin}${router.pathname}`;
-
-    if ('share' in navigator) {
-      await navigator.share({ url });
-    } else if ('clipboard' in navigator) {
-      await navigator.clipboard.writeText(url);
-      toast.success('Copied link!');
-    } else {
-      document.execCommand('copy', false, url);
-      toast.success('Copied link!');
-    }
-  };
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>{museum.name}</h1>
-        <p>Curated by {museum.curator.name}</p>
-        <p>Est. {dayjs(museum.addedAt).year()}</p>
+        <p>
+          Curated by <UserTag user={museum.curator} />
+        </p>
+        <p className={styles.established}>Est. {dayjs(museum.addedAt).year()}</p>
+
         <p>{museum.description}</p>
 
         <div className={styles.actions}>
@@ -48,7 +36,10 @@ export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
               Edit
             </Button>
           )}
-          <Button className={styles.actionsItem} icon={ShareIcon} onClick={() => shareLink()}>
+          <Button
+            className={styles.actionsItem}
+            icon={ShareIcon}
+            onClick={() => shareUrl(`/museum/${museum.id}`)}>
             Share
           </Button>
         </div>
