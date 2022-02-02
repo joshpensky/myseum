@@ -20,11 +20,12 @@
 
 .user-tag {
   margin-left: sz(1);
+  margin-bottom: sz(1);
 }
 
 .established {
   @include small;
-  margin-top: sz(1);
+  margin-bottom: sz(4);
 }
 
 .actions {

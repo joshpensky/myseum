@@ -1,7 +1,33 @@
+@keyframes overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .overlay {
   @include fixed(0);
-  background-color: c('white', 0.75);
+  background-color: c('bg', 0.75);
   z-index: 1099;
+
+  &[data-state='open'] {
+    animation: overlay-enter 150ms linear forwards 1;
+  }
+
+  &[data-state='closed'] {
+    animation: overlay-leave 150ms linear forwards 1;
+  }
 }
 
 @keyframes dialog-enter {

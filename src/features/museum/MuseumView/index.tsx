@@ -24,7 +24,7 @@ export const MuseumView = (initProps: MuseumViewProps) => {
   const [museum, setMuseum] = useState(initProps.museum);
   const [galleries, setGalleries] = useState(initProps.galleries);
 
-  const [isEditing, setIsEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className={styles.page}>

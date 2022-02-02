@@ -53,7 +53,7 @@ export const UserDropdown = () => {
 
           <ul className={styles.userPopoverLinks}>
             <li className={styles.userPopoverLinksItem}>
-              <Link href={`/museum/${auth.user.museumId}`}>
+              <Link href="/">
                 <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
                   Myseum
                 </a>

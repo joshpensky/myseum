@@ -15,6 +15,7 @@ import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import { ThemeProvider } from '@src/providers/ThemeProvider';
 import { CloseIcon } from '@src/svgs/Close';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './editMuseumModal.module.scss';
@@ -106,7 +107,7 @@ export const EditMuseumModal = ({
         open={showAlertDialog}
         onOpenChange={setShowAlertDialog}
         title="Abandon Changes"
-        description="Are you sure you want to leave editing?"
+        description="Are you sure you want to abandon editing?"
         hint="Your changes will not be saved."
         action={
           <Button danger filled onClick={() => onOpenChange(false)}>
@@ -122,80 +123,92 @@ export const EditMuseumModal = ({
           <Dialog.Overlay className={styles.overlay} />
           <Dialog.Content asChild>
             <motion.div ref={dragConstraintsRef} className={styles.root}>
-              <motion.div className={cx(styles.modal, 'theme--ink')} {...dragProps}>
-                <header className={styles.header} onPointerDown={startDrag}>
-                  <Dialog.Close asChild>
-                    <IconButton className={styles.headerClose} title="Close">
-                      <CloseIcon />
-                    </IconButton>
-                  </Dialog.Close>
+              <ThemeProvider theme={{ color: 'ink' }}>
+                <motion.div className={cx(styles.modal, 'theme--ink')} {...dragProps}>
+                  <header className={styles.header} onPointerDown={startDrag}>
+                    <Dialog.Close asChild>
+                      <IconButton className={styles.headerClose} title="Close">
+                        <CloseIcon />
+                      </IconButton>
+                    </Dialog.Close>
 
-                  <div className={styles.dragHandle} />
+                    <div className={styles.dragHandle} />
 
-                  <Dialog.Title asChild>
-                    <h2 className={styles.headerTitle}>Edit Museum</h2>
-                  </Dialog.Title>
-                </header>
+                    <Dialog.Title asChild>
+                      <h2 className={styles.headerTitle}>Edit Museum</h2>
+                    </Dialog.Title>
+                  </header>
 
-                <div className={styles.body}>
-                  <h3 className={styles.title}>Edit Museum</h3>
-                  <p className={styles.description}>Update your museum settings.</p>
+                  <div className={styles.body}>
+                    <h3 className={styles.title}>Edit Museum</h3>
+                    <p className={styles.description}>Update your museum settings.</p>
 
-                  <Formik
-                    innerRef={formikRef}
-                    initialValues={initialValues}
-                    validate={validateZodSchema(editMuseumSchema)}
-                    onSubmit={async values => {
-                      try {
-                        const data: UpdateMuseumDto = {
-                          name: values.name,
-                          description: values.description,
-                        };
-                        const res = await axios.put<MuseumWithGalleriesDto>(
-                          `/api/museum/${museum.id}`,
-                          data,
+                    <Formik
+                      innerRef={formikRef}
+                      initialValues={initialValues}
+                      validate={validateZodSchema(editMuseumSchema)}
+                      onSubmit={async values => {
+                        try {
+                          const data: UpdateMuseumDto = {
+                            name: values.name,
+                            description: values.description,
+                          };
+                          const res = await axios.put<MuseumWithGalleriesDto>(
+                            `/api/museum/${museum.id}`,
+                            data,
+                          );
+                          onSave(res.data);
+                        } catch (error) {
+                          toast.error((error as Error).message);
+                        }
+                      }}>
+                      {formik => {
+                        const { isSubmitting, isValid } = formik;
+
+                        return (
+                          <Form className={styles.form} noValidate>
+                            <div className={styles.test} />
+
+                            <FieldWrapper
+                              className={styles.field}
+                              name="name"
+                              label="Name"
+                              required>
+                              {field => <TextField {...field} type="text" />}
+                            </FieldWrapper>
+
+                            <FieldWrapper
+                              className={styles.field}
+                              name="description"
+                              label="Description"
+                              required>
+                              {field => <TextField {...field} type="text" grow rows={2} />}
+                            </FieldWrapper>
+
+                            <fieldset className={styles.field} disabled={isSubmitting}>
+                              <legend className={styles.legend}>Galleries</legend>
+
+                              <Button type="button">Create gallery</Button>
+
+                              <ul>
+                                {galleries.map(gallery => (
+                                  <li key={gallery.id}>{gallery.name}</li>
+                                ))}
+                              </ul>
+                            </fieldset>
+
+                            <div className={styles.actions}>
+                              <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
+                                Save
+                              </Button>
+                            </div>
+                          </Form>
                         );
-                        onSave(res.data);
-                      } catch (error) {
-                        toast.error((error as Error).message);
-                      }
-                    }}>
-                    {formik => {
-                      const { isSubmitting, isValid } = formik;
-
-                      return (
-                        <Form className={styles.form} noValidate>
-                          <FieldWrapper name="name" label="Name" required>
-                            {field => <TextField {...field} type="text" />}
-                          </FieldWrapper>
-
-                          <FieldWrapper name="description" label="Description" required>
-                            {field => <TextField {...field} type="text" grow rows={2} />}
-                          </FieldWrapper>
-
-                          <fieldset>
-                            <legend>Galleries</legend>
-
-                            <Button type="button">Create gallery</Button>
-
-                            <ul>
-                              {galleries.map(gallery => (
-                                <li key={gallery.id}>{gallery.name}</li>
-                              ))}
-                            </ul>
-                          </fieldset>
-
-                          <div className={styles.actions}>
-                            <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
-                              Save
-                            </Button>
-                          </div>
-                        </Form>
-                      );
-                    }}
-                  </Formik>
-                </div>
-              </motion.div>
+                      }}
+                    </Formik>
+                  </div>
+                </motion.div>
+              </ThemeProvider>
             </motion.div>
           </Dialog.Content>
         </Dialog.Portal>
