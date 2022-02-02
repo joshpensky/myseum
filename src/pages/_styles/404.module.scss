@@ -1,0 +1,23 @@
+.page {
+  @include padding(sz(4));
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.illo {
+  color: c('border', 0.2);
+  margin-bottom: sz(8);
+  width: min(100%, #{sz(48)});
+}
+
+.title {
+  @include h1;
+  margin-bottom: sz(2);
+}
+
+.desc {
+  margin-bottom: sz(5);
+}

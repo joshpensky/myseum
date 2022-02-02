@@ -18,6 +18,10 @@
   @include h1;
 }
 
+.user-tag {
+  margin-left: sz(1);
+}
+
 .established {
   @include small;
   margin-top: sz(1);
@@ -81,10 +85,10 @@
 }
 
 .gallery-list {
+  @include padding(sz(4) sz(4) x x);
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  padding-right: sz(4);
 }
 
 .gallery-list__item {

@@ -1,0 +1,37 @@
+.footer {
+  @include padding(sz(4));
+  display: flex;
+  justify-content: space-between;
+  color: c('secondary-text');
+
+  a {
+    @include padding(sz(0.5) sz(1));
+    border-radius: sz(2);
+
+    &:focus {
+      @include outline-none;
+      box-shadow: 0 0 0 1px c('border', 0.4);
+    }
+  }
+}
+
+.links {
+  align-items: center;
+  display: flex;
+}
+
+.links__item {
+  align-items: center;
+  display: flex;
+
+  + .links__item {
+    &::before {
+      content: '';
+      @include margin(x sz(1.5));
+      @include size(sz(1));
+      display: flex;
+      background-color: currentColor;
+      border-radius: 50%;
+    }
+  }
+}

@@ -1,14 +1,29 @@
 .root {
   @include padding(sz(4));
   @include sticky(0 x x 0);
-  height: $nav-height;
   align-items: center;
+  background-color: c('bg');
   display: flex;
+  height: $nav-height;
   justify-content: space-between;
   z-index: $z-nav;
+
+  &::after {
+    @include absolute(x 0 sz(-4));
+    background: scrim-gradient(to top, 'bg');
+    height: sz(4);
+    content: '';
+  }
 }
 
 .nav__logo {
   display: flex;
   height: sz(8);
+  border-radius: sz(1);
+
+  &:focus {
+    @include outline-none;
+    background-color: c('bg');
+    box-shadow: 0 0 0 5px c('bg'), 0 0 0 6px c('border', 0.4);
+  }
 }

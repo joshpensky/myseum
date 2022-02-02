@@ -24,7 +24,7 @@ export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
       <header className={styles.header}>
         <h1 className={styles.title}>{museum.name}</h1>
         <p>
-          Curated by <UserTag user={museum.curator} />
+          Curated by <UserTag className={styles.userTag} user={museum.curator} />
         </p>
         <p className={styles.established}>Est. {dayjs(museum.addedAt).year()}</p>
 
