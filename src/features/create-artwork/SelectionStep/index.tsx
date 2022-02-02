@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
-import ImageSelectionEditor from '@src/components/ImageSelectionEditor';
-import ImageSelectionPreview from '@src/components/ImageSelectionPreview';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmSelectionEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/selection';
+import ImageSelectionEditor from '@src/features/selection/ImageSelectionEditor';
+import ImageSelectionPreview from '@src/features/selection/ImageSelectionPreview';
+import { renderPreview } from '@src/features/selection/renderPreview';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
-import { renderPreview } from '@src/utils/renderPreview';
 import styles from './selectionStep.module.scss';
 
 interface SelectionStepProps {

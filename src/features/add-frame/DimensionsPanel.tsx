@@ -1,7 +1,5 @@
 import tw from 'twin.macro';
-import FeatureFormModal from '@src/components/FeatureFormModal';
-import { Select } from '@src/components/Select';
-import TextField from '@src/components/TextField';
+import FeatureFormModal from '@src/features/add-frame/FeatureFormModal';
 import Close from '@src/svgs/Close';
 import { useAddFrameContext } from './AddFrameContext';
 
@@ -27,7 +25,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="width">
             Width
           </label>
-          <TextField
+          {/* <TextField
             id="width"
             type="number"
             min={1}
@@ -39,7 +37,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
                 width: value,
               }))
             }
-          />
+          /> */}
         </div>
         <div css={tw`block flex-shrink-0 size-4 mb-3`}>
           <Close />
@@ -48,7 +46,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="height">
             Height
           </label>
-          <TextField
+          {/* <TextField
             id="height"
             type="number"
             min={1}
@@ -60,7 +58,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
                 height: value,
               }))
             }
-          />
+          /> */}
         </div>
         <div css={tw`block flex-shrink-0 size-4 mb-3`}>
           <Close />
@@ -69,7 +67,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="depth">
             Depth
           </label>
-          <TextField
+          {/* <TextField
             id="depth"
             type="number"
             min={0}
@@ -78,7 +76,7 @@ const DimensionsPanel = ({ onDepthFocusChange }: DimensionsPanelProps) => {
             onBlur={() => onDepthFocusChange(false)}
             onChange={value => setDepth(value)}
             onFocus={() => onDepthFocusChange(true)}
-          />
+          /> */}
         </div>
         <div css={tw`flex flex-1 flex-col`}>
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="measurement">

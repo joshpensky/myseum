@@ -6,7 +6,7 @@ import Button from '@src/components/Button';
 import { CheckboxField } from '@src/components/CheckboxField';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
-import { TextField } from '@src/components/TextField__New';
+import { TextField } from '@src/components/TextField';
 // import { ArtistDto } from '@src/data/ArtistSerializer';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmDetailsEvent, CreateArtworkState } from '@src/features/create-artwork/state';

@@ -4,9 +4,9 @@ import { Frame } from '@prisma/client';
 import { MoveFocusInside } from 'react-focus-lock';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
-import FeatureFormModal from '@src/components/FeatureFormModal';
 import { CreateFrameDto } from '@src/data/repositories/frame.repository';
 import { supabase } from '@src/data/supabase';
+import FeatureFormModal from '@src/features/add-frame/FeatureFormModal';
 // import { AddArtworkContext } from '@src/features/add-artwork/AddArtworkContext';
 // import UploadImage from '@src/features/add-artwork/UploadImage';
 import { Dimensions, Measurement } from '@src/types';
@@ -16,8 +16,8 @@ import DetailsPanel from './DetailsPanel';
 import DimensionsPanel from './DimensionsPanel';
 import FramePreview from './FramePreview';
 import UploadToast from './UploadToast';
-import EditSelectionModal from '../EditSelectionModal';
 import { SelectionEditorState } from '../selection';
+import EditSelectionModal from '../selection/EditSelectionModal';
 
 export type AddFrameRootProps = {
   onSubmit(frame: Frame): void;

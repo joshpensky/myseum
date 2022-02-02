@@ -6,7 +6,7 @@ import { z } from 'zod';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Select } from '@src/components/Select';
-import { TextField } from '@src/components/TextField__New';
+import { TextField } from '@src/components/TextField';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type {
   ConfirmDimensionsEvent,

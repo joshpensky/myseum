@@ -2,9 +2,9 @@ import * as fx from 'glfx-es6';
 import PerspT from 'perspective-transform';
 import { SelectionEditorSnapshot } from '@src/features/selection';
 import { Dimensions, Position } from '@src/types';
-import { CanvasUtils } from './CanvasUtils';
-import { CommonUtils } from './CommonUtils';
-import { GeometryUtils } from './GeometryUtils';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
+import { CommonUtils } from '@src/utils/CommonUtils';
+import { GeometryUtils } from '@src/utils/GeometryUtils';
 
 export interface RenderPreviewOptions {
   destCanvas: HTMLCanvasElement;

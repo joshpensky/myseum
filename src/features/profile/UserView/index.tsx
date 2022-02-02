@@ -2,7 +2,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
-import { TextField } from '@src/components/TextField__New';
+import { TextField } from '@src/components/TextField';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';

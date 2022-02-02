@@ -1,6 +1,5 @@
 import tw from 'twin.macro';
-import FeatureFormModal from '@src/components/FeatureFormModal';
-import TextField from '@src/components/TextField';
+import FeatureFormModal from '@src/features/add-frame/FeatureFormModal';
 import { useAddFrameContext } from './AddFrameContext';
 
 const DetailsPanel = () => {
@@ -13,7 +12,7 @@ const DetailsPanel = () => {
           <label css={tw`pb-1.5 text-sm text-gray-300`} htmlFor="description">
             Description
           </label>
-          <TextField
+          {/* <TextField
             id="description"
             type="text"
             grow
@@ -22,7 +21,7 @@ const DetailsPanel = () => {
             disabled={isSubmitting}
             value={description}
             onChange={value => setDescription(value.slice(0, 128))}
-          />
+          /> */}
           <p css={tw`pt-1 text-xs text-gray-300 self-end`}>
             {/* TODO: a11y (e.g., https://github.com/rikschennink/short-and-sweet/blob/master/src/short-and-sweet.js) */}
             <span css={tw`sr-only`}>Character count: </span>

@@ -8,7 +8,7 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
 import { Select } from '@src/components/Select';
-import { TextField } from '@src/components/TextField__New';
+import { TextField } from '@src/components/TextField';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
 import type { ConfirmFramingEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import Checkmark from '@src/svgs/Checkmark';

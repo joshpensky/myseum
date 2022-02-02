@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import tw from 'twin.macro';
 import * as fx from 'glfx-es6';
 import { SelectionEditorState } from '@src/features/selection';
+import { renderPreview, RenderPreviewOptions } from '@src/features/selection/renderPreview';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
-import { renderPreview, RenderPreviewOptions } from '@src/utils/renderPreview';
 
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
