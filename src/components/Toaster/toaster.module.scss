@@ -7,7 +7,7 @@ div.toast {
   color: c('black');
 
   &.toast--error {
-    border-color: mix($c-red-500, white, 20%);
+    border-color: mix($c-red-500, white, 40%);
     color: c('red');
   }
 }

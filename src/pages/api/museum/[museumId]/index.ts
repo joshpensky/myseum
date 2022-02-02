@@ -3,7 +3,7 @@ import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
+import { MuseumSerializer, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 
 const museumDetailController: NextApiHandler = async (req, res) => {
   const museumId = z.number().int().safeParse(Number(req.query.museumId));
@@ -15,7 +15,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
   try {
     switch (req.method) {
       // Updates the museum with the given ID
-      case 'PATCH': {
+      case 'PUT': {
         const museum = await MuseumRepository.findOne(museumId.data);
         if (!museum) {
           res.status(404).json({ message: 'Not found.' });
@@ -23,7 +23,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
         }
         const updatedMuseum = await MuseumRepository.update(museum, req.body);
         const updatedGalleries = await GalleryRepository.findAllByMuseum(museum.id);
-        const data = {
+        const data: MuseumWithGalleriesDto = {
           ...MuseumSerializer.serialize(updatedMuseum),
           galleries: updatedGalleries.map(gallery => GallerySerializer.serialize(gallery)),
         };
@@ -33,7 +33,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'PATCH');
+        res.setHeader('Allow', 'PUT');
         res.status(405).end('Method Not Allowed');
       }
     }

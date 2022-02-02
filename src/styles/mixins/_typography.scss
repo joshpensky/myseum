@@ -9,6 +9,10 @@
   font-family: $ff-serif;
 }
 
+@mixin h3 {
+  font-size: sz(6.5);
+}
+
 @mixin small {
   font-size: $fs-sm;
 }

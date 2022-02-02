@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import dayjs from 'dayjs';
 import Button from '@src/components/Button';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
+import { EditMuseumModal } from '@src/features/museum/EditMuseumModal';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
@@ -16,8 +18,13 @@ export interface MuseumViewProps {
   museum: MuseumDto;
 }
 
-export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
+export const MuseumView = (initProps: MuseumViewProps) => {
   const auth = useAuth();
+
+  const [museum, setMuseum] = useState(initProps.museum);
+  const [galleries, setGalleries] = useState(initProps.galleries);
+
+  const [isEditing, setIsEditing] = useState(true);
 
   return (
     <div className={styles.page}>
@@ -32,10 +39,24 @@ export const MuseumView = ({ galleries, museum }: MuseumViewProps) => {
 
         <div className={styles.actions}>
           {auth.user?.id === museum.curator.id && (
-            <Button className={styles.actionsItem} icon={EditIcon}>
-              Edit
-            </Button>
+            <EditMuseumModal
+              open={isEditing}
+              onOpenChange={setIsEditing}
+              museum={museum}
+              galleries={galleries}
+              onSave={({ galleries, ...museum }) => {
+                setMuseum(museum);
+                setGalleries(galleries);
+                setIsEditing(false);
+              }}
+              trigger={
+                <Button className={styles.actionsItem} icon={EditIcon}>
+                  Edit
+                </Button>
+              }
+            />
           )}
+
           <Button
             className={styles.actionsItem}
             icon={ShareIcon}
