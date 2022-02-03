@@ -7,10 +7,10 @@ body.scroll-dragging {
 }
 
 .root {
-  @include absolute(0);
-  @include size(100%);
-  overflow-x: auto;
-  overflow-y: hidden;
+  // @include absolute(0);
+  // @include size(100%);
+  // overflow-x: auto;
+  // overflow-y: hidden;
 
   &.root--preview {
     overflow-x: hidden;

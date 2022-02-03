@@ -2,12 +2,10 @@ import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
 import { supabase } from '@src/data/supabase';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/_new/GalleryView';
 
 export default GalleryView;
 
@@ -28,10 +26,9 @@ export const getServerSideProps: GetServerSideProps<
       },
     };
   }
-  const userData = await UserRepository.findOne(supabaseUser.user);
 
-  const museum = await MuseumRepository.findOneByCurator(supabaseUser.user.id);
-  if (!museum) {
+  const userData = await UserRepository.findOne(supabaseUser.user);
+  if (!userData.museum?.id) {
     throw new Error('User must have museum.');
   }
 
@@ -42,7 +39,7 @@ export const getServerSideProps: GetServerSideProps<
     };
   }
 
-  const gallery = await GalleryRepository.findOneByMuseum(museum.id, galleryId.data);
+  const gallery = await GalleryRepository.findOneByMuseum(userData.museum.id, galleryId.data);
   if (!gallery) {
     return {
       notFound: true,
@@ -53,7 +50,6 @@ export const getServerSideProps: GetServerSideProps<
     props: {
       __supabaseUser: supabaseUser.user,
       __userData: userData,
-      museum: MuseumSerializer.serialize(museum),
       gallery: GallerySerializer.serialize(gallery),
     },
   };

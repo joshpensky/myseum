@@ -5,7 +5,7 @@ import { useGrid } from './useGrid';
 
 interface GridMapProps {
   gridRef: RefObject<HTMLDivElement>;
-  viewportRef: RefObject<HTMLDivElement>;
+  viewportRef: RefObject<Element | undefined>;
 }
 
 export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {

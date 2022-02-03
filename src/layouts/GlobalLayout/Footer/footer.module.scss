@@ -1,8 +1,9 @@
 .footer {
   @include padding(sz(4));
+  background-color: c('bg');
+  color: c('secondary-text');
   display: flex;
   justify-content: space-between;
-  color: c('secondary-text');
 
   a {
     @include padding(sz(0.5) sz(1));

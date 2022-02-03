@@ -2,13 +2,16 @@ import { Frame, Gallery, GalleryColor, Matting, PlacedArtwork } from '@prisma/cl
 import { Dimensions3D, Position } from '@src/types';
 import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './artwork.serializer';
 import { FrameDto, FrameSerializer } from './frame.serializer';
+import { MuseumDto, MuseumSerializer, PrismaMuseum } from './museum.serializer';
 
 export interface PrismaPlacedArtwork extends PlacedArtwork {
   artwork: PrismaArtwork;
   frame: Frame | null;
 }
+
 export interface PrismaGallery extends Gallery {
   artworks: PrismaPlacedArtwork[];
+  museum: PrismaMuseum;
 }
 
 export interface PlacedArtworkDto {
@@ -29,9 +32,11 @@ export interface GalleryDto {
   id: number;
   museumId: number;
   name: string;
+  description: string;
   color: GalleryColor;
   height: number;
   artworks: PlacedArtworkDto[];
+  museum: MuseumDto;
   addedAt: Date;
   modifiedAt: Date;
 }
@@ -42,11 +47,13 @@ export class GallerySerializer {
       id: gallery.id,
       museumId: gallery.museumId,
       name: gallery.name,
+      description: gallery.description,
       color: gallery.color,
       height: gallery.height,
       artworks: gallery.artworks.map(galleryArtwork =>
         GallerySerializer.serializeArtwork(galleryArtwork),
       ),
+      museum: MuseumSerializer.serialize(gallery.museum),
       addedAt: gallery.addedAt,
       modifiedAt: gallery.modifiedAt,
     };

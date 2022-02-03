@@ -12,6 +12,7 @@
   flex-direction: column;
   height: calc(100vh - #{$nav-height});
   min-width: 400px;
+  max-width: 550px;
 }
 
 .headshot {
@@ -103,6 +104,7 @@
 .main {
   display: flex;
   flex: 2;
+  padding-left: sz(4);
 }
 
 .tabs {

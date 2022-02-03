@@ -2,6 +2,7 @@ import { PropsWithChildren, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import cx from 'classnames';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
+import { getScrollParent } from './scroll';
 import styles from './styles.module.scss';
 import { GridContext, useGrid } from './useGrid';
 
@@ -20,6 +21,7 @@ export function GridBase({ children, className }: PropsWithChildren<GridBaseProp
   const grid = useGrid();
 
   const rootElRef = useRef<HTMLDivElement>(null);
+  const scrollElRef = useRef<Element>();
   const gridRef = useRef<HTMLDivElement>(null);
 
   const [widthPx, setWidthPx] = useState(0);
@@ -28,6 +30,8 @@ export function GridBase({ children, className }: PropsWithChildren<GridBaseProp
   // Observe resizes to the page grid
   useIsomorphicLayoutEffect(() => {
     if (rootElRef.current) {
+      scrollElRef.current = getScrollParent(rootElRef.current);
+
       const observer = new ResizeObserver(entries => {
         const [rootEl] = entries;
         setHeightPx(rootEl.contentRect.height);
@@ -71,7 +75,7 @@ export function GridBase({ children, className }: PropsWithChildren<GridBaseProp
         {!grid.preview && (
           <GridContext.Provider
             value={{ ...grid, unitPx, size: { height: grid.size.height, width: gridWidth } }}>
-            <GridMap viewportRef={rootElRef} gridRef={gridRef} />
+            <GridMap viewportRef={scrollElRef} gridRef={gridRef} />
           </GridContext.Provider>
         )}
       </div>

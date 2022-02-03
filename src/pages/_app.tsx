@@ -6,7 +6,6 @@ import { Toaster } from '@src/components/Toaster';
 import { GlobalLayout } from '@src/layouts/GlobalLayout';
 import { AuthProvider } from '@src/providers/AuthProvider';
 import StyleProvider from '@src/providers/StyleProvider';
-import { ThemeProvider } from '@src/providers/ThemeProvider';
 import { PageComponent } from '@src/types';
 import '@src/styles/index.scss';
 
@@ -32,23 +31,21 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <IdProvider>
-      <ThemeProvider theme={{ color: 'paper' }}>
-        <AuthProvider
-          initValue={{
-            supabaseUser: pageProps.__supabaseUser ?? null,
-            userData: pageProps.__userData ?? null,
-          }}>
-          <StyleProvider>
-            <GlobalLayout {...globalLayoutProps}>
-              <PageLayout {...pageLayoutProps}>
-                <Component {...pageProps} />
-              </PageLayout>
-            </GlobalLayout>
+      <AuthProvider
+        initValue={{
+          supabaseUser: pageProps.__supabaseUser ?? null,
+          userData: pageProps.__userData ?? null,
+        }}>
+        <StyleProvider>
+          <GlobalLayout {...globalLayoutProps}>
+            <PageLayout {...pageLayoutProps}>
+              <Component {...pageProps} />
+            </PageLayout>
+          </GlobalLayout>
 
-            <Toaster />
-          </StyleProvider>
-        </AuthProvider>
-      </ThemeProvider>
+          <Toaster />
+        </StyleProvider>
+      </AuthProvider>
     </IdProvider>
   );
 };

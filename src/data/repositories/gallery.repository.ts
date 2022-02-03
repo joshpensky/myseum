@@ -14,7 +14,8 @@ interface UpdatePlacedArtworkDto {
 }
 
 export interface UpdateGalleryDto {
-  name?: string;
+  name: string;
+  description: string;
   color?: Gallery['color'];
   height?: number;
   artworks?: UpdatePlacedArtworkDto[];
@@ -35,6 +36,11 @@ export class GalleryRepository {
               },
             },
             frame: true,
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
           },
         },
       },
@@ -59,11 +65,17 @@ export class GalleryRepository {
             frame: true,
           },
         },
+        museum: {
+          include: {
+            curator: true,
+          },
+        },
       },
     });
 
     return gallery;
   }
+
   static async update(gallery: Gallery, data: UpdateGalleryDto) {
     let artworksToDelete:
       | Prisma.Enumerable<Prisma.PlacedArtworkScalarWhereInput>
@@ -87,6 +99,7 @@ export class GalleryRepository {
     const updatedGallery = await prisma.gallery.update({
       data: {
         name: data.name,
+        description: data.description,
         color: data.color,
         height: data.height,
         artworks: {
@@ -130,6 +143,11 @@ export class GalleryRepository {
               },
             },
             frame: true,
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
           },
         },
       },

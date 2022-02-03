@@ -6,7 +6,7 @@ import { motion, useDragControls, HTMLMotionProps } from 'framer-motion';
 import { AlertDialog } from '@src/components/AlertDialog';
 import IconButton from '@src/components/IconButton';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { ThemeProvider } from '@src/providers/ThemeProvider';
+import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
 import { CloseIcon } from '@src/svgs/Close';
 import styles from './formModal.module.scss';
 
@@ -35,6 +35,8 @@ export const Root = ({
   trigger,
   abandonDialogProps,
 }: PropsWithChildren<FormModalProps>) => {
+  const theme = useTheme();
+
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const handleOpenChange = (open: boolean) => {
     if (!open && getIsDirty?.()) {
@@ -98,7 +100,7 @@ export const Root = ({
         {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
 
         <Dialog.Portal>
-          <Dialog.Overlay className={styles.overlay} />
+          <Dialog.Overlay className={cx(styles.overlay, `theme--${theme.color}`)} />
           <Dialog.Content asChild>
             <motion.div ref={dragConstraintsRef} className={styles.root}>
               <ThemeProvider theme={{ color: 'ink' }}>

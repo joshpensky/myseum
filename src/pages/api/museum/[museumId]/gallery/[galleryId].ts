@@ -17,7 +17,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
   try {
     switch (req.method) {
       // Updates the chosen gallery
-      case 'PATCH': {
+      case 'PUT': {
         const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
         if (!gallery) {
           res.status(404).json({ message: 'Not found.' });
