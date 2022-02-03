@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
 import { PrismaUser } from '@src/data/serializers/user.serializer';
 
-interface UpdateUserDto {
+export interface UpdateUserDto {
   name: string;
   bio?: string;
   headshot?: string;

@@ -13,6 +13,7 @@ export interface AuthUserDto extends SupabaseUser, UserDto {
 interface AuthContextValue {
   isUserLoading: boolean;
   user: AuthUserDto | null;
+  updateUserData(data: UserDto): void;
   signIn(): Promise<void>;
   signOut(): Promise<void>;
 }
@@ -20,6 +21,7 @@ interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue>({
   isUserLoading: false,
   user: null,
+  updateUserData: () => {},
   signIn: async () => {},
   signOut: async () => {},
 });
@@ -159,7 +161,14 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isUserLoading, user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        isUserLoading,
+        user,
+        signIn,
+        signOut,
+        updateUserData: setUserData,
+      }}>
       {children}
     </AuthContext.Provider>
   );

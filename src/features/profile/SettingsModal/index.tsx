@@ -7,42 +7,43 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
 import { TextField } from '@src/components/TextField';
-import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
+import { UpdateUserDto } from '@src/data/repositories/user.repository';
+import { UserDto } from '@src/data/serializers/user.serializer';
+import { AuthUserDto } from '@src/providers/AuthProvider';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
-import styles from './editMuseumModal.module.scss';
+import styles from './settingsModal.module.scss';
 
-const editMuseumSchema = z.object({
+const userSettingsSchema = z.object({
+  email: z.string(),
   name: z.string().min(1, 'Name is required.'),
-  description: z.string().min(1, 'Description is required.'),
+  bio: z.string(),
 });
 
-type EditMuseumSchema = z.infer<typeof editMuseumSchema>;
+type UserSettingsSchema = z.infer<typeof userSettingsSchema>;
 
-interface EditMuseumModalProps {
-  museum: MuseumDto;
-  galleries: GalleryDto[];
-  onSave(museum: MuseumWithGalleriesDto): void;
+interface SettingsModalProps {
+  user: AuthUserDto;
+  onSave(user: UserDto): void;
   trigger: ReactNode;
 }
 
-export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuseumModalProps) => {
-  const initialValues: EditMuseumSchema = {
-    name: museum.name,
-    description: museum.description,
+export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => {
+  const initialValues: UserSettingsSchema = {
+    email: user.email,
+    name: user.name,
+    bio: user.bio,
   };
 
   const [open, setOpen] = useState(false);
 
-  const formikRef = useRef<FormikProps<EditMuseumSchema>>(null);
+  const formikRef = useRef<FormikProps<UserSettingsSchema>>(null);
 
   return (
     <FormModal.Root
       open={open}
       onOpenChange={setOpen}
       trigger={trigger}
-      title="Edit Museum"
+      title="Profile"
       abandonDialogProps={{
         title: 'Abandon Changes',
         description: 'Are you sure you want to abandon editing?',
@@ -54,18 +55,18 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
         ),
       }}
       getIsDirty={() => formikRef.current?.dirty ?? false}>
-      <FormModal.Screen title="Edit Museum" description="Update your museum settings.">
+      <FormModal.Screen title="Settings" description="Update your profile settings.">
         <Formik
           innerRef={formikRef}
           initialValues={initialValues}
-          validate={validateZodSchema(editMuseumSchema)}
+          validate={validateZodSchema(userSettingsSchema)}
           onSubmit={async values => {
             try {
-              const data: UpdateMuseumDto = {
+              const data: UpdateUserDto = {
                 name: values.name,
-                description: values.description,
+                bio: values.bio,
               };
-              const res = await axios.put<MuseumWithGalleriesDto>(`/api/museum/${museum.id}`, data);
+              const res = await axios.put<UserDto>(`/api/user/${user.id}`, data);
               onSave(res.data);
               setOpen(false);
             } catch (error) {
@@ -77,29 +78,23 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
 
             return (
               <Form className={styles.form} noValidate>
+                <FieldWrapper
+                  className={styles.field}
+                  name="email"
+                  label="Email"
+                  hint="Connected via Google OAuth."
+                  required
+                  disabled>
+                  {field => <TextField {...field} type="text" />}
+                </FieldWrapper>
+
                 <FieldWrapper className={styles.field} name="name" label="Name" required>
                   {field => <TextField {...field} type="text" />}
                 </FieldWrapper>
 
-                <FieldWrapper
-                  className={styles.field}
-                  name="description"
-                  label="Description"
-                  required>
+                <FieldWrapper className={styles.field} name="bio" label="Bio" required>
                   {field => <TextField {...field} type="text" grow rows={2} />}
                 </FieldWrapper>
-
-                <fieldset className={styles.field} disabled={isSubmitting}>
-                  <legend className={styles.legend}>Galleries</legend>
-
-                  <Button type="button">Create gallery</Button>
-
-                  <ul>
-                    {galleries.map(gallery => (
-                      <li key={gallery.id}>{gallery.name}</li>
-                    ))}
-                  </ul>
-                </fieldset>
 
                 <div className={styles.actions}>
                   <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>

@@ -133,10 +133,14 @@ interface FormModalScreenProps {
   description: string;
 }
 
-export const Screen = ({ children }: PropsWithChildren<FormModalScreenProps>) => (
+export const Screen = ({
+  children,
+  title,
+  description,
+}: PropsWithChildren<FormModalScreenProps>) => (
   <Fragment>
-    <h3 className={styles.title}>Edit Museum</h3>
-    <p className={styles.description}>Update your museum settings.</p>
+    <h3 className={styles.title}>{title}</h3>
+    <p className={styles.description}>{description}</p>
 
     {children}
   </Fragment>

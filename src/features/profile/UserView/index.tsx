@@ -4,6 +4,7 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { TextField } from '@src/components/TextField';
 import { UserDto } from '@src/data/serializers/user.serializer';
+import { SettingsModal } from '@src/features/profile/SettingsModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { LockIcon } from '@src/svgs/LockIcon';
@@ -26,7 +27,7 @@ export const UserView = ({ user }: UserViewProps) => {
 
         <h1 className={styles.name}>{user.name}</h1>
 
-        <p>{user.bio}</p>
+        {user.bio && <p className={styles.bio}>{user.bio}</p>}
 
         {auth.user?.id === user.id && (
           <dl className={styles.info}>
@@ -44,9 +45,17 @@ export const UserView = ({ user }: UserViewProps) => {
 
         <div className={styles.actions}>
           {auth.user?.id === user.id && (
-            <Button className={styles.actionsItem} icon={EditIcon}>
-              Edit
-            </Button>
+            <SettingsModal
+              user={auth.user}
+              onSave={data => {
+                auth.updateUserData(data);
+              }}
+              trigger={
+                <Button className={styles.actionsItem} icon={EditIcon}>
+                  Edit
+                </Button>
+              }
+            />
           )}
           <Button
             className={styles.actionsItem}

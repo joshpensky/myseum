@@ -24,7 +24,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
       }
 
       // Updates the chosen user
-      case 'PATCH': {
+      case 'PUT': {
         const auth = await supabase.auth.api.getUserByCookie(req);
         // Only allow users to update themselves
         if (!auth.user || auth.user.id !== userId) {
