@@ -2,10 +2,8 @@ import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/_new/GalleryView';
 
 export default GalleryView;
 
@@ -26,13 +24,6 @@ export const getServerSideProps: GetServerSideProps<
     };
   }
 
-  const museum = await MuseumRepository.findOne(museumId.data);
-  if (!museum) {
-    return {
-      notFound: true,
-    };
-  }
-
   const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
   if (!gallery) {
     return {
@@ -42,7 +33,6 @@ export const getServerSideProps: GetServerSideProps<
 
   return {
     props: {
-      museum: MuseumSerializer.serialize(museum),
       gallery: GallerySerializer.serialize(gallery),
     },
   };

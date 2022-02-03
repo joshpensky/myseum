@@ -56,11 +56,19 @@
       background-color: c('bg-tint');
       box-shadow: inset 0 0 0 1px c('border', 0.4);
     }
+
+    .button--danger:not(.button--filled):not(:disabled):not(.button--busy):hover & {
+      background-color: c('red', 0.2);
+    }
   }
 
   .button:not(.button--filled):not(:disabled):not(.button--busy):focus & {
     background-color: c('bg-tint');
     box-shadow: inset 0 0 0 1px c('border');
+  }
+
+  .button--danger:not(.button--filled):not(:disabled):not(.button--busy):focus & {
+    background-color: c('red', 0.2);
   }
 }
 

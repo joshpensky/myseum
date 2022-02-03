@@ -26,6 +26,7 @@
 
 .established {
   @include small;
+  margin-top: sz(0.5);
   margin-bottom: sz(4);
 }
 

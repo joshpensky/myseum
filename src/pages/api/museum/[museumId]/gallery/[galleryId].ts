@@ -28,9 +28,21 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
         break;
       }
 
+      // Updates the chosen gallery
+      case 'DELETE': {
+        const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
+        if (!gallery) {
+          res.status(404).json({ message: 'Not found.' });
+          return;
+        }
+        const deletedGallery = await GalleryRepository.delete(gallery);
+        res.status(204).json(GallerySerializer.serialize(deletedGallery));
+        break;
+      }
+
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'PATCH');
+        res.setHeader('Allow', 'PUT');
         res.status(405).end('Method Not Allowed');
       }
     }

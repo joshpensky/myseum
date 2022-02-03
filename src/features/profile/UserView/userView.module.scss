@@ -41,6 +41,10 @@
     align-items: center;
     display: flex;
   }
+
+  dd + dt {
+    margin-top: sz(3);
+  }
 }
 
 .lock {

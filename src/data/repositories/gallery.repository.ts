@@ -154,4 +154,30 @@ export class GalleryRepository {
     });
     return updatedGallery;
   }
+
+  static async delete(gallery: Gallery) {
+    const deletedGallery = await prisma.gallery.delete({
+      where: {
+        id: gallery.id,
+      },
+      include: {
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                artist: true,
+              },
+            },
+            frame: true,
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
+          },
+        },
+      },
+    });
+    return deletedGallery;
+  }
 }

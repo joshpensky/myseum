@@ -10,8 +10,23 @@
   }
 }
 
-.legend {
+.separator {
+  @include margin(sz(5) x sz(4));
+  border-color: c('border', 0.2);
+}
+
+.danger-zone__label {
+  color: c('secondary-text');
+  margin-bottom: sz(0.5);
+}
+
+.danger-zone__hint {
   @include label;
+  margin-bottom: sz(3);
+}
+
+.danger-zone__action {
+  width: 100%;
 }
 
 .actions {

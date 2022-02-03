@@ -2,10 +2,11 @@ import { ReactNode } from 'react';
 import * as RadixAlertDialog from '@radix-ui/react-alert-dialog';
 import cx from 'classnames';
 import Button from '@src/components/Button';
-import { ThemeProvider } from '@src/providers/ThemeProvider';
+import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
 import styles from './alertDialog.module.scss';
 
 interface AlertDialogProps {
+  busy?: boolean;
   open: boolean;
   onOpenChange(open: boolean): void;
   action: ReactNode;
@@ -16,6 +17,7 @@ interface AlertDialogProps {
 }
 
 export const AlertDialog = ({
+  busy,
   open,
   onOpenChange,
   action,
@@ -23,31 +25,41 @@ export const AlertDialog = ({
   hint,
   title,
   trigger,
-}: AlertDialogProps) => (
-  <RadixAlertDialog.Root open={open} onOpenChange={onOpenChange}>
-    {trigger && <RadixAlertDialog.Trigger>{trigger}</RadixAlertDialog.Trigger>}
+}: AlertDialogProps) => {
+  const theme = useTheme();
 
-    <RadixAlertDialog.Portal>
-      <RadixAlertDialog.Overlay className={styles.overlay} />
-      <ThemeProvider theme={{ color: 'ink' }}>
-        <RadixAlertDialog.Content className={cx(styles.root, 'theme--ink')}>
-          <RadixAlertDialog.Title className={styles.title}>{title}</RadixAlertDialog.Title>
+  return (
+    <RadixAlertDialog.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && <RadixAlertDialog.Trigger asChild>{trigger}</RadixAlertDialog.Trigger>}
 
-          <div className={styles.body}>
-            <RadixAlertDialog.Description>{description}</RadixAlertDialog.Description>
+      <RadixAlertDialog.Portal>
+        <RadixAlertDialog.Overlay className={cx(styles.overlay, `theme--${theme.color}`)} />
+        <ThemeProvider theme={{ color: 'ink' }}>
+          <RadixAlertDialog.Content
+            className={cx(styles.root, 'theme--ink')}
+            onEscapeKeyDown={evt => {
+              if (busy) {
+                evt.preventDefault();
+              }
+            }}>
+            <RadixAlertDialog.Title className={styles.title}>{title}</RadixAlertDialog.Title>
 
-            {hint && <p className={styles.hint}>{hint}</p>}
+            <div className={styles.body}>
+              <RadixAlertDialog.Description>{description}</RadixAlertDialog.Description>
 
-            <div className={styles.actions}>
-              <RadixAlertDialog.Cancel asChild>
-                <Button>Cancel</Button>
-              </RadixAlertDialog.Cancel>
+              {hint && <p className={styles.hint}>{hint}</p>}
 
-              <RadixAlertDialog.Action asChild>{action}</RadixAlertDialog.Action>
+              <div className={styles.actions}>
+                <RadixAlertDialog.Cancel asChild disabled={busy}>
+                  <Button>Cancel</Button>
+                </RadixAlertDialog.Cancel>
+
+                {action}
+              </div>
             </div>
-          </div>
-        </RadixAlertDialog.Content>
-      </ThemeProvider>
-    </RadixAlertDialog.Portal>
-  </RadixAlertDialog.Root>
-);
+          </RadixAlertDialog.Content>
+        </ThemeProvider>
+      </RadixAlertDialog.Portal>
+    </RadixAlertDialog.Root>
+  );
+};

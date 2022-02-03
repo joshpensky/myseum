@@ -19,10 +19,11 @@ export interface MuseumViewProps {
 }
 
 export const MuseumView = (initProps: MuseumViewProps) => {
-  const auth = useAuth();
-
   const [museum, setMuseum] = useState(initProps.museum);
   const [galleries, setGalleries] = useState(initProps.galleries);
+
+  const auth = useAuth();
+  const isCurrentUser = auth.user?.id === museum.curator.id;
 
   return (
     <div className={styles.page}>
@@ -38,7 +39,7 @@ export const MuseumView = (initProps: MuseumViewProps) => {
         <p>{museum.description}</p>
 
         <div className={styles.actions}>
-          {auth.user?.id === museum.curator.id && (
+          {isCurrentUser && (
             <EditMuseumModal
               museum={museum}
               galleries={galleries}
@@ -69,8 +70,10 @@ export const MuseumView = (initProps: MuseumViewProps) => {
             <div className={styles.emptyStateIllo}>
               <EmptyGalleryIllustration />
             </div>
-            <p className={styles.emptyStateText}>You have no galleries.</p>
-            <Button className={styles.emptyStateAction}>Create gallery</Button>
+            <p className={styles.emptyStateText}>
+              {isCurrentUser ? 'Your' : 'This'} museum is empty.
+            </p>
+            {isCurrentUser && <Button className={styles.emptyStateAction}>Create gallery</Button>}
           </div>
         ) : (
           <ul className={styles.galleryList}>

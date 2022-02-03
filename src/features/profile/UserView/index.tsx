@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+import Link from 'next/link';
 import * as Tabs from '@radix-ui/react-tabs';
 import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
@@ -29,19 +31,28 @@ export const UserView = ({ user }: UserViewProps) => {
 
         {user.bio && <p className={styles.bio}>{user.bio}</p>}
 
-        {auth.user?.id === user.id && (
-          <dl className={styles.info}>
-            <dt>Email</dt>
-            <dd>
-              {auth.user.email}
-              <span className="sr-only">&nbsp;(Your email is hidden from other users.)</span>
-              <span className={styles.lock} aria-hidden="true">
-                <LockIcon />
-                <span className={styles.lockMessage}>Your email is hidden from other users.</span>
-              </span>
-            </dd>
-          </dl>
-        )}
+        <dl className={styles.info}>
+          {auth.user?.id === user.id && (
+            <Fragment>
+              <dt>Email</dt>
+              <dd>
+                {auth.user.email}
+                <span className="sr-only">&nbsp;(Your email is hidden from other users.)</span>
+                <span className={styles.lock} aria-hidden="true">
+                  <LockIcon />
+                  <span className={styles.lockMessage}>Your email is hidden from other users.</span>
+                </span>
+              </dd>
+            </Fragment>
+          )}
+
+          <dt>Myseum</dt>
+          <dd>
+            <Link href={auth.user?.id === user.id ? '/me' : `/museum/${user.museumId}`}>
+              <a>Visit</a>
+            </Link>
+          </dd>
+        </dl>
 
         <div className={styles.actions}>
           {auth.user?.id === user.id && (
