@@ -6,6 +6,7 @@ import * as z from 'zod';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateUserDto } from '@src/data/repositories/user.repository';
 import { UserDto } from '@src/data/serializers/user.serializer';
@@ -93,7 +94,7 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
                 </FieldWrapper>
 
                 <FieldWrapper className={styles.field} name="bio" label="Bio" required>
-                  {field => <TextField {...field} type="text" grow rows={2} />}
+                  {field => <TextArea {...field} rows={2} />}
                 </FieldWrapper>
 
                 <div className={styles.actions}>

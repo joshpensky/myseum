@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import { Loader } from '@src/components/Loader';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
@@ -8,6 +9,7 @@ import { supabase } from '@src/data/supabase';
 import { AnonymousHome } from '@src/features/anonymous/Home';
 import { MuseumView } from '@src/features/museum/MuseumView';
 import { useAuth } from '@src/providers/AuthProvider';
+import styles from './_styles/index.module.scss';
 
 interface HomeProps {
   galleries: GalleryDto[];
@@ -17,7 +19,17 @@ interface HomeProps {
 const Home = ({ galleries, museum }: HomeProps) => {
   const auth = useAuth();
 
-  if (!museum || !(auth.user || auth.isUserLoading)) {
+  if (auth.isUserLoading) {
+    return (
+      <div className={styles.wrapper}>
+        <h1 className="sr-only">Loading...</h1>
+
+        <Loader size="large" />
+      </div>
+    );
+  }
+
+  if (!museum || !auth.user) {
     return <AnonymousHome />;
   }
 

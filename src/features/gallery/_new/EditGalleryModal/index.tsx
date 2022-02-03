@@ -8,6 +8,7 @@ import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
@@ -98,7 +99,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                   name="description"
                   label="Description"
                   required>
-                  {field => <TextField {...field} type="text" grow rows={2} />}
+                  {field => <TextArea {...field} rows={2} />}
                 </FieldWrapper>
 
                 <FieldWrapper className={styles.field} name="height" label="Height" required>

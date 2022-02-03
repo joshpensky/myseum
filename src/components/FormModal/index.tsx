@@ -69,7 +69,15 @@ export const Root = ({
     dragListener: false,
     dragControls: dragControls,
     dragConstraints: dragConstraintsRef,
-    dragElastic: { top: 0.05, bottom: 0.2 },
+    dragElastic: {
+      top: 0.05,
+      bottom: 0.2,
+    },
+    dragTransition: {
+      min: 0,
+      max: 300,
+      bounceStiffness: 300,
+    },
     onDragStart: () => {
       if (isMobile) {
         document.body.classList.add('dragging');
@@ -77,7 +85,7 @@ export const Root = ({
     },
     onDragEnd: (evt, info) => {
       if (isMobile) {
-        if (info.offset.y > window.innerHeight / 2) {
+        if (info.offset.y > 150) {
           handleOpenChange(false);
         }
       }

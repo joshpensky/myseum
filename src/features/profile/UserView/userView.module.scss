@@ -112,7 +112,7 @@
 }
 
 .tabs {
-  @include padding(x sz(2) sz(2) x);
+  @include padding(sz(4) sz(2) sz(2) x);
   display: flex;
   flex: 1;
   flex-direction: column;

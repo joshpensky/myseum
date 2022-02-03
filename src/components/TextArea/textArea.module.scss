@@ -5,8 +5,10 @@
   background-color: c('bg-tint', 0);
   border: 1px solid c('border', 0.2);
   border-radius: sz(2.5);
-  height: sz(11);
+  max-height: sz(36);
+  min-height: sz(11);
   min-width: 0;
+  resize: none;
   width: 100%;
 
   @include with-motion {
@@ -35,25 +37,4 @@
   &:not(:disabled).field--error {
     border: 1px solid c('red');
   }
-}
-
-.field[type='number'] {
-  // Disable the up/down arrow buttons on number fields
-  /* Chrome, Safari, Edge, Opera */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-
-  /* Firefox */
-  -moz-appearance: textfield;
-}
-
-.field[type='date']::-webkit-calendar-picker-indicator {
-  display: none;
-  // cursor: pointer;
-
-  // :global(.theme--ink) & {
-  //   filter: invert(1);
-  // }
 }

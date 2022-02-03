@@ -120,18 +120,18 @@ $bp-drawer: 600px;
 
 @include mq(max, $bp-drawer) {
   .header {
-    padding-top: sz(6);
+    // padding-top: sz(6);
     cursor: grab;
   }
 
-  .drag-handle {
-    @include absolute(sz(2) x x 50%);
-    transform: translateX(-50%);
-    height: sz(0.75);
-    width: sz(8);
-    border-radius: sz(1);
-    background-color: c('border');
-  }
+  // .drag-handle {
+  //   @include absolute(sz(2) x x 50%);
+  //   transform: translateX(-50%);
+  //   height: sz(0.75);
+  //   width: sz(8);
+  //   border-radius: sz(1);
+  //   background-color: c('border');
+  // }
 }
 
 .header__close {

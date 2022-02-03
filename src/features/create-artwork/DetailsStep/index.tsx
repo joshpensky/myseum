@@ -1,11 +1,13 @@
 import { Fragment, useState } from 'react';
 import cx from 'classnames';
+import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import { CheckboxField } from '@src/components/CheckboxField';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { Preview3d } from '@src/components/Preview3d';
+import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 // import { ArtistDto } from '@src/data/ArtistSerializer';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
@@ -32,10 +34,10 @@ const detailsStepSchema = z.object({
     .min(1, 'Alt text is required.')
     .max(128, 'Alt text can not be longer than 128 characters.'),
 
-  createdAt: z.date(),
+  createdAt: z.string().min(10, 'Invalid date.'),
   isCreatedAtUnknown: z.boolean(),
 
-  acquiredAt: z.date({ required_error: 'Acquisition date is required.' }),
+  acquiredAt: z.string().min(10, 'Acquisition date is required.'),
 });
 
 type DetailsStepSchema = z.infer<typeof detailsStepSchema>;
@@ -61,10 +63,10 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
     artist: state.context.details?.artist ?? undefined,
     description: state.context.details?.description ?? '',
     altText: state.context.details?.altText ?? '',
-    createdAt: state.context.details?.createdAt ?? new Date(),
+    createdAt: dayjs(state.context.details?.createdAt ?? new Date()).format('YYYY-MM-DD'),
     isCreatedAtUnknown:
       (state.context.details && typeof state.context.details.createdAt === 'undefined') ?? false,
-    acquiredAt: state.context.details?.acquiredAt ?? new Date(),
+    acquiredAt: dayjs(state.context.details?.acquiredAt ?? new Date()).format('YYYY-MM-DD'),
   };
 
   const initialErrors = validateZodSchema(detailsStepSchema, 'sync')(initialValues);
@@ -74,7 +76,14 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
       initialValues={initialValues}
       initialErrors={initialErrors}
       validate={validateZodSchema(detailsStepSchema)}
-      onSubmit={values => {
+      onSubmit={(values, helpers) => {
+        // Check date is valid
+        if (!values.isCreatedAtUnknown && !dayjs(values.createdAt).isValid()) {
+          helpers.setFieldError('createdAt', 'Invalid date.');
+          helpers.setSubmitting(false);
+          return;
+        }
+
         onSubmit({
           type: 'CONFIRM_DETAILS',
           details: {
@@ -82,8 +91,8 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             description: values.description,
             artist: values.artist,
             altText: values.altText,
-            createdAt: values.isCreatedAtUnknown ? undefined : values.createdAt,
-            acquiredAt: values.acquiredAt,
+            createdAt: values.isCreatedAtUnknown ? undefined : new Date(values.createdAt),
+            acquiredAt: new Date(values.acquiredAt),
           },
         });
       }}>
@@ -125,11 +134,11 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
             </FieldWrapper> */}
 
             <FieldWrapper className={styles.field} name="description" label="Description" required>
-              {field => <TextField {...field} type="text" grow rows={2} />}
+              {field => <TextArea {...field} rows={2} />}
             </FieldWrapper>
 
             <FieldWrapper className={styles.field} name="altText" label="Alt Text" required>
-              {field => <TextField {...field} type="text" grow rows={2} />}
+              {field => <TextArea {...field} rows={2} />}
             </FieldWrapper>
 
             <div className={styles.formRow}>
