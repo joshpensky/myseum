@@ -24,15 +24,15 @@ export const MuseumView = (initProps: MuseumViewProps) => {
   const [museum, setMuseum] = useState(initProps.museum);
   const [galleries, setGalleries] = useState(initProps.galleries);
 
-  const [isEditing, setIsEditing] = useState(false);
-
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>{museum.name}</h1>
+
         <p>
           Curated by <UserTag className={styles.userTag} user={museum.curator} />
         </p>
+
         <p className={styles.established}>Est. {dayjs(museum.addedAt).year()}</p>
 
         <p>{museum.description}</p>
@@ -40,14 +40,11 @@ export const MuseumView = (initProps: MuseumViewProps) => {
         <div className={styles.actions}>
           {auth.user?.id === museum.curator.id && (
             <EditMuseumModal
-              open={isEditing}
-              onOpenChange={setIsEditing}
               museum={museum}
               galleries={galleries}
               onSave={({ galleries, ...museum }) => {
                 setMuseum(museum);
                 setGalleries(galleries);
-                setIsEditing(false);
               }}
               trigger={
                 <Button className={styles.actionsItem} icon={EditIcon}>

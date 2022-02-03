@@ -1,0 +1,191 @@
+$bp-drawer: 600px;
+
+@keyframes overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.overlay {
+  @include fixed(0);
+  background-color: c('bg', 0.75);
+  z-index: 999;
+
+  &[data-state='open'] {
+    animation: overlay-enter 150ms linear forwards 1;
+  }
+
+  &[data-state='closed'] {
+    animation: overlay-leave 150ms linear forwards 1;
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translate(var(--translate)) scale(var(--scale));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes modal-leave {
+  from {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--translate)) scale(var(--scale));
+  }
+}
+
+.root {
+  @include fixed(sz(4) x sz(4) sz(4));
+  z-index: 1000;
+  --translate: 0, 0;
+  --scale: 0.95;
+
+  &[data-state='open'] {
+    animation: modal-enter 400ms $ease-out-circ forwards 1;
+  }
+
+  &[data-state='closed'] {
+    animation: modal-leave 400ms $ease-out-circ forwards 1;
+  }
+
+  @include mq($bp-drawer) {
+    min-width: calc(400px - #{sz(4) * 2});
+    width: calc((1 / 3 * 100%) - #{sz(4)});
+  }
+
+  @include mq(max, $bp-drawer) {
+    @include fixed(sz(4) 0 0 0);
+    --translate: 0, 100%;
+    --scale: 1;
+
+    // Add background for drags upward
+    &::before {
+      @include absolute(x 0 0);
+      background-color: black;
+      height: 100px;
+      content: '';
+    }
+  }
+}
+
+.modal {
+  @include absolute(0 x 0 0);
+  background-color: c('bg');
+  border-radius: sz(4);
+  box-shadow: 0 0 0 1px c('border');
+  color: c('text');
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+
+  @include mq(max, $bp-drawer) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 1px 0 0 c('bg'), 0 0 0 1px c('border');
+  }
+}
+
+.header {
+  @include sticky(0 x x);
+  @include padding(sz(4));
+  align-items: center;
+  background-color: c('bg');
+  border-bottom: 1px solid c('border');
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+@include mq(max, $bp-drawer) {
+  .header {
+    padding-top: sz(6);
+    cursor: grab;
+  }
+
+  .drag-handle {
+    @include absolute(sz(2) x x 50%);
+    transform: translateX(-50%);
+    height: sz(0.75);
+    width: sz(8);
+    border-radius: sz(1);
+    background-color: c('border');
+  }
+}
+
+.header__close {
+  @include absolute(x x sz(2.5) sz(3));
+}
+
+.header__title {
+  font-size: $fs-sm;
+}
+
+.body {
+  @include padding(sz(4) sz(5) x);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.title {
+  @include h3;
+}
+
+.description {
+  color: c('secondary-text');
+  margin-bottom: sz(4);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.field {
+  + .field {
+    margin-top: sz(3);
+  }
+}
+
+.legend {
+  @include label;
+}
+
+.actions {
+  @include sticky(x x 0);
+  align-items: flex-end;
+  background-color: c('bg', 0.7);
+  display: flex;
+  flex: 1;
+  padding-bottom: sz(5);
+
+  button {
+    width: 100%;
+  }
+}
+
+:export {
+  varBpDrawer: $bp-drawer;
+}
