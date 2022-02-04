@@ -22,6 +22,32 @@ export class ArtworkRepository {
     const artworks = await prisma.artwork.findMany({
       include: {
         artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return artworks;
+  }
+
+  static async findAllByUser(userId: string) {
+    const artworks = await prisma.artwork.findMany({
+      where: {
+        owner: {
+          id: userId,
+        },
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     return artworks;
@@ -64,6 +90,12 @@ export class ArtworkRepository {
       },
       include: {
         artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 

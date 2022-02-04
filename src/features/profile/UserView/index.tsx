@@ -1,18 +1,15 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Form, Formik } from 'formik';
 import Button from '@src/components/Button';
-import { FieldWrapper } from '@src/components/FieldWrapper';
-import { TextField } from '@src/components/TextField';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { SettingsModal } from '@src/features/profile/SettingsModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { LockIcon } from '@src/svgs/LockIcon';
-import { PlusIcon } from '@src/svgs/PlusIcon';
 import { ShareIcon } from '@src/svgs/ShareIcon';
 import { shareUrl } from '@src/utils/shareUrl';
+import { SearchArtworks } from './SearchArtworks';
 import styles from './userView.module.scss';
 
 export interface UserViewProps {
@@ -90,22 +87,7 @@ export const UserView = ({ user }: UserViewProps) => {
 
           <Tabs.Content value="artworks" className={styles.tabContent}>
             <h2 className="sr-only">Artworks</h2>
-            <Formik initialValues={{ search: '' }} onSubmit={() => {}}>
-              <Form className={styles.searchForm}>
-                <FieldWrapper
-                  id="search-artworks"
-                  name="search"
-                  label="Search artworks"
-                  className={styles.searchBar}
-                  labelClassName="sr-only">
-                  {field => <TextField {...field} type="search" placeholder="Search artworks" />}
-                </FieldWrapper>
-
-                <Button type="button" icon={PlusIcon}>
-                  Create
-                </Button>
-              </Form>
-            </Formik>
+            <SearchArtworks user={user} />
           </Tabs.Content>
 
           <Tabs.Content value="frames" className={styles.tabContent}>

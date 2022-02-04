@@ -1,8 +1,10 @@
 import { Artist, Artwork, MeasureUnit } from '@prisma/client';
 import { Dimensions3D } from '@src/types';
+import { PrismaUser, UserDto } from './user.serializer';
 
 export interface PrismaArtwork extends Artwork {
   artist: Artist | null;
+  owner: Pick<PrismaUser, 'id' | 'name'>;
 }
 
 export interface ArtworkDto {
@@ -14,6 +16,7 @@ export interface ArtworkDto {
   size: Dimensions3D;
   unit: MeasureUnit;
   artist: Artist | null;
+  owner: Pick<UserDto, 'id' | 'name'>;
   createdAt: Date | null;
   acquiredAt: Date;
   addedAt: Date;
@@ -35,6 +38,7 @@ export class ArtworkSerializer {
       },
       unit: artwork.unit,
       artist: artwork.artist ?? null,
+      owner: artwork.owner,
       createdAt: artwork.createdAt ?? null,
       acquiredAt: artwork.acquiredAt,
       addedAt: artwork.addedAt,

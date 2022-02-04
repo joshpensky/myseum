@@ -8,6 +8,7 @@ import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { supabase } from '@src/data/supabase';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './artwork.module.scss';
 
 const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
@@ -79,16 +80,7 @@ export const Artwork = ({
     })),
   );
 
-  let artworkSrc: string;
-  if (artwork.src.startsWith('/')) {
-    artworkSrc = artwork.src;
-  } else {
-    const download = supabase.storage.from('artworks').getPublicUrl(artwork.src);
-    if (!download.data || download.error) {
-      throw download.error ?? new Error('Cannot access artwork image.');
-    }
-    artworkSrc = download.data.publicURL;
-  }
+  const artworkSrc = getImageUrl('artworks', artwork.src);
 
   return (
     <div ref={wrapperRef} className={styles.wrapper}>

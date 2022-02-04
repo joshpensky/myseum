@@ -122,7 +122,7 @@
   @include h2;
   @include padding(sz(2) sz(2) sz(1));
   border-radius: sz(3);
-  box-shadow: inset 0 0 0 0 c('gray');
+  box-shadow: inset 0 0 0 0 c('border', 0);
   line-height: 1.2;
   margin-right: sz(1);
 
@@ -136,7 +136,7 @@
 
   &:focus {
     @include outline-none;
-    box-shadow: inset 0 0 0 1px c('border', 0.4);
+    box-shadow: inset 0 0 0 1px c('border', 0.2);
   }
 }
 
@@ -144,7 +144,7 @@
   @include margin(sz(1) x x sz(-2));
   @include padding(sz(2) sz(2) sz(2));
   border-radius: sz(3);
-  box-shadow: inset 0 0 0 0 c('border', 0.4);
+  box-shadow: inset 0 0 0 0 c('border', 0);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -155,15 +155,6 @@
 
   &:focus {
     @include outline-none;
-    box-shadow: inset 0 0 0 1px c('border', 0.4);
+    box-shadow: inset 0 0 0 1px c('border', 0.2);
   }
-}
-
-.search-form {
-  align-items: flex-start;
-  display: flex;
-}
-
-.search-bar {
-  margin-right: sz(2);
 }

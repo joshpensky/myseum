@@ -1,4 +1,4 @@
-import { ChangeEventHandler, ComponentProps, FocusEventHandler } from 'react';
+import { ChangeEventHandler, ComponentProps, FocusEventHandler, forwardRef } from 'react';
 import cx from 'classnames';
 import { Field, useField } from 'formik';
 import styles from './textField.module.scss';
@@ -34,22 +34,25 @@ interface NumberTextFieldProps {
 
 type TextFieldProps = BaseTextFieldProps & (StringTextFieldProps | NumberTextFieldProps);
 
-export const TextField = ({
-  'aria-describedby': ariaDescribedby,
-  autoComplete,
-  className,
-  disabled,
-  id,
-  name,
-  min,
-  onBlur,
-  onFocus,
-  placeholder,
-  readOnly,
-  required,
-  step,
-  ...typedProps
-}: TextFieldProps) => {
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
+  {
+    'aria-describedby': ariaDescribedby,
+    autoComplete,
+    className,
+    disabled,
+    id,
+    name,
+    min,
+    onBlur,
+    onFocus,
+    placeholder,
+    readOnly,
+    required,
+    step,
+    ...typedProps
+  },
+  ref,
+) {
   const [field, meta, helpers] = useField(name);
   const hasError = !!(meta.touched && meta.error);
 
@@ -90,6 +93,7 @@ export const TextField = ({
 
   return (
     <Field
+      innerRef={ref}
       id={id}
       name={name}
       className={cx(styles.field, hasError && styles.fieldError, className)}
@@ -106,4 +110,4 @@ export const TextField = ({
       onFocus={onFocus}
     />
   );
-};
+});

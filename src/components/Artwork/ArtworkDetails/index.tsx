@@ -6,7 +6,7 @@ import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { EditIcon } from '@src/svgs/EditIcon';
-import Fullscreen from '@src/svgs/Fullscreen';
+import { ExpandIcon } from '@src/svgs/ExpandIcon';
 import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {
@@ -42,7 +42,7 @@ const ArtworkDetails = ({
               className={styles.headerButtonsItem}
               title="Expand artwork"
               tooltipProps={{ side: 'top' }}>
-              <Fullscreen />
+              <ExpandIcon />
             </IconButton>
             <IconButton
               className={styles.headerButtonsItem}

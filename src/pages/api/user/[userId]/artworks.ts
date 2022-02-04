@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
+import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
-import { UserSerializer } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
+import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
 
 const userDetailController: NextApiHandler = async (req, res) => {
   const userId = req.query.userId;
@@ -19,26 +19,15 @@ const userDetailController: NextApiHandler = async (req, res) => {
           res.status(404).json({ message: 'User not found.' });
           return;
         }
-        res.status(200).json(UserSerializer.serialize(user));
-        break;
-      }
-
-      // Updates the chosen user
-      case 'PUT': {
-        const auth = await supabase.auth.api.getUserByCookie(req);
-        // Only allow users to update themselves
-        if (!auth.user || auth.user.id !== userId) {
-          res.status(401).json({ message: 'Unauthorized.' });
-          return;
-        }
-        const user = await UserRepository.update(auth.user, req.body);
-        res.status(200).json(UserSerializer.serialize(user));
+        const artworks = await ArtworkRepository.findAllByUser(user.id);
+        const serializedArtworks = artworks.map(artwork => ArtworkSerializer.serialize(artwork));
+        res.status(200).json(serializedArtworks);
         break;
       }
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'GET, PATCH');
+        res.setHeader('Allow', 'GET');
         res.status(405).end('Method Not Allowed');
       }
     }
