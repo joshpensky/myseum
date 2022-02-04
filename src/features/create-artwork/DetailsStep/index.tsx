@@ -179,7 +179,7 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
                 Back
               </Button>
 
-              <Button type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                 Next
               </Button>
             </div>

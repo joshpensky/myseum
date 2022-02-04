@@ -35,8 +35,9 @@ const framingStepSchema = z
     frame: z
       .object({
         id: z.number(),
+        name: z.string(),
         src: z.string(),
-        description: z.string(),
+        alt: z.string(),
         size: z.object({
           width: z.number(),
           height: z.number(),
@@ -271,7 +272,7 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 Back
               </Button>
 
-              <Button type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                 Next
               </Button>
             </div>

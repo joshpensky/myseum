@@ -27,11 +27,11 @@ export interface SelectionContext {
 export type FramingContext = (
   | {
       hasFrame: true;
-      frame: FrameDto;
+      frame: Omit<FrameDto, 'owner'>;
     }
   | {
       hasFrame: false;
-      frame?: FrameDto;
+      frame?: Omit<FrameDto, 'owner'>;
     }
 ) & {
   depth: number;

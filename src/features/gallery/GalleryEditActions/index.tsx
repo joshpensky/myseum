@@ -5,7 +5,7 @@ import useSWR from 'swr';
 import { Artwork } from '@src/components/Artwork';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { CreateArtwork } from '@src/features/create-artwork';
+import * as CreateArtwork from '@src/features/create-artwork';
 import FloatingActionButton from '@src/features/gallery/FloatingActionButton';
 import GallerySettings from '@src/features/gallery/GallerySettings';
 import { GridArtworkItem } from '@src/features/gallery/GridArtwork';
@@ -147,16 +147,18 @@ export const GalleryEditActions = ({
             </Popover.Body>
 
             <Popover.Body className={styles.uploadSection}>
-              <CreateArtwork
+              <CreateArtwork.Root
                 open={isAddingArtwork}
                 onOpenChange={setIsAddingArtwork}
                 onComplete={data => {
                   onAddArtwork(data);
                   setIsAddingArtwork(false);
                   setIsArtworkPopoverOpen(false);
-                }}
-                trigger={<button className={styles.uploadButton}>Upload new artwork</button>}
-              />
+                }}>
+                <CreateArtwork.Trigger>
+                  <button className={styles.uploadButton}>Upload new artwork</button>
+                </CreateArtwork.Trigger>
+              </CreateArtwork.Root>
             </Popover.Body>
           </Popover.Content>
         </Popover.Root>

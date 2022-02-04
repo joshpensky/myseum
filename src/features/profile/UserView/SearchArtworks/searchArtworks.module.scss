@@ -71,6 +71,7 @@
 }
 
 .row {
+  @include padding(sz(4) x);
   align-items: center;
   display: flex;
 }

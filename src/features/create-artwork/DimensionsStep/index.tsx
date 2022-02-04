@@ -236,7 +236,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                 Back
               </Button>
 
-              <Button type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                 Next
               </Button>
             </div>

@@ -1,11 +1,21 @@
 @import 'root-abstracts';
 
-.root {
+.overlay {
   @include fixed(0);
+  background-color: c('bg');
+  z-index: 999;
+}
+
+.dialog {
+  @include fixed(0);
+  z-index: 1000;
+}
+
+.root {
+  @include absolute(0);
   background-color: c('bg');
   color: c('text');
   display: flex;
-  z-index: 2147483648;
 }
 
 .form-area {

@@ -1,6 +1,8 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import * as Tabs from '@radix-ui/react-tabs';
+import * as z from 'zod';
 import Button from '@src/components/Button';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { SettingsModal } from '@src/features/profile/SettingsModal';
@@ -19,6 +21,29 @@ export interface UserViewProps {
 
 export const UserView = ({ user }: UserViewProps) => {
   const auth = useAuth();
+  const router = useRouter();
+
+  const [tab, setTab] = useState(() => {
+    const parsedTab = z.enum(['artworks', 'frames']).safeParse(router.query.tab);
+    if (parsedTab.success) {
+      return parsedTab.data;
+    } else {
+      return 'artworks';
+    }
+  });
+
+  // Persists the current tab in query param
+  useEffect(() => {
+    const query = { ...router.query };
+
+    if (tab !== 'artworks') {
+      query.tab = tab;
+    } else {
+      delete query.tab;
+    }
+
+    router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
+  }, [tab]);
 
   return (
     <div className={styles.page}>
@@ -76,7 +101,7 @@ export const UserView = ({ user }: UserViewProps) => {
       </header>
 
       <div className={styles.main}>
-        <Tabs.Root className={styles.tabs} defaultValue="artworks">
+        <Tabs.Root className={styles.tabs} value={tab} onValueChange={setTab}>
           <Tabs.List aria-label={`${user.name}'s Collection`}>
             <Tabs.Trigger value="artworks" className={styles.tabTrigger}>
               Artworks

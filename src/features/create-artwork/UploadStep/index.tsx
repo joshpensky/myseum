@@ -183,7 +183,7 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
             )}
 
             <div className={rootStyles.formActions}>
-              <Button type="submit" filled disabled={isUploading || !isValid || isSubmitting}>
+              <Button type="submit" filled busy={isSubmitting} disabled={isUploading || !isValid}>
                 Next
               </Button>
             </div>

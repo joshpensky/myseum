@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import Button from '@src/components/Button';
-import { CreateArtwork } from '@src/features/create-artwork';
+import * as CreateArtwork from '@src/features/create-artwork';
 
 const ArtworkRoute = () => {
   const [open, setOpen] = useState(true);
 
   return (
-    <CreateArtwork
-      open={open}
-      onOpenChange={setOpen}
-      onComplete={data => console.log(data)}
-      trigger={<Button>Open</Button>}
-    />
+    <CreateArtwork.Root open={open} onOpenChange={setOpen} onComplete={data => console.log(data)}>
+      <CreateArtwork.Trigger>
+        <Button>Open</Button>
+      </CreateArtwork.Trigger>
+    </CreateArtwork.Root>
   );
 };
 

@@ -140,7 +140,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
                 {state.context.framing.hasFrame ? (
                   <Fragment>
                     <dt>Frame</dt>
-                    <dd>{state.context.framing.frame.description}</dd>
+                    <dd>{state.context.framing.frame.name}</dd>
                   </Fragment>
                 ) : (
                   <Fragment>
@@ -188,7 +188,7 @@ export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) =
             </section>
 
             <div className={rootStyles.formActions}>
-              <Button type="submit" filled disabled={!isValid || isSubmitting}>
+              <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                 Save
               </Button>
             </div>

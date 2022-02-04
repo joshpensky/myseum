@@ -14,7 +14,7 @@ import styles from './preview3d.module.scss';
 interface Preview3dProps {
   rotated: boolean;
   artwork: Pick<ArtworkDto, 'src' | 'alt' | 'size'>;
-  frame?: Pick<FrameDto, 'src' | 'description' | 'size' | 'window'>;
+  frame?: Pick<FrameDto, 'src' | 'alt' | 'size' | 'window'>;
   framingOptions?: {
     scaled: boolean;
     scaling: number;
@@ -193,7 +193,7 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
           <Fragment>
             <div className={cx(styles.previewGlass, rotated && styles.previewGlassShine)} />
             <div className={styles.previewFront}>
-              <img src={frame.src} alt={frame.description} />
+              <img src={frame.src} alt={frame.alt} />
             </div>
           </Fragment>
         )}

@@ -1,5 +1,15 @@
-import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
+import {
+  ComponentType,
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { Slot } from '@radix-ui/react-slot';
 import { useMachine } from '@xstate/react';
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
@@ -101,8 +111,8 @@ const CreateArtworkModal = ({ user, onComplete }: CreateArtworkModalProps) => {
   }, []);
 
   return (
-    <ThemeProvider theme={{ color: 'ink' }}>
-      <div className={cx('theme--ink', styles.root)}>
+    <div className={cx('theme--ink', styles.root)}>
+      <ThemeProvider theme={{ color: 'ink' }}>
         <div className={styles.activeArea} />
 
         <div className={styles.formArea}>
@@ -149,37 +159,84 @@ const CreateArtworkModal = ({ user, onComplete }: CreateArtworkModalProps) => {
             {renderStep()}
           </div>
         </div>
-      </div>
-    </ThemeProvider>
+      </ThemeProvider>
+    </div>
   );
 };
+
+interface CreateArtworkContextValue {
+  open: boolean;
+  onOpenChange(open: boolean): void;
+}
+export const CreateArtworkContext = createContext<CreateArtworkContextValue>({
+  open: false,
+  onOpenChange: () => {},
+});
 
 export interface CreateArtworkProps {
   open: boolean;
   onOpenChange(open: boolean): void;
-  trigger?: ReactNode;
   onComplete(data: ArtworkDto): void;
 }
 
-export const CreateArtwork = ({ open, onOpenChange, trigger, onComplete }: CreateArtworkProps) => {
+export const Root = ({
+  children,
+  open,
+  onOpenChange,
+  onComplete,
+}: PropsWithChildren<CreateArtworkProps>) => {
   const auth = useAuth();
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      {trigger && (
-        <Dialog.Trigger disabled={!auth.user} asChild>
-          {trigger}
-        </Dialog.Trigger>
-      )}
+    <CreateArtworkContext.Provider value={{ open, onOpenChange }}>
+      <Dialog.Root open={open} onOpenChange={onOpenChange}>
+        {children}
 
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        {auth.user && (
-          <Dialog.Content onEscapeKeyDown={() => onOpenChange(false)}>
-            <CreateArtworkModal user={auth.user} onComplete={data => onComplete(data)} />
-          </Dialog.Content>
-        )}
-      </Dialog.Portal>
-    </Dialog.Root>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.overlay} />
+          {auth.user && (
+            <Dialog.Content
+              className={styles.dialog}
+              onInteractOutside={evt => console.log(evt)}
+              onEscapeKeyDown={() => onOpenChange(false)}>
+              <CreateArtworkModal user={auth.user} onComplete={data => onComplete(data)} />
+            </Dialog.Content>
+          )}
+        </Dialog.Portal>
+      </Dialog.Root>
+    </CreateArtworkContext.Provider>
+  );
+};
+
+type CreateArtworkTriggerProps = Record<never, string>;
+
+export const Trigger = ({ children }: PropsWithChildren<CreateArtworkTriggerProps>) => {
+  const { open, onOpenChange } = useContext(CreateArtworkContext);
+
+  const auth = useAuth();
+
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const didTriggerRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (!open && didTriggerRef.current) {
+      didTriggerRef.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
+  const TriggerSlot = Slot as ComponentType<
+    React.HTMLProps<HTMLButtonElement> & React.RefAttributes<HTMLButtonElement>
+  >;
+
+  return (
+    <TriggerSlot
+      ref={triggerRef}
+      disabled={!auth.user}
+      onClick={() => {
+        didTriggerRef.current = true;
+        onOpenChange(true);
+      }}>
+      {children}
+    </TriggerSlot>
   );
 };

@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
 import { Loader } from '@src/components/Loader';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
@@ -18,8 +20,16 @@ interface HomeProps {
 
 const Home = ({ galleries, museum }: HomeProps) => {
   const auth = useAuth();
+  const router = useRouter();
 
-  if (auth.isUserLoading) {
+  // Forces a server-side refresh when user signs in on homepage
+  useEffect(() => {
+    if (!museum && (auth.user || auth.isUserLoading)) {
+      router.reload();
+    }
+  }, [museum, auth.user, auth.isUserLoading]);
+
+  if (!museum && (auth.user || auth.isUserLoading)) {
     return (
       <div className={styles.wrapper}>
         <h1 className="sr-only">Loading...</h1>

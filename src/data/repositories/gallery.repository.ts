@@ -33,6 +33,12 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             frame: true,
@@ -60,6 +66,12 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             frame: true,
@@ -140,6 +152,12 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             frame: true,
@@ -166,6 +184,12 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             frame: true,
