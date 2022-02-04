@@ -36,6 +36,21 @@ const userDetailController: NextApiHandler = async (req, res) => {
         break;
       }
 
+      case 'DELETE': {
+        const auth = await supabase.auth.api.getUserByCookie(req);
+        // Only allow users to update themselves
+        if (!auth.user || auth.user.id !== userId) {
+          res.status(401).json({ message: 'Unauthorized.' });
+          return;
+        }
+        const { error } = await supabase.auth.api.deleteUser(auth.user.id);
+        if (error) {
+          throw error;
+        }
+        res.status(204).json({ success: true });
+        break;
+      }
+
       // Otherwise, endpoint not found
       default: {
         res.setHeader('Allow', 'GET');

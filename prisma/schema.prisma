@@ -55,7 +55,7 @@ model Museum {
   description String    @default("")
   galleries   Gallery[]
 
-  curator   User   @relation(fields: [curatorId], references: [id])
+  curator   User   @relation(fields: [curatorId], references: [id], onDelete: Cascade)
   curatorId String @unique @db.Uuid
 
   addedAt    DateTime @default(now())
@@ -72,7 +72,7 @@ model Gallery {
   height      Int             @default(40)
   artworks    PlacedArtwork[]
 
-  museum   Museum @relation(fields: [museumId], references: [id])
+  museum   Museum @relation(fields: [museumId], references: [id], onDelete: Cascade)
   museumId Int
 
   addedAt    DateTime @default(now())
@@ -83,10 +83,10 @@ model Gallery {
 }
 
 model PlacedArtwork {
-  artwork   Artwork @relation(fields: [artworkId], references: [id])
+  artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
   artworkId Int
 
-  frame    Frame?  @relation(fields: [frameId], references: [id])
+  frame    Frame?  @relation(fields: [frameId], references: [id], onDelete: SetNull)
   frameId  Int?
   isScaled Boolean
   scaling  Int
@@ -94,7 +94,7 @@ model PlacedArtwork {
 
   posX      Int
   posY      Int
-  gallery   Gallery @relation(fields: [galleryId], references: [id])
+  gallery   Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
   galleryId Int
 
   addedAt    DateTime @default(now())
@@ -126,7 +126,7 @@ model Frame {
 
   placements PlacedArtwork[]
 
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @db.Uuid
 
   addedAt    DateTime @default(now())
@@ -150,12 +150,12 @@ model Artwork {
   createdAt  DateTime?
   acquiredAt DateTime  @default(now())
 
-  artist   Artist? @relation(fields: [artistId], references: [id])
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
   artistId Int?
 
   placements PlacedArtwork[]
 
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @db.Uuid
 
   addedAt    DateTime @default(now())

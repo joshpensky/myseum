@@ -21,6 +21,7 @@ export const UserDropdown = () => {
       setIsSigningOut(true);
       try {
         await auth.signOut();
+        toast.success('Signed out!');
       } catch (error) {
         toast.error((error as ApiError).message);
         setIsSigningOut(false);

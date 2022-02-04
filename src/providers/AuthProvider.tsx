@@ -146,11 +146,10 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
         body: JSON.stringify({ event, session }),
       });
 
-      // Send success toast when logging in or out
+      // Redirect user to homepage on sign out
       if (event === 'SIGNED_IN') {
         toast.success('Signed in!');
       } else if (event === 'SIGNED_OUT') {
-        toast.success('Signed out!');
         router.replace('/');
       }
     });

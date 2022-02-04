@@ -12,7 +12,10 @@ import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './uploadStep.module.scss';
 
 const uploadStepSchema = z.object({
-  image: z.instanceof(HTMLImageElement, { message: 'Must upload an image.' }),
+  image:
+    typeof window === 'undefined'
+      ? z.any()
+      : z.instanceof(HTMLImageElement, { message: 'Must upload an image.' }),
 
   width: z
     .number({ required_error: 'Width is required.' })
