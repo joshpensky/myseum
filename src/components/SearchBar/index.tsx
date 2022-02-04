@@ -24,6 +24,7 @@ export const SearchBar = ({ label }: SearchBarProps) => {
             ref={fieldRef}
             className={styles.input}
             type="search"
+            autoComplete="off"
             placeholder={label}
           />
 

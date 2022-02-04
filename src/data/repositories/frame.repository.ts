@@ -5,8 +5,9 @@ import { Dimensions3D } from '@src/types';
 
 export interface CreateFrameDto {
   ownerId: string;
+  name: string;
   src: string;
-  description: string;
+  alt: string;
   size: Dimensions3D;
   unit: MeasureUnit;
   window: SelectionEditorPath;
@@ -14,15 +15,44 @@ export interface CreateFrameDto {
 
 export class FrameRepository {
   static async findAll() {
-    const frames = await prisma.frame.findMany();
+    const frames = await prisma.frame.findMany({
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return frames;
+  }
+
+  static async findAllByUser(userId: string) {
+    const frames = await prisma.frame.findMany({
+      where: {
+        owner: {
+          id: userId,
+        },
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
     return frames;
   }
 
   static async create(data: CreateFrameDto) {
     const frame = await prisma.frame.create({
       data: {
+        name: data.name,
         src: data.src,
-        description: data.description,
+        alt: data.alt,
         width: data.size.width,
         height: data.size.height,
         depth: data.size.depth,
@@ -42,6 +72,7 @@ export class FrameRepository {
         },
       },
     });
+
     return frame;
   }
 }

@@ -105,9 +105,10 @@ model PlacedArtwork {
 }
 
 model Frame {
-  id          Int    @id @default(autoincrement())
-  src         String
-  description String
+  id   Int    @id @default(autoincrement())
+  name String
+  src  String
+  alt  String
 
   width  Float
   height Float

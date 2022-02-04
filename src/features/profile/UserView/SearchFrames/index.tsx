@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
@@ -7,44 +7,36 @@ import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
-import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import { CreateArtwork } from '@src/features/create-artwork';
 import { useAuth } from '@src/providers/AuthProvider';
-import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { ExpandIcon } from '@src/svgs/ExpandIcon';
+import { FrameIllustration } from '@src/svgs/FrameIllustration';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import { TrashIcon } from '@src/svgs/TrashIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
-import styles from './searchArtworks.module.scss';
+import styles from './searchFrames.module.scss';
 
-interface ArtworkRowProps {
-  artwork: ArtworkDto;
+interface FrameRowProps {
+  frame: FrameDto;
 }
 
-const ArtworkRow = ({ artwork }: ArtworkRowProps) => {
+const FrameRow = ({ frame }: FrameRowProps) => {
   const auth = useAuth();
-  const isOwner = auth.user?.id === artwork.owner.id;
+  const isOwner = auth.user?.id === frame.owner.id;
 
   return (
     <div className={styles.row}>
       <img
         className={styles.rowImage}
-        src={getImageUrl('artworks', artwork.src)}
-        alt={artwork.alt ?? ''}
+        src={getImageUrl('frames', frame.src)}
+        alt={frame.alt ?? ''}
       />
 
       <div className={styles.rowMeta}>
-        <p>{artwork.title}</p>
-        <p className={styles.rowMetaDesc}>
-          {Array.from(
-            new Set([
-              artwork.artist?.name ?? 'Unknown',
-              artwork.createdAt ? dayjs(artwork.createdAt).year() : 'Unknown',
-            ]),
-          ).join(', ')}
-        </p>
+        <p>{frame.name}</p>
+        <p className={styles.rowMetaDesc}>Added in {dayjs(frame.addedAt).year()}</p>
       </div>
 
       <div className={styles.rowActions}>
@@ -68,20 +60,18 @@ const ArtworkRow = ({ artwork }: ArtworkRowProps) => {
   );
 };
 
-interface SearchArtworksProps {
+interface SearchFramesProps {
   user: UserDto;
 }
 
-export const SearchArtworks = ({ user }: SearchArtworksProps) => {
+export const SearchFrames = ({ user }: SearchFramesProps) => {
   const auth = useAuth();
   const isCurrentUser = auth.user?.id === user.id;
 
-  const [isCreating, setIsCreating] = useState(false);
-
-  const artworks = useSWR<ArtworkDto[]>(`/api/user/${user.id}/artworks`, {
+  const frames = useSWR<FrameDto[]>(`/api/user/${user.id}/frames`, {
     revalidateOnFocus: false,
   });
-  const data = artworks.data ?? [];
+  const data = frames.data ?? [];
 
   return (
     <Formik
@@ -93,10 +83,10 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
         const { values } = formik;
 
         const fuse = new Fuse(data, {
-          keys: ['title', 'description', 'alt', 'artist.name'],
+          keys: ['name', 'alt'],
         });
 
-        let results: { item: ArtworkDto }[];
+        let results: { item: FrameDto }[];
         if (values.search) {
           results = fuse.search(values.search);
         } else {
@@ -106,18 +96,11 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
         return (
           <div className={styles.root}>
             <Form className={styles.form} noValidate>
-              <SearchBar label="Search artworks" />
+              <SearchBar label="Search frames" />
               {isCurrentUser && (
-                <CreateArtwork
-                  open={isCreating}
-                  onOpenChange={setIsCreating}
-                  onComplete={artwork => console.log(artwork)}
-                  trigger={
-                    <Button className={styles.formAction} type="button" icon={PlusIcon}>
-                      Create
-                    </Button>
-                  }
-                />
+                <Button className={styles.formAction} type="button" icon={PlusIcon}>
+                  Create
+                </Button>
               )}
             </Form>
 
@@ -125,34 +108,27 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
               {results.length} item{results.length === 1 ? '' : 's'} {values.search && 'found'}
             </p>
 
-            {artworks.isValidating ? (
+            {frames.isValidating ? (
               <div className={styles.loading}>
                 <Loader size="large" />
               </div>
             ) : !results.length ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyStateIllo}>
-                  <ArtworkIllustration />
+                  <FrameIllustration />
                 </div>
                 <p className={styles.emptyStateText}>
                   {values.search
-                    ? `No artworks found for term "${values.search}."`
-                    : `${isCurrentUser ? 'You have' : 'there are'} no artworks.`}
+                    ? `No frames found for term "${values.search}."`
+                    : `${isCurrentUser ? 'You have' : 'there are'} no frames.`}
                 </p>
-                {isCurrentUser && (
-                  <CreateArtwork
-                    open={isCreating}
-                    onOpenChange={setIsCreating}
-                    onComplete={artwork => console.log(artwork)}
-                    trigger={<Button className={styles.emptyStateAction}>Create artwork</Button>}
-                  />
-                )}
+                {isCurrentUser && <Button className={styles.emptyStateAction}>Create frame</Button>}
               </div>
             ) : (
               <ul>
                 {results.map(result => (
                   <li key={result.item.id} className={styles.rowWrapper}>
-                    <ArtworkRow artwork={result.item} />
+                    <FrameRow frame={result.item} />
                   </li>
                 ))}
               </ul>

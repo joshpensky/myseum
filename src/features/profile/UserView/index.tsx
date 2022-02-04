@@ -10,6 +10,7 @@ import { LockIcon } from '@src/svgs/LockIcon';
 import { ShareIcon } from '@src/svgs/ShareIcon';
 import { shareUrl } from '@src/utils/shareUrl';
 import { SearchArtworks } from './SearchArtworks';
+import { SearchFrames } from './SearchFrames';
 import styles from './userView.module.scss';
 
 export interface UserViewProps {
@@ -92,6 +93,7 @@ export const UserView = ({ user }: UserViewProps) => {
 
           <Tabs.Content value="frames" className={styles.tabContent}>
             <h2 className="sr-only">Frames</h2>
+            <SearchFrames user={user} />
           </Tabs.Content>
         </Tabs.Root>
       </div>
