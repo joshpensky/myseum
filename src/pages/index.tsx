@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
 import { GetServerSideProps } from 'next';
-import { useRouter } from 'next/router';
 import { Loader } from '@src/components/Loader';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
@@ -20,16 +18,12 @@ interface HomeProps {
 
 const Home = ({ galleries, museum }: HomeProps) => {
   const auth = useAuth();
-  const router = useRouter();
 
-  // Forces a server-side refresh when user signs in on homepage
-  useEffect(() => {
-    if (!museum && (auth.user || auth.isUserLoading)) {
-      router.reload();
-    }
-  }, [museum, auth.user, auth.isUserLoading]);
+  if (!auth.user && !auth.isUserLoading) {
+    return <AnonymousHome />;
+  }
 
-  if (!museum && (auth.user || auth.isUserLoading)) {
+  if (!museum) {
     return (
       <div className={styles.wrapper}>
         <h1 className="sr-only">Loading...</h1>
@@ -37,10 +31,6 @@ const Home = ({ galleries, museum }: HomeProps) => {
         <Loader size="large" />
       </div>
     );
-  }
-
-  if (!museum || !auth.user) {
-    return <AnonymousHome />;
   }
 
   return <MuseumView museum={museum} galleries={galleries} />;

@@ -19,6 +19,7 @@ export interface GridRenderItemProps extends GridItemChildProps {
 
 interface GridProps<Item extends GridItemDto> {
   className?: string;
+  rootClassName?: string;
   preview?: boolean;
   items: Item[];
   getItemId(item: Item): string;
@@ -31,6 +32,7 @@ interface GridProps<Item extends GridItemDto> {
 
 export function Grid<Item extends GridItemDto>({
   className,
+  rootClassName,
   preview,
   items,
   size,
@@ -195,7 +197,7 @@ export function Grid<Item extends GridItemDto>({
         step: step ?? 1,
         preview: preview ?? false,
       }}>
-      <GridBase className={className}>
+      <GridBase className={className} rootClassName={rootClassName}>
         {items.map((item, idx) => (
           <GridItem
             key={getItemId(item)}

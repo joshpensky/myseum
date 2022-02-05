@@ -1,5 +1,3 @@
-$bp-drawer: 600px;
-
 @keyframes overlay-enter {
   from {
     opacity: 0;
@@ -21,7 +19,7 @@ $bp-drawer: 600px;
 .overlay {
   @include fixed(0);
   background-color: c('bg', 0.75);
-  z-index: 999;
+  z-index: 990;
 
   &[data-state='open'] {
     animation: overlay-enter 150ms linear forwards 1;
@@ -34,7 +32,7 @@ $bp-drawer: 600px;
 
 @keyframes modal-enter {
   from {
-    opacity: 0;
+    opacity: var(--opacity);
     transform: translate(var(--translate)) scale(var(--scale));
   }
   to {
@@ -49,7 +47,7 @@ $bp-drawer: 600px;
     transform: translate(0, 0) scale(1);
   }
   to {
-    opacity: 0;
+    opacity: var(--opacity);
     transform: translate(var(--translate)) scale(var(--scale));
   }
 }
@@ -57,8 +55,6 @@ $bp-drawer: 600px;
 .root {
   @include fixed(sz(4) x sz(4) sz(4));
   z-index: 1000;
-  --translate: 0, 0;
-  --scale: 0.97;
 
   &[data-state='open'] {
     animation: modal-enter 400ms $ease-out-circ forwards 1;
@@ -68,16 +64,20 @@ $bp-drawer: 600px;
     animation: modal-leave 400ms $ease-out-circ forwards 1;
   }
 
-  @include mq($bp-drawer) {
+  @include mq($bp-modal-drawer) {
+    --translate: 0, 0;
+    --scale: 0.97;
+    --opacity: 0;
     min-width: calc(400px - #{sz(4)});
     width: calc((1 / 3 * 100%) - #{sz(4)});
     max-width: calc(550px - #{sz(4)});
   }
 
-  @include mq(max, $bp-drawer) {
+  @include mq(max, $bp-modal-drawer) {
     @include fixed(sz(4) 0 0 0);
     --translate: 0, 100%;
     --scale: 1;
+    --opacity: 1;
 
     // Add background for drags upward
     &::before {
@@ -90,7 +90,7 @@ $bp-drawer: 600px;
 }
 
 .modal {
-  @include absolute(0 x 0 0);
+  @include absolute(0 x x 0);
   background-color: c('bg');
   border-radius: sz(4);
   box-shadow: 0 0 0 1px c('border');
@@ -98,9 +98,10 @@ $bp-drawer: 600px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  height: 100%;
   width: 100%;
 
-  @include mq(max, $bp-drawer) {
+  @include mq(max, $bp-modal-drawer) {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     box-shadow: 0 1px 0 0 c('bg'), 0 0 0 1px c('border');
@@ -112,34 +113,65 @@ $bp-drawer: 600px;
   @include padding(sz(4));
   align-items: center;
   background-color: c('bg');
-  border-bottom: 1px solid c('border');
+  border-bottom: 1px solid transparent;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   text-align: center;
-}
 
-@include mq(max, $bp-drawer) {
-  .header {
-    // padding-top: sz(6);
+  @include mq(max, $bp-modal-drawer) {
     cursor: grab;
   }
+}
 
-  // .drag-handle {
-  //   @include absolute(sz(2) x x 50%);
-  //   transform: translateX(-50%);
-  //   height: sz(0.75);
-  //   width: sz(8);
-  //   border-radius: sz(1);
-  //   background-color: c('border');
-  // }
+.header__drag-handle {
+  background-color: c('border');
+  border-radius: sz(1);
+  height: sz(0.5);
+  margin-bottom: sz(2);
+  transform: translateY(sz(-1));
+  width: sz(8);
+
+  @include mq($bp-modal-drawer) {
+    display: none;
+  }
 }
 
 .header__close {
-  @include absolute(x x sz(2.5) sz(3));
+  @include absolute(50% x x sz(3));
+  transform: translateY(-50%);
+
+  @include mq(max, $bp-modal-drawer) {
+    .modal--backgroundable & {
+      transform: translateY(-50%) translateY(#{sz(2.5) / 2});
+    }
+  }
 }
 
 .header__title {
   font-size: $fs-sm;
+}
+
+.header__desc {
+  color: c('secondary-text');
+  font-size: $fs-xs;
+  line-height: 1;
+  margin-top: sz(0.5);
+}
+
+.header__progress {
+  @include absolute(x 0 -1px);
+  height: 1px;
+  background-color: c('border', 0.4);
+  overflow: hidden;
+
+  &::after {
+    @include absolute(0);
+    content: '';
+    background-color: c('border');
+    box-shadow: 2px 0 0 0 c('bg');
+    transform: translateX(calc((var(--progress, 1) * 100%) - 100%));
+  }
 }
 
 .body {
@@ -187,6 +219,36 @@ $bp-drawer: 600px;
   }
 }
 
+////////////////////////////////////
+
+.background {
+  @include fixed(0 0 x x);
+  z-index: 1100;
+
+  @include mq($bp-modal-drawer) {
+    width: calc((2 / 3 * 100%) - #{sz(4)});
+    max-width: calc(100% - (400px + #{sz(4)}));
+    min-width: calc(100% - (550px + #{sz(4)}));
+    height: 100%;
+  }
+
+  @include mq(max, $bp-modal-drawer) {
+    left: 0;
+    height: 100%;
+  }
+}
+
+.background__content {
+  @include absolute(0);
+
+  @include mq(max, $bp-modal-drawer) {
+    bottom: 100px;
+  }
+}
+
+////////////////////////////////////
+
 :export {
-  varBpDrawer: $bp-drawer;
+  varBpDrawer: $bp-modal-drawer;
+  varDrawerEasing: $ease-out-circ;
 }

@@ -15,9 +15,10 @@ const GridMap = dynamic(async () => {
 
 interface GridBaseProps {
   className?: string;
+  rootClassName?: string;
 }
 
-export function GridBase({ children, className }: PropsWithChildren<GridBaseProps>) {
+export function GridBase({ children, className, rootClassName }: PropsWithChildren<GridBaseProps>) {
   const grid = useGrid();
 
   const rootElRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,9 @@ export function GridBase({ children, className }: PropsWithChildren<GridBaseProp
 
   return (
     <GridContext.Provider value={{ ...grid, unitPx }}>
-      <div ref={rootElRef} className={cx(styles.root, grid.preview && styles.rootPreview)}>
+      <div
+        ref={rootElRef}
+        className={cx(styles.root, grid.preview && styles.rootPreview, rootClassName)}>
         <div
           ref={gridRef}
           className={cx(styles.grid, grid.step >= 1 && styles.gridLarge, className)}

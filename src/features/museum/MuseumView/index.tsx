@@ -4,6 +4,7 @@ import Button from '@src/components/Button';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
+import { CreateGalleryModal } from '@src/features/gallery/_new/CreateGalleryModal';
 import { EditMuseumModal } from '@src/features/museum/EditMuseumModal';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
 import { useAuth } from '@src/providers/AuthProvider';
@@ -73,7 +74,14 @@ export const MuseumView = (initProps: MuseumViewProps) => {
             <p className={styles.emptyStateText}>
               {isCurrentUser ? 'Your' : 'This'} museum is empty.
             </p>
-            {isCurrentUser && <Button className={styles.emptyStateAction}>Create gallery</Button>}
+            {isCurrentUser && (
+              <CreateGalleryModal
+                onSave={gallery => {
+                  setGalleries([gallery, ...galleries]);
+                }}
+                trigger={<Button className={styles.emptyStateAction}>Create gallery</Button>}
+              />
+            )}
           </div>
         ) : (
           <ul className={styles.galleryList}>

@@ -1,4 +1,4 @@
-import { Gallery, Matting, Prisma } from '@prisma/client';
+import { Gallery, GalleryColor, Matting, Prisma } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
 
@@ -16,9 +16,17 @@ interface UpdatePlacedArtworkDto {
 export interface UpdateGalleryDto {
   name: string;
   description: string;
-  color?: Gallery['color'];
+  color?: GalleryColor;
   height?: number;
   artworks?: UpdatePlacedArtworkDto[];
+}
+
+export interface CreateGalleryDto {
+  name: string;
+  description: string;
+  color: GalleryColor;
+  height: number;
+  museumId: number;
 }
 
 export class GalleryRepository {
@@ -85,6 +93,46 @@ export class GalleryRepository {
       },
     });
 
+    return gallery;
+  }
+
+  static async create(data: CreateGalleryDto) {
+    const gallery = await prisma.gallery.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        color: data.color,
+        height: data.height,
+        museum: {
+          connect: {
+            id: data.museumId,
+          },
+        },
+      },
+      include: {
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+            frame: true,
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
+          },
+        },
+      },
+    });
     return gallery;
   }
 

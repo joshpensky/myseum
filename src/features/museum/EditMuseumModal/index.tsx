@@ -16,7 +16,7 @@ import styles from './editMuseumModal.module.scss';
 
 const editMuseumSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
-  description: z.string().min(1, 'Description is required.'),
+  description: z.string(),
 });
 
 type EditMuseumSchema = z.infer<typeof editMuseumSchema>;
@@ -82,11 +82,7 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
                   {field => <TextField {...field} type="text" />}
                 </FieldWrapper>
 
-                <FieldWrapper
-                  className={styles.field}
-                  name="description"
-                  label="Description"
-                  required>
+                <FieldWrapper className={styles.field} name="description" label="Description">
                   {field => <TextArea {...field} rows={2} />}
                 </FieldWrapper>
 
