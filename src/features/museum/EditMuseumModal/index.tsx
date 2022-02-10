@@ -11,6 +11,7 @@ import { TextField } from '@src/components/TextField';
 import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
+import { CreateGalleryModal } from '@src/features/gallery/_new/CreateGalleryModal';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './editMuseumModal.module.scss';
 
@@ -89,7 +90,13 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
                 <fieldset className={styles.field} disabled={isSubmitting}>
                   <legend className={styles.legend}>Galleries</legend>
 
-                  <Button type="button">Create gallery</Button>
+                  <CreateGalleryModal
+                    trigger={<Button type="button">Create gallery</Button>}
+                    onComplete={data => {
+                      // TODO: add gallery
+                      console.log(data);
+                    }}
+                  />
 
                   <ul>
                     {galleries.map(gallery => (

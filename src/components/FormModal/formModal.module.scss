@@ -77,7 +77,7 @@
     @include fixed(sz(4) 0 0 0);
     --translate: 0, 100%;
     --scale: 1;
-    --opacity: 1;
+    --opacity: 0;
 
     // Add background for drags upward
     &::before {
@@ -91,6 +91,7 @@
 
 .modal {
   @include absolute(0 x x 0);
+  @include size(100%);
   background-color: c('bg');
   border-radius: sz(4);
   box-shadow: 0 0 0 1px c('border');
@@ -98,13 +99,16 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  height: 100%;
-  width: 100%;
+  transition: 400ms $ease-out-circ;
 
   @include mq(max, $bp-modal-drawer) {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     box-shadow: 0 1px 0 0 c('bg'), 0 0 0 1px c('border');
+
+    .backgrounded & {
+      transform: scale(0.98) translateY(sz(-4.5)) !important;
+    }
   }
 }
 
@@ -120,7 +124,9 @@
   text-align: center;
 
   @include mq(max, $bp-modal-drawer) {
-    cursor: grab;
+    .root:not(.backgrounded) & {
+      cursor: grab;
+    }
   }
 }
 
@@ -140,12 +146,6 @@
 .header__close {
   @include absolute(50% x x sz(3));
   transform: translateY(-50%);
-
-  @include mq(max, $bp-modal-drawer) {
-    .modal--backgroundable & {
-      transform: translateY(-50%) translateY(#{sz(2.5) / 2});
-    }
-  }
 }
 
 .header__title {
@@ -175,6 +175,12 @@
 }
 
 .body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.screen {
   @include padding(sz(4) sz(5) x);
   display: flex;
   flex-direction: column;
@@ -218,35 +224,6 @@
     width: 100%;
   }
 }
-
-////////////////////////////////////
-
-.background {
-  @include fixed(0 0 x x);
-  z-index: 1100;
-
-  @include mq($bp-modal-drawer) {
-    width: calc((2 / 3 * 100%) - #{sz(4)});
-    max-width: calc(100% - (400px + #{sz(4)}));
-    min-width: calc(100% - (550px + #{sz(4)}));
-    height: 100%;
-  }
-
-  @include mq(max, $bp-modal-drawer) {
-    left: 0;
-    height: 100%;
-  }
-}
-
-.background__content {
-  @include absolute(0);
-
-  @include mq(max, $bp-modal-drawer) {
-    bottom: 100px;
-  }
-}
-
-////////////////////////////////////
 
 :export {
   varBpDrawer: $bp-modal-drawer;

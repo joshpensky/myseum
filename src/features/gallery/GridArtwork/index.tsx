@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { Artwork } from '@src/components/Artwork';
 import { PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { useGrid } from '@src/features/grid';
-import { GridRenderItemProps } from '@src/features/grid/Grid';
+import { GridRenderItemProps } from '@src/features/grid/GridRoot';
 import DragHandle from '@src/svgs/DragHandle';
 import { TrashIcon } from '@src/svgs/TrashIcon';
 import styles from './gridArtwork.module.scss';

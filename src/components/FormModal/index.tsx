@@ -2,7 +2,7 @@ import { Fragment, PointerEvent, PropsWithChildren, ReactNode, useRef, useState 
 import * as Dialog from '@radix-ui/react-dialog';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
-import { motion, useDragControls, HTMLMotionProps, MotionStyle } from 'framer-motion';
+import { motion, useDragControls, HTMLMotionProps } from 'framer-motion';
 import { AlertDialog } from '@src/components/AlertDialog';
 import IconButton from '@src/components/IconButton';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
@@ -15,11 +15,7 @@ const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);
 interface FormModalProps {
   open: boolean;
   onOpenChange(open: boolean): void;
-  background?: {
-    open: boolean;
-    onOpenChange(open: boolean): void;
-    content: ReactNode;
-  };
+  backgrounded?: boolean;
   trigger?: ReactNode;
   title: string;
   description?: string;
@@ -29,7 +25,7 @@ interface FormModalProps {
    */
   progress?: number;
   overlayClassName?: string;
-  abandonDialogProps: {
+  abandonDialogProps?: {
     title: string;
     description: string;
     hint?: string;
@@ -41,7 +37,7 @@ export const Root = ({
   children,
   open,
   onOpenChange,
-  background,
+  backgrounded,
   getIsDirty,
   progress,
   title,
@@ -52,18 +48,12 @@ export const Root = ({
 }: PropsWithChildren<FormModalProps>) => {
   const theme = useTheme();
 
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const [backgroundContainer, setBackgroundContainer] = useState<HTMLDivElement | null>(null);
-
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const handleOpenChange = (open: boolean) => {
-    if (!open && getIsDirty?.()) {
+    if (!open && abandonDialogProps && getIsDirty?.()) {
       setShowAlertDialog(true);
     } else {
       onOpenChange(open);
-      if (!open) {
-        background?.onOpenChange(false);
-      }
     }
   };
 
@@ -78,7 +68,7 @@ export const Root = ({
 
   const dragControls = useDragControls();
   const startDrag = (evt: PointerEvent<HTMLDivElement>) => {
-    if (isMobile) {
+    if (isMobile && !backgrounded) {
       evt.preventDefault();
       dragControls.start(evt);
     }
@@ -100,100 +90,70 @@ export const Root = ({
       bounceStiffness: 300,
     },
     onDragStart: () => {
-      if (isMobile) {
+      if (isMobile && !backgrounded) {
         document.body.classList.add('dragging');
       }
     },
     onDragEnd: (evt, info) => {
-      if (isMobile && Math.abs(info.offset.y) > 150) {
-        if (background) {
-          background.onOpenChange(!background.open);
-        } else {
-          handleOpenChange(false);
-        }
+      if (isMobile && !backgrounded && Math.abs(info.offset.y) > 150) {
+        handleOpenChange(false);
       }
       document.body.classList.remove('dragging');
     },
   };
-  const rootStyle: MotionStyle = {};
-  if (background?.open) {
-    rootStyle.y = 'calc(100% - 100px)';
-    rootStyle.transition = `400ms ${styles.varDrawerEasing}`;
-    rootStyle.animation = 'none';
-  }
 
   return (
     <Fragment>
-      <AlertDialog
-        open={showAlertDialog}
-        onOpenChange={setShowAlertDialog}
-        title={abandonDialogProps.title}
-        description={abandonDialogProps.description}
-        hint={abandonDialogProps.hint}
-        action={
-          <Slot
-            onClick={() => {
-              setShowAlertDialog(false);
-              onOpenChange(false);
-            }}>
-            {abandonDialogProps.action}
-          </Slot>
-        }
-      />
+      {abandonDialogProps && (
+        <AlertDialog
+          open={showAlertDialog}
+          onOpenChange={setShowAlertDialog}
+          title={abandonDialogProps.title}
+          description={abandonDialogProps.description}
+          hint={abandonDialogProps.hint}
+          action={
+            <Slot
+              onClick={() => {
+                setShowAlertDialog(false);
+                onOpenChange(false);
+              }}>
+              {abandonDialogProps.action}
+            </Slot>
+          }
+        />
+      )}
 
       <Dialog.Root open={open} onOpenChange={handleOpenChange}>
         {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
 
         <Dialog.Portal>
           <Dialog.Overlay
-            className={cx(styles.overlay, `theme--${theme.color}`, overlayClassName)}
+            className={cx(
+              styles.overlay,
+              backgrounded && styles.backgrounded,
+              `theme--${theme.color}`,
+              overlayClassName,
+            )}
           />
 
           <Dialog.Content
             asChild
             onEscapeKeyDown={evt => {
-              if (background?.open) {
+              if (backgrounded) {
                 evt.preventDefault();
-              }
-            }}
-            onInteractOutside={evt => {
-              if (background) {
-                evt.preventDefault();
-                if (
-                  evt.type.includes('focusOutside') &&
-                  !(
-                    dragConstraintsRef.current?.contains(document.activeElement) ||
-                    backgroundContainer?.contains(document.activeElement)
-                  )
-                ) {
-                  closeButtonRef.current?.focus();
-                }
               }
             }}>
-            <motion.div ref={dragConstraintsRef} className={styles.root} style={rootStyle}>
+            <motion.div
+              ref={dragConstraintsRef}
+              className={cx(styles.root, backgrounded && styles.backgrounded)}>
               <ThemeProvider theme={{ color: 'ink' }}>
-                <motion.div
-                  className={cx(
-                    styles.modal,
-                    !!background && styles.modalBackgroundable,
-                    'theme--ink',
-                  )}
-                  {...dragProps}>
+                <motion.div className={cx(styles.modal, 'theme--ink')} {...dragProps}>
                   <header className={styles.header} onPointerDown={startDrag}>
                     <Dialog.Close asChild>
-                      <IconButton ref={closeButtonRef} className={styles.headerClose} title="Close">
+                      <IconButton className={styles.headerClose} title="Close">
                         <CloseIcon />
                       </IconButton>
                     </Dialog.Close>
-
-                    {!!background && (
-                      <button
-                        className={styles.headerDragHandle}
-                        title={`Move to ${background.open ? 'foreground' : 'background'}`}
-                        aria-label={`Move to ${background.open ? 'foreground' : 'background'}`}
-                        onClick={() => background.onOpenChange(!background.open)}
-                      />
-                    )}
 
                     <Dialog.Title asChild>
                       <h2 className={styles.headerTitle}>{title}</h2>
@@ -218,24 +178,6 @@ export const Root = ({
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-
-      {open && !!background && (
-        <Fragment>
-          <div ref={setBackgroundContainer} className={styles.background} />
-          <Dialog.Root open={open && background.open} onOpenChange={background.onOpenChange}>
-            <Dialog.Portal forceMount={open} container={backgroundContainer}>
-              <Dialog.Content
-                forceMount={open}
-                asChild
-                onOpenAutoFocus={evt => evt.preventDefault()}
-                onEscapeKeyDown={() => background.onOpenChange(false)}
-                onPointerDownOutside={evt => evt.preventDefault()}>
-                <div className={styles.backgroundContent}>{background.content}</div>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog.Root>
-        </Fragment>
-      )}
     </Fragment>
   );
 };
@@ -250,10 +192,10 @@ export const Screen = ({
   title,
   description,
 }: PropsWithChildren<FormModalScreenProps>) => (
-  <Fragment>
+  <div className={styles.screen}>
     <h3 className={styles.title}>{title}</h3>
     <p className={styles.description}>{description}</p>
 
     {children}
-  </Fragment>
+  </div>
 );

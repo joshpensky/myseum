@@ -1,16 +1,31 @@
-import { createContext, useContext } from 'react';
+import {
+  createContext,
+  Dispatch,
+  MutableRefObject,
+  ReactNode,
+  RefObject,
+  SetStateAction,
+  useContext,
+} from 'react';
 import { Dimensions } from '@src/types';
-import { GridItemDto } from './Grid';
+import { GridItemDto, GridRenderItemProps } from './GridRoot';
 
 interface GridContextValue {
   items: GridItemDto[];
   projectedItem: GridItemDto | null;
+  setProjectedItem: Dispatch<SetStateAction<GridItemDto | null>>;
   getItemId(item: GridItemDto): string;
+  onItemChange?: ((index: number, value: GridItemDto) => void) | false;
+  onSizeChange?(value: Dimensions): void;
+  renderItem(item: GridItemDto, props: GridRenderItemProps, index: number): ReactNode;
+  // more
   size: Dimensions;
   unitPx: number;
-  readOnly: boolean;
   step: number;
   preview: boolean;
+  rootElRef: RefObject<HTMLDivElement>;
+  viewportRef: MutableRefObject<Element | undefined>;
+  gridRef: RefObject<HTMLDivElement>;
 }
 
 export const GridContext = createContext<GridContextValue | null>(null);
