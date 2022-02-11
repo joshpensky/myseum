@@ -10,6 +10,16 @@
   }
 }
 
+.row {
+  display: flex;
+  margin-top: sz(3);
+
+  .field + .field {
+    margin-top: 0;
+    margin-left: sz(3);
+  }
+}
+
 .color-option {
   align-items: center;
   display: flex;
@@ -37,61 +47,5 @@
 
   button {
     width: 100%;
-  }
-}
-
-/////////////////////////////
-// Background
-/////////////////////////////
-
-.grid-bg-wrapper {
-  @include fixed(0 sz(-8) 0 x);
-  @include margin(x sz(4));
-  border-radius: sz(4);
-  border: 1px solid c('white');
-  background: c('bg');
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  max-width: calc(100vw - 400px - #{sz(8)});
-  width: calc((2 / 3 * 100vw) - #{sz(8)});
-  min-width: calc(100vw - 550px - #{sz(8)});
-  transform: translateX(100%);
-  z-index: -1;
-}
-
-.grid-wrapper {
-  @include padding(sz(4));
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-
-  // Hide the actual scrollbar
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.grid {
-  height: 100%;
-
-  &::after {
-    content: '';
-    width: sz(4);
-    display: block;
-  }
-}
-
-.grid-map {
-  justify-content: center;
-  display: flex;
-  background-color: c('bg');
-
-  .grid-bg-wrapper & {
-    padding-bottom: sz(4);
   }
 }

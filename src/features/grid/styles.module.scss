@@ -49,6 +49,10 @@ body.scroll-dragging {
   }
 }
 
+.root {
+  height: 100%;
+}
+
 .grid {
   // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
@@ -99,6 +103,15 @@ body.scroll-dragging {
       opacity: 1;
     }
 
+    &::after {
+      display: none;
+    }
+  }
+
+  &.grid--preview {
+    border-bottom: none;
+
+    &::before,
     &::after {
       display: none;
     }

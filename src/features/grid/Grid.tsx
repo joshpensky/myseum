@@ -159,10 +159,14 @@ export function Grid({ className }: GridProps) {
   const evenUnitPx = Math.round(grid.unitPx);
 
   return (
-    <div ref={grid.rootElRef} className={className}>
+    <div ref={grid.rootElRef} className={cx(styles.root, className)}>
       <div
         ref={grid.gridRef}
-        className={cx(styles.grid, grid.step >= 1 && styles.gridLarge)}
+        className={cx(
+          styles.grid,
+          grid.step >= 1 && styles.gridLarge,
+          grid.preview && styles.gridPreview,
+        )}
         style={{
           '--grid-step': grid.step,
           '--unit-px': `${grid.unitPx}px`,

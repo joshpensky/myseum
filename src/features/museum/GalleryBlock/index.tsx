@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
-import { Grid } from '@src/features/grid';
+import * as Grid from '@src/features/grid';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import styles from './galleryBlock.module.scss';
 
@@ -34,17 +34,16 @@ const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
         <a className={cx(styles.wrapper, `theme--${gallery.color}`)}>
           <div className={styles.inner}>
             <div className={styles.gridWrapper}>
-              {gallery.artworks.length > 0 && (
-                <div className={styles.grid}>
-                  <Grid
-                    preview
-                    size={{ width: gridWidth, height: gallery.height }}
-                    items={gallery.artworks}
-                    getItemId={item => String(item.artwork.id)}
-                    renderItem={(item, props) => <GridArtwork {...props} item={item} />}
-                  />
-                </div>
-              )}
+              <div className={styles.grid}>
+                <Grid.Root
+                  preview
+                  size={{ width: gridWidth, height: gallery.height }}
+                  items={gallery.artworks}
+                  getItemId={item => String(item.artwork.id)}
+                  renderItem={(item, props) => <GridArtwork {...props} item={item} />}>
+                  <Grid.Grid />
+                </Grid.Root>
+              </div>
             </div>
 
             <div className={styles.info}>

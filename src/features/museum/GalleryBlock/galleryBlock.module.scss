@@ -1,8 +1,7 @@
 .wrapper {
   display: flex;
   width: 100%;
-  height: 0;
-  padding-top: calc(300% / 4);
+  aspect-ratio: 4 / 3;
   position: relative;
   border-radius: sz(3);
   overflow: hidden;
@@ -15,6 +14,10 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  .wrapper:global(.theme--paper) & {
+    background-color: c('white');
+  }
 }
 
 .grid-wrapper {

@@ -76,7 +76,7 @@ export const MuseumView = (initProps: MuseumViewProps) => {
             </p>
             {isCurrentUser && (
               <CreateGalleryModal
-                onSave={gallery => {
+                onComplete={gallery => {
                   setGalleries([gallery, ...galleries]);
                 }}
                 trigger={<Button className={styles.emptyStateAction}>Create gallery</Button>}

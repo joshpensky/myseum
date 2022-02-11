@@ -6,7 +6,7 @@ import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { EditGalleryModal } from '@src/features/gallery/_new/EditGalleryModal';
-import { Grid } from '@src/features/grid/Grid';
+import * as Grid from '@src/features/grid';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
@@ -85,8 +85,8 @@ export const GalleryView: PageComponent<GalleryViewProps> = (initProps: GalleryV
               {isCurrentUser && <Button className={styles.emptyStateAction}>Add artwork</Button>}
             </div>
           ) : (
-            <Grid
-              className={styles.grid}
+            <Grid.Root
+              preview
               size={{ width, height: gallery.height }}
               items={gallery.artworks}
               step={1}
@@ -107,8 +107,9 @@ export const GalleryView: PageComponent<GalleryViewProps> = (initProps: GalleryV
                     }
                   }}
                 />
-              )}
-            />
+              )}>
+              <Grid.Grid className={styles.grid} />
+            </Grid.Root>
           )}
         </div>
       </div>

@@ -113,7 +113,7 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
             }}>
             <div className={styles.root}>
               <Form className={styles.form} noValidate>
-                <SearchBar label="Search artworks" />
+                <SearchBar name="search" label="Search artworks" />
                 {isCurrentUser && (
                   <CreateArtwork.Trigger>
                     <Button className={styles.formAction} type="button" icon={PlusIcon}>

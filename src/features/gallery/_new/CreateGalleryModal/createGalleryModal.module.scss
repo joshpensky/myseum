@@ -1,3 +1,46 @@
 .overlay {
   background-color: c('black');
 }
+
+.grid-block {
+  @include fixed(0 sz(-8) 0 x);
+  @include margin(x sz(4));
+  background: c('bg');
+  border: 1px solid c('white');
+  border-radius: sz(4);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: calc(100vw - 400px - #{sz(8)});
+  min-width: calc(100vw - 550px - #{sz(8)});
+  overflow: hidden;
+  width: calc((2 / 3 * 100vw) - #{sz(8)});
+  transform: translateX(100%);
+  z-index: -1;
+}
+
+.grid-block__grid-wrapper {
+  @include padding(sz(4));
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  // Hide the actual scrollbar
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.grid-block__grid {
+  height: 100%;
+}
+
+.grid-block__map {
+  display: flex;
+  justify-content: center;
+  padding-bottom: sz(4);
+}

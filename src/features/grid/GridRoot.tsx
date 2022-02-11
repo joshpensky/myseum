@@ -66,7 +66,7 @@ export const GridRoot = <Item extends GridItemDto>({
   // Calculate the grid unit size as the element height divided by the grid size height (# of rows)
   const unitPx = heightPx / size.height;
 
-  const gridWidth = Math.max(size.width, widthPx / unitPx);
+  const gridWidth = Math.max(size.width, !unitPx ? 0 : widthPx / unitPx);
 
   return (
     <GridContext.Provider

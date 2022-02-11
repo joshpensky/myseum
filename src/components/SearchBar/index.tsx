@@ -9,14 +9,15 @@ import styles from './searchBar.module.scss';
 
 interface SearchBarProps {
   label: string;
+  name: string;
 }
 
-export const SearchBar = ({ label }: SearchBarProps) => {
-  const [, meta, helpers] = useField('search');
+export const SearchBar = ({ label, name }: SearchBarProps) => {
+  const [, meta, helpers] = useField(name);
   const fieldRef = useRef<HTMLInputElement>(null);
 
   return (
-    <FieldWrapper name="search" label={label} labelClassName="sr-only">
+    <FieldWrapper name={name} label={label} labelClassName="sr-only">
       {field => (
         <Fragment>
           <TextField

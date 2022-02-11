@@ -96,7 +96,7 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
         return (
           <div className={styles.root}>
             <Form className={styles.form} noValidate>
-              <SearchBar label="Search frames" />
+              <SearchBar name="search" label="Search frames" />
               {isCurrentUser && (
                 <Button className={styles.formAction} type="button" icon={PlusIcon}>
                   Create

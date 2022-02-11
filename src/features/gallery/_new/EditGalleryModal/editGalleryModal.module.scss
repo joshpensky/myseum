@@ -10,6 +10,22 @@
   }
 }
 
+.color-option {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+  &::before {
+    @include size(sz(4));
+    border-radius: sz(1);
+    content: '';
+    display: flex;
+    background-color: c('bg');
+    border: 1px solid c('white');
+    @include margin(sz(1) x sz(1));
+  }
+}
+
 .separator {
   @include margin(sz(5) x sz(4));
   border-color: c('border', 0.2);

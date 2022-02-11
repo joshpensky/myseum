@@ -63,6 +63,7 @@
   border-radius: sz(4);
   box-shadow: 0 0 0 1px c('border');
   overflow: hidden;
+  pointer-events: all;
 
   &[data-state='open'] {
     animation: dialog-enter 400ms $ease-out-circ forwards 1;

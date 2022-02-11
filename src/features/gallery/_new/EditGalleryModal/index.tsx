@@ -1,6 +1,8 @@
 import { ReactNode, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { GalleryColor } from '@prisma/client';
 import axios from 'axios';
+import cx from 'classnames';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
@@ -8,6 +10,7 @@ import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import { RadioGroup } from '@src/components/RadioGroup';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
@@ -19,6 +22,7 @@ import styles from './editGalleryModal.module.scss';
 const editGallerySchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   description: z.string(),
+  color: z.nativeEnum(GalleryColor),
   height: z.number().positive().int(),
 });
 
@@ -37,6 +41,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
   const initialValues: EditGallerySchema = {
     name: gallery.name,
     description: gallery.description,
+    color: gallery.color,
     height: gallery.height,
   };
 
@@ -73,6 +78,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
               const data: UpdateGalleryDto = {
                 name: values.name,
                 description: values.description,
+                color: values.color,
                 height: values.height,
               };
               const res = await axios.put<GalleryDto>(
@@ -96,6 +102,46 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
 
                 <FieldWrapper className={styles.field} name="description" label="Description">
                   {field => <TextArea {...field} rows={2} />}
+                </FieldWrapper>
+
+                <FieldWrapper className={styles.field} name="color" label="Wall Color" required>
+                  {field => (
+                    <RadioGroup<GalleryColor>
+                      {...field}
+                      options={[
+                        {
+                          value: 'paper',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--paper')}>Paper</span>
+                          ),
+                        },
+                        {
+                          value: 'pink',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--pink')}>Rosé</span>
+                          ),
+                        },
+                        {
+                          value: 'mint',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--mint')}>Mint</span>
+                          ),
+                        },
+                        {
+                          value: 'navy',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--navy')}>Navy</span>
+                          ),
+                        },
+                        {
+                          value: 'ink',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--ink')}>Ink</span>
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
                 </FieldWrapper>
 
                 <FieldWrapper className={styles.field} name="height" label="Height" required>

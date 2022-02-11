@@ -30,6 +30,10 @@
       background-color: c('bg-tint');
       border: 1px solid c('border');
     }
+
+    &:read-only {
+      cursor: default;
+    }
   }
 
   &:not(:disabled).field--error {
@@ -47,6 +51,10 @@
 
   /* Firefox */
   -moz-appearance: textfield;
+
+  &.dragging {
+    cursor: ew-resize;
+  }
 }
 
 .field[type='date']::-webkit-calendar-picker-indicator {
@@ -56,4 +64,12 @@
   // :global(.theme--ink) & {
   //   filter: invert(1);
   // }
+}
+
+.pointer {
+  @include size(sz(5.5));
+  position: fixed;
+  top: var(--y, 0);
+  left: var(--x, 0);
+  transform: translate(-50%, -50%);
 }
