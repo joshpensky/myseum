@@ -6,6 +6,7 @@ import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
+import { NumberField } from '@src/components/NumberField';
 import { Preview3d } from '@src/components/Preview3d';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField';
@@ -191,9 +192,8 @@ export const FramingStep = ({ state, onBack, onSubmit }: FramingStepProps) => {
                 <div className={styles.fieldRow}>
                   <FieldWrapper className={styles.fieldRowItem} name="depth" label="Depth" required>
                     {field => (
-                      <TextField
+                      <NumberField
                         {...field}
-                        type="number"
                         min={0}
                         onFocus={() => setIsDepthFocused(true)}
                         onBlur={() => setIsDepthFocused(false)}

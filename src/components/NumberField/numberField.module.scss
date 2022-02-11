@@ -39,13 +39,26 @@
   &:not(:disabled).field--error {
     border: 1px solid c('red');
   }
+
+  // Disable the up/down arrow buttons on number fields
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Firefox */
+  -moz-appearance: textfield;
+
+  &.dragging {
+    cursor: ew-resize;
+  }
 }
 
-.field[type='date']::-webkit-calendar-picker-indicator {
-  display: none;
-  // cursor: pointer;
-
-  // :global(.theme--ink) & {
-  //   filter: invert(1);
-  // }
+.pointer {
+  @include size(sz(5.5));
+  position: fixed;
+  top: var(--y, 0);
+  left: var(--x, 0);
+  transform: translate(-50%, -50%);
 }

@@ -8,6 +8,7 @@ import * as z from 'zod';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import { NumberField } from '@src/components/NumberField';
 import { RadioGroup } from '@src/components/RadioGroup';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
@@ -138,7 +139,7 @@ export const DetailsScreen = forwardRef<
 
               <div className={styles.row}>
                 <FieldWrapper className={styles.field} name="height" label="Height" required>
-                  {field => <TextField {...field} type="number" min={1} />}
+                  {field => <NumberField {...field} min={1} />}
                 </FieldWrapper>
 
                 <FieldWrapper className={styles.field} name="unit" label="Unit" required>

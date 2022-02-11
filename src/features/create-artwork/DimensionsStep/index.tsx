@@ -5,6 +5,7 @@ import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
+import { NumberField } from '@src/components/NumberField';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField';
 import rootStyles from '@src/features/create-artwork/root.module.scss';
@@ -152,9 +153,8 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
             <div className={styles.row}>
               <FieldWrapper name="width" label="Width" required>
                 {field => (
-                  <TextField
+                  <NumberField
                     {...field}
-                    type="number"
                     min={0}
                     onChange={evt => {
                       handleChange(evt);
@@ -170,9 +170,8 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
 
               <FieldWrapper name="height" label="Height" required>
                 {field => (
-                  <TextField
+                  <NumberField
                     {...field}
-                    type="number"
                     min={0}
                     onChange={evt => {
                       handleChange(evt);
