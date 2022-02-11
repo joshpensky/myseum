@@ -92,7 +92,7 @@ export const DetailsScreen = forwardRef<
           return (
             <Form className={styles.form} noValidate>
               <FieldWrapper className={styles.field} name="name" label="Name" required>
-                {field => <TextField {...field} type="text" />}
+                {field => <TextField {...field} type="text" autoComplete="off" />}
               </FieldWrapper>
 
               <FieldWrapper className={styles.field} name="description" label="Description">

@@ -18,6 +18,13 @@ import styles from './editMuseumModal.module.scss';
 const editMuseumSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   description: z.string(),
+  galleries: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      // TODO: fill out
+    }),
+  ),
 });
 
 type EditMuseumSchema = z.infer<typeof editMuseumSchema>;
@@ -33,6 +40,7 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
   const initialValues: EditMuseumSchema = {
     name: museum.name,
     description: museum.description,
+    galleries,
   };
 
   const [open, setOpen] = useState(false);
@@ -75,7 +83,7 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
             }
           }}>
           {formik => {
-            const { isSubmitting, isValid } = formik;
+            const { isSubmitting, isValid, setFieldValue, values } = formik;
 
             return (
               <Form className={styles.form} noValidate>
@@ -92,14 +100,24 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
 
                   <CreateGalleryModal
                     trigger={<Button type="button">Create gallery</Button>}
-                    onComplete={data => {
-                      // TODO: add gallery
-                      console.log(data);
+                    onSave={data => {
+                      const galleryIdx = values.galleries.findIndex(
+                        gallery => gallery.id === data.id,
+                      );
+                      if (galleryIdx < 0) {
+                        setFieldValue('galleries', [data, ...values.galleries]);
+                      } else {
+                        setFieldValue('galleries', [
+                          ...values.galleries.slice(0, galleryIdx),
+                          data,
+                          ...values.galleries.slice(galleryIdx + 1),
+                        ]);
+                      }
                     }}
                   />
 
                   <ul>
-                    {galleries.map(gallery => (
+                    {values.galleries.map(gallery => (
                       <li key={gallery.id}>{gallery.name}</li>
                     ))}
                   </ul>

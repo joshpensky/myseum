@@ -105,10 +105,6 @@
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     box-shadow: 0 1px 0 0 c('bg'), 0 0 0 1px c('border');
-
-    .backgrounded & {
-      transform: scale(0.98) translateY(sz(-4.5)) !important;
-    }
   }
 }
 
@@ -124,9 +120,7 @@
   text-align: center;
 
   @include mq(max, $bp-modal-drawer) {
-    .root:not(.backgrounded) & {
-      cursor: grab;
-    }
+    cursor: grab;
   }
 }
 

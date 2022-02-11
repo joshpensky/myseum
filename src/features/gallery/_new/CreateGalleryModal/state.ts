@@ -17,12 +17,16 @@ export interface GoBackEvent {
   type: 'GO_BACK';
 }
 
+export interface ResetEvent {
+  type: 'RESET';
+}
+
 export interface ConfirmDetailsEvent {
   type: 'CONFIRM_DETAILS';
   gallery: GalleryDto;
 }
 
-export type CreateGalleryEvent = GoBackEvent | ConfirmDetailsEvent;
+export type CreateGalleryEvent = GoBackEvent | ResetEvent | ConfirmDetailsEvent;
 
 //////////////////////////
 // Typestates
@@ -83,12 +87,24 @@ export const createGalleryMachine = createMachine<
             gallery: evt.gallery,
           })),
         },
+        RESET: {
+          target: 'details',
+          actions: assign((ctx, evt) => ({
+            gallery: undefined,
+          })),
+        },
       },
     },
     collection: {
       on: {
         GO_BACK: {
           target: 'details',
+        },
+        RESET: {
+          target: 'details',
+          actions: assign((ctx, evt) => ({
+            gallery: undefined,
+          })),
         },
       },
     },

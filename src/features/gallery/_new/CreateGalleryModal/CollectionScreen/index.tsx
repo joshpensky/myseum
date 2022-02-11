@@ -94,7 +94,7 @@ export const CollectionScreen = forwardRef<
 
               <div className={styles.search}>
                 <SearchBar name="search" label="Search collection" />
-                <Button className={styles.searchAction} icon={PlusIcon}>
+                <Button className={styles.searchAction} type="button" icon={PlusIcon}>
                   Add
                 </Button>
               </div>
@@ -111,7 +111,7 @@ export const CollectionScreen = forwardRef<
                 <Button type="button" onClick={() => onBack()}>
                   Back
                 </Button>
-                <Button filled busy={isSubmitting}>
+                <Button type="submit" filled busy={isSubmitting}>
                   Save
                 </Button>
               </div>

@@ -15,7 +15,6 @@ const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);
 interface FormModalProps {
   open: boolean;
   onOpenChange(open: boolean): void;
-  backgrounded?: boolean;
   trigger?: ReactNode;
   title: string;
   description?: string;
@@ -37,7 +36,6 @@ export const Root = ({
   children,
   open,
   onOpenChange,
-  backgrounded,
   getIsDirty,
   progress,
   title,
@@ -68,7 +66,7 @@ export const Root = ({
 
   const dragControls = useDragControls();
   const startDrag = (evt: PointerEvent<HTMLDivElement>) => {
-    if (isMobile && !backgrounded) {
+    if (isMobile) {
       evt.preventDefault();
       dragControls.start(evt);
     }
@@ -90,12 +88,12 @@ export const Root = ({
       bounceStiffness: 300,
     },
     onDragStart: () => {
-      if (isMobile && !backgrounded) {
+      if (isMobile) {
         document.body.classList.add('dragging');
       }
     },
     onDragEnd: (evt, info) => {
-      if (isMobile && !backgrounded && Math.abs(info.offset.y) > 150) {
+      if (isMobile && Math.abs(info.offset.y) > 150) {
         handleOpenChange(false);
       }
       document.body.classList.remove('dragging');
@@ -128,24 +126,11 @@ export const Root = ({
 
         <Dialog.Portal>
           <Dialog.Overlay
-            className={cx(
-              styles.overlay,
-              backgrounded && styles.backgrounded,
-              `theme--${theme.color}`,
-              overlayClassName,
-            )}
+            className={cx(styles.overlay, `theme--${theme.color}`, overlayClassName)}
           />
 
-          <Dialog.Content
-            asChild
-            onEscapeKeyDown={evt => {
-              if (backgrounded) {
-                evt.preventDefault();
-              }
-            }}>
-            <motion.div
-              ref={dragConstraintsRef}
-              className={cx(styles.root, backgrounded && styles.backgrounded)}>
+          <Dialog.Content asChild>
+            <motion.div ref={dragConstraintsRef} className={styles.root}>
               <ThemeProvider theme={{ color: 'ink' }}>
                 <motion.div className={cx(styles.modal, 'theme--ink')} {...dragProps}>
                   <header className={styles.header} onPointerDown={startDrag}>

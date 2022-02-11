@@ -1,7 +1,5 @@
-import { Fragment } from 'react';
 import type { AppProps as BaseAppProps } from 'next/app';
 import { IdProvider } from '@radix-ui/react-id';
-import deepmerge from 'deepmerge';
 import { Toaster } from '@src/components/Toaster';
 import { GlobalLayout } from '@src/layouts/GlobalLayout';
 import { AuthProvider } from '@src/providers/AuthProvider';
@@ -13,21 +11,10 @@ interface AppProps extends BaseAppProps {
   Component: PageComponent;
 }
 
+const useDefaultComputedProps = () => ({ global: {}, page: {} });
+
 const App = ({ Component, pageProps }: AppProps) => {
-  const PageLayout = Component.layout ?? Fragment;
-
-  const pageLayoutProps = Component.getPageLayoutProps?.(pageProps) ?? {};
-
-  let globalLayoutProps = Component.getGlobalLayoutProps?.(pageProps) ?? {};
-  if (typeof PageLayout !== 'symbol' && PageLayout && 'getGlobalLayoutProps' in PageLayout) {
-    // Get the global layout props defined by the page layout
-    const globalLayoutPropsFromPageLayout =
-      PageLayout.getGlobalLayoutProps?.(pageLayoutProps) ?? {};
-    // Then merge the two definitions
-    globalLayoutProps = deepmerge(globalLayoutPropsFromPageLayout, globalLayoutProps, {
-      clone: true,
-    });
-  }
+  const computedProps = (Component.useComputedProps ?? useDefaultComputedProps)(pageProps);
 
   return (
     <IdProvider>
@@ -37,10 +24,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           userData: pageProps.__userData ?? null,
         }}>
         <StyleProvider>
-          <GlobalLayout {...globalLayoutProps}>
-            <PageLayout {...pageLayoutProps}>
-              <Component {...pageProps} />
-            </PageLayout>
+          <GlobalLayout {...computedProps.global}>
+            <Component {...pageProps} {...computedProps.page} />
           </GlobalLayout>
 
           <Toaster />

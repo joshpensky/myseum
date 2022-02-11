@@ -34,14 +34,14 @@ export const AlertDialog = ({
 
       <RadixAlertDialog.Portal>
         <RadixAlertDialog.Overlay className={cx(styles.overlay, `theme--${theme.color}`)} />
-        <ThemeProvider theme={{ color: 'ink' }}>
-          <RadixAlertDialog.Content
-            className={cx(styles.root, 'theme--ink')}
-            onEscapeKeyDown={evt => {
-              if (busy) {
-                evt.preventDefault();
-              }
-            }}>
+        <RadixAlertDialog.Content
+          className={cx(styles.root, 'theme--ink')}
+          onEscapeKeyDown={evt => {
+            if (busy) {
+              evt.preventDefault();
+            }
+          }}>
+          <ThemeProvider theme={{ color: 'ink' }}>
             <RadixAlertDialog.Title className={styles.title}>{title}</RadixAlertDialog.Title>
 
             <div className={styles.body}>
@@ -57,8 +57,8 @@ export const AlertDialog = ({
                 {action}
               </div>
             </div>
-          </RadixAlertDialog.Content>
-        </ThemeProvider>
+          </ThemeProvider>
+        </RadixAlertDialog.Content>
       </RadixAlertDialog.Portal>
     </RadixAlertDialog.Root>
   );

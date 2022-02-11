@@ -2,14 +2,11 @@ import { ComponentType } from 'react';
 import { CSSProp } from 'styled-components';
 import { GlobalLayoutProps } from './layouts/GlobalLayout';
 
-export type LayoutComponent<LayoutProps = any> = ComponentType<LayoutProps> & {
-  getGlobalLayoutProps?(layoutProps: LayoutProps): GlobalLayoutProps;
-};
-
-export type PageComponent<PageProps = any, LayoutProps = any> = ComponentType<PageProps> & {
-  layout?: LayoutComponent<LayoutProps>;
-  getPageLayoutProps?(pageProps: PageProps): LayoutProps;
-  getGlobalLayoutProps?(pageProps: PageProps): GlobalLayoutProps;
+export type PageComponent<
+  PageProps = any,
+  ComputedPageProps = PageProps
+> = ComponentType<ComputedPageProps> & {
+  useComputedProps?(pageProps: PageProps): { global: GlobalLayoutProps; page: ComputedPageProps };
 };
 
 export type BaseProps = {

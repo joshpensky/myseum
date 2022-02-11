@@ -13,22 +13,17 @@ import { createGalleryMachine, CreateGalleryStateValue } from './state';
 import { GridArtwork } from '../../GridArtwork';
 
 interface CreateGalleryModalProps {
-  onComplete(gallery: GalleryDto): void;
+  onSave(gallery: GalleryDto): void;
+  onComplete?(gallery: GalleryDto): void;
   trigger: ReactNode;
 }
 
 export const CreateGalleryModalContext = createContext({ height: 0, color: 'paper' });
 
-export const CreateGalleryModal = ({ onComplete, trigger }: CreateGalleryModalProps) => {
-  const [state, send] = useMachine(() =>
-    createGalleryMachine.withContext({
-      gallery: undefined,
-    }),
-  );
-
-  const [open, setOpen] = useState(false);
-
+export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGalleryModalProps) => {
   const formikRef = useRef<FormikProps<any>>(null);
+  const [open, setOpen] = useState(false);
+  const [state, send] = useMachine(createGalleryMachine);
 
   const GridBlock = () => {
     const ctx = useContext(CreateGalleryModalContext);
@@ -56,7 +51,13 @@ export const CreateGalleryModal = ({ onComplete, trigger }: CreateGalleryModalPr
   const renderStep = () => {
     if (state.matches('details')) {
       return (
-        <DetailsScreen ref={formikRef} state={state} onSubmit={data => send(data)}>
+        <DetailsScreen
+          ref={formikRef}
+          state={state}
+          onSubmit={data => {
+            onSave(data.gallery);
+            send(data);
+          }}>
           <GridBlock />
         </DetailsScreen>
       );
@@ -66,7 +67,11 @@ export const CreateGalleryModal = ({ onComplete, trigger }: CreateGalleryModalPr
           ref={formikRef}
           state={state}
           onBack={() => send({ type: 'GO_BACK' })}
-          onSubmit={data => onComplete(data)}>
+          onSubmit={data => {
+            onSave(data);
+            onComplete?.(data);
+            setOpen(false);
+          }}>
           <GridBlock />
         </CollectionScreen>
       );
@@ -80,14 +85,19 @@ export const CreateGalleryModal = ({ onComplete, trigger }: CreateGalleryModalPr
 
   return (
     <FormModal.Root
+      overlayClassName={styles.overlay}
       open={open}
-      onOpenChange={setOpen}
-      // backgrounded={openGridModal}
+      onOpenChange={nextOpen => {
+        if (!nextOpen && state.context.gallery) {
+          onComplete?.(state.context.gallery);
+        }
+        setOpen(nextOpen);
+        send({ type: 'RESET' });
+      }}
       trigger={trigger}
       title="Create Gallery"
       description={`Step ${stepIdx + 1} of ${stepKeys.length}`}
       progress={(stepIdx + 1) / stepKeys.length}
-      overlayClassName={styles.overlay}
       abandonDialogProps={{
         title: 'Discard Gallery',
         description: 'Are you sure you want to discard your new gallery?',

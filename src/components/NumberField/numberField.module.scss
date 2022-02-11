@@ -55,7 +55,7 @@
   }
 }
 
-.pointer {
+.drag-pointer {
   @include size(sz(5.5));
   position: fixed;
   top: var(--y, 0);

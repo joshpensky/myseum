@@ -20,6 +20,7 @@
   display: flex;
   height: sz(8);
   border-radius: sz(1);
+  color: c('text');
 
   &:focus {
     @include outline-none;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import Button from '@src/components/Button';
@@ -20,9 +20,15 @@ export interface GalleryViewProps {
   gallery: GalleryDto;
 }
 
-export const GalleryView: PageComponent<GalleryViewProps> = (initProps: GalleryViewProps) => {
-  const [gallery, setGallery] = useState(initProps.gallery);
+export interface GalleryViewComputedProps {
+  gallery: GalleryDto;
+  setGallery: Dispatch<SetStateAction<GalleryDto>>;
+}
 
+export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedProps> = ({
+  gallery,
+  setGallery,
+}) => {
   const auth = useAuth();
   const isCurrentUser = auth.user?.id === gallery.museum.curator.id;
 
@@ -117,8 +123,18 @@ export const GalleryView: PageComponent<GalleryViewProps> = (initProps: GalleryV
   );
 };
 
-GalleryView.getGlobalLayoutProps = ({ gallery }) => ({
-  theme: {
-    color: gallery.color,
-  },
-});
+GalleryView.useComputedProps = props => {
+  const [gallery, setGallery] = useState(props.gallery);
+
+  return {
+    global: {
+      theme: {
+        color: gallery.color,
+      },
+    },
+    page: {
+      gallery,
+      setGallery,
+    },
+  };
+};

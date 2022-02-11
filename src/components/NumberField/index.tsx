@@ -68,20 +68,31 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
     controlProps.onChange = onChange;
   }
 
-  // Allow for 10-step jumps on arrow key up or down
+  /**
+   * Jump 10x steps when holding shift and pressing up or down arrow keys.
+   */
   controlProps.onKeyDown = evt => {
     if (evt.shiftKey) {
+      const megaStep = (step ?? 1) * 10;
       switch (evt.key) {
         case 'ArrowUp':
         case 'Up': {
           evt.preventDefault();
-          helpers.setValue(field.value + 10);
+          let nextValue = field.value + megaStep;
+          if (max) {
+            nextValue = Math.min(max, nextValue);
+          }
+          helpers.setValue(nextValue);
           return;
         }
         case 'ArrowDown':
         case 'Down': {
           evt.preventDefault();
-          helpers.setValue(Math.max(min ?? 0, field.value - 10));
+          let nextValue = field.value - megaStep;
+          if (min) {
+            nextValue = Math.max(min, nextValue);
+          }
+          helpers.setValue(nextValue);
           return;
         }
       }
@@ -93,7 +104,9 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
   const [dragPosition, setDragPosition] = useState<Position | null>(null);
   const dragDeltaRef = useRef(0);
 
-  // Lock the pointer when holding option and pressing down
+  /**
+   * Locks the pointer when holding the option key and clicking.
+   */
   controlProps.onPointerDown = evt => {
     if (evt.altKey) {
       inputRef.current?.requestPointerLock();
@@ -101,19 +114,34 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
     }
   };
 
-  // Adjust the field value when the pointer moves when dragging
+  /**
+   * Adjusts the field value when dragging.
+   */
   controlProps.onPointerMove = evt => {
     if (isDragging) {
-      const pixelsPerStep = 20;
-      const currDelta = Math.floor(dragDeltaRef.current / pixelsPerStep);
+      // Calculate the new drag delta based on mouse movement
+      const PIXELS_PER_STEP = 20;
+      const currDragDelta = Math.floor(dragDeltaRef.current / PIXELS_PER_STEP);
       dragDeltaRef.current += evt.movementX;
-      const nextDelta = Math.floor(dragDeltaRef.current / pixelsPerStep);
-      helpers.setValue(Math.max(min ?? 0, field.value + (nextDelta - currDelta)));
+      const nextDragDelta = Math.floor(dragDeltaRef.current / PIXELS_PER_STEP);
 
+      // Calculate the new value based on the difference in drag
+      const valueDelta = (nextDragDelta - currDragDelta) * (step ?? 1);
+      let nextValue = field.value + valueDelta;
+      if (min) {
+        nextValue = Math.max(min, nextValue);
+      }
+      if (max) {
+        nextValue = Math.min(max, nextValue);
+      }
+      helpers.setValue(nextValue);
+
+      // Update the drag position
       setDragPosition(pos => {
         if (!pos) {
           return null;
         }
+        // Loop the X position around when reaching either end of screen
         let x = (pos.x + evt.movementX) % window.innerWidth;
         if (x < 0) {
           x = window.innerWidth + x;
@@ -123,12 +151,17 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
     }
   };
 
-  // Release the pointer lock when no longer dragging
+  /**
+   * Releases the pointer lock when click is released.
+   */
   controlProps.onPointerUp = () => {
     document.exitPointerLock();
   };
 
   useEffect(() => {
+    /**
+     * Updates the dragging state when pointer lock is enabled/disabled.
+     */
     const onPointerLockChange = () => {
       const isDragging = !!(inputRef.current && document.pointerLockElement === inputRef.current);
       setIsDragging(isDragging);
@@ -139,6 +172,9 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
     };
     document.addEventListener('pointerlockchange', onPointerLockChange);
 
+    /**
+     * Sets the drag intent when option key is pressed.
+     */
     const onKeyDown = (evt: KeyboardEvent) => {
       if (evt.altKey) {
         setHasDragIntent(true);
@@ -146,6 +182,9 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
     };
     document.addEventListener('keydown', onKeyDown);
 
+    /**
+     * Releases the drag intent when option key is released.
+     */
     const onKeyUp = () => {
       setHasDragIntent(false);
     };
@@ -182,10 +221,11 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
         {...controlProps}
         onFocus={onFocus}
       />
+
       {dragPosition && (
         <Portal>
           <div
-            className={styles.pointer}
+            className={styles.dragPointer}
             style={{ '--x': `${dragPosition.x}px`, '--y': `${dragPosition.y}px` }}
             aria-hidden="true">
             <EWResizeCursor />
