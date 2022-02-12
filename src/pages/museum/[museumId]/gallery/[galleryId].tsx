@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery/_new/GalleryView';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
 
 export default GalleryView;
 

@@ -5,7 +5,7 @@ import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 import { supabase } from '@src/data/supabase';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery/_new/GalleryView';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
 
 export default GalleryView;
 

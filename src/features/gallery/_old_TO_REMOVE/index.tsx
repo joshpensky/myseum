@@ -10,15 +10,11 @@ import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { PlacedArtworkDto, GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
-import AutofitTextField from '@src/features/gallery/AutofitTextField';
-import FloatingActionButton from '@src/features/gallery/FloatingActionButton';
 import { Grid } from '@src/features/grid';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
 import Close from '@src/svgs/Close';
-import { EditIcon } from '@src/svgs/EditIcon';
-import { GalleryEditActions } from './GalleryEditActions';
-import { GridArtwork, GridArtworkItem } from './GridArtwork';
 import styles from './gallery.module.scss';
+import { GridArtwork, GridArtworkItem } from '../GridArtwork';
 
 export interface GalleryViewProps {
   gallery: GalleryDto;
@@ -233,18 +229,6 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
                 </div>
 
                 <div className={styles.headerSection}>
-                  <AutofitTextField
-                    id="gallery-name"
-                    inputClassName={cx(styles.title)}
-                    label="Gallery name"
-                    placeholder="Name"
-                    disabled={isSubmitting}
-                    value={name}
-                    onChange={name => setName(name)}
-                  />
-                </div>
-
-                <div className={styles.headerSection}>
                   <Tooltip
                     value={<KeyboardShortcut keys={['meta', 's']} />}
                     disabled={isSubmitting}>
@@ -257,28 +241,6 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
             )}
           </header>
         </ThemeProvider>
-
-        <div className={styles.fab}>
-          {!isEditing ? (
-            <FloatingActionButton
-              ref={editButtonRef}
-              title="Edit gallery"
-              onClick={() => openExitMode()}>
-              <EditIcon />
-            </FloatingActionButton>
-          ) : (
-            <GalleryEditActions
-              isSubmitting={isSubmitting}
-              minHeight={minHeight}
-              wallHeight={wallHeight}
-              onHeightChange={height => setWallHeight(height)}
-              wallColor={wallColor}
-              onColorChange={color => setWallColor(color)}
-              galleryArtworks={placedArtworks}
-              onAddArtwork={artwork => onAddArtwork(artwork)}
-            />
-          )}
-        </div>
 
         <div className={styles.gridWrapper}>
           <Grid

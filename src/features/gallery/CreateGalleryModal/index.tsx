@@ -5,12 +5,12 @@ import { FormikProps } from 'formik';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
 import { CollectionScreen } from './CollectionScreen';
 import { DetailsScreen } from './DetailsScreen';
 import styles from './createGalleryModal.module.scss';
 import { createGalleryMachine, CreateGalleryStateValue } from './state';
-import { GridArtwork } from '../../GridArtwork';
 
 interface CreateGalleryModalProps {
   onSave?(gallery: GalleryDto): void;

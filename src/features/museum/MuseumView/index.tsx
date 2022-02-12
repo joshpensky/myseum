@@ -4,7 +4,7 @@ import Button from '@src/components/Button';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
-import { CreateGalleryModal } from '@src/features/gallery/_new/CreateGalleryModal';
+import { CreateGalleryModal } from '@src/features/gallery/CreateGalleryModal';
 import { EditMuseumModal } from '@src/features/museum/EditMuseumModal';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
 import { useAuth } from '@src/providers/AuthProvider';
