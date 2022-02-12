@@ -8,7 +8,7 @@
 }
 
 .illo {
-  color: $c-illo;
+  color: c('illustration');
   margin-bottom: sz(8);
   width: min(100%, #{sz(48)});
 }

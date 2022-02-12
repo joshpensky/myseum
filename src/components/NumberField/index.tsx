@@ -159,42 +159,45 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
   };
 
   useEffect(() => {
-    /**
-     * Updates the dragging state when pointer lock is enabled/disabled.
-     */
-    const onPointerLockChange = () => {
-      const isDragging = !!(inputRef.current && document.pointerLockElement === inputRef.current);
-      setIsDragging(isDragging);
-      if (!isDragging) {
-        setDragPosition(null);
-        dragDeltaRef.current = 0;
-      }
-    };
-    document.addEventListener('pointerlockchange', onPointerLockChange);
+    const input = inputRef.current;
+    if (input) {
+      /**
+       * Updates the dragging state when pointer lock is enabled/disabled.
+       */
+      const onPointerLockChange = () => {
+        const isDragging = document.pointerLockElement === input;
+        setIsDragging(isDragging);
+        if (!isDragging) {
+          setDragPosition(null);
+          dragDeltaRef.current = 0;
+        }
+      };
+      document.addEventListener('pointerlockchange', onPointerLockChange);
 
-    /**
-     * Sets the drag intent when option key is pressed.
-     */
-    const onKeyDown = (evt: KeyboardEvent) => {
-      if (evt.altKey) {
-        setHasDragIntent(true);
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
+      /**
+       * Sets the drag intent when option key is pressed.
+       */
+      const onKeyDown = (evt: KeyboardEvent) => {
+        if (evt.altKey) {
+          setHasDragIntent(true);
+        }
+      };
+      document.addEventListener('keydown', onKeyDown);
 
-    /**
-     * Releases the drag intent when option key is released.
-     */
-    const onKeyUp = () => {
-      setHasDragIntent(false);
-    };
-    document.addEventListener('keyup', onKeyUp);
+      /**
+       * Releases the drag intent when option key is released.
+       */
+      const onKeyUp = () => {
+        setHasDragIntent(false);
+      };
+      document.addEventListener('keyup', onKeyUp);
 
-    return () => {
-      document.removeEventListener('pointerlockchange', onPointerLockChange);
-      document.removeEventListener('keydown', onKeyDown);
-      document.removeEventListener('keyup', onKeyUp);
-    };
+      return () => {
+        document.removeEventListener('pointerlockchange', onPointerLockChange);
+        document.removeEventListener('keydown', onKeyDown);
+        document.removeEventListener('keyup', onKeyUp);
+      };
+    }
   }, []);
 
   return (

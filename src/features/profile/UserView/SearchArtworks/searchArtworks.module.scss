@@ -39,7 +39,7 @@
 }
 
 .empty-state__illo {
-  color: $c-illo;
+  color: c('illustration');
   margin-bottom: sz(5);
   width: min(100%, #{sz(50)});
 
@@ -78,8 +78,34 @@
 
 .row__image {
   @include size(sz(25));
-  object-fit: contain;
   margin-right: sz(4);
+  position: relative;
+
+  img {
+    @include absolute(0);
+    @include size(100%);
+    object-fit: contain;
+  }
+
+  &::before {
+    @include absolute(50% x x 50%);
+    transform: translate(-50%, -50%);
+    content: '';
+    aspect-ratio: var(--aspect-ratio);
+    background-color: c('gray');
+  }
+
+  &:not(.row__image--vertical) {
+    &::before {
+      width: 100%;
+    }
+  }
+
+  &.row__image--vertical {
+    &::before {
+      height: 100%;
+    }
+  }
 }
 
 .row__meta {

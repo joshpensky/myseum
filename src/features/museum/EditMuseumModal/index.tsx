@@ -1,30 +1,32 @@
 import { ReactNode, useRef, useState } from 'react';
 import axios from 'axios';
+import cx from 'classnames';
+import dayjs from 'dayjs';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import IconButton from '@src/components/IconButton';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
+import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import { CreateGalleryModal } from '@src/features/gallery/_new/CreateGalleryModal';
+import * as Grid from '@src/features/grid';
+import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
+import { EmptyGalleryIllustration } from '@src/svgs/EmptyGalleryIllustration';
+import { TrashIcon } from '@src/svgs/TrashIcon';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './editMuseumModal.module.scss';
 
 const editMuseumSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   description: z.string(),
-  galleries: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-      // TODO: fill out
-    }),
-  ),
 });
 
 type EditMuseumSchema = z.infer<typeof editMuseumSchema>;
@@ -36,14 +38,17 @@ interface EditMuseumModalProps {
   trigger: ReactNode;
 }
 
-export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuseumModalProps) => {
+export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuseumModalProps) => {
+  const theme = useTheme();
+
   const initialValues: EditMuseumSchema = {
     name: museum.name,
     description: museum.description,
-    galleries,
   };
 
   const [open, setOpen] = useState(false);
+  const [hasDeleteGalleryIntent, setHasDeleteGalleryIntent] = useState(false);
+  const [isDeletingGallery, setIsDeletingGallery] = useState(false);
 
   const formikRef = useRef<FormikProps<EditMuseumSchema>>(null);
 
@@ -83,7 +88,7 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
             }
           }}>
           {formik => {
-            const { isSubmitting, isValid, setFieldValue, values } = formik;
+            const { isSubmitting, isValid } = formik;
 
             return (
               <Form className={styles.form} noValidate>
@@ -98,29 +103,123 @@ export const EditMuseumModal = ({ museum, galleries, onSave, trigger }: EditMuse
                 <fieldset className={styles.field} disabled={isSubmitting}>
                   <legend className={styles.legend}>Galleries</legend>
 
-                  <CreateGalleryModal
-                    trigger={<Button type="button">Create gallery</Button>}
-                    onSave={data => {
-                      const galleryIdx = values.galleries.findIndex(
-                        gallery => gallery.id === data.id,
-                      );
-                      if (galleryIdx < 0) {
-                        setFieldValue('galleries', [data, ...values.galleries]);
-                      } else {
-                        setFieldValue('galleries', [
-                          ...values.galleries.slice(0, galleryIdx),
-                          data,
-                          ...values.galleries.slice(galleryIdx + 1),
-                        ]);
+                  <div className={styles.galleriesFieldset}>
+                    <CreateGalleryModal
+                      trigger={
+                        <Button className={styles.galleriesFieldsetAction} type="button">
+                          Create gallery
+                        </Button>
                       }
-                    }}
-                  />
+                      onSave={data => {
+                        const galleryIdx = galleries.findIndex(gallery => gallery.id === data.id);
+                        let nextGalleries: GalleryDto[];
+                        if (galleryIdx < 0) {
+                          nextGalleries = [data, ...galleries];
+                        } else {
+                          nextGalleries = [
+                            ...galleries.slice(0, galleryIdx),
+                            data,
+                            ...galleries.slice(galleryIdx + 1),
+                          ];
+                        }
+                        onSave({
+                          ...museum,
+                          galleries: nextGalleries,
+                        });
+                      }}
+                    />
 
-                  <ul>
-                    {values.galleries.map(gallery => (
-                      <li key={gallery.id}>{gallery.name}</li>
-                    ))}
-                  </ul>
+                    {!galleries.length ? (
+                      <div className={styles.emptyState}>
+                        <div className={styles.emptyStateIllo}>
+                          <EmptyGalleryIllustration />
+                        </div>
+                        <p className={styles.emptyStateText}>You have no galleries.</p>
+                        <CreateGalleryModal
+                          onComplete={data => {
+                            onSave({
+                              ...museum,
+                              galleries: [data, ...galleries],
+                            });
+                          }}
+                          trigger={
+                            <Button className={styles.emptyStateAction}>Create gallery</Button>
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <ul>
+                        {galleries.map((gallery, idx) => (
+                          <li key={gallery.id} className={styles.gallery}>
+                            <div className={cx(styles.galleryPreview, `theme--${gallery.color}`)}>
+                              <Grid.Root
+                                preview
+                                size={{ width: 10, height: gallery.height }}
+                                items={[] as PlacedArtworkDto[]}
+                                step={1}
+                                getItemId={item => String(item.artwork.id)}
+                                renderItem={(item, props) => (
+                                  <GridArtwork {...props} item={item} disabled={props.disabled} />
+                                )}>
+                                <Grid.Grid className={styles.galleryPreviewGrid} />
+                              </Grid.Root>
+                            </div>
+
+                            <div className={styles.galleryMeta}>
+                              <p>{gallery.name}</p>
+                              <p className={styles.galleryMetaSmall}>
+                                Est. {dayjs(gallery.addedAt).year()}
+                              </p>
+                            </div>
+
+                            <ThemeProvider theme={theme}>
+                              <AlertDialog
+                                open={hasDeleteGalleryIntent}
+                                onOpenChange={setHasDeleteGalleryIntent}
+                                title="Delete Gallery"
+                                description={`Are you sure you want to delete ${gallery.name}?`}
+                                hint="You cannot undo this action."
+                                action={
+                                  <Button
+                                    danger
+                                    filled
+                                    busy={isDeletingGallery}
+                                    onClick={async () => {
+                                      setIsDeletingGallery(true);
+
+                                      try {
+                                        await axios.delete<GalleryDto>(
+                                          `/api/museum/${museum.id}/gallery/${gallery.id}`,
+                                        );
+                                        setHasDeleteGalleryIntent(false);
+                                        setIsDeletingGallery(false);
+                                        onSave({
+                                          ...museum,
+                                          galleries: [
+                                            ...galleries.slice(0, idx),
+                                            ...galleries.slice(idx + 1),
+                                          ],
+                                        });
+                                      } catch (error) {
+                                        setIsDeletingGallery(false);
+                                        toast.error((error as Error).message);
+                                      }
+                                    }}>
+                                    Delete
+                                  </Button>
+                                }
+                                trigger={
+                                  <IconButton type="button" title="Delete">
+                                    <TrashIcon />
+                                  </IconButton>
+                                }
+                              />
+                            </ThemeProvider>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </fieldset>
 
                 <div className={styles.actions}>

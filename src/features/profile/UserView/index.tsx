@@ -71,7 +71,7 @@ export const UserView = ({ user }: UserViewProps) => {
 
           <dt>Myseum</dt>
           <dd>
-            <Link href={auth.user?.id === user.id ? '/me' : `/museum/${user.museumId}`}>
+            <Link href={auth.user?.id === user.id ? '/' : `/museum/${user.museumId}`}>
               <a>Visit</a>
             </Link>
           </dd>

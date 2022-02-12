@@ -59,12 +59,12 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
       trigger={trigger}
       title="Edit Gallery"
       abandonDialogProps={{
-        title: 'Abandon Changes',
+        title: 'Discard Changes',
         description: 'Are you sure you want to abandon editing?',
         hint: 'Your changes will not be saved.',
         action: (
           <Button danger filled>
-            Abandon
+            Discard
           </Button>
         ),
       }}

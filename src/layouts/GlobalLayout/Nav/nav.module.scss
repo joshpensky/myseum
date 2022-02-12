@@ -2,18 +2,12 @@
   @include padding(sz(4));
   @include sticky(0 x x 0);
   align-items: center;
-  background-color: c('bg');
+  backdrop-filter: blur(3px);
+  background-color: c('bg', 0.8);
   display: flex;
   height: $nav-height;
   justify-content: space-between;
   z-index: $z-nav;
-
-  &::after {
-    @include absolute(x 0 sz(-4));
-    background: scrim-gradient(to top, 'bg');
-    height: sz(4);
-    content: '';
-  }
 }
 
 .nav__logo {

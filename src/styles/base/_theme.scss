@@ -16,6 +16,7 @@
   --c-border: #{hex-to-rgb($c-black)}; // TODO: replace
   --c-shadow: #{hex-to-rgb($c-mint-800)}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
+  --c-illustration: #{hex-to-rgb($c-illo)}; // TODO: replace
 }
 
 .theme--ink {
@@ -27,6 +28,7 @@
   --c-border: #{hex-to-rgb($c-white)};
   --c-shadow: #{hex-to-rgb(mix($c-white, $c-black, 30%))}; // TODO: replace
   --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
+  --c-illustration: #{hex-to-rgb($c-illo-dark)}; // TODO: replace
 }
 
 .theme--mint {

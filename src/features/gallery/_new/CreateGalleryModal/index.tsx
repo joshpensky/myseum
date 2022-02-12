@@ -13,7 +13,7 @@ import { createGalleryMachine, CreateGalleryStateValue } from './state';
 import { GridArtwork } from '../../GridArtwork';
 
 interface CreateGalleryModalProps {
-  onSave(gallery: GalleryDto): void;
+  onSave?(gallery: GalleryDto): void;
   onComplete?(gallery: GalleryDto): void;
   trigger: ReactNode;
 }
@@ -55,7 +55,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
           ref={formikRef}
           state={state}
           onSubmit={data => {
-            onSave(data.gallery);
+            onSave?.(data.gallery);
             send(data);
           }}>
           <GridBlock />
@@ -68,7 +68,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
           state={state}
           onBack={() => send({ type: 'GO_BACK' })}
           onSubmit={data => {
-            onSave(data);
+            onSave?.(data);
             onComplete?.(data);
             setOpen(false);
           }}>

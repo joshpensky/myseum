@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
@@ -29,11 +30,14 @@ const ArtworkRow = ({ artwork }: ArtworkRowProps) => {
 
   return (
     <div className={styles.row}>
-      <img
-        className={styles.rowImage}
-        src={getImageUrl('artworks', artwork.src)}
-        alt={artwork.alt ?? ''}
-      />
+      <div
+        className={cx(
+          styles.rowImage,
+          artwork.size.height > artwork.size.width && styles.rowImageVertical,
+        )}
+        style={{ '--aspect-ratio': artwork.size.width / artwork.size.height }}>
+        <img src={getImageUrl('artworks', artwork.src)} alt={artwork.alt ?? ''} />
+      </div>
 
       <div className={styles.rowMeta}>
         <p>{artwork.title}</p>
