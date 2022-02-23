@@ -15,6 +15,7 @@ import { ShareIcon } from '@src/svgs/ShareIcon';
 import { PageComponent } from '@src/types';
 import { shareUrl } from '@src/utils/shareUrl';
 import styles from './galleryView.module.scss';
+import { AddArtworkModal } from '../AddArtworkModal';
 
 export interface GalleryViewProps {
   gallery: GalleryDto;
@@ -88,7 +89,13 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
               <p className={styles.emptyStateText}>
                 {isCurrentUser ? 'Your' : 'This'} gallery is empty.
               </p>
-              {isCurrentUser && <Button className={styles.emptyStateAction}>Add artwork</Button>}
+              {isCurrentUser && (
+                <AddArtworkModal
+                  gallery={gallery}
+                  onSave={() => {}}
+                  trigger={<Button className={styles.emptyStateAction}>Add artwork</Button>}
+                />
+              )}
             </div>
           ) : (
             <Grid.Root

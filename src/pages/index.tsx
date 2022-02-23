@@ -16,7 +16,7 @@ interface HomeProps {
   museum: MuseumDto | null;
 }
 
-const Home = ({ galleries, museum }: HomeProps) => {
+const Home = ({ museum, galleries }: HomeProps) => {
   const auth = useAuth();
 
   if (!auth.user && !auth.isUserLoading) {

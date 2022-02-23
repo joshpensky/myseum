@@ -1,0 +1,168 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom: sz(4);
+}
+
+.search {
+  display: flex;
+  margin-bottom: sz(2);
+}
+
+.search__action {
+  margin-left: sz(2);
+}
+
+.count {
+  @include label;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.loading {
+  @include padding(sz(4));
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.empty-state {
+  @include padding(sz(4));
+  align-items: center;
+  color: c('secondary-text');
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-state__illo {
+  color: c('illustration');
+  margin-bottom: sz(5);
+  width: min(100%, #{sz(30)});
+
+  svg {
+    stroke-width: 1.2;
+  }
+}
+
+.empty-state__text {
+  margin-bottom: sz(3);
+}
+
+.empty-state__action {
+  @media (hover: hover) {
+    &:hover {
+      color: c('text', 0.5);
+    }
+  }
+
+  &:focus {
+    color: c('text');
+  }
+}
+
+.row {
+  @include padding(sz(4) x);
+  align-items: center;
+  display: flex;
+
+  + .row {
+    border-top: 1px solid c('border', 0.2);
+  }
+
+  .selected & {
+    @include padding(sz(3));
+    background-color: c('bg');
+    border: 1px solid c('border', 0.2);
+    border-radius: sz(3);
+    margin-bottom: sz(4);
+  }
+}
+
+.row__image {
+  @include size(sz(25));
+  margin-right: sz(4);
+  position: relative;
+
+  .selected & {
+    @include size(sz(12));
+  }
+
+  img {
+    @include absolute(0);
+    @include size(100%);
+    object-fit: contain;
+  }
+
+  &::before {
+    @include absolute(50% x x 50%);
+    transform: translate(-50%, -50%);
+    content: '';
+    aspect-ratio: var(--aspect-ratio);
+    background-color: c('border', 0.2);
+  }
+
+  &:not(.row__image--vertical) {
+    &::before {
+      width: 100%;
+    }
+  }
+
+  &.row__image--vertical {
+    &::before {
+      height: 100%;
+    }
+  }
+}
+
+.row__meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-right: sz(4);
+}
+
+.row__meta__desc {
+  @include label;
+}
+
+.selected {
+  @include sticky(x x sz(15));
+  background-color: c('bg', 0.75);
+  backdrop-filter: blur(3px);
+}
+
+.selected__label {
+  @include label;
+  @include margin(sz(1) x);
+}
+
+.actions {
+  @include sticky(x x 0 x);
+  backdrop-filter: blur(3px);
+  background-color: c('bg', 0.75);
+  padding-bottom: sz(4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 2;
+
+  button {
+    width: 100%;
+  }
+}

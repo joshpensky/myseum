@@ -98,7 +98,7 @@
   color: c('text');
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   transition: 400ms $ease-out-circ;
 
   @include mq(max, $bp-modal-drawer) {
@@ -109,7 +109,6 @@
 }
 
 .header {
-  @include sticky(0 x x);
   @include padding(sz(4));
   align-items: center;
   background-color: c('bg');
@@ -118,6 +117,8 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  position: relative;
+  z-index: 2;
 
   @include mq(max, $bp-modal-drawer) {
     cursor: grab;
@@ -172,6 +173,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  overflow-y: auto;
 }
 
 .screen {

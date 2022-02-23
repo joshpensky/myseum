@@ -1,0 +1,31 @@
+.wrapper {
+  @include padding(sz(6) sz(4) sz(4));
+  align-items: center;
+  background-color: c('red', 0.2);
+  border-radius: sz(3);
+  color: c('red');
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.icon {
+  @include size(sz(12));
+  @include padding(sz(3));
+  border: 1px solid c('red');
+  border-radius: 50%;
+  margin-bottom: sz(4);
+}
+
+.message {
+  margin-bottom: sz(0.5);
+}
+
+.code {
+  font-size: $fs-xs;
+}
+
+.action {
+  margin-top: sz(4);
+  width: 100%;
+}

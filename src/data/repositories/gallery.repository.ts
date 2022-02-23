@@ -49,7 +49,16 @@ export class GalleryRepository {
                 },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         museum: {
@@ -82,7 +91,16 @@ export class GalleryRepository {
                 },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         museum: {
@@ -123,7 +141,16 @@ export class GalleryRepository {
                 },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         museum: {
@@ -208,7 +235,16 @@ export class GalleryRepository {
                 },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         museum: {
@@ -240,7 +276,16 @@ export class GalleryRepository {
                 },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         museum: {

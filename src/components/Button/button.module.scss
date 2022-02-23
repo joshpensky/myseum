@@ -15,7 +15,7 @@
 }
 
 .inner {
-  @include padding(sz(2.5) sz(5));
+  @include padding(sz(2.5) sz(5.5));
   align-items: center;
   border-radius: sz(3);
   display: flex;
@@ -27,7 +27,8 @@
   }
 
   .button--busy &,
-  .button:disabled & {
+  .button:disabled &,
+  .button[aria-pressed='true'] & {
     opacity: 0.5;
     cursor: not-allowed;
   }
@@ -95,7 +96,7 @@
   }
 
   .button--busy & {
-    transform: translateX(sz(-2));
+    transform: translateX(sz(-2.25));
   }
 }
 
@@ -104,7 +105,7 @@
   display: flex;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-50%) translateX(100%);
+  transform: translateY(-50%) translateX(87.5%);
 
   @include with-motion {
     transition: 150ms ease-out;

@@ -62,10 +62,11 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
           // Get the RGB data for that pixel and set color
           const colorData = ctx.getImageData(0, 0, 1, 1);
           resolve(rgb(colorData.data[0], colorData.data[1], colorData.data[2]));
-        } catch {
+        } catch (error) {
           resolve(null);
         }
       };
+      image.crossOrigin = 'Anonymous';
       image.src = src;
     });
 

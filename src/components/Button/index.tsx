@@ -5,6 +5,7 @@ import { Loader } from '@src/components/Loader';
 import styles from './button.module.scss';
 
 export interface BaseButtonProps {
+  'aria-pressed'?: boolean;
   busy?: boolean;
   className?: string;
   disabled?: boolean;
@@ -81,6 +82,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, PropsWithChildr
         className={classNames}
         type={props.type}
         aria-busy={busy}
+        aria-pressed={props['aria-pressed']}
         disabled={disabled}
         onClick={busy ? undefined : props.onClick}>
         {content}

@@ -15,6 +15,22 @@ const museumDetailController: NextApiHandler = async (req, res) => {
   try {
     switch (req.method) {
       // Updates the museum with the given ID
+      case 'GET': {
+        const museum = await MuseumRepository.findOne(museumId.data);
+        if (!museum) {
+          res.status(404).json({ message: 'Not found.' });
+          return;
+        }
+        const galleries = await GalleryRepository.findAllByMuseum(museum.id);
+        const data: MuseumWithGalleriesDto = {
+          ...MuseumSerializer.serialize(museum),
+          galleries: galleries.map(gallery => GallerySerializer.serialize(gallery)),
+        };
+        res.status(200).json(data);
+        break;
+      }
+
+      // Updates the museum with the given ID
       case 'PUT': {
         const museum = await MuseumRepository.findOne(museumId.data);
         if (!museum) {
@@ -33,7 +49,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'PUT');
+        res.setHeader('Allow', 'GET, PUT');
         res.status(405).end('Method Not Allowed');
       }
     }

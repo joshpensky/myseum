@@ -1,12 +1,12 @@
-import { Frame, Gallery, GalleryColor, Matting, PlacedArtwork } from '@prisma/client';
+import { Gallery, GalleryColor, Matting, PlacedArtwork } from '@prisma/client';
 import { Dimensions3D, Position } from '@src/types';
 import { ArtworkDto, ArtworkSerializer, PrismaArtwork } from './artwork.serializer';
-import { FrameDto, FrameSerializer } from './frame.serializer';
+import { FrameDto, FrameSerializer, PrismaFrame } from './frame.serializer';
 import { MuseumDto, MuseumSerializer, PrismaMuseum } from './museum.serializer';
 
 export interface PrismaPlacedArtwork extends PlacedArtwork {
   artwork: PrismaArtwork;
-  frame: Frame | null;
+  frame: PrismaFrame | null;
 }
 
 export interface PrismaGallery extends Gallery {
