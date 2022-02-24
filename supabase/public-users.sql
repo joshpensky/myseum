@@ -5,11 +5,11 @@
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id)
-  values (new.id);
+  insert into public.users ("id", "name")
+  values (new.id, split_part(new.email, '@', '1'));
 
-  insert into public.museums ("name", "curatorId")
-  values (split_part(new.email, '@', '1') || '''s Museum', new.id);
+  insert into public.museums ("id", "name", "curatorId")
+  values (new.id, split_part(new.email, '@', '1') || '''s Museum', new.id);
 
   return new;
 end;

@@ -7,7 +7,7 @@ export interface PrismaMuseum extends Museum {
 }
 
 export interface MuseumDto {
-  id: number;
+  id: string;
   name: string;
   description: string;
   curator: UserDto;

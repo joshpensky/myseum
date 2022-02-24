@@ -12,7 +12,7 @@ export const getServerSideProps: GetServerSideProps<
   MuseumViewProps,
   { museumId: string }
 > = async ctx => {
-  const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
+  const museumId = z.string().uuid().safeParse(ctx.params?.museumId);
   if (!museumId.success) {
     return {
       notFound: true,

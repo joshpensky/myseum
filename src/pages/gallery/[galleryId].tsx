@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<
     throw new Error('User must have museum.');
   }
 
-  const galleryId = z.number().int().safeParse(Number(ctx.params?.galleryId));
+  const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
   if (!galleryId.success) {
     return {
       notFound: true,

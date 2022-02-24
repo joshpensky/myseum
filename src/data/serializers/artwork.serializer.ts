@@ -8,7 +8,7 @@ export interface PrismaArtwork extends Artwork {
 }
 
 export interface ArtworkDto {
-  id: number;
+  id: string;
   title: string;
   description: string;
   src: string;

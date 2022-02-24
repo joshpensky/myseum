@@ -22,7 +22,7 @@
   height: sz(7);
   width: sz(7) * 0.75;
   display: inline-flex;
-  background-color: c('gray');
+  background-color: c('border', 0.2);
   border-radius: 50%;
   transform: translateY(sz(1.75));
   margin-right: sz(1);

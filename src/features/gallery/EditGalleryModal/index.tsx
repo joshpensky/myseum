@@ -117,9 +117,9 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                           ),
                         },
                         {
-                          value: 'pink',
+                          value: 'rose',
                           display: (
-                            <span className={cx(styles.colorOption, 'theme--pink')}>Rosé</span>
+                            <span className={cx(styles.colorOption, 'theme--rose')}>Rosé</span>
                           ),
                         },
                         {

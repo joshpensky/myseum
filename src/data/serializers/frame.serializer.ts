@@ -8,7 +8,7 @@ export interface PrismaFrame extends Frame {
 }
 
 export interface FrameDto {
-  id: number;
+  id: string;
   name: string;
   src: string;
   alt: string;

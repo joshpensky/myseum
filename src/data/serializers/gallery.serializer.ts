@@ -29,8 +29,8 @@ export interface PlacedArtworkDto {
 }
 
 export interface GalleryDto {
-  id: number;
-  museumId: number;
+  id: string;
+  museumId: string;
   name: string;
   description: string;
   color: GalleryColor;

@@ -4,8 +4,8 @@ import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 
 const galleryDetailHandler: NextApiHandler = async (req, res) => {
-  const museumId = z.number().int().safeParse(Number(req.query.museumId));
-  const galleryId = z.number().int().safeParse(Number(req.query.galleryId));
+  const museumId = z.string().uuid().safeParse(req.query.museumId);
+  const galleryId = z.string().uuid().safeParse(req.query.galleryId);
   if (!museumId.success) {
     res.status(400).json({ message: 'Must supply a valid museum ID' });
     return;

@@ -27,6 +27,11 @@ export const SearchBar = ({ label, name }: SearchBarProps) => {
             type="search"
             autoComplete="off"
             placeholder={label}
+            onKeyDown={evt => {
+              if (evt.key === 'Escape') {
+                evt.stopPropagation();
+              }
+            }}
           />
 
           <label className={styles.icon} htmlFor="search" aria-hidden="true">

@@ -1,4 +1,11 @@
-import { ChangeEventHandler, ComponentProps, FocusEventHandler, forwardRef, useRef } from 'react';
+import {
+  ChangeEventHandler,
+  ComponentProps,
+  FocusEventHandler,
+  forwardRef,
+  KeyboardEventHandler,
+  useRef,
+} from 'react';
 import composeRefs from '@seznam/compose-react-refs';
 import cx from 'classnames';
 import { Field, useField } from 'formik';
@@ -11,6 +18,7 @@ interface TextFieldProps extends FieldWrapperChildProps {
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   onFocus?(): void;
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
   placeholder?: string;
   readOnly?: boolean;
   type?: 'text' | 'search' | 'date' | 'email';
@@ -27,6 +35,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
     name,
     onBlur,
     onFocus,
+    onKeyDown,
     placeholder,
     readOnly,
     required,
@@ -67,6 +76,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
       aria-describedby={ariaDescribedby}
       {...controlProps}
       onFocus={onFocus}
+      onKeyDown={onKeyDown}
     />
   );
 });

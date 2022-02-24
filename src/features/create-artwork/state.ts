@@ -45,7 +45,7 @@ export type FramingContext = (
 export interface DetailsContext {
   title: string;
   artist?: {
-    id?: number;
+    id?: string;
     name: string;
   };
   description: string;

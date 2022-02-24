@@ -111,9 +111,9 @@ export const DetailsScreen = forwardRef<
                         ),
                       },
                       {
-                        value: 'pink',
+                        value: 'rose',
                         display: (
-                          <span className={cx(styles.colorOption, 'theme--pink')}>Rosé</span>
+                          <span className={cx(styles.colorOption, 'theme--rose')}>Rosé</span>
                         ),
                       },
                       {

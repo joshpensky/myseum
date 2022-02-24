@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 
 export interface PrismaUser extends User {
-  museum: { id: number } | null;
+  museum: { id: string } | null;
 }
 
 export interface UserDto {
@@ -9,7 +9,7 @@ export interface UserDto {
   name: string;
   bio: string;
   headshot: string | null;
-  museumId: number;
+  museumId: string;
   addedAt: Date;
   modifiedAt: Date;
 }
@@ -22,7 +22,7 @@ export class UserSerializer {
       headshot: user.headshot ?? null,
       bio: user.bio,
       // We are force-casting this, since it _should_ always be defined
-      museumId: user.museum?.id as number,
+      museumId: user.museum?.id as string,
       addedAt: user.addedAt,
       modifiedAt: user.modifiedAt,
     };

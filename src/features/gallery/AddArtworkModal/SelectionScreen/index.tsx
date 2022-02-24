@@ -26,7 +26,7 @@ const selectionSchema = z.object({
   search: z.string(),
   artwork: z
     .object({
-      id: z.number(),
+      id: z.string(),
       title: z.string(),
       description: z.string(),
       src: z.string(),
@@ -38,7 +38,7 @@ const selectionSchema = z.object({
       unit: z.nativeEnum(MeasureUnit),
       artist: z
         .object({
-          id: z.number(),
+          id: z.string(),
           name: z.string(),
         })
         .nullable(),

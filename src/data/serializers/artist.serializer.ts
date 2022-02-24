@@ -1,7 +1,7 @@
 import { Artist } from '@prisma/client';
 
 export interface ArtistDto {
-  id: number;
+  id: string;
   name: string;
 }
 

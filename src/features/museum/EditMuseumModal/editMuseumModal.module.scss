@@ -79,6 +79,7 @@
   width: sz(20);
   aspect-ratio: 4 / 3;
   background-color: c('bg');
+  border: 1px solid c('border', 0.2);
   border-radius: sz(3);
   margin-right: sz(4);
   overflow: hidden;

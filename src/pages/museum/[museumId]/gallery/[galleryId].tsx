@@ -16,8 +16,8 @@ export const getServerSideProps: GetServerSideProps<
   GalleryViewProps,
   GalleryPageParams
 > = async ctx => {
-  const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
-  const galleryId = z.number().int().safeParse(Number(ctx.params?.galleryId));
+  const museumId = z.string().uuid().safeParse(ctx.params?.museumId);
+  const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
   if (!museumId.success || !galleryId.success) {
     return {
       notFound: true,

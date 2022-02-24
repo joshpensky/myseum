@@ -35,7 +35,7 @@ const framingStepSchema = z
 
     frame: z
       .object({
-        id: z.number(),
+        id: z.string(),
         name: z.string(),
         src: z.string(),
         alt: z.string(),

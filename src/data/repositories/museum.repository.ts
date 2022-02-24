@@ -8,7 +8,7 @@ export interface UpdateMuseumDto {
 }
 
 export class MuseumRepository {
-  static async findOne(id: number): Promise<PrismaMuseum | null> {
+  static async findOne(id: string): Promise<PrismaMuseum | null> {
     const museum = await prisma.museum.findUnique({
       where: { id },
       include: {

@@ -6,7 +6,7 @@ import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 import { supabase } from '@src/data/supabase';
 
 const galleryDetailHandler: NextApiHandler = async (req, res) => {
-  const museumId = z.number().int().safeParse(Number(req.query.museumId));
+  const museumId = z.string().uuid().safeParse(req.query.museumId);
   if (!museumId.success) {
     res.status(400).json({ message: 'Must supply a valid museum ID' });
     return;

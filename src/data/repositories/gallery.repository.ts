@@ -3,8 +3,8 @@ import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
 
 interface UpdatePlacedArtworkDto {
-  artworkId: number;
-  frameId?: number;
+  artworkId: string;
+  frameId?: string;
   position: Position;
   framingOptions: {
     isScaled: boolean;
@@ -26,14 +26,17 @@ export interface CreateGalleryDto {
   description: string;
   color: GalleryColor;
   height: number;
-  museumId: number;
+  museumId: string;
 }
 
 export class GalleryRepository {
-  static async findAllByMuseum(museumId: number) {
+  static async findAllByMuseum(museumId: string) {
     const galleries = await prisma.gallery.findMany({
       where: {
         museumId,
+      },
+      orderBy: {
+        addedAt: 'desc',
       },
       include: {
         artworks: {
@@ -71,7 +74,7 @@ export class GalleryRepository {
     return galleries;
   }
 
-  static async findOneByMuseum(museumId: number, galleryId: number) {
+  static async findOneByMuseum(museumId: string, galleryId: string) {
     const gallery = await prisma.gallery.findFirst({
       where: {
         id: galleryId,
