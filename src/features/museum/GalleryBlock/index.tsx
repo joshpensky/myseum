@@ -31,8 +31,8 @@ const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
   return (
     <ThemeProvider theme={{ color: gallery.color }}>
       <Link href={href}>
-        <a className={cx(styles.wrapper, `theme--${gallery.color}`)}>
-          <div className={styles.inner}>
+        <a className={styles.wrapper}>
+          <div className={cx(styles.inner, `theme--${gallery.color}`)}>
             <div className={styles.gridWrapper}>
               <div className={styles.grid}>
                 <Grid.Root

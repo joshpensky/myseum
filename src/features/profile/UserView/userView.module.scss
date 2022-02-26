@@ -128,10 +128,15 @@
 .tab-trigger {
   @include h2;
   @include padding(sz(2) sz(2) sz(1));
+  box-shadow: inset 0 0 0 0 c('border', 0.2);
   border-radius: sz(3);
-  box-shadow: inset 0 0 0 0 c('border', 0);
   line-height: 1.2;
   margin-right: sz(1);
+
+  @include with-motion {
+    transition: 150ms ease-out;
+    transition-property: background-color, box-shadow;
+  }
 
   &:first-child {
     margin-left: sz(-2);
@@ -143,6 +148,7 @@
 
   &:focus {
     @include outline-none;
+    background-color: c('bg-tint');
     box-shadow: inset 0 0 0 1px c('border', 0.2);
   }
 }

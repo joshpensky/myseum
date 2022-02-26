@@ -1,9 +1,27 @@
 .trigger {
   align-items: center;
   display: flex;
+  position: relative;
+
+  &::after {
+    @include absolute(sz(-1));
+    border-radius: sz(2);
+    box-shadow: inset 0 0 0 0 c('border', 0.2);
+    content: '';
+    z-index: -1;
+
+    @include with-motion {
+      transition: 150ms ease-out;
+    }
+  }
 
   &:focus {
     @include outline-none;
+
+    &::after {
+      background-color: c('bg-tint');
+      box-shadow: inset 0 0 0 1px c('border', 0.2);
+    }
   }
 }
 
@@ -19,10 +37,10 @@
   position: relative;
   transition: box-shadow 150ms ease;
 
-  .trigger[aria-expanded='true'] &,
-  .trigger:focus & {
-    box-shadow: 0 0 0 1.5px c('bg'), 0 0 0 2.5px c('border', 0.8);
-  }
+  // .trigger[aria-expanded='true'] &,
+  // .trigger:focus & {
+  //   box-shadow: 0 0 0 1.5px c('bg'), 0 0 0 2.5px c('border', 0.8);
+  // }
 
   img {
     @include absolute(0);
