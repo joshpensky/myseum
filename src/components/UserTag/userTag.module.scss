@@ -20,13 +20,14 @@
 
 .headshot {
   height: sz(7);
-  width: sz(7) * 0.75;
+  aspect-ratio: 3 / 4;
   display: inline-flex;
   background-color: c('border', 0.2);
   border-radius: 50%;
   transform: translateY(sz(1.75));
   margin-right: sz(1);
   position: relative;
+  overflow: hidden;
 
   img {
     @include absolute(0);

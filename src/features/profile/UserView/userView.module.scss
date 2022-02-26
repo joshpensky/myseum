@@ -16,11 +16,18 @@
 }
 
 .headshot {
+  aspect-ratio: 3 / 4;
   background-color: c('gray');
   border-radius: 50%;
   height: sz(50);
   margin-bottom: sz(4);
-  width: sz(50) * 0.75;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    @include absolute(0);
+    object-fit: cover;
+  }
 }
 
 .name {

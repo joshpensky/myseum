@@ -1,7 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import cx from 'classnames';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { useAuth } from '@src/providers/AuthProvider';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './userTag.module.scss';
 
 interface UserTagProps {
@@ -23,7 +25,9 @@ export const UserTag = ({ className, user }: UserTagProps) => {
     <Link href={href}>
       <a className={cx(styles.wrapper, className)}>
         <span className={styles.headshot}>
-          {user.headshot && <img src={user.headshot} alt="" />}
+          {user.headshot && (
+            <Image src={getImageUrl('headshots', user.headshot)} alt="" layout="fill" />
+          )}
         </span>
 
         {user.name}

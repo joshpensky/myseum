@@ -1,6 +1,6 @@
 import { supabase } from '@src/data/supabase';
 
-type SupabaseBucket = 'headshots' | 'frames' | 'artworks';
+export type SupabaseBucket = 'headshots' | 'frames' | 'artworks';
 
 export const getImageUrl = (bucket: SupabaseBucket, src: string) => {
   const download = supabase.storage.from(bucket).getPublicUrl(src);

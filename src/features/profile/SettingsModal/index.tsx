@@ -1,6 +1,6 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ChangeEvent, DragEvent, Fragment, ReactNode, useRef, useState } from 'react';
 import axios from 'axios';
-import { Form, Formik, FormikProps } from 'formik';
+import { Field, Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import { AlertDialog } from '@src/components/AlertDialog';
@@ -13,6 +13,7 @@ import { UpdateUserDto } from '@src/data/repositories/user.repository';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
 import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './settingsModal.module.scss';
 
@@ -20,6 +21,7 @@ const userSettingsSchema = z.object({
   email: z.string(),
   name: z.string().min(1, 'Name is required.'),
   bio: z.string(),
+  headshot: z.string().nullable(),
 });
 
 type UserSettingsSchema = z.infer<typeof userSettingsSchema>;
@@ -43,6 +45,7 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
     email: user.email,
     name: user.name,
     bio: user.bio,
+    headshot: user.headshot,
   };
 
   return (
@@ -72,6 +75,7 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
               const data: UpdateUserDto = {
                 name: values.name,
                 bio: values.bio,
+                headshot: values.headshot,
               };
               const res = await axios.put<UserDto>(`/api/user/${user.id}`, data);
               onSave(res.data);
@@ -81,7 +85,59 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
             }
           }}>
           {formik => {
-            const { isSubmitting, isValid } = formik;
+            const { isSubmitting, isValid, setFieldValue, values } = formik;
+
+            const accept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            const [isDroppingUpload, setIsDroppingUpload] = useState(false);
+            const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
+
+            const onFileUpload = (files: FileList | null) => {
+              setIsUploadingHeadshot(true);
+              const imageFile = files?.item(0);
+              if (!imageFile || !accept.includes(imageFile.type)) {
+                setIsUploadingHeadshot(false);
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                  const image = new Image();
+                  image.onload = () => {
+                    setFieldValue('headshot', image.src);
+                    setIsUploadingHeadshot(false);
+                  };
+                  image.src = reader.result;
+                } else {
+                  setIsUploadingHeadshot(false);
+                }
+              };
+              reader.readAsDataURL(imageFile);
+            };
+
+            /**
+             * Handler for when the user enters the drop area.
+             */
+            const onDropStart = (evt: DragEvent<HTMLLabelElement>) => {
+              evt.preventDefault();
+              setIsDroppingUpload(true);
+            };
+
+            /**
+             * Handler for when the user leaves the drop area.
+             */
+            const onDropEnd = (evt: DragEvent<HTMLLabelElement>) => {
+              evt.preventDefault();
+              setIsDroppingUpload(false);
+            };
+
+            /**
+             * Handler for when the user drops an image in the drop area.
+             */
+            const onDrop = (evt: DragEvent<HTMLLabelElement>) => {
+              onDropEnd(evt);
+              onFileUpload(evt.dataTransfer.files);
+            };
 
             return (
               <Form className={styles.form} noValidate>
@@ -99,8 +155,62 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
                   {field => <TextField {...field} type="text" />}
                 </FieldWrapper>
 
-                <FieldWrapper className={styles.field} name="bio" label="Bio" required>
+                <FieldWrapper className={styles.field} name="bio" label="Bio">
                   {field => <TextArea {...field} rows={2} />}
+                </FieldWrapper>
+
+                <FieldWrapper className={styles.field} name="headshot" label="Headshot">
+                  {field => (
+                    <div className={styles.fieldHeadshot} data-dropping={isDroppingUpload}>
+                      {!values.headshot ? (
+                        <Fragment>
+                          <Field
+                            {...field}
+                            type="file"
+                            className="sr-only"
+                            accept={accept.join(', ')}
+                            disabled={isUploadingHeadshot}
+                            value=""
+                            onChange={(evt: ChangeEvent<HTMLInputElement>) => {
+                              onFileUpload(evt.target.files);
+                            }}
+                          />
+                          <label
+                            htmlFor={field.name}
+                            className={styles.fieldHeadshotInput}
+                            onDragOver={onDropStart}
+                            onDragEnter={onDropStart}
+                            onDragLeave={onDropEnd}
+                            onDragEnd={onDropEnd}
+                            onDrop={onDrop}>
+                            Tap or drag & drop to upload
+                          </label>
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          <div className={styles.fieldHeadshotPreview}>
+                            <img
+                              src={
+                                values.headshot.includes('base64')
+                                  ? values.headshot
+                                  : getImageUrl('headshots', values.headshot)
+                              }
+                              alt=""
+                            />
+                          </div>
+
+                          <Button
+                            className={styles.fieldHeadshotChange}
+                            type="button"
+                            onClick={() => {
+                              setFieldValue('headshot', null);
+                            }}>
+                            Change
+                          </Button>
+                        </Fragment>
+                      )}
+                    </div>
+                  )}
                 </FieldWrapper>
 
                 <hr className={styles.separator} />

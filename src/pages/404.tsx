@@ -1,13 +1,11 @@
-import Head from 'next/head';
 import Button from '@src/components/Button';
+import { SEO } from '@src/components/SEO';
 import { NotFoundIllustration } from '@src/svgs/NotFoundIllustration';
 import styles from './_styles/404.module.scss';
 
 const NotFound = () => (
   <div className={styles.page}>
-    <Head>
-      <title>Page Not Found</title>
-    </Head>
+    <SEO title="Page Not Found" />
 
     <div className={styles.illo}>
       <NotFoundIllustration />

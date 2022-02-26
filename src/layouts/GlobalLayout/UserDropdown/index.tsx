@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ApiError } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
 import { Loader } from '@src/components/Loader';
 import { Popover } from '@src/components/Popover';
 import { useAuth } from '@src/providers/AuthProvider';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './userDropdown.module.scss';
 
 export const UserDropdown = () => {
@@ -34,7 +36,11 @@ export const UserDropdown = () => {
       <Popover.Trigger asChild>
         <button className={styles.trigger}>
           <span className="sr-only">View profile and more</span>
-          <span className={styles.headshot} />
+          <span className={styles.headshot}>
+            {auth.user?.headshot && (
+              <Image src={getImageUrl('headshots', auth.user.headshot)} alt="" layout="fill" />
+            )}
+          </span>
           <span className={styles.triggerChevron} />
         </button>
       </Popover.Trigger>

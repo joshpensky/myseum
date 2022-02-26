@@ -47,7 +47,7 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
   };
 
   const [open, setOpen] = useState(false);
-  const [hasDeleteGalleryIntent, setHasDeleteGalleryIntent] = useState(false);
+  const [galleryToDelete, setGalleryToDelete] = useState<string | null>(null);
   const [isDeletingGallery, setIsDeletingGallery] = useState(false);
 
   const formikRef = useRef<FormikProps<EditMuseumSchema>>(null);
@@ -174,8 +174,14 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
 
                             <ThemeProvider theme={theme}>
                               <AlertDialog
-                                open={hasDeleteGalleryIntent}
-                                onOpenChange={setHasDeleteGalleryIntent}
+                                open={galleryToDelete === gallery.id}
+                                onOpenChange={open => {
+                                  if (open) {
+                                    setGalleryToDelete(gallery.id);
+                                  } else {
+                                    setGalleryToDelete(null);
+                                  }
+                                }}
                                 title="Delete Gallery"
                                 description={`Are you sure you want to delete ${gallery.name}?`}
                                 hint="You cannot undo this action."
@@ -191,7 +197,7 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
                                         await axios.delete<GalleryDto>(
                                           `/api/museum/${museum.id}/gallery/${gallery.id}`,
                                         );
-                                        setHasDeleteGalleryIntent(false);
+                                        setGalleryToDelete(null);
                                         setIsDeletingGallery(false);
                                         onSave({
                                           ...museum,

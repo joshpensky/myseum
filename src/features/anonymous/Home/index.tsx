@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ApiError } from '@supabase/supabase-js';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
+import { SEO } from '@src/components/SEO';
 import { useAuth } from '@src/providers/AuthProvider';
 import { MyseumIconIllustration } from '@src/svgs/MyseumIconIllustration';
 import styles from './home.module.scss';
@@ -23,6 +24,8 @@ export const AnonymousHome = () => {
 
   return (
     <div className={styles.page}>
+      <SEO title="Myseum" />
+
       <div className={styles.illo}>
         <MyseumIconIllustration />
       </div>

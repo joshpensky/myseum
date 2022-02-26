@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { Loader } from '@src/components/Loader';
+import { SEO } from '@src/components/SEO';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
@@ -26,6 +27,8 @@ const Home = ({ museum, galleries }: HomeProps) => {
   if (!museum) {
     return (
       <div className={styles.wrapper}>
+        <SEO title="Loading..." />
+
         <h1 className="sr-only">Loading...</h1>
 
         <Loader size="large" />

@@ -9,17 +9,24 @@
 
 .headshot {
   height: sz(7);
-  width: sz(7) * 0.75;
+  aspect-ratio: 3 / 4;
   background-color: c('border', 0.2);
   box-shadow: 0 0 0 0 c('bg'), 0 0 0 0 c('border', 0.8);
   border-radius: 100%;
   flex-shrink: 0;
   margin-right: sz(1.5);
+  overflow: hidden;
+  position: relative;
   transition: box-shadow 150ms ease;
 
   .trigger[aria-expanded='true'] &,
   .trigger:focus & {
     box-shadow: 0 0 0 1.5px c('bg'), 0 0 0 2.5px c('border', 0.8);
+  }
+
+  img {
+    @include absolute(0);
+    object-fit: cover;
   }
 }
 

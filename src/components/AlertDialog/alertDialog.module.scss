@@ -19,7 +19,7 @@
 .overlay {
   @include fixed(0);
   backdrop-filter: blur(2px);
-  background-color: c('bg', 0.5);
+  background-color: c('bg', 0.75);
   z-index: 1099;
 
   &[data-state='open'] {

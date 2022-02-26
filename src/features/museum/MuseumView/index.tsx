@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import Button from '@src/components/Button';
+import { SEO } from '@src/components/SEO';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
@@ -28,6 +29,8 @@ export const MuseumView = (initProps: MuseumViewProps) => {
 
   return (
     <div className={styles.page}>
+      <SEO title={museum.name} />
+
       <header className={styles.header}>
         <h1 className={styles.title}>{museum.name}</h1>
 

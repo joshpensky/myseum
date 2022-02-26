@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import Button from '@src/components/Button';
+import { SEO } from '@src/components/SEO';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { EditGalleryModal } from '@src/features/gallery/EditGalleryModal';
@@ -33,13 +34,15 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
   const auth = useAuth();
   const isCurrentUser = auth.user?.id === gallery.museum.curator.id;
 
-  const [openedArtworkId, setOpenedArtworkId] = useState<number | null>(null);
+  const [openedArtworkId, setOpenedArtworkId] = useState<string | null>(null);
   const width = Math.max(
     ...gallery.artworks.map(artwork => artwork.position.x + artwork.size.width),
   );
 
   return (
     <ThemeProvider theme={{ color: gallery.color }}>
+      <SEO title={`${gallery.name} | ${gallery.museum.name}`} />
+
       <div className={styles.page}>
         <header className={styles.header}>
           <Link href={isCurrentUser ? '/' : `/museum/${gallery.museum.id}`}>

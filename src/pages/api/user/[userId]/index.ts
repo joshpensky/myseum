@@ -63,3 +63,11 @@ const userDetailController: NextApiHandler = async (req, res) => {
 };
 
 export default userDetailController;
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};

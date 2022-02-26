@@ -1,15 +1,18 @@
 import { Fragment, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as z from 'zod';
 import Button from '@src/components/Button';
+import { SEO } from '@src/components/SEO';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { SettingsModal } from '@src/features/profile/SettingsModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { LockIcon } from '@src/svgs/LockIcon';
 import { ShareIcon } from '@src/svgs/ShareIcon';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import { shareUrl } from '@src/utils/shareUrl';
 import { SearchArtworks } from './SearchArtworks';
 import { SearchFrames } from './SearchFrames';
@@ -47,8 +50,14 @@ export const UserView = ({ user }: UserViewProps) => {
 
   return (
     <div className={styles.page}>
+      <SEO title={router.pathname === '/me' ? 'Profile' : user.name} />
+
       <header className={styles.header}>
-        <div className={styles.headshot}></div>
+        <div className={styles.headshot}>
+          {user.headshot && (
+            <Image src={getImageUrl('headshots', user.headshot)} alt="" layout="fill" />
+          )}
+        </div>
 
         <h1 className={styles.name}>{user.name}</h1>
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Loader } from '@src/components/Loader';
+import { SEO } from '@src/components/SEO';
 import { useAuth } from '@src/providers/AuthProvider';
 import styles from './_styles/callback.module.scss';
 
@@ -26,6 +27,8 @@ const Callback = () => {
 
   return (
     <div className={styles.wrapper}>
+      <SEO title="Redirecting..." />
+
       <h1 className="sr-only">Redirecting...</h1>
 
       <Loader size="large" />

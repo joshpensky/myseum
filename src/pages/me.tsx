@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { Loader } from '@src/components/Loader';
+import { SEO } from '@src/components/SEO';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { UserSerializer } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
@@ -13,6 +14,8 @@ const Profile = () => {
   if (!auth.user) {
     return (
       <div className={styles.wrapper}>
+        <SEO title="Redirecting..." />
+
         <h1 className="sr-only">Redirecting...</h1>
 
         <Loader size="large" />
