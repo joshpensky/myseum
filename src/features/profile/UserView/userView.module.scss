@@ -1,18 +1,25 @@
 .page {
   display: flex;
   flex: 1;
+
+  @include mq(max, $bp-tablet) {
+    flex-direction: column;
+  }
 }
 
 .header {
-  @include sticky($nav-height x x x);
   @include padding(sz(4));
   align-items: flex-start;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  height: calc(100vh - #{$nav-height});
-  min-width: 400px;
-  max-width: 550px;
+
+  @include mq($bp-tablet) {
+    @include sticky($nav-height x x x);
+    flex: 1;
+    height: calc(100vh - #{$nav-height});
+    min-width: 400px;
+    max-width: 550px;
+  }
 }
 
 .headshot {
@@ -101,14 +108,23 @@
   align-items: flex-start;
   display: flex;
   flex: 1;
-  flex-direction: column;
   justify-content: flex-end;
   margin-top: sz(4);
+
+  @include mq($bp-tablet) {
+    flex-direction: column;
+  }
 }
 
 .actions__item {
   + .actions__item {
-    margin-top: sz(2);
+    @include mq($bp-tablet) {
+      margin-top: sz(2);
+    }
+
+    @include mq(max, $bp-tablet) {
+      margin-left: sz(2);
+    }
   }
 }
 
@@ -116,6 +132,10 @@
   display: flex;
   flex: 2;
   padding-left: sz(4);
+
+  @include mq(max, $bp-tablet) {
+    min-height: 600px;
+  }
 }
 
 .tabs {

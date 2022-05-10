@@ -60,7 +60,11 @@ $nav-height: sz(16);
 
 ////////////////////////////////////
 
-$bp-modal-drawer: 600px;
+$bp-modal-drawer: 800px;
+
+$bp-desktop: 1000px;
+$bp-tablet: $bp-modal-drawer;
+$bp-mobile: 600px;
 
 ////////////////////////////////////
 

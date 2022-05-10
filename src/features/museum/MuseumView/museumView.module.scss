@@ -1,18 +1,25 @@
 .page {
   display: flex;
   flex: 1;
+
+  @include mq(max, $bp-tablet) {
+    flex-direction: column;
+  }
 }
 
 .header {
-  @include sticky($nav-height x x x);
   @include padding(sz(4));
   align-items: flex-start;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  height: calc(100vh - #{$nav-height});
-  min-width: 400px;
-  max-width: 550px;
+
+  @include mq($bp-tablet) {
+    @include sticky($nav-height x x x);
+    flex: 1;
+    height: calc(100vh - #{$nav-height});
+    min-width: 400px;
+    max-width: 550px;
+  }
 }
 
 .title {
@@ -34,14 +41,23 @@
   align-items: flex-start;
   display: flex;
   flex: 1;
-  flex-direction: column;
   justify-content: flex-end;
   margin-top: sz(4);
+
+  @include mq($bp-tablet) {
+    flex-direction: column;
+  }
 }
 
 .actions__item {
   + .actions__item {
-    margin-top: sz(2);
+    @include mq($bp-tablet) {
+      margin-top: sz(2);
+    }
+
+    @include mq(max, $bp-tablet) {
+      margin-left: sz(2);
+    }
   }
 }
 
@@ -101,13 +117,36 @@
 
 .gallery-list__item {
   margin-bottom: sz(4);
-  width: calc(50% - #{sz(2)});
 
-  &:nth-child(2n + 1) {
-    margin-right: sz(2);
+  @include mq(max, $bp-mobile) {
+    width: 100%;
   }
 
-  &:nth-child(2n + 2) {
-    margin-left: sz(2);
+  @include mq($bp-mobile, $bp-tablet) {
+    width: calc(50% - #{sz(2)});
+
+    &:nth-child(2n + 1) {
+      margin-right: sz(2);
+    }
+
+    &:nth-child(2n + 2) {
+      margin-left: sz(2);
+    }
+  }
+
+  @include mq($bp-tablet, $bp-desktop) {
+    width: 100%;
+  }
+
+  @include mq($bp-desktop) {
+    width: calc(50% - #{sz(2)});
+
+    &:nth-child(2n + 1) {
+      margin-right: sz(2);
+    }
+
+    &:nth-child(2n + 2) {
+      margin-left: sz(2);
+    }
   }
 }

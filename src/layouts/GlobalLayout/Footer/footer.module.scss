@@ -5,6 +5,10 @@
   display: flex;
   justify-content: space-between;
 
+  @include mq(max, $bp-mobile) {
+    flex-direction: column;
+  }
+
   a {
     @include padding(sz(0.5) sz(1));
     border-radius: sz(2);
@@ -26,6 +30,11 @@
 .links {
   align-items: center;
   display: flex;
+
+  @include mq(max, $bp-mobile) {
+    margin-left: sz(-1);
+    margin-top: sz(0.5);
+  }
 }
 
 .links__item {
