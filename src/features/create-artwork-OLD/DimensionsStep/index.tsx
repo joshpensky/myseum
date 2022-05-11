@@ -8,11 +8,11 @@ import { FieldWrapper } from '@src/components/FieldWrapper';
 import { NumberField } from '@src/components/NumberField';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
+import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
 import type {
   ConfirmDimensionsEvent,
   CreateArtworkState,
-} from '@src/features/create-artwork/state';
+} from '@src/features/create-artwork-OLD/state';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import Close from '@src/svgs/Close';
 import Lightbulb from '@src/svgs/Lightbulb';

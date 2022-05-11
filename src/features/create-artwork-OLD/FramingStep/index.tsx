@@ -10,8 +10,11 @@ import { NumberField } from '@src/components/NumberField';
 import { Preview3d } from '@src/components/Preview3d';
 import { Select } from '@src/components/Select';
 import { TextField } from '@src/components/TextField';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
-import type { ConfirmFramingEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
+import type {
+  ConfirmFramingEvent,
+  CreateArtworkState,
+} from '@src/features/create-artwork-OLD/state';
 import Checkmark from '@src/svgs/Checkmark';
 import Rotate from '@src/svgs/Cube';
 import { validateZodSchema } from '@src/utils/validateZodSchema';

@@ -1,0 +1,57 @@
+@import '../root-abstracts';
+
+.file-drop {
+  @include padding(sz(4));
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  @include mq($bp-active-area) {
+    @include absolute(0);
+  }
+
+  @include mq(max, $bp-active-area) {
+    border: 1px solid c('border', 0.4);
+    border-radius: sz(2.5);
+    height: 300px;
+    width: 100%;
+  }
+
+  input:focus + &,
+  &.file-drop--active {
+    background-color: c('bg-tint');
+  }
+}
+
+.preview {
+  @include mq($bp-active-area) {
+    --preview-padding: #{sz(6)};
+    @include absolute(0);
+  }
+
+  @include mq(max, $bp-active-area) {
+    --preview-padding: #{sz(4)};
+    background-color: c('bg-tint');
+    border-radius: sz(2.5);
+    margin-bottom: sz(4);
+    height: 300px;
+    position: relative;
+    width: 100%;
+  }
+
+  img {
+    @include absolute(var(--preview-padding));
+    @include size(calc(100% - (var(--preview-padding) * 2)));
+    object-fit: contain;
+  }
+}
+
+.reset {
+  width: 100%;
+}

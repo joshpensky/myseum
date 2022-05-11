@@ -3,10 +3,6 @@ import { assign, createMachine, State } from 'xstate';
 import type { FrameDto } from '@src/data/serializers/frame.serializer';
 import type { SelectionEditorPath } from '@src/features/selection';
 
-export interface StepRefValue {
-  getIsDirty(): boolean;
-}
-
 type PickRequired<Type, Keys extends keyof Type> = Type & Required<Pick<Type, Keys>>;
 
 //////////////////////////

@@ -1,11 +1,15 @@
-import { DragEvent, Fragment, useState } from 'react';
+import { DragEvent, Fragment, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import { MeasureUnit } from '@prisma/client';
 import cx from 'classnames';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikProps } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
-import type { ConfirmUploadEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import * as FormModal from '@src/components/FormModal';
+import {
+  ConfirmUploadEvent,
+  CreateArtworkState,
+  StepRefValue,
+} from '@src/features/create-artwork/state';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
@@ -38,7 +42,10 @@ interface UploadStepProps {
   onSubmit(data: ConfirmUploadEvent): void;
 }
 
-export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
+export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function UploadStep(
+  { state, onSubmit },
+  ref,
+) {
   const accept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 
   const [isUploading, setIsUploading] = useState(false);
@@ -53,97 +60,105 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
 
   const initialErrors = validateZodSchema(uploadStepSchema, 'sync')(initialValues);
 
+  const formikRef = useRef<FormikProps<UploadStepSchema>>(null);
+  useImperativeHandle(ref, () => ({
+    getIsDirty() {
+      return !!formikRef.current?.values.image;
+    },
+  }));
+
   return (
-    <Formik<UploadStepSchema>
-      initialValues={initialValues}
-      initialErrors={initialErrors}
-      validate={validateZodSchema(uploadStepSchema)}
-      onSubmit={values => {
-        // TODO: reset full state on image change?
-        onSubmit({
-          type: 'CONFIRM_UPLOAD',
-          upload: {
-            image: values.image,
-          },
-          dimensions: {
-            width: values.width,
-            height: values.height,
-            unit: values.unit,
-          },
-        });
-      }}>
-      {formik => {
-        const { isSubmitting, isValid, setFieldValue, values } = formik;
-
-        const loadImage = (src: string) => {
-          const img = new Image();
-          img.onload = () => {
-            setFieldValue('image', img);
-            setIsUploading(false);
-
-            const imageDimensions = CommonUtils.getImageDimensions(img);
-            const unit = convertUnit(1, 'px', 'in');
-            setFieldValue('width', Math.round(imageDimensions.width * unit * 100) / 100);
-            setFieldValue('height', Math.round(imageDimensions.height * unit * 100) / 100);
-            setFieldValue('unit', 'in');
-          };
-          img.src = src;
-        };
-
-        const onFileUpload = (files: FileList | null) => {
-          if (!files) {
-            return;
-          }
-
-          setIsUploading(true);
-          const imageFile = files?.item(0);
-          if (!imageFile || !accept.includes(imageFile.type)) {
-            setIsUploading(false);
-            return;
-          }
-
-          const reader = new FileReader();
-          reader.addEventListener(
-            'load',
-            () => {
-              if (typeof reader.result === 'string') {
-                loadImage(reader.result);
-              } else {
-                setIsUploading(false);
-              }
+    <FormModal.Screen title="Upload" description="Add a photo of the artwork to get started.">
+      <Formik<UploadStepSchema>
+        innerRef={formikRef}
+        initialValues={initialValues}
+        initialErrors={initialErrors}
+        validate={validateZodSchema(uploadStepSchema)}
+        onSubmit={values => {
+          // TODO: reset full state on image change?
+          onSubmit({
+            type: 'CONFIRM_UPLOAD',
+            upload: {
+              image: values.image,
             },
-            { once: true },
-          );
-          reader.readAsDataURL(imageFile);
-        };
+            dimensions: {
+              width: values.width,
+              height: values.height,
+              unit: values.unit,
+            },
+          });
+        }}>
+        {formik => {
+          const { isSubmitting, isValid, setFieldValue, values } = formik;
 
-        /**
-         * Handler for when the user enters the drop area.
-         */
-        const onDropStart = (evt: DragEvent<HTMLLabelElement>) => {
-          evt.preventDefault();
-          setIsDropping(true);
-        };
+          const loadImage = (src: string) => {
+            const img = new Image();
+            img.onload = () => {
+              setFieldValue('image', img);
+              setIsUploading(false);
 
-        /**
-         * Handler for when the user leaves the drop area.
-         */
-        const onDropEnd = (evt: DragEvent<HTMLLabelElement>) => {
-          evt.preventDefault();
-          setIsDropping(false);
-        };
+              const imageDimensions = CommonUtils.getImageDimensions(img);
+              const unit = convertUnit(1, 'px', 'in');
+              setFieldValue('width', Math.round(imageDimensions.width * unit * 100) / 100);
+              setFieldValue('height', Math.round(imageDimensions.height * unit * 100) / 100);
+              setFieldValue('unit', 'in');
+            };
+            img.src = src;
+          };
 
-        /**
-         * Handler for when the user drops an image in the drop area.
-         */
-        const onDrop = (evt: DragEvent<HTMLLabelElement>) => {
-          onDropEnd(evt);
-          onFileUpload(evt.dataTransfer.files);
-        };
+          const onFileUpload = (files: FileList | null) => {
+            if (!files) {
+              return;
+            }
 
-        return (
-          <Form className={rootStyles.form} noValidate>
-            <div className={rootStyles.activeContent}>
+            setIsUploading(true);
+            const imageFile = files?.item(0);
+            if (!imageFile || !accept.includes(imageFile.type)) {
+              setIsUploading(false);
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.addEventListener(
+              'load',
+              () => {
+                if (typeof reader.result === 'string') {
+                  loadImage(reader.result);
+                } else {
+                  setIsUploading(false);
+                }
+              },
+              { once: true },
+            );
+            reader.readAsDataURL(imageFile);
+          };
+
+          /**
+           * Handler for when the user enters the drop area.
+           */
+          const onDropStart = (evt: DragEvent<HTMLLabelElement>) => {
+            evt.preventDefault();
+            setIsDropping(true);
+          };
+
+          /**
+           * Handler for when the user leaves the drop area.
+           */
+          const onDropEnd = (evt: DragEvent<HTMLLabelElement>) => {
+            evt.preventDefault();
+            setIsDropping(false);
+          };
+
+          /**
+           * Handler for when the user drops an image in the drop area.
+           */
+          const onDrop = (evt: DragEvent<HTMLLabelElement>) => {
+            onDropEnd(evt);
+            onFileUpload(evt.dataTransfer.files);
+          };
+
+          return (
+            <Form className={styles.form} noValidate>
               {!values.image ? (
                 <Fragment>
                   <input
@@ -171,25 +186,25 @@ export const UploadStep = ({ state, onSubmit }: UploadStepProps) => {
                   <img src={values.image.src} alt="Preview of the uploaded artwork." />
                 </div>
               )}
-            </div>
 
-            {!!values.image && (
-              <Button
-                className={styles.reset}
-                type="reset"
-                onClick={() => setFieldValue('image', undefined)}>
-                Reset
-              </Button>
-            )}
+              {!!values.image && (
+                <Button
+                  className={styles.reset}
+                  type="reset"
+                  onClick={() => setFieldValue('image', undefined)}>
+                  Reset
+                </Button>
+              )}
 
-            <div className={rootStyles.formActions}>
-              <Button type="submit" filled busy={isSubmitting} disabled={isUploading || !isValid}>
-                Next
-              </Button>
-            </div>
-          </Form>
-        );
-      }}
-    </Formik>
+              <footer className={styles.footer}>
+                <Button type="submit" filled busy={isSubmitting} disabled={isUploading || !isValid}>
+                  Next
+                </Button>
+              </footer>
+            </Form>
+          );
+        }}
+      </Formik>
+    </FormModal.Screen>
   );
-};
+});

@@ -3,7 +3,7 @@ import * as Slider from '@radix-ui/react-slider';
 import cx from 'classnames';
 import { Field, useFormikContext } from 'formik';
 import { FieldWrapper } from '@src/components/FieldWrapper';
-import type { FramingStepSchema } from '@src/features/create-artwork/FramingStep';
+import type { FramingStepSchema } from '@src/features/create-artwork-OLD/FramingStep';
 import styles from './framingOptions.module.scss';
 
 export const FramingOptions = () => {

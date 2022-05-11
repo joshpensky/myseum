@@ -14,7 +14,7 @@ import * as FormModal from '@src/components/FormModal';
 import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import * as CreateArtwork from '@src/features/create-artwork';
+import * as CreateArtwork from '@src/features/create-artwork-OLD';
 import { ConfirmSelectionEvent } from '@src/features/gallery/AddArtworkModal/state';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { PlusIcon } from '@src/svgs/PlusIcon';

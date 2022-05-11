@@ -10,8 +10,11 @@ import { Preview3d } from '@src/components/Preview3d';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 // import { ArtistDto } from '@src/data/ArtistSerializer';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
-import type { ConfirmDetailsEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
+import type {
+  ConfirmDetailsEvent,
+  CreateArtworkState,
+} from '@src/features/create-artwork-OLD/state';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './detailsStep.module.scss';
 

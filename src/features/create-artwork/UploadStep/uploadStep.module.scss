@@ -1,26 +1,23 @@
-@import '../root-abstracts';
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 
 .file-drop {
   @include padding(sz(4));
   align-items: center;
+  border: 1px solid c('border', 0.4);
+  border-radius: sz(2.5);
   cursor: pointer;
   display: flex;
+  height: 300px;
   justify-content: center;
   text-align: center;
+  width: 100%;
 
   @include with-motion {
     transition: 150ms ease-out;
-  }
-
-  @include mq($bp-active-area) {
-    @include absolute(0);
-  }
-
-  @include mq(max, $bp-active-area) {
-    border: 1px solid c('border', 0.4);
-    border-radius: sz(2.5);
-    height: 300px;
-    width: 100%;
   }
 
   input:focus + &,
@@ -30,28 +27,56 @@
 }
 
 .preview {
-  @include mq($bp-active-area) {
-    --preview-padding: #{sz(6)};
-    @include absolute(0);
-  }
-
-  @include mq(max, $bp-active-area) {
-    --preview-padding: #{sz(4)};
-    background-color: c('bg-tint');
-    border-radius: sz(2.5);
-    margin-bottom: sz(4);
-    height: 300px;
-    position: relative;
-    width: 100%;
-  }
+  background-color: c('bg-tint');
+  border-radius: sz(2.5);
+  margin-bottom: sz(4);
+  height: 300px;
+  position: relative;
+  width: 100%;
 
   img {
-    @include absolute(var(--preview-padding));
-    @include size(calc(100% - (var(--preview-padding) * 2)));
+    @include absolute(sz(4));
+    @include size(calc(100% - (#{sz(4)} * 2)));
     object-fit: contain;
   }
 }
 
 .reset {
   width: 100%;
+}
+
+.footer {
+  @include sticky(x x 0 x);
+  @include padding(sz(4) x);
+  align-items: flex-end;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  z-index: 3;
+
+  &::before {
+    @include absolute(0 sz(-4) x);
+    backdrop-filter: blur(2px);
+    background-color: c('bg', 0.7);
+    content: '';
+    height: sz(6.5);
+    mask-image: scrim-gradient(to bottom, 'bg');
+  }
+
+  &::after {
+    @include absolute(sz(6.5) sz(-4) 0);
+    backdrop-filter: blur(2px);
+    background-color: c('bg', 0.7);
+    content: '';
+    pointer-events: none;
+  }
+
+  button {
+    flex: 1;
+    z-index: 2;
+
+    + button {
+      margin-left: sz(2);
+    }
+  }
 }

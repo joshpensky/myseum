@@ -8,14 +8,14 @@ import IconButton from '@src/components/IconButton';
 import { Preview3d } from '@src/components/Preview3d';
 import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
+import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
 import type {
   CreateArtworkState,
   EditDetailsEvent,
   EditDimensionsEvent,
   EditFramingEvent,
   EditSelectionEvent,
-} from '@src/features/create-artwork/state';
+} from '@src/features/create-artwork-OLD/state';
 import { AuthUserDto } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import styles from './reviewStep.module.scss';

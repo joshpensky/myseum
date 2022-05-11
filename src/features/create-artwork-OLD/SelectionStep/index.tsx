@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
-import rootStyles from '@src/features/create-artwork/root.module.scss';
-import type { ConfirmSelectionEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
+import type {
+  ConfirmSelectionEvent,
+  CreateArtworkState,
+} from '@src/features/create-artwork-OLD/state';
 import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/selection';
 import ImageSelectionEditor from '@src/features/selection/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/features/selection/ImageSelectionPreview';

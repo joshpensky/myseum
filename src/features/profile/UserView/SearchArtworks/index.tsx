@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
@@ -10,7 +10,7 @@ import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import * as CreateArtwork from '@src/features/create-artwork';
+import { CreateArtworkModal } from '@src/features/create-artwork';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { EditIcon } from '@src/svgs/EditIcon';
@@ -80,8 +80,6 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
   const auth = useAuth();
   const isCurrentUser = auth.user?.id === user.id;
 
-  const [isCreating, setIsCreating] = useState(false);
-
   const artworks = useSWR<ArtworkDto[]>(`/api/user/${user.id}/artworks`, {
     revalidateOnFocus: false,
   });
@@ -108,60 +106,60 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
         }
 
         return (
-          <CreateArtwork.Root
-            open={isCreating}
-            onOpenChange={setIsCreating}
-            onComplete={() => {
-              artworks.revalidate();
-              setIsCreating(false);
-            }}>
-            <div className={styles.root}>
-              <Form className={styles.form} noValidate>
-                <SearchBar name="search" label="Search artworks" />
-                {isCurrentUser && (
-                  <CreateArtwork.Trigger>
+          <div className={styles.root}>
+            <Form className={styles.form} noValidate>
+              <SearchBar name="search" label="Search artworks" />
+              {isCurrentUser && (
+                <CreateArtworkModal
+                  onComplete={() => {
+                    artworks.revalidate();
+                  }}
+                  trigger={
                     <Button className={styles.formAction} type="button" icon={PlusIcon}>
                       Create
                     </Button>
-                  </CreateArtwork.Trigger>
-                )}
-              </Form>
-
-              <p className={styles.count}>
-                {results.length} item{results.length === 1 ? '' : 's'} {values.search && 'found'}
-              </p>
-
-              {artworks.isValidating ? (
-                <div className={styles.loading}>
-                  <Loader size="large" />
-                </div>
-              ) : !results.length ? (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIllo}>
-                    <ArtworkIllustration />
-                  </div>
-                  <p className={styles.emptyStateText}>
-                    {values.search
-                      ? `No artworks found for term "${values.search}."`
-                      : `${isCurrentUser ? 'You have' : 'there are'} no artworks.`}
-                  </p>
-                  {isCurrentUser && (
-                    <CreateArtwork.Trigger>
-                      <Button className={styles.emptyStateAction}>Create artwork</Button>
-                    </CreateArtwork.Trigger>
-                  )}
-                </div>
-              ) : (
-                <ul>
-                  {results.map(result => (
-                    <li key={result.item.id} className={styles.rowWrapper}>
-                      <ArtworkRow artwork={result.item} />
-                    </li>
-                  ))}
-                </ul>
+                  }
+                />
               )}
-            </div>
-          </CreateArtwork.Root>
+            </Form>
+
+            <p className={styles.count}>
+              {results.length} item{results.length === 1 ? '' : 's'} {values.search && 'found'}
+            </p>
+
+            {artworks.isValidating ? (
+              <div className={styles.loading}>
+                <Loader size="large" />
+              </div>
+            ) : !results.length ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyStateIllo}>
+                  <ArtworkIllustration />
+                </div>
+                <p className={styles.emptyStateText}>
+                  {values.search
+                    ? `No artworks found for term "${values.search}."`
+                    : `${isCurrentUser ? 'You have' : 'there are'} no artworks.`}
+                </p>
+                {isCurrentUser && (
+                  <CreateArtworkModal
+                    onComplete={() => {
+                      artworks.revalidate();
+                    }}
+                    trigger={<Button className={styles.emptyStateAction}>Create artwork</Button>}
+                  />
+                )}
+              </div>
+            ) : (
+              <ul>
+                {results.map(result => (
+                  <li key={result.item.id} className={styles.rowWrapper}>
+                    <ArtworkRow artwork={result.item} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         );
       }}
     </Formik>
