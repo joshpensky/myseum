@@ -169,6 +169,7 @@
     background-color: c('border');
     box-shadow: 2px 0 0 0 c('bg');
     transform: translateX(calc((var(--progress, 1) * 100%) - 100%));
+    transition: 200ms $ease-out-circ;
   }
 }
 
@@ -198,7 +199,6 @@
 .sidecar {
   align-items: flex-start;
   display: flex;
-  flex: 1;
   flex-direction: column;
 
   @include mq($bp-modal-drawer) {

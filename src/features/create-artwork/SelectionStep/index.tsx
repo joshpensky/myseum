@@ -93,7 +93,7 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
 
           return (
             <Form className={styles.form} noValidate>
-              <FormModal.Sidecar>
+              <FormModal.Sidecar className={styles.sidecar}>
                 <div className={styles.editor}>
                   <ImageSelectionEditor
                     activeLayer={0}

@@ -2,6 +2,7 @@ import { ReactNode, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
+import { DetailsStep } from './DetailsStep';
 import { DimensionsStep } from './DimensionsStep';
 import { SelectionStep } from './SelectionStep';
 import { UploadStep } from './UploadStep';
@@ -21,7 +22,6 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
       upload: undefined,
       dimensions: undefined,
       selection: undefined,
-      framing: undefined,
       details: undefined,
     }),
   );
@@ -47,15 +47,13 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
       return <DimensionsStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else if (state.matches('selection')) {
       return <SelectionStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
+    } else if (state.matches('details')) {
+      return <DetailsStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else {
       return null;
       // throw new Error('Form has entered unknown state.');
     }
-    //   else if (state.matches('framing')) {
-    //   return <FramingStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-    // } else if (state.matches('details')) {
-    //   return <DetailsStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-    // } else if (state.matches('review')) {
+    //    else if (state.matches('review')) {
     //   return (
     //     <ReviewStep
     //       state={state}
@@ -72,7 +70,6 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
     'upload',
     'dimensions',
     'selection',
-    'framing',
     'details',
     'review',
   ];

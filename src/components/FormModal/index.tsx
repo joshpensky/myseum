@@ -185,10 +185,12 @@ export const Screen = ({
   </div>
 );
 
-type FormModalSidecarProps = Record<string, unknown>;
+interface FormModalSidecarProps {
+  className?: string;
+}
 
-export const Sidecar = ({ children }: PropsWithChildren<FormModalSidecarProps>) => (
-  <div className={styles.sidecar}>{children}</div>
+export const Sidecar = ({ className, children }: PropsWithChildren<FormModalSidecarProps>) => (
+  <div className={cx(styles.sidecar, className)}>{children}</div>
 );
 
 type FormModalFooterProps = Record<string, unknown>;

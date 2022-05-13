@@ -1,0 +1,52 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.preview {
+  @include mq($bp-modal-drawer) {
+    @include absolute(0);
+    @include padding(sz(6));
+  }
+
+  @include mq(max, $bp-modal-drawer) {
+    @include padding(sz(4));
+    background-color: c('bg-tint');
+    border-radius: sz(2.5);
+    height: 300px;
+    width: 100%;
+    margin-bottom: sz(4);
+  }
+
+  img {
+    @include size(100%);
+    object-fit: contain;
+  }
+}
+
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.field,
+.form-row {
+  + .field,
+  + .form-row {
+    margin-top: sz(3);
+  }
+}
+
+.form-row {
+  display: flex;
+  width: 100%;
+}
+
+.created-at-field {
+  display: flex;
+  flex-direction: column;
+  margin-right: sz(4);
+  width: 100%;
+}

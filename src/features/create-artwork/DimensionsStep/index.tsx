@@ -1,5 +1,6 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { MeasureUnit } from '@prisma/client';
+import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import { Select } from '@src/components/Select';
 import { ConfirmDimensionsEvent, CreateArtworkState } from '@src/features/create-artwork/state';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import Close from '@src/svgs/Close';
+import Rotate from '@src/svgs/Cube';
 import Lightbulb from '@src/svgs/Lightbulb';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
@@ -27,6 +29,10 @@ const dimensionsStepSchema = z.object({
     .number({ required_error: 'Height is required.' })
     .positive('Height must be greater than 0.'),
 
+  depth: z
+    .number({ required_error: 'Depth is required.' })
+    .nonnegative('Depth must be greater than or equal to 0.'),
+
   unit: z.nativeEnum(MeasureUnit, {
     invalid_type_error: 'Invalid unit.',
     required_error: 'Unit is required.',
@@ -38,7 +44,7 @@ type DimensionsStepSchema = z.infer<typeof dimensionsStepSchema>;
 interface Preset {
   value: string;
   display: string;
-  dimensions: DimensionsStepSchema;
+  dimensions: Omit<DimensionsStepSchema, 'depth'>;
 }
 
 const presets: Preset[] = [
@@ -69,6 +75,9 @@ interface DimensionsStepProps {
 }
 
 export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps) => {
+  const [rotated, setRotated] = useState(false);
+  const [isDepthFocused, setIsDepthFocused] = useState(false);
+
   // Track preview area dimensions on resize
   const previewAreaRef = useRef<HTMLDivElement>(null);
   const [previewAreaDimensions, setPreviewAreaDimensions] = useState<Dimensions>({
@@ -94,6 +103,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
   const initialValues: DimensionsStepSchema = {
     width: state.context.dimensions.width ?? 0,
     height: state.context.dimensions.height ?? 0,
+    depth: state.context.dimensions.depth ?? 0,
     unit: state.context.dimensions.unit ?? 'in',
   };
 
@@ -111,6 +121,7 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
             dimensions: {
               width: values.width,
               height: values.height,
+              depth: values.depth,
               unit: values.unit,
             },
           });
@@ -134,19 +145,35 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
           return (
             <Form className={styles.form} noValidate>
               <FormModal.Sidecar>
-                <div ref={previewAreaRef} className={styles.preview}>
-                  <div
-                    className={cx(
-                      styles.previewBox,
-                      previewAreaDimensions.width === 0 && styles.previewBoxHidden,
-                    )}
-                    style={{
-                      '--width': `${previewDimensions.width}px`,
-                      '--height': `${previewDimensions.height}px`,
-                      // Disable grid when unit is 'px'
-                      '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
-                    }}
-                  />
+                <div className={styles.sidecar}>
+                  <div ref={previewAreaRef} className={styles.preview}>
+                    <div
+                      className={cx(
+                        styles.previewBox,
+                        previewAreaDimensions.width === 0 && styles.previewBoxHidden,
+                      )}
+                      style={{
+                        '--width': `${previewDimensions.width}px`,
+                        '--height': `${previewDimensions.height}px`,
+                        // Disable grid when unit is 'px'
+                        '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
+                      }}
+                    />
+                  </div>
+
+                  {/* TODO: add rotation */}
+                  {isDepthFocused || rotated ? <p>Rotated</p> : <p>Flat</p>}
+
+                  <div className={styles.toolbar}>
+                    <Toggle.Root pressed={rotated} onPressedChange={setRotated} asChild>
+                      <button
+                        className={styles.toolbarButton}
+                        title="Toggle 3D View"
+                        aria-label="Toggle 3D View">
+                        <Rotate />
+                      </button>
+                    </Toggle.Root>
+                  </div>
                 </div>
               </FormModal.Sidecar>
 
@@ -178,6 +205,21 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
                           handleChange(evt);
                           setFieldValue('preset', 'custom');
                         }}
+                      />
+                    )}
+                  </FieldWrapper>
+
+                  <div className={styles.timesIcon}>
+                    <Close />
+                  </div>
+
+                  <FieldWrapper name="depth" label="Depth" required>
+                    {field => (
+                      <NumberField
+                        {...field}
+                        min={0}
+                        onFocus={() => setIsDepthFocused(true)}
+                        onBlur={() => setIsDepthFocused(false)}
                       />
                     )}
                   </FieldWrapper>

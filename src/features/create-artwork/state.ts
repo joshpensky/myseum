@@ -1,6 +1,5 @@
-import { Matting, MeasureUnit } from '@prisma/client';
+import { MeasureUnit } from '@prisma/client';
 import { assign, createMachine, State } from 'xstate';
-import type { FrameDto } from '@src/data/serializers/frame.serializer';
 import type { SelectionEditorPath } from '@src/features/selection';
 
 export interface StepRefValue {
@@ -20,6 +19,7 @@ export interface UploadContext {
 export interface DimensionsContext {
   width: number;
   height: number;
+  depth: number;
   unit: MeasureUnit;
 }
 
@@ -27,24 +27,6 @@ export interface SelectionContext {
   path: SelectionEditorPath;
   preview: HTMLImageElement;
 }
-
-export type FramingContext = (
-  | {
-      hasFrame: true;
-      frame: Omit<FrameDto, 'owner'>;
-    }
-  | {
-      hasFrame: false;
-      frame?: Omit<FrameDto, 'owner'>;
-    }
-) & {
-  depth: number;
-  framingOptions: {
-    scaled: boolean;
-    scaling: number;
-    matting: Matting;
-  };
-};
 
 export interface DetailsContext {
   title: string;
@@ -62,7 +44,6 @@ export interface CreateArtworkContext {
   upload?: UploadContext;
   dimensions?: DimensionsContext;
   selection?: SelectionContext;
-  framing?: FramingContext;
   details?: DetailsContext;
 }
 
@@ -94,11 +75,6 @@ export interface ConfirmSelectionEvent {
   selection: SelectionContext;
 }
 
-export interface ConfirmFramingEvent {
-  type: 'CONFIRM_FRAMING';
-  framing: FramingContext;
-}
-
 export interface ConfirmDetailsEvent {
   type: 'CONFIRM_DETAILS';
   details: DetailsContext;
@@ -126,7 +102,6 @@ export type CreateArtworkEvent =
   | ConfirmUploadEvent
   | ConfirmDimensionsEvent
   | ConfirmSelectionEvent
-  | ConfirmFramingEvent
   | ConfirmDetailsEvent
   | EditDimensionsEvent
   | EditSelectionEvent
@@ -152,14 +127,9 @@ export interface SelectionTypestate {
   context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions'>;
 }
 
-export interface FramingTypestate {
-  value: 'framing';
-  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
-}
-
 export interface DetailsTypestate {
   value: 'details';
-  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions' | 'selection' | 'framing'>;
+  context: PickRequired<CreateArtworkContext, 'upload' | 'dimensions' | 'selection'>;
 }
 
 export interface ReviewTypestate {
@@ -171,7 +141,6 @@ export type CreateArtworkTypestate =
   | UploadTypestate
   | DimensionsTypestate
   | SelectionTypestate
-  | FramingTypestate
   | DetailsTypestate
   | ReviewTypestate;
 
@@ -185,7 +154,6 @@ export interface CreateArtworkTypestateMap {
   upload: UploadTypestate;
   dimensions: DimensionsTypestate;
   selection: SelectionTypestate;
-  framing: FramingTypestate;
   details: DetailsTypestate;
   review: ReviewTypestate;
 }
@@ -213,7 +181,6 @@ export const createArtworkMachine = createMachine<
     upload: undefined,
     dimensions: undefined,
     selection: undefined,
-    framing: undefined,
     details: undefined,
   },
   initial: 'upload',
@@ -230,7 +197,6 @@ export const createArtworkMachine = createMachine<
             upload: undefined,
             dimensions: undefined,
             selection: undefined,
-            framing: undefined,
             details: undefined,
           })),
         },
@@ -255,7 +221,6 @@ export const createArtworkMachine = createMachine<
             upload: undefined,
             dimensions: undefined,
             selection: undefined,
-            framing: undefined,
             details: undefined,
           })),
         },
@@ -282,7 +247,6 @@ export const createArtworkMachine = createMachine<
             upload: undefined,
             dimensions: undefined,
             selection: undefined,
-            framing: undefined,
             details: undefined,
           })),
         },
@@ -290,36 +254,9 @@ export const createArtworkMachine = createMachine<
           target: 'dimensions',
         },
         CONFIRM_SELECTION: {
-          target: 'framing',
-          actions: assign((ctx, evt) => ({
-            selection: evt.selection,
-          })),
-        },
-      },
-    },
-    framing: {
-      meta: {
-        title: 'Framing',
-        description: 'Choose a framing option for the artwork.',
-      },
-      on: {
-        RESET: {
-          target: 'upload',
-          actions: assign((ctx, evt) => ({
-            upload: undefined,
-            dimensions: undefined,
-            selection: undefined,
-            framing: undefined,
-            details: undefined,
-          })),
-        },
-        GO_BACK: {
-          target: 'selection',
-        },
-        CONFIRM_FRAMING: {
           target: 'details',
           actions: assign((ctx, evt) => ({
-            framing: evt.framing,
+            selection: evt.selection,
           })),
         },
       },
@@ -336,12 +273,11 @@ export const createArtworkMachine = createMachine<
             upload: undefined,
             dimensions: undefined,
             selection: undefined,
-            framing: undefined,
             details: undefined,
           })),
         },
         GO_BACK: {
-          target: 'framing',
+          target: 'selection',
         },
         CONFIRM_DETAILS: {
           target: 'review',
@@ -352,7 +288,6 @@ export const createArtworkMachine = createMachine<
       },
     },
     review: {
-      // type: 'final',
       meta: {
         title: 'Review',
         description: 'Make any last edits and confirm your selections.',
@@ -364,7 +299,6 @@ export const createArtworkMachine = createMachine<
             upload: undefined,
             dimensions: undefined,
             selection: undefined,
-            framing: undefined,
             details: undefined,
           })),
         },
@@ -373,9 +307,6 @@ export const createArtworkMachine = createMachine<
         },
         EDIT_SELECTION: {
           target: 'selection',
-        },
-        EDIT_FRAMING: {
-          target: 'framing',
         },
         EDIT_DETAILS: {
           target: 'details',

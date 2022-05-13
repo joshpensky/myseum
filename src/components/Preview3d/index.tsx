@@ -11,7 +11,7 @@ import { CommonUtils } from '@src/utils/CommonUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import styles from './preview3d.module.scss';
 
-interface Preview3dProps {
+export interface Preview3dProps {
   rotated: boolean;
   artwork: Pick<ArtworkDto, 'src' | 'alt' | 'size'>;
   frame?: Pick<FrameDto, 'src' | 'alt' | 'size' | 'window'>;
