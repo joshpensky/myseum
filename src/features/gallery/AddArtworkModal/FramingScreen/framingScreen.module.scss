@@ -4,36 +4,10 @@
   flex: 1;
 }
 
-.active-content {
+.sidecar {
   align-items: center;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-
-  @include mq($bp-modal-drawer) {
-    @include fixed(0 sz(-8) 0 x);
-    @include margin(x sz(4));
-    background: c('bg');
-    border: 1px solid c('white');
-    border-radius: sz(4);
-    max-width: calc(100vw - 400px - #{sz(8)});
-    min-width: calc(100vw - 550px - #{sz(8)});
-    overflow: hidden;
-    width: calc((2 / 3 * 100vw) - #{sz(8)});
-    transform: translateX(100%);
-  }
-
-  @include mq(max, $bp-modal-drawer) {
-    @include sticky(0 x x);
-    backdrop-filter: blur(2px);
-    background-color: c('bg', 0.75);
-    display: flex;
-    justify-content: center;
-    margin-bottom: sz(4);
-    width: calc(100% + #{sz(5)} * 2);
-    transform: translateX(sz(-5));
-    z-index: 2;
-  }
+  border-color: transparent;
 }
 
 .preview {
@@ -41,18 +15,12 @@
   overflow: hidden;
   position: relative;
 
-  @include with-motion {
-    transition: background-color 150ms ease-out;
-  }
-
   @include mq(max, $bp-modal-drawer) {
+    background: c('bg');
     border-radius: sz(2.5);
     height: 300px;
+    margin-bottom: sz(4);
     width: calc(100% - #{sz(4)} * 2);
-
-    @include with-motion {
-      transition: background-color 150ms ease-out;
-    }
   }
 
   &:global(.theme--paper) {
@@ -77,11 +45,7 @@
   margin-bottom: sz(4);
 
   @include mq($bp-modal-drawer) {
-    @include absolute(x 0 0 x);
-    margin-right: sz(4);
-  }
-
-  @include mq(max, $bp-modal-drawer) {
+    margin-top: sz(4);
     margin-bottom: sz(2);
   }
 }
@@ -112,28 +76,12 @@
     @include size(sz(5));
     stroke-width: 1.2;
   }
-
-  + .toolbar__button {
-    margin-left: sz(2);
-  }
 }
 
-.toolbar__button--light {
-  &[aria-pressed='true'] {
-    background-color: c('border', 0.5);
-  }
-}
-
-.toolbar__button--light__icon {
-  @include size(sz(5));
-  border-radius: 50%;
-  border: 1px solid c('border');
-  background-color: c('bg');
-
-  .toolbar__button[aria-pressed='true'] & {
-    border: 1px solid c('bg');
-    background-color: c('border');
-  }
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .radio-group {
@@ -253,26 +201,5 @@
 
   fieldset:disabled & {
     opacity: 0.5;
-  }
-}
-
-.form-actions {
-  @include sticky(x x 0 x);
-  backdrop-filter: blur(3px);
-  background-color: c('bg', 0.75);
-  padding-bottom: sz(4);
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  flex: 1;
-  z-index: 2;
-
-  button {
-    width: 100%;
-  }
-
-  button + button {
-    margin-top: sz(2);
-    margin-left: sz(2);
   }
 }

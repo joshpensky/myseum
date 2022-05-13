@@ -142,27 +142,16 @@
 }
 
 .selected {
-  @include sticky(x x sz(15));
+  @include sticky(x x sz(19));
   background-color: c('bg', 0.75);
   backdrop-filter: blur(3px);
+
+  .row {
+    margin-bottom: 0;
+  }
 }
 
 .selected__label {
   @include label;
   @include margin(sz(1) x);
-}
-
-.actions {
-  @include sticky(x x 0 x);
-  backdrop-filter: blur(3px);
-  background-color: c('bg', 0.75);
-  padding-bottom: sz(4);
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 2;
-
-  button {
-    width: 100%;
-  }
 }

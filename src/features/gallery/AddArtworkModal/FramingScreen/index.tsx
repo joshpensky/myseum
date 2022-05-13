@@ -1,15 +1,12 @@
 import { forwardRef, useState } from 'react';
-import { Matting, MeasureUnit } from '@prisma/client';
+import { Matting } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Field, Form, Formik, FormikProps } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
-import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
-import { NumberField } from '@src/components/NumberField';
 import { Preview3d } from '@src/components/Preview3d';
-import { Select } from '@src/components/Select';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import Checkmark from '@src/svgs/Checkmark';
 import Rotate from '@src/svgs/Cube';
@@ -25,8 +22,6 @@ const positionSchema = z.object({ x: z.number(), y: z.number() });
 const framingScreenSchema = z
   .object({
     hasFrame: z.boolean({ required_error: 'You must select a framing option.' }),
-
-    depth: z.number().nonnegative('Depth must be greater than or equal to 0.'),
 
     frame: z
       .object({
@@ -69,7 +64,6 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
   function FramingScreen({ gallery, state, onBack, onSubmit }, ref) {
     const initialValues: FramingScreenSchema = {
       hasFrame: undefined as any,
-      depth: 0,
       frame: undefined,
       framingOptions: {
         scaled: false,
@@ -89,6 +83,8 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
           validate={validateZodSchema(framingScreenSchema)}
           onSubmit={(values, helpers) => {
             const maxX = Math.max(...gallery.artworks.map(a => a.position.x + a.size.width));
+
+            // TODO: save artwork to gallery
 
             // if (values.hasFrame) {
             //   if (!values.frame) {
@@ -119,21 +115,20 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
           {formik => {
             const { values, setFieldValue, isSubmitting, isValid } = formik;
 
-            const [isDepthFocused, setIsDepthFocused] = useState(false);
             const [rotated, setRotated] = useState(false);
 
             let previewDepth = 0;
             if (values.hasFrame === false) {
-              previewDepth = values.depth;
+              previewDepth = state.context.artwork.size.depth;
             }
 
             return (
               <Form className={styles.form} noValidate>
-                <div className={cx(styles.activeContent, `theme--${gallery.color}`)}>
+                <FormModal.Sidecar className={cx(styles.sidecar, `theme--${gallery.color}`)}>
                   <div className={styles.preview}>
                     <div className={styles.previewInner}>
                       <Preview3d
-                        rotated={rotated || isDepthFocused}
+                        rotated={rotated}
                         artwork={{
                           ...state.context.artwork,
                           src: getImageUrl('artworks', state.context.artwork.src),
@@ -158,120 +153,84 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
                       </button>
                     </Toggle.Root>
                   </div>
-                </div>
+                </FormModal.Sidecar>
 
-                <div className={styles.radioGroup}>
-                  <Field
-                    id="hasFrame-false"
-                    className="sr-only"
-                    type="radio"
-                    name="hasFrame"
-                    required
-                    value="false"
-                    checked={values.hasFrame === false}
-                    onChange={() => setFieldValue('hasFrame', false)}
-                  />
-
-                  <label className={styles.radioGroupLabel} htmlFor="hasFrame-false">
-                    <span className={styles.radioGroupButton} aria-hidden="true">
-                      <Checkmark />
-                    </span>
-                    No Frame
-                  </label>
-
-                  <fieldset
-                    className={styles.radioGroupFieldset}
-                    disabled={values.hasFrame !== false}>
-                    <legend className="sr-only">No Frame</legend>
-                    <p className={styles.radioGroupDescription}>Adjust the depth of the piece.</p>
-
-                    <div className={styles.fieldRow}>
-                      <FieldWrapper
-                        className={styles.fieldRowItem}
-                        name="depth"
-                        label="Depth"
-                        required>
-                        {field => (
-                          <NumberField
-                            {...field}
-                            min={0}
-                            onFocus={() => setIsDepthFocused(true)}
-                            onBlur={() => setIsDepthFocused(false)}
-                          />
-                        )}
-                      </FieldWrapper>
-
-                      <FieldWrapper
-                        className={styles.fieldRowItem}
-                        name="depth-unit"
-                        label="Unit"
-                        disabled
-                        required>
-                        {field => (
-                          <Select<MeasureUnit>
-                            {...field}
-                            value={state.context.artwork.unit}
-                            options={[
-                              { value: 'px', display: 'pixels' },
-                              { value: 'in', display: 'inches' },
-                              { value: 'cm', display: 'centimeters' },
-                              { value: 'mm', display: 'millimeters' },
-                            ]}
-                          />
-                        )}
-                      </FieldWrapper>
-                    </div>
-                  </fieldset>
-
-                  <div className={styles.radioGroupFrame} />
-                </div>
-
-                <div className={styles.radioGroup}>
-                  <Field
-                    id="hasFrame-true"
-                    className="sr-only"
-                    type="radio"
-                    name="hasFrame"
-                    required
-                    value="true"
-                    checked={values.hasFrame === true}
-                    onChange={() => setFieldValue('hasFrame', true)}
-                  />
-
-                  <label className={styles.radioGroupLabel} htmlFor="hasFrame-true">
-                    <span className={styles.radioGroupButton} aria-hidden="true">
-                      <Checkmark />
-                    </span>
-                    Framed
-                  </label>
-
-                  <fieldset
-                    className={styles.radioGroupFieldset}
-                    disabled={values.hasFrame !== true}>
-                    <legend className="sr-only">Framed</legend>
-                    <p className={styles.radioGroupDescription}>
-                      Create or choose an existing frame.
-                    </p>
-
-                    <FrameSelection
-                      value={values.frame}
-                      onChange={data => setFieldValue('frame', data)}
+                <div className={styles.formBody}>
+                  <div className={styles.radioGroup}>
+                    <Field
+                      id="hasFrame-false"
+                      className="sr-only"
+                      type="radio"
+                      name="hasFrame"
+                      required
+                      value="false"
+                      checked={values.hasFrame === false}
+                      onChange={() => setFieldValue('hasFrame', false)}
                     />
 
-                    {/* TODO: add create frame modal */}
-                    <Button className={styles.createButton} type="button">
-                      Create frame
-                    </Button>
+                    <label className={styles.radioGroupLabel} htmlFor="hasFrame-false">
+                      <span className={styles.radioGroupButton} aria-hidden="true">
+                        <Checkmark />
+                      </span>
+                      No Frame
+                    </label>
 
-                    <hr className={styles.separator} />
+                    <fieldset
+                      className={styles.radioGroupFieldset}
+                      disabled={values.hasFrame !== false}>
+                      <legend className="sr-only">No Frame</legend>
+                    </fieldset>
 
-                    <FramingOptions />
-                  </fieldset>
+                    <div className={styles.radioGroupFrame} />
+                  </div>
 
-                  <div className={styles.radioGroupFrame} />
+                  <div className={styles.radioGroup}>
+                    <Field
+                      id="hasFrame-true"
+                      className="sr-only"
+                      type="radio"
+                      name="hasFrame"
+                      required
+                      value="true"
+                      checked={values.hasFrame === true}
+                      onChange={() => setFieldValue('hasFrame', true)}
+                    />
+
+                    <label className={styles.radioGroupLabel} htmlFor="hasFrame-true">
+                      <span className={styles.radioGroupButton} aria-hidden="true">
+                        <Checkmark />
+                      </span>
+                      Framed
+                    </label>
+
+                    <fieldset
+                      className={styles.radioGroupFieldset}
+                      disabled={values.hasFrame !== true}>
+                      <legend className="sr-only">Framed</legend>
+                      <p className={styles.radioGroupDescription}>
+                        Create or choose an existing frame.
+                      </p>
+
+                      <FrameSelection
+                        value={values.frame}
+                        onChange={data => setFieldValue('frame', data)}
+                      />
+
+                      {/* TODO: add create frame modal */}
+                      <Button className={styles.createButton} type="button">
+                        Create frame
+                      </Button>
+
+                      <hr className={styles.separator} />
+
+                      <FramingOptions />
+                    </fieldset>
+
+                    <div className={styles.radioGroupFrame} />
+                  </div>
                 </div>
 
-                <div className={styles.formActions}>
+                <FormModal.Footer>
                   <Button type="button" disabled={isSubmitting} onClick={onBack}>
                     Back
                   </Button>
@@ -279,7 +238,7 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
                   <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                     Save
                   </Button>
-                </div>
+                </FormModal.Footer>
               </Form>
             );
           }}
