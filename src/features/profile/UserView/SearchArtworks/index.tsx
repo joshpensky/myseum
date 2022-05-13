@@ -1,9 +1,11 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
+import axios from 'axios';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
 import useSWR from 'swr';
+import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Loader } from '@src/components/Loader';
@@ -22,9 +24,13 @@ import styles from './searchArtworks.module.scss';
 
 interface ArtworkRowProps {
   artwork: ArtworkDto;
+  onDelete(): void;
 }
 
-const ArtworkRow = ({ artwork }: ArtworkRowProps) => {
+const ArtworkRow = ({ artwork, onDelete }: ArtworkRowProps) => {
+  const [hasDeleteIntent, setHasDeleteIntent] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const auth = useAuth();
   const isOwner = auth.user?.id === artwork.owner.id;
 
@@ -52,19 +58,50 @@ const ArtworkRow = ({ artwork }: ArtworkRowProps) => {
       </div>
 
       <div className={styles.rowActions}>
+        {/* TODO: fullscreen artwork */}
         <IconButton title="Expand">
           <ExpandIcon />
         </IconButton>
 
         {isOwner && (
           <Fragment>
+            {/* TODO: edit artwork */}
             <IconButton title="Edit">
               <EditIcon />
             </IconButton>
 
-            <IconButton title="Delete">
-              <TrashIcon />
-            </IconButton>
+            <AlertDialog
+              open={hasDeleteIntent}
+              onOpenChange={setHasDeleteIntent}
+              title="Delete Artwork"
+              description={`Are you sure you want to delete the artwork "${artwork.title}"?`}
+              hint="This action cannot be undone."
+              action={
+                <Button
+                  danger
+                  filled
+                  busy={isDeleting}
+                  onClick={async () => {
+                    setIsDeleting(true);
+                    try {
+                      await axios.delete(`/api/artworks/${artwork.id}`);
+                      onDelete();
+                    } catch {
+                      // TODO: toast error
+                    } finally {
+                      setHasDeleteIntent(false);
+                      setIsDeleting(false);
+                    }
+                  }}>
+                  Delete
+                </Button>
+              }
+              trigger={
+                <IconButton title="Delete">
+                  <TrashIcon />
+                </IconButton>
+              }
+            />
           </Fragment>
         )}
       </div>
@@ -154,7 +191,12 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
               <ul>
                 {results.map(result => (
                   <li key={result.item.id} className={styles.rowWrapper}>
-                    <ArtworkRow artwork={result.item} />
+                    <ArtworkRow
+                      artwork={result.item}
+                      onDelete={() => {
+                        artworks.revalidate();
+                      }}
+                    />
                   </li>
                 ))}
               </ul>

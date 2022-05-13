@@ -1,4 +1,4 @@
-import { MeasureUnit } from '@prisma/client';
+import { Artwork, MeasureUnit } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Dimensions3D } from '@src/types';
 import { uploadSupabaseFile } from '@src/utils/uploadSupabaseFile';
@@ -51,6 +51,24 @@ export class ArtworkRepository {
     return artworks;
   }
 
+  static async findOne(id: string) {
+    const artwork = await prisma.artwork.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return artwork;
+  }
+
   static async create(data: CreateArtworkDto) {
     const src = await uploadSupabaseFile('artworks', data.src);
 
@@ -85,5 +103,14 @@ export class ArtworkRepository {
     });
 
     return artwork;
+  }
+
+  static async delete(artwork: Artwork) {
+    const deletedArtwork = await prisma.artwork.delete({
+      where: {
+        id: artwork.id,
+      },
+    });
+    return deletedArtwork;
   }
 }
