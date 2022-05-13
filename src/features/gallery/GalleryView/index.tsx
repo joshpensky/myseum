@@ -95,7 +95,12 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
               {isCurrentUser && (
                 <AddArtworkModal
                   gallery={gallery}
-                  onSave={() => {}}
+                  onSave={artwork => {
+                    setGallery(gallery => ({
+                      ...gallery,
+                      artworks: [...gallery.artworks, artwork],
+                    }));
+                  }}
                   trigger={<Button className={styles.emptyStateAction}>Add artwork</Button>}
                 />
               )}

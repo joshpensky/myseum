@@ -16,7 +16,7 @@ export interface Preview3dProps {
   artwork: Pick<ArtworkDto, 'src' | 'alt' | 'size'>;
   frame?: Pick<FrameDto, 'src' | 'alt' | 'size' | 'window'>;
   framingOptions?: {
-    scaled: boolean;
+    isScaled: boolean;
     scaling: number;
     matting: Matting;
   };
@@ -132,7 +132,7 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
     windowRightLength = GeometryUtils.getLineLength(windowPoints[0], windowPoints[1]);
     windowRightAngle = GeometryUtils.getLineAngle(windowPoints[0], windowPoints[1]);
 
-    if (framingOptions?.scaled) {
+    if (framingOptions?.isScaled) {
       const windowMinX = Math.min(...windowPoints.map(point => point.x));
       const windowMinY = Math.min(...windowPoints.map(point => point.y));
       const windowMaxX = Math.max(...windowPoints.map(point => point.x));
@@ -182,7 +182,7 @@ export const Preview3d = ({ artwork, frame, rotated, framingOptions }: Preview3d
               styles[`matting--${framingOptions?.matting}`],
               framingOptions?.matting === 'light' && 'theme--paper',
               framingOptions?.matting === 'dark' && 'theme--ink',
-              framingOptions?.scaled && styles.scaled,
+              framingOptions?.isScaled && styles.scaled,
             ],
           )}
           style={artworkStyle}>

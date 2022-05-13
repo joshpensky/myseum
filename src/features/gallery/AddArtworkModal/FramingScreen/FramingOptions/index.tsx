@@ -3,13 +3,13 @@ import * as Slider from '@radix-ui/react-slider';
 import cx from 'classnames';
 import { Field, useFormikContext } from 'formik';
 import { FieldWrapper } from '@src/components/FieldWrapper';
-import type { FramingStepSchema } from '@src/features/create-artwork-OLD/FramingStep';
+import { FramingScreenSchema } from '@src/features/gallery/AddArtworkModal/FramingScreen';
 import styles from './framingOptions.module.scss';
 
 export const FramingOptions = () => {
-  const { values, setFieldValue } = useFormikContext<FramingStepSchema>();
+  const { values, setFieldValue } = useFormikContext<FramingScreenSchema>();
 
-  const scaledSelectedOptionIdx = values.framingOptions.scaled ? 1 : 0;
+  const scaledSelectedOptionIdx = values.framingOptions.isScaled ? 1 : 0;
   const mattingSelectedOptionIdx = {
     none: 0,
     light: 1,
@@ -30,28 +30,28 @@ export const FramingOptions = () => {
           className={styles.radioGroup}
           style={{ '--options': 2, '--selected-index': scaledSelectedOptionIdx }}>
           <Field
-            id="framingOptions.scaled-false"
-            name="framingOptions.scaled"
+            id="framingOptions.isScaled-false"
+            name="framingOptions.isScaled"
             className="sr-only"
             type="radio"
             value="false"
-            checked={!values.framingOptions.scaled}
-            onChange={() => setFieldValue('framingOptions.scaled', false)}
+            checked={!values.framingOptions.isScaled}
+            onChange={() => setFieldValue('framingOptions.isScaled', false)}
           />
           <label htmlFor="framingOptions.scaled-false" className={styles.radioGroupItem}>
             Actual Size
           </label>
 
           <Field
-            id="framingOptions.scaled-true"
-            name="framingOptions.scaled"
+            id="framingOptions.isScaled-true"
+            name="framingOptions.isScaled"
             className="sr-only"
             type="radio"
             value="true"
-            checked={values.framingOptions.scaled}
-            onChange={() => setFieldValue('framingOptions.scaled', true)}
+            checked={values.framingOptions.isScaled}
+            onChange={() => setFieldValue('framingOptions.isScaled', true)}
           />
-          <label htmlFor="framingOptions.scaled-true" className={styles.radioGroupItem}>
+          <label htmlFor="framingOptions.isScaled-true" className={styles.radioGroupItem}>
             Scaled
           </label>
         </div>
@@ -62,7 +62,7 @@ export const FramingOptions = () => {
         name="framingOptions.scaling"
         label="Scale"
         required
-        disabled={!values.frame || !values.framingOptions.scaled}>
+        disabled={!values.frame || !values.framingOptions.isScaled}>
         {field => (
           <Slider.Root
             {...field}

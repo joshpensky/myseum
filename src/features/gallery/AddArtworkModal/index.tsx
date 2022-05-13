@@ -6,7 +6,6 @@ import * as FormModal from '@src/components/FormModal';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { FramingScreen } from './FramingScreen';
 import { SelectionScreen } from './SelectionScreen';
-import styles from './addArtworkModal.module.scss';
 import { addArtworkMachine, AddArtworkStateValue } from './state';
 
 interface AddArtworkModalProps {
@@ -56,7 +55,6 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
 
   return (
     <FormModal.Root
-      overlayClassName={styles.overlay}
       open={open}
       onOpenChange={nextOpen => {
         setOpen(nextOpen);

@@ -1,16 +1,28 @@
-import { Gallery, GalleryColor, Matting, Prisma } from '@prisma/client';
+import {
+  Artwork,
+  Frame,
+  Gallery,
+  GalleryColor,
+  Matting,
+  PlacedArtwork,
+  Prisma,
+} from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
 
-interface UpdatePlacedArtworkDto {
+export interface AddPlacedArtworkDto {
   artworkId: string;
   frameId?: string;
-  position: Position;
+  position?: Position;
   framingOptions: {
     isScaled: boolean;
     scaling: number;
     matting: Matting;
   };
+}
+
+export interface UpdatePlacedArtworkDto extends AddPlacedArtworkDto {
+  position: Position;
 }
 
 export interface UpdateGalleryDto {
@@ -164,6 +176,71 @@ export class GalleryRepository {
       },
     });
     return gallery;
+  }
+
+  static async addArtwork(
+    gallery: Gallery & { artworks: (PlacedArtwork & { artwork: Artwork; frame: Frame | null })[] },
+    data: AddPlacedArtworkDto,
+  ) {
+    const projectedPosition: Position = {
+      x: Math.max(0, ...gallery.artworks.map(a => a.posX + (a.frame?.width ?? a.artwork.width))),
+      y: 0,
+    };
+
+    let frame: { connect: { id: string } } | undefined = undefined;
+    if (data.frameId) {
+      frame = {
+        connect: {
+          id: data.frameId,
+        },
+      };
+    }
+
+    const addedPlacedArtwork = await prisma.placedArtwork.create({
+      data: {
+        gallery: {
+          connect: {
+            id: gallery.id,
+          },
+        },
+        artwork: {
+          connect: {
+            id: data.artworkId,
+          },
+        },
+        frame: frame,
+        posX: data.position?.x ?? projectedPosition.x,
+        posY: data.position?.y ?? projectedPosition.y,
+        isScaled: data.framingOptions.isScaled,
+        scaling: data.framingOptions.scaling,
+        matting: data.framingOptions.matting,
+      },
+      include: {
+        artwork: {
+          include: {
+            artist: true,
+            owner: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        frame: {
+          include: {
+            owner: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return addedPlacedArtwork;
   }
 
   static async update(gallery: Gallery, data: UpdateGalleryDto) {

@@ -1,13 +1,16 @@
 import { forwardRef, useState } from 'react';
 import { Matting } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
+import axios from 'axios';
 import cx from 'classnames';
 import { Field, Form, Formik, FormikProps } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { Preview3d } from '@src/components/Preview3d';
+import { AddPlacedArtworkDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { AddArtworkState } from '@src/features/gallery/AddArtworkModal/state';
 import Checkmark from '@src/svgs/Checkmark';
 import Rotate from '@src/svgs/Cube';
 import { getImageUrl } from '@src/utils/getImageUrl';
@@ -15,7 +18,6 @@ import { validateZodSchema } from '@src/utils/validateZodSchema';
 import { FrameSelection } from './FrameSelection';
 import { FramingOptions } from './FramingOptions';
 import styles from './framingScreen.module.scss';
-import { AddArtworkState } from '../state';
 
 const positionSchema = z.object({ x: z.number(), y: z.number() });
 
@@ -41,7 +43,7 @@ const framingScreenSchema = z
       .optional(),
 
     framingOptions: z.object({
-      scaled: z.boolean(),
+      isScaled: z.boolean(),
       scaling: z.number().min(20).max(100),
       matting: z.nativeEnum(Matting),
     }),
@@ -66,7 +68,7 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
       hasFrame: undefined as any,
       frame: undefined,
       framingOptions: {
-        scaled: false,
+        isScaled: false,
         scaling: 100,
         matting: 'none',
       },
@@ -81,36 +83,24 @@ export const FramingScreen = forwardRef<FormikProps<any>, FramingScreenProps>(
           initialValues={initialValues}
           initialErrors={initialErrors}
           validate={validateZodSchema(framingScreenSchema)}
-          onSubmit={(values, helpers) => {
-            const maxX = Math.max(...gallery.artworks.map(a => a.position.x + a.size.width));
+          onSubmit={async (values, helpers) => {
+            helpers.setSubmitting(true);
+            try {
+              const createArtworkData: AddPlacedArtworkDto = {
+                artworkId: state.context.artwork.id,
+                frameId: values.hasFrame && values.frame ? values.frame?.id : undefined,
+                framingOptions: values.framingOptions,
+              };
 
-            // TODO: save artwork to gallery
-
-            // if (values.hasFrame) {
-            //   if (!values.frame) {
-            //     helpers.setFieldError('frame', 'You must select a frame.');
-            //     return;
-            //   }
-            //   onSubmit({
-            //     type: 'CONFIRM_FRAMING',
-            //     framing: {
-            //       hasFrame: true,
-            //       depth: values.depth,
-            //       frame: values.frame,
-            //       framingOptions: values.framingOptions,
-            //     },
-            //   });
-            // } else {
-            //   onSubmit({
-            //     type: 'CONFIRM_FRAMING',
-            //     framing: {
-            //       hasFrame: false,
-            //       depth: values.depth,
-            //       frame: values.frame,
-            //       framingOptions: values.framingOptions,
-            //     },
-            //   });
-            // }
+              const res = await axios.post<PlacedArtworkDto>(
+                `/api/museum/${gallery.museum.id}/gallery/${gallery.id}/artworks`,
+                createArtworkData,
+              );
+              onSubmit(res.data);
+            } catch (error) {
+              console.error(error);
+              helpers.setSubmitting(false);
+            }
           }}>
           {formik => {
             const { values, setFieldValue, isSubmitting, isValid } = formik;
