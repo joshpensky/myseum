@@ -4,6 +4,12 @@
   flex: 1;
 }
 
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .field {
   + .field {
     margin-top: sz(3);
@@ -33,19 +39,5 @@
     background-color: c('bg');
     border: 1px solid c('white');
     @include margin(sz(1) x sz(1));
-  }
-}
-
-.actions {
-  @include sticky(x x 0);
-  align-items: flex-end;
-  background-color: c('bg', 0.7);
-  display: flex;
-  flex: 1;
-  margin-top: sz(4);
-  padding-bottom: sz(5);
-
-  button {
-    width: 100%;
   }
 }

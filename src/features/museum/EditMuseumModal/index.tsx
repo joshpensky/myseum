@@ -13,7 +13,7 @@ import IconButton from '@src/components/IconButton';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
-import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import { CreateGalleryModal } from '@src/features/gallery/CreateGalleryModal';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
@@ -92,147 +92,149 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
 
             return (
               <Form className={styles.form} noValidate>
-                <FieldWrapper className={styles.field} name="name" label="Name" required>
-                  {field => <TextField {...field} type="text" />}
-                </FieldWrapper>
+                <div className={styles.formBody}>
+                  <FieldWrapper className={styles.field} name="name" label="Name" required>
+                    {field => <TextField {...field} type="text" />}
+                  </FieldWrapper>
 
-                <FieldWrapper className={styles.field} name="description" label="Description">
-                  {field => <TextArea {...field} rows={2} />}
-                </FieldWrapper>
+                  <FieldWrapper className={styles.field} name="description" label="Description">
+                    {field => <TextArea {...field} rows={2} />}
+                  </FieldWrapper>
 
-                <fieldset className={styles.field} disabled={isSubmitting}>
-                  <legend className={styles.legend}>Galleries</legend>
+                  <fieldset className={styles.field} disabled={isSubmitting}>
+                    <legend className={styles.legend}>Galleries</legend>
 
-                  <div className={styles.galleriesFieldset}>
-                    <CreateGalleryModal
-                      trigger={
-                        <Button className={styles.galleriesFieldsetAction} type="button">
-                          Create gallery
-                        </Button>
-                      }
-                      onSave={data => {
-                        const galleryIdx = galleries.findIndex(gallery => gallery.id === data.id);
-                        let nextGalleries: GalleryDto[];
-                        if (galleryIdx < 0) {
-                          nextGalleries = [data, ...galleries];
-                        } else {
-                          nextGalleries = [
-                            ...galleries.slice(0, galleryIdx),
-                            data,
-                            ...galleries.slice(galleryIdx + 1),
-                          ];
+                    <div className={styles.galleriesFieldset}>
+                      <CreateGalleryModal
+                        trigger={
+                          <Button className={styles.galleriesFieldsetAction} type="button">
+                            Create gallery
+                          </Button>
                         }
-                        onSave({
-                          ...museum,
-                          galleries: nextGalleries,
-                        });
-                      }}
-                    />
-
-                    {!galleries.length ? (
-                      <div className={styles.emptyState}>
-                        <div className={styles.emptyStateIllo}>
-                          <EmptyGalleryIllustration />
-                        </div>
-                        <p className={styles.emptyStateText}>You have no galleries.</p>
-                        <CreateGalleryModal
-                          onComplete={data => {
-                            onSave({
-                              ...museum,
-                              galleries: [data, ...galleries],
-                            });
-                          }}
-                          trigger={
-                            <Button className={styles.emptyStateAction}>Create gallery</Button>
+                        onSave={data => {
+                          const galleryIdx = galleries.findIndex(gallery => gallery.id === data.id);
+                          let nextGalleries: GalleryDto[];
+                          if (galleryIdx < 0) {
+                            nextGalleries = [data, ...galleries];
+                          } else {
+                            nextGalleries = [
+                              ...galleries.slice(0, galleryIdx),
+                              data,
+                              ...galleries.slice(galleryIdx + 1),
+                            ];
                           }
-                        />
-                      </div>
-                    ) : (
-                      <ul>
-                        {galleries.map((gallery, idx) => (
-                          <li key={gallery.id} className={styles.gallery}>
-                            <div className={cx(styles.galleryPreview, `theme--${gallery.color}`)}>
-                              <Grid.Root
-                                preview
-                                size={{ width: 10, height: gallery.height }}
-                                items={[] as PlacedArtworkDto[]}
-                                step={1}
-                                getItemId={item => String(item.artwork.id)}
-                                renderItem={(item, props) => (
-                                  <GridArtwork {...props} item={item} disabled={props.disabled} />
-                                )}>
-                                <Grid.Grid className={styles.galleryPreviewGrid} />
-                              </Grid.Root>
-                            </div>
+                          onSave({
+                            ...museum,
+                            galleries: nextGalleries,
+                          });
+                        }}
+                      />
 
-                            <div className={styles.galleryMeta}>
-                              <p>{gallery.name}</p>
-                              <p className={styles.galleryMetaSmall}>
-                                Est. {dayjs(gallery.addedAt).year()}
-                              </p>
-                            </div>
+                      {!galleries.length ? (
+                        <div className={styles.emptyState}>
+                          <div className={styles.emptyStateIllo}>
+                            <EmptyGalleryIllustration />
+                          </div>
+                          <p className={styles.emptyStateText}>You have no galleries.</p>
+                          <CreateGalleryModal
+                            onComplete={data => {
+                              onSave({
+                                ...museum,
+                                galleries: [data, ...galleries],
+                              });
+                            }}
+                            trigger={
+                              <Button className={styles.emptyStateAction}>Create gallery</Button>
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <ul>
+                          {galleries.map((gallery, idx) => (
+                            <li key={gallery.id} className={styles.gallery}>
+                              <div className={cx(styles.galleryPreview, `theme--${gallery.color}`)}>
+                                <Grid.Root
+                                  preview
+                                  size={{ width: 10, height: gallery.height }}
+                                  items={gallery.artworks}
+                                  step={1}
+                                  getItemId={item => item.artwork.id}
+                                  renderItem={(item, props) => (
+                                    <GridArtwork {...props} item={item} disabled={props.disabled} />
+                                  )}>
+                                  <Grid.Grid className={styles.galleryPreviewGrid} />
+                                </Grid.Root>
+                              </div>
 
-                            <ThemeProvider theme={theme}>
-                              <AlertDialog
-                                open={galleryToDelete === gallery.id}
-                                onOpenChange={open => {
-                                  if (open) {
-                                    setGalleryToDelete(gallery.id);
-                                  } else {
-                                    setGalleryToDelete(null);
+                              <div className={styles.galleryMeta}>
+                                <p>{gallery.name}</p>
+                                <p className={styles.galleryMetaSmall}>
+                                  Est. {dayjs(gallery.addedAt).year()}
+                                </p>
+                              </div>
+
+                              <ThemeProvider theme={theme}>
+                                <AlertDialog
+                                  open={galleryToDelete === gallery.id}
+                                  onOpenChange={open => {
+                                    if (open) {
+                                      setGalleryToDelete(gallery.id);
+                                    } else {
+                                      setGalleryToDelete(null);
+                                    }
+                                  }}
+                                  title="Delete Gallery"
+                                  description={`Are you sure you want to delete ${gallery.name}?`}
+                                  hint="You cannot undo this action."
+                                  action={
+                                    <Button
+                                      danger
+                                      filled
+                                      busy={isDeletingGallery}
+                                      onClick={async () => {
+                                        setIsDeletingGallery(true);
+
+                                        try {
+                                          await axios.delete<GalleryDto>(
+                                            `/api/museum/${museum.id}/gallery/${gallery.id}`,
+                                          );
+                                          setGalleryToDelete(null);
+                                          setIsDeletingGallery(false);
+                                          onSave({
+                                            ...museum,
+                                            galleries: [
+                                              ...galleries.slice(0, idx),
+                                              ...galleries.slice(idx + 1),
+                                            ],
+                                          });
+                                        } catch (error) {
+                                          setIsDeletingGallery(false);
+                                          toast.error((error as Error).message);
+                                        }
+                                      }}>
+                                      Delete
+                                    </Button>
                                   }
-                                }}
-                                title="Delete Gallery"
-                                description={`Are you sure you want to delete ${gallery.name}?`}
-                                hint="You cannot undo this action."
-                                action={
-                                  <Button
-                                    danger
-                                    filled
-                                    busy={isDeletingGallery}
-                                    onClick={async () => {
-                                      setIsDeletingGallery(true);
+                                  trigger={
+                                    <IconButton type="button" title="Delete">
+                                      <TrashIcon />
+                                    </IconButton>
+                                  }
+                                />
+                              </ThemeProvider>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </fieldset>
+                </div>
 
-                                      try {
-                                        await axios.delete<GalleryDto>(
-                                          `/api/museum/${museum.id}/gallery/${gallery.id}`,
-                                        );
-                                        setGalleryToDelete(null);
-                                        setIsDeletingGallery(false);
-                                        onSave({
-                                          ...museum,
-                                          galleries: [
-                                            ...galleries.slice(0, idx),
-                                            ...galleries.slice(idx + 1),
-                                          ],
-                                        });
-                                      } catch (error) {
-                                        setIsDeletingGallery(false);
-                                        toast.error((error as Error).message);
-                                      }
-                                    }}>
-                                    Delete
-                                  </Button>
-                                }
-                                trigger={
-                                  <IconButton type="button" title="Delete">
-                                    <TrashIcon />
-                                  </IconButton>
-                                }
-                              />
-                            </ThemeProvider>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </fieldset>
-
-                <div className={styles.actions}>
+                <FormModal.Footer>
                   <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                     Save
                   </Button>
-                </div>
+                </FormModal.Footer>
               </Form>
             );
           }}

@@ -4,6 +4,12 @@
   flex: 1;
 }
 
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .field {
   + .field {
     margin-top: sz(3);
@@ -40,7 +46,7 @@
 }
 
 .empty-state__illo {
-  color: c('illustration')-dark;
+  color: c('illustration');
   margin-bottom: sz(5);
   width: min(100%, #{sz(45)});
 
@@ -96,18 +102,4 @@
 
 .gallery__meta__small {
   @include label;
-}
-
-.actions {
-  @include sticky(x x 0);
-  align-items: flex-end;
-  background-color: c('bg', 0.7);
-  display: flex;
-  flex: 1;
-  margin-top: sz(4);
-  padding-bottom: sz(5);
-
-  button {
-    width: 100%;
-  }
 }

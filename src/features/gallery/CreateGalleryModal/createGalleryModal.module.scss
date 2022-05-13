@@ -3,20 +3,11 @@
 }
 
 .grid-block {
-  @include fixed(0 sz(-8) 0 x);
-  @include margin(x sz(4));
-  background: c('bg');
-  border: 1px solid c('white');
-  border-radius: sz(4);
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  max-width: calc(100vw - 400px - #{sz(8)});
-  min-width: calc(100vw - 550px - #{sz(8)});
-  overflow: hidden;
-  width: calc((2 / 3 * 100vw) - #{sz(8)});
-  transform: translateX(100%);
-  z-index: -1;
+  align-items: center;
+
+  @include mq(max, $bp-modal-drawer) {
+    display: none;
+  }
 }
 
 .grid-block__grid-wrapper {
@@ -24,6 +15,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  width: 100%;
 
   // Hide the actual scrollbar
   overflow-x: auto;

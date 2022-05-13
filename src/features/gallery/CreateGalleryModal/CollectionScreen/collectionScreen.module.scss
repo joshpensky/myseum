@@ -4,6 +4,12 @@
   flex-direction: column;
 }
 
+.form__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
 .grid-preview {
   @include padding(sz(2));
   height: sz(28);
@@ -25,25 +31,6 @@
 
 .grid-preview__edit {
   @include absolute(x sz(2) sz(2) x);
-}
-
-.actions {
-  display: flex;
-  flex: 1;
-  align-items: flex-end;
-  padding-bottom: sz(4);
-
-  button {
-    width: 100%;
-
-    &:nth-child(1) {
-      margin-right: sz(1);
-    }
-
-    &:nth-child(2) {
-      margin-left: sz(1);
-    }
-  }
 }
 
 .search {

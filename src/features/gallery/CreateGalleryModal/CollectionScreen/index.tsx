@@ -13,6 +13,7 @@ import { EditIcon } from '@src/svgs/EditIcon';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import styles from './collectionScreen.module.scss';
 import { CreateGalleryModalContext } from '..';
+import { AddArtworkModal } from '../../AddArtworkModal';
 import { CreateGalleryState } from '../state';
 
 const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);
@@ -20,13 +21,14 @@ const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);
 interface CollectionScreenProps {
   state: CreateGalleryState<'collection'>;
   onBack(): void;
+  onAddArtwork(data: PlacedArtworkDto): void;
   onSubmit(data: GalleryDto): void;
 }
 
 export const CollectionScreen = forwardRef<
   FormikProps<any>,
   PropsWithChildren<CollectionScreenProps>
->(function CollectionScreen({ children, state, onBack, onSubmit }, ref) {
+>(function CollectionScreen({ children, state, onAddArtwork, onBack, onSubmit }, ref) {
   const [openGridModal, setOpenGridModal] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
@@ -57,64 +59,83 @@ export const CollectionScreen = forwardRef<
 
           return (
             <Form className={styles.form} noValidate>
-              <FormModal.Root
-                open={openGridModal}
-                onOpenChange={setOpenGridModal}
-                title="Place Artworks"
-                trigger={
-                  <div className={cx(styles.gridPreview, `theme--${state.context.gallery.color}`)}>
-                    <Grid.Root
-                      preview
-                      size={{ width: 10, height: state.context.gallery.height }}
-                      items={[] as PlacedArtworkDto[]}
-                      step={1}
-                      getItemId={item => String(item.artwork.id)}
-                      renderItem={(item, props) => (
-                        <GridArtwork {...props} item={item} disabled={props.disabled} />
-                      )}>
-                      <Grid.Grid className={styles.gridPreviewGrid} />
-                    </Grid.Root>
-                    <IconButton className={styles.gridPreviewEdit} type="button" title="Edit">
-                      <EditIcon />
-                    </IconButton>
-                  </div>
-                }>
-                <Grid.Root
-                  size={{ width: 10, height: state.context.gallery.height }}
-                  items={[] as PlacedArtworkDto[]}
-                  step={1}
-                  getItemId={item => String(item.artwork.id)}
-                  renderItem={(item, props) => (
-                    <GridArtwork {...props} item={item} disabled={props.disabled} />
-                  )}>
-                  <Grid.Grid />
-                  <Grid.Map />
-                </Grid.Root>
-              </FormModal.Root>
+              <div className={styles.formBody}>
+                <FormModal.Root
+                  open={openGridModal}
+                  onOpenChange={setOpenGridModal}
+                  title="Place Artworks"
+                  trigger={
+                    <div
+                      className={cx(styles.gridPreview, `theme--${state.context.gallery.color}`)}>
+                      <Grid.Root
+                        preview
+                        size={{ width: 10, height: state.context.gallery.height }}
+                        items={state.context.gallery.artworks}
+                        step={1}
+                        getItemId={item => item.artwork.id}
+                        renderItem={(item, props) => (
+                          <GridArtwork {...props} item={item} disabled={props.disabled} />
+                        )}>
+                        <Grid.Grid className={styles.gridPreviewGrid} />
+                      </Grid.Root>
+                      <IconButton className={styles.gridPreviewEdit} type="button" title="Edit">
+                        <EditIcon />
+                      </IconButton>
+                    </div>
+                  }>
+                  <Grid.Root
+                    size={{ width: 10, height: state.context.gallery.height }}
+                    items={state.context.gallery.artworks}
+                    step={1}
+                    getItemId={item => item.artwork.id}
+                    renderItem={(item, props) => (
+                      <GridArtwork {...props} item={item} disabled={props.disabled} />
+                    )}>
+                    <Grid.Grid />
+                    <Grid.Map />
+                  </Grid.Root>
+                </FormModal.Root>
 
-              <div className={styles.search}>
-                <SearchBar name="search" label="Search collection" />
-                <Button className={styles.searchAction} type="button" icon={PlusIcon}>
-                  Add
-                </Button>
+                <div className={styles.search}>
+                  <SearchBar name="search" label="Search collection" />
+                  <AddArtworkModal
+                    gallery={state.context.gallery}
+                    onSave={data => {
+                      onAddArtwork(data);
+                    }}
+                    trigger={
+                      <Button className={styles.searchAction} type="button" icon={PlusIcon}>
+                        Add
+                      </Button>
+                    }
+                  />
+                </div>
+
+                <ul>
+                  {state.context.gallery.artworks.map(artwork => (
+                    <li key={`${artwork.artwork.id}-${artwork.frame?.id}`}>
+                      <p>{artwork.artwork.title}</p>
+                    </li>
+                  ))}
+                </ul>
+
+                <CreateGalleryModalContext.Provider
+                  value={{
+                    height: state.context.gallery.height,
+                    color: state.context.gallery.color,
+                  }}>
+                  {children}
+                </CreateGalleryModalContext.Provider>
               </div>
 
-              <CreateGalleryModalContext.Provider
-                value={{
-                  height: state.context.gallery.height,
-                  color: state.context.gallery.color,
-                }}>
-                {children}
-              </CreateGalleryModalContext.Provider>
-
-              <div className={styles.actions}>
+              <FormModal.Footer>
                 <Button type="button" onClick={() => onBack()}>
                   Back
                 </Button>
                 <Button type="submit" filled busy={isSubmitting}>
                   Save
                 </Button>
-              </div>
+              </FormModal.Footer>
             </Form>
           );
         }}

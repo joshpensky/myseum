@@ -183,7 +183,9 @@ export class GalleryRepository {
     data: AddPlacedArtworkDto,
   ) {
     const projectedPosition: Position = {
-      x: Math.max(0, ...gallery.artworks.map(a => a.posX + (a.frame?.width ?? a.artwork.width))),
+      x: Math.ceil(
+        Math.max(0, ...gallery.artworks.map(a => a.posX + (a.frame?.width ?? a.artwork.width))),
+      ),
       y: 0,
     };
 

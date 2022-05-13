@@ -1,5 +1,5 @@
 import { assign, createMachine, State } from 'xstate';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 
 //////////////////////////
 // Context
@@ -26,7 +26,12 @@ export interface ConfirmDetailsEvent {
   gallery: GalleryDto;
 }
 
-export type CreateGalleryEvent = GoBackEvent | ResetEvent | ConfirmDetailsEvent;
+export interface AddArtworkEvent {
+  type: 'ADD_ARTWORK';
+  artwork: PlacedArtworkDto;
+}
+
+export type CreateGalleryEvent = GoBackEvent | ResetEvent | ConfirmDetailsEvent | AddArtworkEvent;
 
 //////////////////////////
 // Typestates
@@ -105,6 +110,18 @@ export const createGalleryMachine = createMachine<
           actions: assign((ctx, evt) => ({
             gallery: undefined,
           })),
+        },
+        ADD_ARTWORK: {
+          actions: assign((ctx, evt) => {
+            let gallery: GalleryDto | undefined = undefined;
+            if (ctx.gallery) {
+              gallery = {
+                ...ctx.gallery,
+                artworks: [...ctx.gallery.artworks, evt.artwork],
+              };
+            }
+            return { gallery };
+          }),
         },
       },
     },

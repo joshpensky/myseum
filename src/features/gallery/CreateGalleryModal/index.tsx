@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { FormikProps } from 'formik';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
 import { CollectionScreen } from './CollectionScreen';
@@ -30,20 +30,21 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
     return (
       <Grid.Root
         size={{ width: 10, height: ctx.height }}
-        items={[] as PlacedArtworkDto[]}
+        items={state.context.gallery?.artworks ?? []}
         step={1}
         getItemId={item => String(item.artwork.id)}
+        // TODO: add editing ability
         renderItem={(item, props) => (
           <GridArtwork {...props} item={item} disabled={props.disabled} />
         )}>
-        <div className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
+        <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
           <div className={styles.gridBlockGridWrapper}>
             <Grid.Grid className={styles.gridBlockGrid} />
           </div>
           <div className={styles.gridBlockMap}>
             <Grid.Map />
           </div>
-        </div>
+        </FormModal.Sidecar>
       </Grid.Root>
     );
   };
@@ -66,7 +67,12 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
         <CollectionScreen
           ref={formikRef}
           state={state}
-          onBack={() => send({ type: 'GO_BACK' })}
+          onAddArtwork={data => {
+            send({ type: 'ADD_ARTWORK', artwork: data });
+          }}
+          onBack={() => {
+            send({ type: 'GO_BACK' });
+          }}
           onSubmit={data => {
             onSave?.(data);
             onComplete?.(data);

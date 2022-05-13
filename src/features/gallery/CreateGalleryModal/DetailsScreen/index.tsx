@@ -91,72 +91,76 @@ export const DetailsScreen = forwardRef<
 
           return (
             <Form className={styles.form} noValidate>
-              <FieldWrapper className={styles.field} name="name" label="Name" required>
-                {field => <TextField {...field} type="text" autoComplete="off" />}
-              </FieldWrapper>
-
-              <FieldWrapper className={styles.field} name="description" label="Description">
-                {field => <TextArea {...field} rows={2} />}
-              </FieldWrapper>
-
-              <FieldWrapper className={styles.field} name="color" label="Wall Color" required>
-                {field => (
-                  <RadioGroup<GalleryColor>
-                    {...field}
-                    options={[
-                      {
-                        value: 'paper',
-                        display: (
-                          <span className={cx(styles.colorOption, 'theme--paper')}>Paper</span>
-                        ),
-                      },
-                      {
-                        value: 'rose',
-                        display: (
-                          <span className={cx(styles.colorOption, 'theme--rose')}>Rosé</span>
-                        ),
-                      },
-                      {
-                        value: 'mint',
-                        display: (
-                          <span className={cx(styles.colorOption, 'theme--mint')}>Mint</span>
-                        ),
-                      },
-                      {
-                        value: 'navy',
-                        display: (
-                          <span className={cx(styles.colorOption, 'theme--navy')}>Navy</span>
-                        ),
-                      },
-                      {
-                        value: 'ink',
-                        display: <span className={cx(styles.colorOption, 'theme--ink')}>Ink</span>,
-                      },
-                    ]}
-                  />
-                )}
-              </FieldWrapper>
-
-              <div className={styles.row}>
-                <FieldWrapper className={styles.field} name="height" label="Height" required>
-                  {field => <NumberField {...field} min={1} />}
+              <div className={styles.formBody}>
+                <FieldWrapper className={styles.field} name="name" label="Name" required>
+                  {field => <TextField {...field} type="text" autoComplete="off" />}
                 </FieldWrapper>
 
-                <FieldWrapper className={styles.field} name="unit" label="Unit" required>
-                  {field => <TextField {...field} type="text" value="inches" readOnly />}
+                <FieldWrapper className={styles.field} name="description" label="Description">
+                  {field => <TextArea {...field} rows={2} />}
                 </FieldWrapper>
+
+                <FieldWrapper className={styles.field} name="color" label="Wall Color" required>
+                  {field => (
+                    <RadioGroup<GalleryColor>
+                      {...field}
+                      options={[
+                        {
+                          value: 'paper',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--paper')}>Paper</span>
+                          ),
+                        },
+                        {
+                          value: 'rose',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--rose')}>Rosé</span>
+                          ),
+                        },
+                        {
+                          value: 'mint',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--mint')}>Mint</span>
+                          ),
+                        },
+                        {
+                          value: 'navy',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--navy')}>Navy</span>
+                          ),
+                        },
+                        {
+                          value: 'ink',
+                          display: (
+                            <span className={cx(styles.colorOption, 'theme--ink')}>Ink</span>
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
+                </FieldWrapper>
+
+                <div className={styles.row}>
+                  <FieldWrapper className={styles.field} name="height" label="Height" required>
+                    {field => <NumberField {...field} min={1} />}
+                  </FieldWrapper>
+
+                  <FieldWrapper className={styles.field} name="unit" label="Unit" required>
+                    {field => <TextField {...field} type="text" value="inches" readOnly />}
+                  </FieldWrapper>
+                </div>
+
+                <CreateGalleryModalContext.Provider
+                  value={{ height: values.height, color: values.color }}>
+                  {children}
+                </CreateGalleryModalContext.Provider>
               </div>
 
-              <CreateGalleryModalContext.Provider
-                value={{ height: values.height, color: values.color }}>
-                {children}
-              </CreateGalleryModalContext.Provider>
-
-              <div className={styles.actions}>
+              <FormModal.Footer>
                 <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
                   Next
                 </Button>
-              </div>
+              </FormModal.Footer>
             </Form>
           );
         }}
