@@ -159,48 +159,50 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
 
           return (
             <Form className={styles.form} noValidate>
-              {!values.image ? (
-                <Fragment>
-                  <input
-                    className="sr-only"
-                    id="file"
-                    type="file"
-                    accept={accept.join(', ')}
-                    disabled={isUploading}
-                    required
-                    onChange={evt => onFileUpload(evt.target.files)}
-                  />
-                  <label
-                    className={cx(styles.fileDrop, isDropping && styles.fileDropActive)}
-                    htmlFor="file"
-                    onDragOver={onDropStart}
-                    onDragEnter={onDropStart}
-                    onDragLeave={onDropEnd}
-                    onDragEnd={onDropEnd}
-                    onDrop={onDrop}>
-                    Tap or drag & drop to upload
-                  </label>
-                </Fragment>
-              ) : (
-                <div className={styles.preview}>
-                  <img src={values.image.src} alt="Preview of the uploaded artwork." />
-                </div>
-              )}
+              <div className={styles.formBody}>
+                {!values.image ? (
+                  <Fragment>
+                    <input
+                      className="sr-only"
+                      id="file"
+                      type="file"
+                      accept={accept.join(', ')}
+                      disabled={isUploading}
+                      required
+                      onChange={evt => onFileUpload(evt.target.files)}
+                    />
+                    <label
+                      className={cx(styles.fileDrop, isDropping && styles.fileDropActive)}
+                      htmlFor="file"
+                      onDragOver={onDropStart}
+                      onDragEnter={onDropStart}
+                      onDragLeave={onDropEnd}
+                      onDragEnd={onDropEnd}
+                      onDrop={onDrop}>
+                      Tap or drag & drop to upload
+                    </label>
+                  </Fragment>
+                ) : (
+                  <div className={styles.preview}>
+                    <img src={values.image.src} alt="Preview of the uploaded artwork." />
+                  </div>
+                )}
 
-              {!!values.image && (
-                <Button
-                  className={styles.reset}
-                  type="reset"
-                  onClick={() => setFieldValue('image', undefined)}>
-                  Reset
-                </Button>
-              )}
+                {!!values.image && (
+                  <Button
+                    className={styles.reset}
+                    type="reset"
+                    onClick={() => setFieldValue('image', undefined)}>
+                    Reset
+                  </Button>
+                )}
+              </div>
 
-              <footer className={styles.footer}>
+              <FormModal.Footer>
                 <Button type="submit" filled busy={isSubmitting} disabled={isUploading || !isValid}>
                   Next
                 </Button>
-              </footer>
+              </FormModal.Footer>
             </Form>
           );
         }}

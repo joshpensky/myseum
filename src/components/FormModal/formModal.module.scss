@@ -114,6 +114,8 @@
   align-items: center;
   background-color: c('bg');
   border-bottom: 1px solid transparent;
+  border-top-left-radius: sz(4);
+  border-top-right-radius: sz(4);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -193,32 +195,49 @@
   margin-bottom: sz(4);
 }
 
-.form {
+.sidecar {
+  align-items: flex-start;
   display: flex;
-  flex-direction: column;
   flex: 1;
-}
+  flex-direction: column;
 
-.field {
-  + .field {
-    margin-top: sz(3);
+  @include mq($bp-modal-drawer) {
+    @include fixed(0 sz(-8) 0 x);
+    @include margin(x sz(4));
+    background: c('bg');
+    border: 1px solid c('white');
+    border-radius: sz(4);
+    max-width: calc(100vw - 400px - #{sz(8)});
+    min-width: calc(100vw - 550px - #{sz(8)});
+    overflow: hidden;
+    width: calc((2 / 3 * 100vw) - #{sz(8)});
+    transform: translateX(100%);
   }
 }
 
-.legend {
-  @include label;
-}
-
-.actions {
-  @include sticky(x x 0);
+.footer {
+  @include sticky(x x 0 x);
+  @include padding(sz(4) x);
   align-items: flex-end;
-  background-color: c('bg', 0.7);
   display: flex;
-  flex: 1;
-  padding-bottom: sz(5);
+  width: 100%;
+  z-index: 3;
+
+  &::before {
+    @include absolute(0 sz(-4) 0);
+    backdrop-filter: blur(2px);
+    background-color: c('bg', 0.7);
+    content: '';
+    pointer-events: none;
+  }
 
   button {
-    width: 100%;
+    flex: 1;
+    z-index: 2;
+
+    + button {
+      margin-left: sz(2);
+    }
   }
 }
 

@@ -4,6 +4,12 @@
   flex: 1;
 }
 
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .file-drop {
   @include padding(sz(4));
   align-items: center;
@@ -43,40 +49,4 @@
 
 .reset {
   width: 100%;
-}
-
-.footer {
-  @include sticky(x x 0 x);
-  @include padding(sz(4) x);
-  align-items: flex-end;
-  display: flex;
-  flex: 1;
-  width: 100%;
-  z-index: 3;
-
-  &::before {
-    @include absolute(0 sz(-4) x);
-    backdrop-filter: blur(2px);
-    background-color: c('bg', 0.7);
-    content: '';
-    height: sz(6.5);
-    mask-image: scrim-gradient(to bottom, 'bg');
-  }
-
-  &::after {
-    @include absolute(sz(6.5) sz(-4) 0);
-    backdrop-filter: blur(2px);
-    background-color: c('bg', 0.7);
-    content: '';
-    pointer-events: none;
-  }
-
-  button {
-    flex: 1;
-    z-index: 2;
-
-    + button {
-      margin-left: sz(2);
-    }
-  }
 }

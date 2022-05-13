@@ -1,23 +1,3 @@
-.active-content {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  @include mq($bp-modal-drawer) {
-    @include fixed(0 sz(-8) 0 x);
-    @include margin(x sz(4));
-    background: c('bg');
-    border: 1px solid c('white');
-    border-radius: sz(4);
-    max-width: calc(100vw - 400px - #{sz(8)});
-    min-width: calc(100vw - 550px - #{sz(8)});
-    overflow: hidden;
-    width: calc((2 / 3 * 100vw) - #{sz(8)});
-    transform: translateX(100%);
-  }
-}
-
 .preview {
   align-items: center;
   display: flex;
@@ -68,6 +48,12 @@
   flex: 1;
 }
 
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .row {
   align-items: flex-end;
   display: flex;
@@ -107,40 +93,4 @@
 .hint__text {
   @include label;
   margin-bottom: sz(1.5);
-}
-
-.footer {
-  @include sticky(x x 0 x);
-  @include padding(sz(4) x);
-  align-items: flex-end;
-  display: flex;
-  flex: 1;
-  width: 100%;
-  z-index: 3;
-
-  &::before {
-    @include absolute(0 sz(-4) x);
-    backdrop-filter: blur(2px);
-    background-color: c('bg', 0.7);
-    content: '';
-    height: sz(6.5);
-    mask-image: scrim-gradient(to bottom, 'bg');
-  }
-
-  &::after {
-    @include absolute(sz(6.5) sz(-4) 0);
-    backdrop-filter: blur(2px);
-    background-color: c('bg', 0.7);
-    content: '';
-    pointer-events: none;
-  }
-
-  button {
-    flex: 1;
-    z-index: 2;
-
-    + button {
-      margin-left: sz(2);
-    }
-  }
 }

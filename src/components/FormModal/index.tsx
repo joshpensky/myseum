@@ -184,3 +184,15 @@ export const Screen = ({
     {children}
   </div>
 );
+
+type FormModalSidecarProps = Record<string, unknown>;
+
+export const Sidecar = ({ children }: PropsWithChildren<FormModalSidecarProps>) => (
+  <div className={styles.sidecar}>{children}</div>
+);
+
+type FormModalFooterProps = Record<string, unknown>;
+
+export const Footer = ({ children }: PropsWithChildren<FormModalFooterProps>) => (
+  <footer className={styles.footer}>{children}</footer>
+);
