@@ -2,7 +2,9 @@ import { ReactNode, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
+import { DimensionsStep } from './DimensionsStep';
 import { UploadStep } from './UploadStep';
+import styles from './createArtwork.module.scss';
 import { createArtworkMachine, CreateArtworkStateValue, StepRefValue } from './state';
 
 interface CreateArtworkModalProps {
@@ -12,8 +14,6 @@ interface CreateArtworkModalProps {
 
 export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
   const stepRef = useRef<StepRefValue>(null);
-
-  const [open, setOpen] = useState(false);
 
   const [state, send] = useMachine(() =>
     createArtworkMachine.withContext({
@@ -25,15 +25,30 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
     }),
   );
 
+  const [open, setOpen] = useState(false);
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+    if (!open) {
+      send({ type: 'RESET' });
+    }
+  };
+
+  const handleBack = () => {
+    if (state.can('GO_BACK')) {
+      send({ type: 'GO_BACK' });
+    }
+  };
+
   const renderStep = () => {
     if (state.matches('upload')) {
       return <UploadStep ref={stepRef} state={state} onSubmit={data => send(data)} />;
+    } else if (state.matches('dimensions')) {
+      return <DimensionsStep state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else {
-      throw new Error('Form has entered unknown state.');
+      return null;
+      // throw new Error('Form has entered unknown state.');
     }
-    // else if (state.matches('dimensions')) {
-    //   return <DimensionsStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
-    // } else if (state.matches('selection')) {
+    //  else if (state.matches('selection')) {
     //   return <SelectionStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
     // } else if (state.matches('framing')) {
     //   return <FramingStep state={state} onBack={onBack} onSubmit={data => send(data)} />;
@@ -64,8 +79,9 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
 
   return (
     <FormModal.Root
+      overlayClassName={styles.overlay}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       title="Create Artwork"
       description={`Step ${stepIdx + 1} of ${stepKeys.length}`}
       progress={(stepIdx + 1) / stepKeys.length}
@@ -79,7 +95,7 @@ export const CreateArtworkModal = ({ trigger }: CreateArtworkModalProps) => {
           </Button>
         ),
       }}
-      getIsDirty={() => stepRef.current?.getIsDirty() ?? false}
+      getIsDirty={() => stepRef.current?.getIsDirty() ?? stepIdx > 0}
       trigger={trigger}>
       {renderStep()}
     </FormModal.Root>

@@ -70,6 +70,10 @@ export interface CreateArtworkContext {
 // Events
 //////////////////////////
 
+export interface ResetEvent {
+  type: 'RESET';
+}
+
 export interface GoBackEvent {
   type: 'GO_BACK';
 }
@@ -117,6 +121,7 @@ export interface EditDetailsEvent {
 }
 
 export type CreateArtworkEvent =
+  | ResetEvent
   | GoBackEvent
   | ConfirmUploadEvent
   | ConfirmDimensionsEvent
@@ -219,6 +224,16 @@ export const createArtworkMachine = createMachine<
         description: 'Add a photo of the artwork to get started.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         CONFIRM_UPLOAD: {
           target: 'dimensions',
           actions: assign((ctx, evt) => ({
@@ -234,6 +249,16 @@ export const createArtworkMachine = createMachine<
         description: 'Adjust to match the size of your artwork.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         GO_BACK: {
           target: 'upload',
         },
@@ -251,6 +276,16 @@ export const createArtworkMachine = createMachine<
         description: 'Drag the handles to outline the artwork.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         GO_BACK: {
           target: 'dimensions',
         },
@@ -268,6 +303,16 @@ export const createArtworkMachine = createMachine<
         description: 'Choose a framing option for the artwork.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         GO_BACK: {
           target: 'selection',
         },
@@ -285,6 +330,16 @@ export const createArtworkMachine = createMachine<
         description: 'Fill in some information about the artwork.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         GO_BACK: {
           target: 'framing',
         },
@@ -303,6 +358,16 @@ export const createArtworkMachine = createMachine<
         description: 'Make any last edits and confirm your selections.',
       },
       on: {
+        RESET: {
+          target: 'upload',
+          actions: assign((ctx, evt) => ({
+            upload: undefined,
+            dimensions: undefined,
+            selection: undefined,
+            framing: undefined,
+            details: undefined,
+          })),
+        },
         EDIT_DIMENSIONS: {
           target: 'dimensions',
         },
