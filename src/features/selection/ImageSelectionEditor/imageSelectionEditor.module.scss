@@ -39,10 +39,8 @@
   @include absolute(0 x x 0);
   @include size(15px);
   background-image: var(--image-src);
-  background-position: calc(
-      (var(--width) - var(--x) * var(--width)) * var(--zoom) + var(--zoom-offset)
-    )
-    calc((var(--height) - var(--y) * var(--height)) * var(--zoom) + var(--zoom-offset));
+  background-position: calc(var(--x) * 100%) calc(var(--y) * 100%);
+  background-repeat: no-repeat;
   background-size: calc(var(--width) * var(--zoom)) calc(var(--height) * var(--zoom));
   border: 3px solid #0989ff; //#D400A6;
   border-radius: 50%;

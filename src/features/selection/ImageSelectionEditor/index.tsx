@@ -266,6 +266,11 @@ const ImageSelectionEditor = ({
             <path d={CanvasUtils.getLineCommands(editor.current.outline)} fill="black" />
           </mask>
 
+          <mask id="outline-path-inverse">
+            <rect x="0" y="0" width="1" height="1" fill="black" />
+            <path d={CanvasUtils.getLineCommands(editor.current.outline)} fill="white" />
+          </mask>
+
           <rect
             className={styles.overlay}
             x="0"
@@ -279,6 +284,7 @@ const ImageSelectionEditor = ({
             className={styles.path}
             d={CanvasUtils.getLineCommands(editor.current.outline)}
             vectorEffect="non-scaling-stroke"
+            mask="url(#outline-path-inverse)"
           />
         </svg>
 

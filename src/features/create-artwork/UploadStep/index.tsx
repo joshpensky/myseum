@@ -10,6 +10,7 @@ import {
   CreateArtworkState,
   StepRefValue,
 } from '@src/features/create-artwork/state';
+import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
@@ -75,7 +76,6 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
         initialErrors={initialErrors}
         validate={validateZodSchema(uploadStepSchema)}
         onSubmit={values => {
-          // TODO: reset full state on image change?
           onSubmit({
             type: 'CONFIRM_UPLOAD',
             upload: {
@@ -84,6 +84,7 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
             dimensions: {
               width: values.width,
               height: values.height,
+              depth: 0,
               unit: values.unit,
             },
           });
@@ -91,13 +92,44 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
         {formik => {
           const { isSubmitting, isValid, setFieldValue, values } = formik;
 
+          /**
+           * Resizes the image to a workable size and formats to JPEG.
+           *
+           * @param img The image to resize
+           * @returns the resized image
+           */
+          const resizeImage = (img: HTMLImageElement): HTMLImageElement => {
+            URL.revokeObjectURL(img.src);
+
+            const imageDimensions = CommonUtils.getImageDimensions(img);
+            const resizedDimensions = CanvasUtils.objectContain(
+              { width: 1000, height: 1000 },
+              imageDimensions,
+            );
+
+            const canvas = document.createElement('canvas');
+            canvas.width = resizedDimensions.width;
+            canvas.height = resizedDimensions.height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              throw new Error('2D context not available.');
+            }
+            ctx.drawImage(img, 0, 0, resizedDimensions.width, resizedDimensions.height);
+
+            const resizedImage = new Image();
+            resizedImage.src = canvas.toDataURL('image/jpeg', 0.7);
+            return resizedImage;
+          };
+
           const loadImage = (src: string) => {
             const img = new Image();
             img.onload = () => {
-              setFieldValue('image', img);
+              const resizedImage = resizeImage(img);
+
+              setFieldValue('image', resizedImage);
               setIsUploading(false);
 
-              const imageDimensions = CommonUtils.getImageDimensions(img);
+              const imageDimensions = CommonUtils.getImageDimensions(resizedImage);
               const unit = convertUnit(1, 'px', 'in');
               setFieldValue('width', Math.round(imageDimensions.width * unit * 100) / 100);
               setFieldValue('height', Math.round(imageDimensions.height * unit * 100) / 100);
