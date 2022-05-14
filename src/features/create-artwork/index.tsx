@@ -3,7 +3,7 @@ import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { useAuth } from '@src/providers/AuthProvider';
+import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
 import { DetailsStep } from './DetailsStep';
 import { DimensionsStep } from './DimensionsStep';
 import { ReviewStep } from './ReviewStep';
@@ -44,11 +44,12 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
     }
   };
 
-  if (!auth.user) {
-    return null;
-  }
+  // if (!auth.user) {
+  //   return null;
+  // }
 
-  const user = auth.user;
+  // TODO: revert after plane ride
+  const user = auth.user as AuthUserDto;
 
   const renderStep = () => {
     if (state.matches('upload')) {

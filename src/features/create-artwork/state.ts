@@ -202,10 +202,15 @@ export const createArtworkMachine = createMachine<
         },
         CONFIRM_UPLOAD: {
           target: 'dimensions',
-          actions: assign((ctx, evt) => ({
-            upload: evt.upload,
-            dimensions: evt.dimensions,
-          })),
+          actions: assign((ctx, evt) => {
+            const didUploadChange = evt.upload.image.src !== ctx.upload?.image.src;
+            return {
+              upload: evt.upload,
+              dimensions: evt.dimensions,
+              selection: didUploadChange ? undefined : ctx.selection,
+              details: didUploadChange ? undefined : ctx.details,
+            };
+          }),
         },
       },
     },

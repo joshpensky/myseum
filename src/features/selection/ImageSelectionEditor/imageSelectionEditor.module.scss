@@ -1,0 +1,102 @@
+.container {
+  @include absolute(0);
+  align-items: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: sz(6);
+}
+
+.canvas {
+  align-items: flex-start;
+  display: flex;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: var(--aspect-ratio);
+}
+
+.svg {
+  @include absolute(0 x x 0);
+  @include size(100%);
+
+  .path {
+    stroke: #0989ff;
+    stroke-width: 3;
+    fill: none;
+  }
+
+  .overlay {
+    fill: c('black');
+    opacity: 0.7;
+  }
+}
+
+.button-point {
+  --zoom: 1;
+  --zoom-offset: 5px;
+
+  @include absolute(0 x x 0);
+  @include size(15px);
+  background-image: var(--image-src);
+  background-position: calc(
+      (var(--width) - var(--x) * var(--width)) * var(--zoom) + var(--zoom-offset)
+    )
+    calc((var(--height) - var(--y) * var(--height)) * var(--zoom) + var(--zoom-offset));
+  background-size: calc(var(--width) * var(--zoom)) calc(var(--height) * var(--zoom));
+  border: 3px solid #0989ff; //#D400A6;
+  border-radius: 50%;
+  cursor: grab;
+  transform: translate(-50%, -50%) translateX(calc(var(--x) * var(--width)))
+    translateY(calc(var(--y) * var(--height)));
+  transition: 150ms ease-out;
+  transition-property: width, height;
+
+  &::before {
+    @include absolute(0);
+    content: '';
+    background-color: c('white');
+    border-radius: 50%;
+    transition: opacity 150ms ease-out;
+  }
+
+  .crosshair {
+    @include absolute(0);
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+
+    &::before {
+      content: '';
+      @include absolute(0 x x 50%);
+      width: 1px;
+      height: 100%;
+      transform: translateX(-50%);
+      background-color: c('black');
+    }
+
+    &::after {
+      content: '';
+      @include absolute(50% x x 0);
+      width: 100%;
+      height: 1px;
+      transform: translateY(-50%);
+      background-color: c('black');
+    }
+  }
+
+  &:active {
+    --zoom: 2;
+    --zoom-offset: 20px;
+
+    @include size(45px);
+    cursor: none;
+
+    &::before {
+      opacity: 0.25;
+    }
+
+    .crosshair {
+      opacity: 1;
+    }
+  }
+}

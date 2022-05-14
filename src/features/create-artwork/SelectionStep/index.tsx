@@ -99,10 +99,6 @@ export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) =
                     activeLayer={0}
                     editor={editor}
                     onChange={setEditor}
-                    actualDimensions={{
-                      width: state.context.dimensions.width,
-                      height: state.context.dimensions.height,
-                    }}
                     image={state.context.upload.image}
                   />
                 </div>
