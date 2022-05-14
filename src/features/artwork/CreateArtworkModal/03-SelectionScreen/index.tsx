@@ -3,7 +3,10 @@ import { Form, Formik } from 'formik';
 import * as fx from 'glfx-es6';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import { ConfirmSelectionEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import {
+  ConfirmSelectionEvent,
+  CreateArtworkState,
+} from '@src/features/artwork/CreateArtworkModal/state';
 import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/selection';
 import ImageSelectionEditor from '@src/features/selection/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/features/selection/ImageSelectionPreview';
@@ -11,15 +14,15 @@ import { renderPreview } from '@src/features/selection/renderPreview';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
-import styles from './selectionStep.module.scss';
+import styles from './selectionScreen.module.scss';
 
-interface SelectionStepProps {
+interface SelectionScreenProps {
   state: CreateArtworkState<'selection'>;
   onBack(): void;
   onSubmit(data: ConfirmSelectionEvent): void;
 }
 
-export const SelectionStep = ({ state, onBack, onSubmit }: SelectionStepProps) => {
+export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProps) => {
   // TODO: store editor in context to keep history?
   const [editor, setEditor] = useState(() => {
     let initialSnapshot: SelectionEditorSnapshot | undefined = undefined;

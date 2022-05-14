@@ -8,13 +8,14 @@ import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
-// import { ArtistDto } from '@src/data/ArtistSerializer';
-// import rootStyles from '@src/features/create-artwork-OLD/root.module.scss';
-import { ConfirmDetailsEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import {
+  ConfirmDetailsEvent,
+  CreateArtworkState,
+} from '@src/features/artwork/CreateArtworkModal/state';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
-import styles from './detailsStep.module.scss';
+import styles from './detailsScreen.module.scss';
 
-const detailsStepSchema = z.object({
+const detailsScreenSchema = z.object({
   title: z.string({ required_error: 'Title is required.' }).min(1, 'Title is required.'),
 
   artist: z
@@ -39,15 +40,15 @@ const detailsStepSchema = z.object({
   acquiredAt: z.string().min(10, 'Acquisition date is required.'),
 });
 
-type DetailsStepSchema = z.infer<typeof detailsStepSchema>;
+type DetailsScreenSchema = z.infer<typeof detailsScreenSchema>;
 
-interface DetailsStepProps {
+interface DetailsScreenProps {
   state: CreateArtworkState<'details'>;
   onBack(): void;
   onSubmit(data: ConfirmDetailsEvent): void;
 }
 
-export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
+export const DetailsScreen = ({ state, onBack, onSubmit }: DetailsScreenProps) => {
   // const [artists, setArtists] = useState<ArtistDto[] | null>(null);
   // useEffect(() => {
   //   (async () => {
@@ -57,7 +58,7 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
   //   })();
   // }, []);
 
-  const initialValues: DetailsStepSchema = {
+  const initialValues: DetailsScreenSchema = {
     title: state.context.details?.title ?? '',
     artist: state.context.details?.artist ?? undefined,
     description: state.context.details?.description ?? '',
@@ -68,14 +69,14 @@ export const DetailsStep = ({ state, onBack, onSubmit }: DetailsStepProps) => {
     acquiredAt: dayjs(state.context.details?.acquiredAt ?? new Date()).format('YYYY-MM-DD'),
   };
 
-  const initialErrors = validateZodSchema(detailsStepSchema, 'sync')(initialValues);
+  const initialErrors = validateZodSchema(detailsScreenSchema, 'sync')(initialValues);
 
   return (
     <FormModal.Screen title="Details" description="Fill in some information about the artwork.">
-      <Formik<DetailsStepSchema>
+      <Formik<DetailsScreenSchema>
         initialValues={initialValues}
         initialErrors={initialErrors}
-        validate={validateZodSchema(detailsStepSchema)}
+        validate={validateZodSchema(detailsScreenSchema)}
         onSubmit={(values, helpers) => {
           // Check date is valid
           if (!values.isCreatedAtUnknown && !dayjs(values.createdAt).isValid()) {

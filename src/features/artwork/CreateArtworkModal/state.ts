@@ -2,7 +2,7 @@ import { MeasureUnit } from '@prisma/client';
 import { assign, createMachine, State } from 'xstate';
 import type { SelectionEditorPath } from '@src/features/selection';
 
-export interface StepRefValue {
+export interface ScreenRefValue {
   getIsDirty(): boolean;
 }
 

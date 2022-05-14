@@ -12,7 +12,7 @@ import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import { CreateArtworkModal } from '@src/features/create-artwork';
+import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { EditIcon } from '@src/svgs/EditIcon';

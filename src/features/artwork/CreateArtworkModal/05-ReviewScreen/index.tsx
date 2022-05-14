@@ -11,19 +11,19 @@ import {
   EditDetailsEvent,
   EditDimensionsEvent,
   EditSelectionEvent,
-} from '@src/features/create-artwork/state';
+} from '@src/features/artwork/CreateArtworkModal/state';
 import { AuthUserDto } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
-import styles from './reviewStep.module.scss';
+import styles from './reviewScreen.module.scss';
 
-interface ReviewStepProps {
+interface ReviewScreenProps {
   user: AuthUserDto;
   state: CreateArtworkState<'review'>;
   onEdit(event: EditDimensionsEvent | EditSelectionEvent | EditDetailsEvent): void;
   onSubmit(data: ArtworkDto): void;
 }
 
-export const ReviewStep = ({ user, state, onEdit, onSubmit }: ReviewStepProps) => {
+export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProps) => {
   const initialValues = {};
 
   return (

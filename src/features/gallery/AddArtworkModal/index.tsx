@@ -1,12 +1,11 @@
 import { ReactNode, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
-import { FormikProps } from 'formik';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
-import { FramingScreen } from './FramingScreen';
-import { SelectionScreen } from './SelectionScreen';
-import { addArtworkMachine, AddArtworkStateValue } from './state';
+import { SelectionScreen } from './01-SelectionScreen';
+import { FramingScreen } from './02-FramingScreen';
+import { addArtworkMachine, AddArtworkStateValue, ScreenRefValue } from './state';
 
 interface AddArtworkModalProps {
   gallery: GalleryDto;
@@ -19,13 +18,13 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
 
   const [open, setOpen] = useState(false);
 
-  const formikRef = useRef<FormikProps<any>>(null);
+  const screenRef = useRef<ScreenRefValue>(null);
 
   const renderStep = () => {
     if (state.matches('selection')) {
       return (
         <SelectionScreen
-          ref={formikRef}
+          ref={screenRef}
           state={state}
           onSubmit={data => {
             send(data);
@@ -35,7 +34,6 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
     } else if (state.matches('framing')) {
       return (
         <FramingScreen
-          ref={formikRef}
           gallery={gallery}
           state={state}
           onBack={() => send({ type: 'GO_BACK' })}
@@ -74,7 +72,7 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
           </Button>
         ),
       }}
-      getIsDirty={() => formikRef.current?.dirty ?? stepIdx > 0}>
+      getIsDirty={() => stepIdx > 0 || (screenRef.current?.getIsDirty() ?? false)}>
       {renderStep()}
     </FormModal.Root>
   );

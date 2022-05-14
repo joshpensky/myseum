@@ -1,16 +1,15 @@
 import { createContext, ReactNode, useContext, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import cx from 'classnames';
-import { FormikProps } from 'formik';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
-import { CollectionScreen } from './CollectionScreen';
-import { DetailsScreen } from './DetailsScreen';
+import { DetailsScreen } from './01-DetailsScreen';
+import { CollectionScreen } from './02-CollectionScreen';
 import styles from './createGalleryModal.module.scss';
-import { createGalleryMachine, CreateGalleryStateValue } from './state';
+import { createGalleryMachine, CreateGalleryStateValue, ScreenRefValue } from './state';
 
 interface CreateGalleryModalProps {
   onSave?(gallery: GalleryDto): void;
@@ -21,7 +20,7 @@ interface CreateGalleryModalProps {
 export const CreateGalleryModalContext = createContext({ height: 0, color: 'paper' });
 
 export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGalleryModalProps) => {
-  const formikRef = useRef<FormikProps<any>>(null);
+  const screenRef = useRef<ScreenRefValue>(null);
   const [open, setOpen] = useState(false);
   const [state, send] = useMachine(createGalleryMachine);
 
@@ -53,7 +52,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
     if (state.matches('details')) {
       return (
         <DetailsScreen
-          ref={formikRef}
+          ref={screenRef}
           state={state}
           onSubmit={data => {
             onSave?.(data.gallery);
@@ -65,7 +64,6 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
     } else if (state.matches('collection')) {
       return (
         <CollectionScreen
-          ref={formikRef}
           state={state}
           onAddArtwork={data => {
             send({ type: 'ADD_ARTWORK', artwork: data });
@@ -114,7 +112,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
           </Button>
         ),
       }}
-      getIsDirty={() => formikRef.current?.dirty ?? false}>
+      getIsDirty={() => stepIdx > 0 || (screenRef.current?.getIsDirty() ?? false)}>
       {renderStep()}
     </FormModal.Root>
   );

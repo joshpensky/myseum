@@ -8,15 +8,15 @@ import * as FormModal from '@src/components/FormModal';
 import {
   ConfirmUploadEvent,
   CreateArtworkState,
-  StepRefValue,
-} from '@src/features/create-artwork/state';
+  ScreenRefValue,
+} from '@src/features/artwork/CreateArtworkModal/state';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
-import styles from './uploadStep.module.scss';
+import styles from './uploadScreen.module.scss';
 
-const uploadStepSchema = z.object({
+const uploadScreenSchema = z.object({
   image:
     typeof window === 'undefined'
       ? z.any()
@@ -36,14 +36,14 @@ const uploadStepSchema = z.object({
   }),
 });
 
-type UploadStepSchema = z.infer<typeof uploadStepSchema>;
+type UploadScreenSchema = z.infer<typeof uploadScreenSchema>;
 
-interface UploadStepProps {
+interface UploadScreenProps {
   state: CreateArtworkState<'upload'>;
   onSubmit(data: ConfirmUploadEvent): void;
 }
 
-export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function UploadStep(
+export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(function UploadStep(
   { state, onSubmit },
   ref,
 ) {
@@ -52,16 +52,16 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
   const [isUploading, setIsUploading] = useState(false);
   const [isDropping, setIsDropping] = useState(false);
 
-  const initialValues: UploadStepSchema = {
+  const initialValues: UploadScreenSchema = {
     image: state.context.upload?.image ?? (undefined as any),
     width: state.context.dimensions?.width ?? 0,
     height: state.context.dimensions?.height ?? 0,
     unit: state.context.dimensions?.unit ?? 'in',
   };
 
-  const initialErrors = validateZodSchema(uploadStepSchema, 'sync')(initialValues);
+  const initialErrors = validateZodSchema(uploadScreenSchema, 'sync')(initialValues);
 
-  const formikRef = useRef<FormikProps<UploadStepSchema>>(null);
+  const formikRef = useRef<FormikProps<UploadScreenSchema>>(null);
   useImperativeHandle(ref, () => ({
     getIsDirty() {
       return !!formikRef.current?.values.image;
@@ -70,11 +70,11 @@ export const UploadStep = forwardRef<StepRefValue, UploadStepProps>(function Upl
 
   return (
     <FormModal.Screen title="Upload" description="Add a photo of the artwork to get started.">
-      <Formik<UploadStepSchema>
+      <Formik<UploadScreenSchema>
         innerRef={formikRef}
         initialValues={initialValues}
         initialErrors={initialErrors}
-        validate={validateZodSchema(uploadStepSchema)}
+        validate={validateZodSchema(uploadScreenSchema)}
         onSubmit={values => {
           onSubmit({
             type: 'CONFIRM_UPLOAD',

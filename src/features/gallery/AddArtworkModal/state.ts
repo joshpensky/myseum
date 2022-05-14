@@ -1,6 +1,9 @@
 import { assign, createMachine, State } from 'xstate';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+
+export interface ScreenRefValue {
+  getIsDirty(): boolean;
+}
 
 //////////////////////////
 // Context

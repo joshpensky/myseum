@@ -9,7 +9,10 @@ import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
 import { NumberField } from '@src/components/NumberField';
 import { Select } from '@src/components/Select';
-import { ConfirmDimensionsEvent, CreateArtworkState } from '@src/features/create-artwork/state';
+import {
+  ConfirmDimensionsEvent,
+  CreateArtworkState,
+} from '@src/features/artwork/CreateArtworkModal/state';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import Close from '@src/svgs/Close';
 import Rotate from '@src/svgs/Cube';
@@ -18,9 +21,9 @@ import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
-import styles from './dimensionsStep.module.scss';
+import styles from './dimensionsScreen.module.scss';
 
-const dimensionsStepSchema = z.object({
+const dimensionsScreenSchema = z.object({
   width: z
     .number({ required_error: 'Width is required.' })
     .positive('Width must be greater than 0.'),
@@ -39,12 +42,12 @@ const dimensionsStepSchema = z.object({
   }),
 });
 
-type DimensionsStepSchema = z.infer<typeof dimensionsStepSchema>;
+type DimensionsScreenSchema = z.infer<typeof dimensionsScreenSchema>;
 
 interface Preset {
   value: string;
   display: string;
-  dimensions: Omit<DimensionsStepSchema, 'depth'>;
+  dimensions: Omit<DimensionsScreenSchema, 'depth'>;
 }
 
 const presets: Preset[] = [
@@ -68,13 +71,13 @@ const presets: Preset[] = [
   },
 ];
 
-interface DimensionsStepProps {
+interface DimensionsScreenProps {
   state: CreateArtworkState<'dimensions'>;
   onBack(): void;
   onSubmit(data: ConfirmDimensionsEvent): void;
 }
 
-export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps) => {
+export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenProps) => {
   const [rotated, setRotated] = useState(false);
   const [isDepthFocused, setIsDepthFocused] = useState(false);
 
@@ -100,21 +103,21 @@ export const DimensionsStep = ({ state, onBack, onSubmit }: DimensionsStepProps)
     }
   }, []);
 
-  const initialValues: DimensionsStepSchema = {
+  const initialValues: DimensionsScreenSchema = {
     width: state.context.dimensions.width ?? 0,
     height: state.context.dimensions.height ?? 0,
     depth: state.context.dimensions.depth ?? 0,
     unit: state.context.dimensions.unit ?? 'in',
   };
 
-  const initialErrors = validateZodSchema(dimensionsStepSchema, 'sync')(initialValues);
+  const initialErrors = validateZodSchema(dimensionsScreenSchema, 'sync')(initialValues);
 
   return (
     <FormModal.Screen title="Dimensions" description="Adjust to match the size of your artwork.">
-      <Formik<DimensionsStepSchema>
+      <Formik<DimensionsScreenSchema>
         initialValues={initialValues}
         initialErrors={initialErrors}
-        validate={validateZodSchema(dimensionsStepSchema)}
+        validate={validateZodSchema(dimensionsScreenSchema)}
         onSubmit={values => {
           onSubmit({
             type: 'CONFIRM_DIMENSIONS',

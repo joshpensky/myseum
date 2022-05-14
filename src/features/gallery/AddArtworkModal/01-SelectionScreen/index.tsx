@@ -1,4 +1,4 @@
-import { forwardRef, Fragment } from 'react';
+import { forwardRef, Fragment, useImperativeHandle, useRef } from 'react';
 import { MeasureUnit } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import { AxiosError } from 'axios';
@@ -14,8 +14,8 @@ import * as FormModal from '@src/components/FormModal';
 import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { CreateArtworkModal } from '@src/features/create-artwork';
-import { ConfirmSelectionEvent } from '@src/features/gallery/AddArtworkModal/state';
+import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
+import { ConfirmSelectionEvent, ScreenRefValue } from '@src/features/gallery/AddArtworkModal/state';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
@@ -54,7 +54,7 @@ interface SelectionScreenProps {
   onSubmit(data: ConfirmSelectionEvent): void;
 }
 
-export const SelectionScreen = forwardRef<FormikProps<any>, SelectionScreenProps>(
+export const SelectionScreen = forwardRef<ScreenRefValue, SelectionScreenProps>(
   function SelectionScreen({ state, onSubmit }, ref) {
     const artworks = useSWR<ArtworkDto[], AxiosError>('/api/me/artworks', {
       revalidateOnFocus: false,
@@ -66,12 +66,19 @@ export const SelectionScreen = forwardRef<FormikProps<any>, SelectionScreenProps
       artwork: state.context.artwork ?? null,
     };
 
+    const formikRef = useRef<FormikProps<any>>(null);
+    useImperativeHandle(ref, () => ({
+      getIsDirty() {
+        return formikRef.current?.dirty ?? false;
+      },
+    }));
+
     return (
       <FormModal.Screen
         title="Selection"
         description="Create or choose a piece from your collection.">
         <Formik
-          innerRef={ref}
+          innerRef={formikRef}
           initialValues={initialValues}
           onSubmit={(values, helpers) => {
             if (!values.artwork) {

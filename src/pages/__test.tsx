@@ -1,6 +1,7 @@
 import Button from '@src/components/Button';
-import { CreateArtworkModal } from '@src/features/create-artwork';
+import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
 
+// TODO: remove after plane ride
 export default function Test() {
   return (
     <div>
