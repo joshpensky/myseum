@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import tw from 'twin.macro';
 import * as fx from 'glfx-es6';
 import { SelectionEditorState } from '@src/features/selection';
 import { renderPreview, RenderPreviewOptions } from '@src/features/selection/renderPreview';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
+import styles from './imageSelectionPreview.module.scss';
 
 export type ImageSelectionPreviewProps = {
   /** The actual dimensions of the artwork */
@@ -102,10 +102,10 @@ const ImageSelectionPreview = ({
   }, []);
 
   return (
-    <div ref={containerRef} css={tw`size-full relative transition-opacity`}>
+    <div ref={containerRef} className={styles.container}>
       <canvas
         ref={canvasRef}
-        css={tw`absolute inset-0 size-full`}
+        className={styles.canvas}
         role="img"
         aria-label="A preview of the selected image"
       />

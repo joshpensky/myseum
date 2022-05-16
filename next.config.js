@@ -11,6 +11,7 @@ module.exports = {
 
   sassOptions: {
     includePaths: [path.resolve(__dirname, 'src/styles')],
+    additionalData: `@use 'sass:math';\n@import 'abstracts';`,
   },
 
   webpack: config => {
@@ -34,15 +35,6 @@ module.exports = {
               // UPDATE CSS LOADER OPTIONS HERE https://webpack.js.org/loaders/css-loader/#object
               exportLocalsConvention: 'camelCase',
             },
-          };
-          return;
-        }
-
-        if (typeof moduleLoader === 'object' && moduleLoader.loader.includes('sass-loader')) {
-          moduleLoader.options = {
-            ...moduleLoader.options,
-            // UPDATE SASS LOADER OPTIONS HERE https://webpack.js.org/loaders/sass-loader/#options
-            additionalData: `@use 'sass:math';\n@import 'abstracts';`,
           };
           return;
         }

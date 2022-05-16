@@ -1,7 +1,6 @@
 import { PropsWithChildren } from 'react';
 import cx from 'classnames';
-import { ThemeProvider } from 'styled-components';
-import { ThemeContextValue, useTheme } from '@src/providers/ThemeProvider';
+import { ThemeContextValue, ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
 import { Footer } from './Footer';
 import Nav from './Nav';
 import styles from './layout.module.scss';

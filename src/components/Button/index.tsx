@@ -15,21 +15,21 @@ export interface BaseButtonProps {
   id?: string;
 }
 
-interface ButtonAsLinkProps {
+export interface ButtonAsLinkProps {
   type: 'link';
   href: LinkProps['href'];
   ref?: React.Ref<HTMLAnchorElement>;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
-interface ButtonAsButtonProps {
+export interface ButtonAsButtonProps {
   type?: 'button' | 'submit' | 'reset';
   href?: never;
   ref?: React.Ref<HTMLButtonElement>;
   onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
-type ButtonProps = BaseButtonProps & (ButtonAsButtonProps | ButtonAsLinkProps);
+export type ButtonProps = BaseButtonProps & (ButtonAsButtonProps | ButtonAsLinkProps);
 
 const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, PropsWithChildren<ButtonProps>>(
   function Button(props, ref) {

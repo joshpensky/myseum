@@ -95,7 +95,12 @@ export const ArtworkPreview3D = ({
         y: y * previewUnitSize,
       })) as SelectionEditorPath,
       bottom: <div className={styles.side} style={{ '--color': depthColor ?? '' }} />,
-      right: <div className={styles.side} style={{ '--color': darken(0.1, depthColor ?? '') }} />,
+      right: (
+        <div
+          className={styles.side}
+          style={{ '--color': depthColor ? darken(0.1, depthColor) : '' }}
+        />
+      ),
     };
   }
 
@@ -177,7 +182,12 @@ export const ArtworkPreview3D = ({
         );
       }}
       top={<div className={styles.side} style={{ '--color': depthColor ?? '' }} />}
-      left={<div className={styles.side} style={{ '--color': darken(0.1, depthColor ?? '') }} />}
+      left={
+        <div
+          className={styles.side}
+          style={{ '--color': depthColor ? darken(0.1, depthColor) : '' }}
+        />
+      }
       inner={inner}
     />
   );

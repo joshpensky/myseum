@@ -5,7 +5,6 @@ import { SWRConfig } from 'swr';
 import { Toaster } from '@src/components/Toaster';
 import { GlobalLayout } from '@src/layouts/GlobalLayout';
 import { AuthProvider } from '@src/providers/AuthProvider';
-import StyleProvider from '@src/providers/StyleProvider';
 import { PageComponent } from '@src/types';
 import '@src/styles/index.scss';
 
@@ -32,13 +31,11 @@ const App = ({ Component, pageProps }: AppProps) => {
             supabaseUser: pageProps.__supabaseUser ?? null,
             userData: pageProps.__userData ?? null,
           }}>
-          <StyleProvider>
-            <GlobalLayout {...computedProps.global}>
-              <Component {...pageProps} {...computedProps.page} />
-            </GlobalLayout>
+          <GlobalLayout {...computedProps.global}>
+            <Component {...pageProps} {...computedProps.page} />
+          </GlobalLayout>
 
-            <Toaster />
-          </StyleProvider>
+          <Toaster />
         </AuthProvider>
       </IdProvider>
     </SWRConfig>

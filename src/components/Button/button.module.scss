@@ -87,6 +87,10 @@
   svg {
     stroke-width: 1.2;
   }
+
+  .button--filled & {
+    color: c('bg');
+  }
 }
 
 .icon,

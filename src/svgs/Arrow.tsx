@@ -1,17 +1,13 @@
-import tw from 'twin.macro';
+import styles from '@src/svgs/_svgs.module.scss';
 
 const Arrow = () => (
-  <svg css={tw`block`} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path
-      css={tw`fill-none stroke-current`}
+      className={styles.stroke}
       vectorEffect="non-scaling-stroke"
       d="M14.222 7.55219L7.99981 1.32999L1.77759 7.55219"
     />
-    <path
-      css={tw`fill-none stroke-current`}
-      vectorEffect="non-scaling-stroke"
-      d="M8 1.33006L8 15.33"
-    />
+    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M8 1.33006L8 15.33" />
   </svg>
 );
 
