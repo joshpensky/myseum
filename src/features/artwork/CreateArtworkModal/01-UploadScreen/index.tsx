@@ -90,7 +90,8 @@ export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(functi
           });
         }}>
         {formik => {
-          const { isSubmitting, isValid, setFieldValue, values } = formik;
+          const { isSubmitting, isValid, setFieldValue, values, errors } = formik;
+          console.log(errors);
 
           /**
            * Resizes the image to a workable size and formats to JPEG.
@@ -98,7 +99,7 @@ export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(functi
            * @param img The image to resize
            * @returns the resized image
            */
-          const resizeImage = (img: HTMLImageElement): HTMLImageElement => {
+          const resizeImage = async (img: HTMLImageElement): Promise<HTMLImageElement> => {
             URL.revokeObjectURL(img.src);
 
             const imageDimensions = CommonUtils.getImageDimensions(img);
@@ -116,15 +117,25 @@ export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(functi
             }
             ctx.drawImage(img, 0, 0, resizedDimensions.width, resizedDimensions.height);
 
-            const resizedImage = new Image();
-            resizedImage.src = canvas.toDataURL('image/jpeg', 0.7);
+            const resizedImage = await new Promise<HTMLImageElement>(resolve => {
+              const image = new Image();
+              image.onload = () => {
+                resolve(image);
+              };
+              image.src = canvas.toDataURL('image/jpeg', 0.7);
+            });
+
             return resizedImage;
           };
 
           const loadImage = (src: string) => {
+            if (isUploading) {
+              return;
+            }
+
             const img = new Image();
-            img.onload = () => {
-              const resizedImage = resizeImage(img);
+            img.onload = async () => {
+              const resizedImage = await resizeImage(img);
 
               setFieldValue('image', resizedImage);
               setIsUploading(false);

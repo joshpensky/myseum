@@ -7,7 +7,7 @@ import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import { Preview3d } from '@src/components/Preview3d';
+import { ArtworkPreview3D } from '@src/components/Preview3D/ArtworkPreview3D';
 import { AddPlacedArtworkDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { AddArtworkState } from '@src/features/gallery/AddArtworkModal/state';
@@ -115,7 +115,7 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
               <FormModal.Sidecar className={cx(styles.sidecar, `theme--${gallery.color}`)}>
                 <div className={styles.preview}>
                   <div className={styles.previewInner}>
-                    <Preview3d
+                    <ArtworkPreview3D
                       rotated={rotated}
                       artwork={{
                         ...state.context.artwork,

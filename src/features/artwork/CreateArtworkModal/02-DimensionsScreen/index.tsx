@@ -8,6 +8,7 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
 import { NumberField } from '@src/components/NumberField';
+import { ObjectPreview3D } from '@src/components/Preview3D/ObjectPreview3D';
 import { Select } from '@src/components/Select';
 import {
   ConfirmDimensionsEvent,
@@ -149,23 +150,47 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
             <Form className={styles.form} noValidate>
               <FormModal.Sidecar>
                 <div className={styles.sidecar}>
-                  <div ref={previewAreaRef} className={styles.preview}>
-                    <div
-                      className={cx(
-                        styles.previewBox,
-                        previewAreaDimensions.width === 0 && styles.previewBoxHidden,
-                      )}
-                      style={{
-                        '--width': `${previewDimensions.width}px`,
-                        '--height': `${previewDimensions.height}px`,
-                        // Disable grid when unit is 'px'
-                        '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
-                      }}
+                  <div
+                    ref={previewAreaRef}
+                    className={styles.preview}
+                    style={{
+                      '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
+                    }}>
+                    <ObjectPreview3D
+                      size={{ ...previewDimensions, depth: previewUnitSize * values.depth }}
+                      rotated={isDepthFocused || rotated}
+                      front={
+                        <div
+                          className={cx(
+                            styles.previewBox,
+                            previewAreaDimensions.width === 0 && styles.previewBoxHidden,
+                          )}
+                          style={{
+                            '--width': `${previewDimensions.width}px`,
+                            '--height': `${previewDimensions.height}px`,
+                          }}
+                        />
+                      }
+                      left={
+                        <div
+                          className={cx(styles.previewBox)}
+                          style={{
+                            '--width': `${previewUnitSize * values.depth}px`,
+                            '--height': `${previewDimensions.height}px`,
+                          }}
+                        />
+                      }
+                      top={
+                        <div
+                          className={cx(styles.previewBox)}
+                          style={{
+                            '--width': `${previewDimensions.width}px`,
+                            '--height': `${previewUnitSize * values.depth}px`,
+                          }}
+                        />
+                      }
                     />
                   </div>
-
-                  {/* TODO: add rotation */}
-                  {isDepthFocused || rotated ? <p>Rotated</p> : <p>Flat</p>}
 
                   <div className={styles.toolbar}>
                     <Toggle.Root pressed={rotated} onPressedChange={setRotated} asChild>

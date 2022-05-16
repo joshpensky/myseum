@@ -13,6 +13,7 @@ export interface FrameDto {
   src: string;
   alt: string;
   size: Dimensions3D;
+  // TODO: add unit
   window: SelectionEditorPath;
   owner: Pick<UserDto, 'id' | 'name'>;
   addedAt: Date;
