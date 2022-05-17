@@ -1,43 +1,21 @@
 import styles from './_svgs.module.scss';
 
 export const MyseumIconIllustration = () => (
-  <svg className={styles.svg} viewBox="0 0 123 145" xmlns="http://www.w3.org/2000/svg">
+  <svg className={styles.svg} viewBox="0 0 125 150" xmlns="http://www.w3.org/2000/svg">
     <path
       className={styles.stroke}
       vectorEffect="non-scaling-stroke"
-      d="M12.8789 29.5999V35.3199H110.119V29.5999L61.4987 1L12.8789 29.5999Z"
+      d="M16.4193 31.8333L13.3359 38H112.003L108.919 31.8333L62.6693 1.00001L16.4193 31.8333Z"
     />
     <path
       className={styles.stroke}
       vectorEffect="non-scaling-stroke"
-      d="M61.4956 78.2175L81.5155 46.7576H104.395C104.395 52.4775 101.535 55.3375 98.6754 55.3375V109.677H81.5155V75.3575L70.0755 95.3774H52.9156L41.4756 75.3575V109.677H24.3157V55.3375C21.4557 55.3375 18.5957 52.4775 18.5957 46.7576H41.4756L61.4956 78.2175Z"
+      d="M62.6641 93.4969L44.1608 75.0012C44.1322 75.2015 41.0777 96.6091 41.0777 102.748C41.0753 107.681 45.1918 113.027 47.2504 115.083H16.4141C16.4141 115.083 18.357 113.137 19.4974 108.917C20.6378 104.696 25.5058 64.3899 25.5058 64.3899C25.6078 62.1226 25.6671 60.4383 25.6671 59.5833C25.6671 53.9914 22.5807 50.3333 19.4944 47.2484H44.1671L62.6626 65.7484L81.161 47.2484H105.834C102.747 50.3333 99.661 53.9914 99.661 59.5833C99.661 60.4383 99.7203 62.1226 99.8223 64.3899C99.8223 64.3899 104.69 104.696 105.831 108.917C106.971 113.137 108.914 115.083 108.914 115.083H78.0777C80.1363 113.027 84.2528 107.681 84.2504 102.748C84.2504 96.6091 81.1959 75.2015 81.1673 75.0012L62.6641 93.4969Z"
     />
     <path
       className={styles.stroke}
       vectorEffect="non-scaling-stroke"
-      d="M12.8775 121.12L1.4375 132.56V144H121.557V132.56L110.117 121.12H12.8775Z"
+      d="M13.3333 124.334L4.08333 136.667L1 149H124.333L121.25 136.667L112 124.334H13.3333Z"
     />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M1.5 132.5H121.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M7.5 126.5H115.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M13 29.5H110" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M81.5 80V47" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M77.5 82.5V53" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M73.5 89.5V59.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M69.5 95.5V65.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M65.5 95V72" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M61.5 95V78" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M57.5 95V72" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M53.5 95.5V65.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M49.5 89.5V59.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M45.5 82.5V53" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M98.6992 80V47" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M24.3008 80V47" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M41.5 80V47" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M86.5 47V109.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M28.5 47V109.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M90.5 47V109.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M32.5 47V109.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M94.5 47V109.5" />
-    <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M36.5 47V109.5" />
   </svg>
 );
