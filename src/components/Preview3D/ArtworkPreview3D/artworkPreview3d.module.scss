@@ -73,7 +73,7 @@
   background: radial-gradient(circle at top left, c('white', 0.2), c('white', 0));
   opacity: 0;
   transform: translateZ(sz(-4));
-  transition: 150ms ease-out;
+  transition: opacity 150ms ease-out;
 
   &.glass--shine {
     opacity: 1;

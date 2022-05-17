@@ -6,6 +6,7 @@ import { ObjectPreview3D, ObjectPreview3dProps } from '@src/components/Preview3D
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { SelectionEditorPath } from '@src/features/selection';
+import { Dimensions3D } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
@@ -31,10 +32,12 @@ export const ArtworkPreview3D = ({
 }: ArtworkPreview3DProps) => {
   const previewUnitSize = convertUnit(1, artwork.unit, 'px');
 
-  const size = frame?.size ?? artwork.size;
-  size.width = size.width * previewUnitSize;
-  size.height = size.height * previewUnitSize;
-  size.depth = size.depth * previewUnitSize;
+  const originalSize = frame?.size ?? artwork.size;
+  const size: Dimensions3D = {
+    width: originalSize.width * previewUnitSize,
+    height: originalSize.height * previewUnitSize,
+    depth: originalSize.depth * previewUnitSize,
+  };
 
   const getAverageColor = async (src: string): Promise<string | null> =>
     new Promise(resolve => {
@@ -191,76 +194,4 @@ export const ArtworkPreview3D = ({
       inner={inner}
     />
   );
-
-  // return (
-  //   <div ref={wrapperRef} className={styles.wrapper}>
-  //     <div
-  //       className={styles.preview}
-  //       style={{
-  //         '--width': previewDimensions.width,
-  //         '--height': previewDimensions.height,
-  //         '--depth': size.depth * previewUnitSize,
-  //         '--scale': scale,
-  //         '--angle': angle,
-  //         ...(depthColor && {
-  //           '--color': depthColor,
-  //           '--color-shade': darken(0.1, depthColor),
-  //         }),
-  //       }}>
-  //       {/* Artwork preview */}
-  //       <div
-  //         className={cx(
-  //           styles.previewFront,
-  //           frame && [
-  //             styles.previewFrontArtwork,
-  //             styles[`matting--${framingOptions?.matting}`],
-  //             framingOptions?.matting === 'light' && 'theme--paper',
-  //             framingOptions?.matting === 'dark' && 'theme--ink',
-  //             framingOptions?.isScaled && styles.scaled,
-  //           ],
-  //         )}
-  //         style={artworkStyle}>
-  //         <img src={artwork.src} alt={artwork.alt} />
-  //       </div>
-
-  //       {/* Frame preview */}
-  //       {frame && (
-  //         <Fragment>
-  //           <div className={cx(styles.previewGlass, rotated && styles.previewGlassShine)} />
-  //           <div className={styles.previewFront}>
-  //             <img src={frame.src} alt={frame.alt} />
-  //           </div>
-  //         </Fragment>
-  //       )}
-
-  //       <div className={styles.previewTop} />
-
-  //       <div className={styles.previewLeft} />
-
-  //       {frame && (
-  //         <Fragment>
-  //           <div
-  //             className={styles.previewWindowBottom}
-  //             style={{
-  //               '--x': windowPoints[2].x,
-  //               '--y': windowPoints[2].y,
-  //               '--length': windowBottomLength,
-  //               '--angle': windowBottomAngle - 90,
-  //             }}
-  //           />
-
-  //           <div
-  //             className={styles.previewWindowRight}
-  //             style={{
-  //               '--x': windowPoints[2].x,
-  //               '--y': windowPoints[2].y,
-  //               '--length': windowRightLength,
-  //               '--angle': windowRightAngle + 90,
-  //             }}
-  //           />
-  //         </Fragment>
-  //       )}
-  //     </div>
-  //   </div>
-  // );
 };

@@ -48,6 +48,10 @@
   @include mq($bp-modal-drawer) {
     background-color: c('bg-tint', 0.5);
   }
+
+  &.preview__box--top {
+    transform: scale(-1);
+  }
 }
 
 .toolbar {

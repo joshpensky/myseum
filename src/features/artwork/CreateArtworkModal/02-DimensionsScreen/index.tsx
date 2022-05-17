@@ -182,7 +182,7 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
                       }
                       top={
                         <div
-                          className={cx(styles.previewBox)}
+                          className={cx(styles.previewBox, styles.previewBoxTop)}
                           style={{
                             '--width': `${previewDimensions.width}px`,
                             '--height': `${previewUnitSize * values.depth}px`,
