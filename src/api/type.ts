@@ -2,9 +2,14 @@ import { GetServerSidePropsContext } from 'next';
 import { AuthChangeEvent, User } from '@supabase/supabase-js';
 import { AxiosRequestConfig } from 'axios';
 import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import {
+  AddPlacedArtworkDto,
+  CreateGalleryDto,
+  UpdateGalleryDto,
+} from '@src/data/repositories/gallery.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 
@@ -78,6 +83,23 @@ export interface MyseumAPI {
 
   gallery: {
     /**
+     * Adds a new placed artwork onto the given gallery.
+     *
+     * @param gallery the gallery to place the artwork on
+     * @param data the placed artwork data
+     * @return the placed artwork
+     */
+    addPlacedArtwork(gallery: GalleryDto, data: AddPlacedArtworkDto): Promise<PlacedArtworkDto>;
+
+    /**
+     * Creates a new gallery.
+     *
+     * @param data the gallery data
+     * @return the created gallery
+     */
+    create(data: CreateGalleryDto): Promise<GalleryDto>;
+
+    /**
      * Finds all galleries within a given museum.
      *
      * @param museum the museum to search within
@@ -93,6 +115,24 @@ export interface MyseumAPI {
      * @return the matched gallery, or null if not found
      */
     findOneByMuseum(museumId: string, galleryId: string): Promise<GalleryDto | null>;
+
+    /**
+     * Updates an existing gallery.
+     *
+     * @param museumId the parent museum ID
+     * @param galleryId the gallery ID to update
+     * @param data the gallery data
+     * @return the updated gallery
+     */
+    update(museumId: string, galleryId: string, data: UpdateGalleryDto): Promise<GalleryDto>;
+
+    /**
+     * Deletes an existing gallery.
+     *
+     * @param museumId the parent museum ID
+     * @param galleryId the gallery ID to delete
+     */
+    delete(museumId: string, galleryId: string): Promise<void>;
   };
 
   museum: {

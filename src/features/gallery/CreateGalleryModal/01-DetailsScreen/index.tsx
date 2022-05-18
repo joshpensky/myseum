@@ -1,10 +1,10 @@
 import { forwardRef, PropsWithChildren, useImperativeHandle, useRef } from 'react';
 import { GalleryColor } from '@prisma/client';
-import axios, { AxiosResponse } from 'axios';
 import cx from 'classnames';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
@@ -12,7 +12,6 @@ import { NumberField } from '@src/components/NumberField';
 import { RadioGroup } from '@src/components/RadioGroup';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
-import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { CreateGalleryModalContext } from '@src/features/gallery/CreateGalleryModal';
 import {
@@ -67,29 +66,31 @@ export const DetailsScreen = forwardRef<ScreenRefValue, PropsWithChildren<Detail
           validate={validateZodSchema(detailsSchema)}
           onSubmit={async values => {
             try {
-              const data: UpdateGalleryDto = {
-                name: values.name,
-                description: values.description,
-                color: values.color,
-                height: values.height,
-              };
+              if (!auth.user) {
+                return;
+              }
 
-              let res: AxiosResponse<GalleryDto, any>;
+              let gallery: GalleryDto;
               if (state.context.gallery) {
-                res = await axios.put<GalleryDto>(
-                  `/api/museum/${auth.user?.museumId}/gallery/${state.context.gallery.id}`,
-                  data,
-                );
+                gallery = await api.gallery.update(auth.user.museumId, state.context.gallery.id, {
+                  name: values.name,
+                  description: values.description,
+                  color: values.color,
+                  height: values.height,
+                });
               } else {
-                res = await axios.post<GalleryDto>(
-                  `/api/museum/${auth.user?.museumId}/gallery`,
-                  data,
-                );
+                gallery = await api.gallery.create({
+                  name: values.name,
+                  description: values.description,
+                  color: values.color,
+                  height: values.height,
+                  museumId: auth.user.museumId,
+                });
               }
 
               onSubmit({
                 type: 'CONFIRM_DETAILS',
-                gallery: res.data,
+                gallery,
               });
             } catch (error) {
               toast.error((error as Error).message);

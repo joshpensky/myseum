@@ -1,11 +1,11 @@
 import { ReactNode, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { GalleryColor } from '@prisma/client';
-import axios from 'axios';
 import cx from 'classnames';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import api from '@src/api';
 import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
@@ -82,11 +82,8 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                 color: values.color,
                 height: values.height,
               };
-              const res = await axios.put<GalleryDto>(
-                `/api/museum/${gallery.museum.id}/gallery/${gallery.id}`,
-                data,
-              );
-              onSave(res.data);
+              const updatedGallery = await api.gallery.update(gallery.museum.id, gallery.id, data);
+              onSave(updatedGallery);
               setOpen(false);
             } catch (error) {
               toast.error((error as Error).message);
@@ -171,9 +168,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                           onClick={async () => {
                             try {
                               setIsDeleting(true);
-                              await axios.delete(
-                                `/api/museum/${gallery.museum.id}/gallery/${gallery.id}`,
-                              );
+                              await api.gallery.delete(gallery.museum.id, gallery.id);
                               setHasDeleteIntent(false);
                               setOpen(false);
                               router.push('/');

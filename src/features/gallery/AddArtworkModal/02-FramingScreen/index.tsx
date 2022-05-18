@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Matting } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
-import axios from 'axios';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import { z } from 'zod';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkPreview3D } from '@src/components/Preview3D/ArtworkPreview3D';
@@ -84,17 +84,14 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
         onSubmit={async (values, helpers) => {
           helpers.setSubmitting(true);
           try {
-            const createArtworkData: AddPlacedArtworkDto = {
+            const addArtworkData: AddPlacedArtworkDto = {
               artworkId: state.context.artwork.id,
               frameId: values.hasFrame && values.frame ? values.frame?.id : undefined,
               framingOptions: values.framingOptions,
             };
 
-            const res = await axios.post<PlacedArtworkDto>(
-              `/api/museum/${gallery.museum.id}/gallery/${gallery.id}/artworks`,
-              createArtworkData,
-            );
-            onSubmit(res.data);
+            const placedArtwork = await api.gallery.addPlacedArtwork(gallery, addArtworkData);
+            onSubmit(placedArtwork);
           } catch (error) {
             console.error(error);
             helpers.setSubmitting(false);

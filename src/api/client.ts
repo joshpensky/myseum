@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
+import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
 import type { MyseumAPI } from './type';
@@ -26,14 +27,7 @@ export const ClientAPI: MyseumAPI = {
     onStateChange(callback) {
       const subscription = supabase.auth.onAuthStateChange((event, session) => {
         // Update SSR cookie on auth state change
-        fetch('/api/auth', {
-          method: 'POST',
-          headers: new Headers({
-            'Content-Type': 'application/json',
-          }),
-          credentials: 'same-origin',
-          body: JSON.stringify({ event, session }),
-        });
+        axios.post('/api/auth', { event, session }, { withCredentials: true });
         // Callback for additional functionality
         callback(event, session?.user ?? null);
       });
@@ -67,12 +61,34 @@ export const ClientAPI: MyseumAPI = {
   },
 
   gallery: {
+    async addPlacedArtwork(gallery, data) {
+      const res = await axios.post<PlacedArtworkDto>(
+        `/api/museum/${gallery.museum.id}/gallery/${gallery.id}/artworks`,
+        data,
+      );
+      return res.data;
+    },
+
+    async create(data) {
+      const res = await axios.post<GalleryDto>(`/api/museum/${data.museumId}/gallery`, data);
+      return res.data;
+    },
+
     async findAllByMuseum() {
       throw new Error('Implementation only available on server.');
     },
 
     async findOneByMuseum() {
       throw new Error('Implementation only available on server.');
+    },
+
+    async update(museumId, galleryId, data) {
+      const res = await axios.put<GalleryDto>(`/api/museum/${museumId}/gallery/${galleryId}`, data);
+      return res.data;
+    },
+
+    async delete(museumId, galleryId) {
+      await axios.delete(`/api/museum/${museumId}/gallery/${galleryId}`);
     },
   },
 

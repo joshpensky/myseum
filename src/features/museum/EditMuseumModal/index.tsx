@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import api from '@src/api';
 import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
@@ -195,9 +196,7 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
                                         setIsDeletingGallery(true);
 
                                         try {
-                                          await axios.delete<GalleryDto>(
-                                            `/api/museum/${museum.id}/gallery/${gallery.id}`,
-                                          );
+                                          await api.gallery.delete(gallery.museum.id, gallery.id);
                                           setGalleryToDelete(null);
                                           setIsDeletingGallery(false);
                                           onSave({

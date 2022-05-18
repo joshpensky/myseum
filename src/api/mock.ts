@@ -1,6 +1,9 @@
 import { GalleryColor } from '@prisma/client';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { FrameDto } from '@src/data/serializers/frame.serializer';
 import type { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import type { MuseumDto } from '@src/data/serializers/museum.serializer';
+import { UserDto } from '@src/data/serializers/user.serializer';
 import type { MyseumAPI } from './type';
 
 export const MockAPI: MyseumAPI = {
@@ -89,7 +92,6 @@ export const MockAPI: MyseumAPI = {
     },
 
     onStateChange(callback) {
-      // callback('SIGNED_IN', this.getCurrentUser());
       const currentUser = this.getCurrentUser();
       function handleSignIn() {
         callback('SIGNED_IN', currentUser);
@@ -130,9 +132,9 @@ export const MockAPI: MyseumAPI = {
             'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
           alt: '',
           size: {
-            width: 2,
-            height: 3,
-            depth: 1,
+            width: 4,
+            height: 6,
+            depth: 2,
           },
           window: [
             { x: 0.2, y: 0.2 },
@@ -150,6 +152,105 @@ export const MockAPI: MyseumAPI = {
   },
 
   gallery: {
+    async addPlacedArtwork(gallery, data) {
+      const user: UserDto = {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        name: 'Mock User',
+        bio: '',
+        headshot: null,
+        museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+      };
+
+      const artwork: ArtworkDto = {
+        id: data.artworkId,
+        title: 'Mock Artwork',
+        description: '',
+        artist: null,
+        src:
+          'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
+        alt: '',
+        size: {
+          width: 2,
+          height: 3,
+          depth: 1,
+        },
+        unit: 'in',
+        createdAt: null,
+        acquiredAt: new Date(),
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        owner: user,
+      };
+
+      let frame: FrameDto | null = null;
+      if (data.frameId) {
+        frame = {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          name: 'Mock Frame',
+          src:
+            'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
+          alt: '',
+          size: {
+            width: 4,
+            height: 6,
+            depth: 2,
+          },
+          window: [
+            { x: 0.2, y: 0.2 },
+            { x: 0.8, y: 0.2 },
+            { x: 0.8, y: 0.8 },
+            { x: 0.2, y: 0.8 },
+          ],
+          // unit: 'in',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          owner: user,
+        };
+      }
+
+      return {
+        artwork,
+        frame,
+        framingOptions: data.framingOptions,
+        position: { x: 0, y: 0 },
+        size: frame?.size ?? artwork.size,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+      };
+    },
+
+    async create(data) {
+      return {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        name: data.name,
+        description: data.description,
+        artworks: [],
+        height: data.height,
+        color: data.color,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        museum: {
+          id: data.museumId,
+          name: 'Mock Museum',
+          description: '',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          curator: {
+            id: data.museumId,
+            name: 'Mock User',
+            bio: '',
+            headshot: null,
+            museumId: data.museumId,
+            addedAt: new Date(),
+            modifiedAt: new Date(),
+          },
+        },
+        museumId: data.museumId,
+      };
+    },
+
     async findAllByMuseum(museum) {
       const galleries: GalleryDto[] = [
         {
@@ -197,6 +298,38 @@ export const MockAPI: MyseumAPI = {
         museumId,
       };
     },
+
+    async update(museumId, galleryId, data) {
+      return {
+        id: galleryId,
+        name: data.name,
+        description: data.description,
+        artworks: [],
+        height: data.height ?? 40,
+        color: data.color ?? GalleryColor.mint,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        museum: {
+          id: museumId,
+          name: 'Mock Museum',
+          description: '',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          curator: {
+            id: museumId,
+            name: 'Mock User',
+            bio: '',
+            headshot: null,
+            museumId,
+            addedAt: new Date(),
+            modifiedAt: new Date(),
+          },
+        },
+        museumId,
+      };
+    },
+
+    async delete() {},
   },
 
   museum: {
