@@ -1,12 +1,9 @@
 import { GetServerSideProps } from 'next';
+import api from '@src/api';
 import { Loader } from '@src/components/Loader';
 import { SEO } from '@src/components/SEO';
-import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
-import { UserRepository } from '@src/data/repositories/user.repository';
-import { GalleryDto, GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumDto, MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { supabase } from '@src/data/supabase';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { AnonymousHome } from '@src/features/anonymous/Home';
 import { MuseumView } from '@src/features/museum/MuseumView';
 import { useAuth } from '@src/providers/AuthProvider';
@@ -42,34 +39,25 @@ const Home = ({ museum, galleries }: HomeProps) => {
 export default Home;
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async ctx => {
-  const supabaseUser = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!supabaseUser.user) {
+  const user = await api.auth.getUserByCookie(ctx);
+  if (!user) {
     return {
       props: {
-        __supabaseUser: null,
+        // __supabaseUser
         museum: null,
         galleries: [],
       },
     };
   }
-  const userData = await UserRepository.findOne(supabaseUser.user);
 
-  const museum = await MuseumRepository.findOneByCurator(supabaseUser.user.id);
-  if (!museum) {
-    throw new Error('User must have museum.');
-  }
-
-  const serializedMuseum = MuseumSerializer.serialize(museum);
-
-  const galleries = await GalleryRepository.findAllByMuseum(museum.id);
-  const serializedGalleries = galleries.map(gallery => GallerySerializer.serialize(gallery));
+  const museum = await api.museum.findOneByCurator(user);
+  const galleries = await api.gallery.findAllByMuseum(museum);
 
   return {
     props: {
-      __supabaseUser: supabaseUser.user,
-      __userData: userData,
-      museum: serializedMuseum,
-      galleries: serializedGalleries,
+      __userData: user,
+      museum,
+      galleries,
     },
   };
 };
