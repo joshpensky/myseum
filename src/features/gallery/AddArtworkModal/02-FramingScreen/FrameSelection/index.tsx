@@ -1,7 +1,9 @@
 import { Field } from 'formik';
 import useSWR from 'swr';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
+import { useAuth } from '@src/providers/AuthProvider';
 import Checkmark from '@src/svgs/Checkmark';
 import styles from './frameSelection.module.scss';
 
@@ -11,8 +13,16 @@ export interface FrameSelectionProps {
 }
 
 export const FrameSelection = ({ value, onChange }: FrameSelectionProps) => {
-  const frames = useSWR<FrameDto[]>('/api/frames', {
+  const auth = useAuth();
+
+  const frames = useSWR<FrameDto[]>(auth.user ? `/api/user/${auth.user.id}/frames` : null, {
     revalidateOnFocus: false,
+    async fetcher() {
+      if (!auth.user) {
+        return [];
+      }
+      return await api.frame.findAllByUser(auth.user);
+    },
   });
 
   if (frames.isValidating) {

@@ -17,6 +17,7 @@ import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
 import { ConfirmSelectionEvent, ScreenRefValue } from '@src/features/gallery/AddArtworkModal/state';
+import { useAuth } from '@src/providers/AuthProvider';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
@@ -57,12 +58,20 @@ interface SelectionScreenProps {
 
 export const SelectionScreen = forwardRef<ScreenRefValue, SelectionScreenProps>(
   function SelectionScreen({ state, onSubmit }, ref) {
-    const artworks = useSWR<ArtworkDto[], AxiosError>('/api/me/artworks', {
-      revalidateOnFocus: false,
-      async fetcher() {
-        return await api.auth.findMyArtworks();
+    const auth = useAuth();
+
+    const artworks = useSWR<ArtworkDto[], AxiosError>(
+      auth.user ? `/api/user/${auth.user.id}/artworks` : null,
+      {
+        revalidateOnFocus: false,
+        async fetcher() {
+          if (!auth.user) {
+            return [];
+          }
+          return await api.artwork.findAllByUser(auth.user);
+        },
       },
-    });
+    );
     const data = artworks.data ?? [];
 
     const initialValues: SelectionSchema = {

@@ -1,6 +1,7 @@
 import { GetServerSidePropsContext } from 'next';
 import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
@@ -32,13 +33,16 @@ export interface MyseumAPI {
      * @return the user attached to the cookie, or null if none
      */
     findUserByCookie(context: GetServerSidePropsContext): Promise<UserDto | null>;
+  };
 
+  frame: {
     /**
-     * Finds all artworks for the current user.
+     * Finds all frames for a given user.
      *
-     * @return the current user's artworks
+     * @param user the user to search within
+     * @return the user's frames
      */
-    findMyArtworks(): Promise<ArtworkDto[]>;
+    findAllByUser(user: UserDto): Promise<FrameDto[]>;
   };
 
   gallery: {

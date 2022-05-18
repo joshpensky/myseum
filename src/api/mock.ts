@@ -40,7 +40,8 @@ export const MockAPI: MyseumAPI = {
           title: 'Mock Artwork',
           description: '',
           artist: null,
-          src: '',
+          src:
+            'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
           alt: '',
           size: {
             width: 2,
@@ -70,14 +71,14 @@ export const MockAPI: MyseumAPI = {
         modifiedAt: new Date(),
       };
     },
+  },
 
-    async findMyArtworks() {
+  frame: {
+    async findAllByUser(user: UserDto) {
       return [
         {
           id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
-          title: 'Mock Artwork',
-          description: '',
-          artist: null,
+          name: 'Mock Frame',
           src:
             'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
           alt: '',
@@ -86,20 +87,16 @@ export const MockAPI: MyseumAPI = {
             height: 3,
             depth: 1,
           },
-          unit: 'in',
-          createdAt: null,
-          acquiredAt: new Date(),
+          window: [
+            { x: 0.2, y: 0.2 },
+            { x: 0.8, y: 0.2 },
+            { x: 0.8, y: 0.8 },
+            { x: 0.2, y: 0.8 },
+          ],
+          // unit: 'in',
           addedAt: new Date(),
           modifiedAt: new Date(),
-          owner: {
-            id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
-            name: 'Mock User',
-            bio: '',
-            headshot: null,
-            museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
-            addedAt: new Date(),
-            modifiedAt: new Date(),
-          },
+          owner: user,
         },
       ];
     },

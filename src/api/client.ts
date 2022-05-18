@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import type { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import type { MyseumAPI } from './type';
 
@@ -21,9 +22,11 @@ export const ClientAPI: MyseumAPI = {
     async findUserByCookie() {
       throw new Error('Implementation only available on server.');
     },
+  },
 
-    async findMyArtworks() {
-      const res = await axios.get<ArtworkDto[]>('/api/me/artworks');
+  frame: {
+    async findAllByUser(user: UserDto) {
+      const res = await axios.get<FrameDto[]>(`/api/user/${user.id}/frames`);
       return res.data;
     },
   },

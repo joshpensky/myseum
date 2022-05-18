@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
 import useSWR from 'swr';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Loader } from '@src/components/Loader';
@@ -70,6 +71,9 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
 
   const frames = useSWR<FrameDto[]>(`/api/user/${user.id}/frames`, {
     revalidateOnFocus: false,
+    async fetcher() {
+      return await api.frame.findAllByUser(user);
+    },
   });
   const data = frames.data ?? [];
 
