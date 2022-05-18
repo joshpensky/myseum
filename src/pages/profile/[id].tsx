@@ -17,8 +17,7 @@ export const getServerSideProps: GetServerSideProps<UserViewProps> = async ctx =
   if (authUser?.id === userId.data) {
     return {
       props: {
-        // __supabaseUser
-        __userData: authUser,
+        __authUser: authUser,
         user: authUser,
       },
     };
@@ -33,8 +32,7 @@ export const getServerSideProps: GetServerSideProps<UserViewProps> = async ctx =
 
   return {
     props: {
-      // __supabaseUser
-      __userData: authUser,
+      __authUser: authUser,
       user,
     },
   };

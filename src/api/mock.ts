@@ -64,6 +64,7 @@ export const MockAPI: MyseumAPI = {
   auth: {
     async findUserByCookie() {
       return {
+        // Prisma fields
         id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         name: 'Mock User',
         bio: '',
@@ -71,6 +72,19 @@ export const MockAPI: MyseumAPI = {
         museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         addedAt: new Date(),
         modifiedAt: new Date(),
+        // Supabase fields
+        aud: 'authenticated',
+        confirmed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        email: 'user@mock.com',
+        email_confirmed_at: new Date().toISOString(),
+        last_sign_in_at: new Date().toISOString(),
+        role: 'authenticated',
+        updated_at: new Date().toISOString(),
+        app_metadata: {
+          provider: 'google',
+        },
+        user_metadata: {},
       };
     },
 

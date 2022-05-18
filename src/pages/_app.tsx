@@ -17,11 +17,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <IdProvider>
-      <AuthProvider
-        initValue={{
-          supabaseUser: pageProps.__supabaseUser ?? null,
-          userData: pageProps.__userData ?? null,
-        }}>
+      <AuthProvider initValue={pageProps.__authUser}>
         <GlobalLayout {...computedProps.global}>
           <Component {...pageProps} {...computedProps.page} />
         </GlobalLayout>

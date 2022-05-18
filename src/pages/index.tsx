@@ -43,7 +43,6 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ctx => {
   if (!user) {
     return {
       props: {
-        // __supabaseUser
         museum: null,
         galleries: [],
       },
@@ -55,7 +54,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ctx => {
 
   return {
     props: {
-      __userData: user,
+      __authUser: user,
       museum,
       galleries,
     },

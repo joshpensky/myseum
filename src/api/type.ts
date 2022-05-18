@@ -14,6 +14,7 @@ import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
+import { AuthUserDto } from '@src/providers/AuthProvider';
 
 export interface MyseumAPI {
   artwork: {
@@ -48,7 +49,7 @@ export interface MyseumAPI {
      * @param context the Next.js SSR context
      * @return the user attached to the cookie, or null if none
      */
-    findUserByCookie(context: GetServerSidePropsContext): Promise<UserDto | null>;
+    findUserByCookie(context: GetServerSidePropsContext): Promise<AuthUserDto | null>;
 
     /**
      * Gets the current signed-in user.

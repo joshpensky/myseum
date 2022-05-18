@@ -26,7 +26,12 @@ if (process.env.NEXT_PUBLIC_USE_MOCK_API === 'true') {
           return null;
         }
         const user = await UserRepository.findOne(supabaseUser.user);
-        return UserSerializer.serialize(user);
+        const serializedUser = UserSerializer.serialize(user);
+        return {
+          ...supabaseUser.user,
+          ...serializedUser,
+          email: supabaseUser.user.email as string,
+        };
       },
     },
 

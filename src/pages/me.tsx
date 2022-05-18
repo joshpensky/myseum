@@ -40,8 +40,7 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 
   return {
     props: {
-      // __supabaseUser: supabaseUser.user,
-      __userData: user,
+      __authUser: user,
     },
   };
 };
