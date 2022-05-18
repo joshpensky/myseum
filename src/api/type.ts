@@ -7,10 +7,11 @@ import {
   CreateGalleryDto,
   UpdateGalleryDto,
 } from '@src/data/repositories/gallery.repository';
+import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
-import { MuseumDto } from '@src/data/serializers/museum.serializer';
+import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 
 export interface MyseumAPI {
@@ -151,6 +152,15 @@ export interface MyseumAPI {
      * @return the matched museum, or null if not found
      */
     findOneById(id: string): Promise<MuseumDto | null>;
+
+    /**
+     * Updates a museum with the given ID.
+     *
+     * @param id the museum's ID
+     * @param data the museum updated data
+     * @return the updated museum
+     */
+    update(id: string, data: UpdateMuseumDto): Promise<MuseumWithGalleriesDto>;
   };
 
   user: {

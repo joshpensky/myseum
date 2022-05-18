@@ -1,5 +1,4 @@
 import { ReactNode, useRef, useState } from 'react';
-import axios from 'axios';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik, FormikProps } from 'formik';
@@ -81,8 +80,8 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
                 name: values.name,
                 description: values.description,
               };
-              const res = await axios.put<MuseumWithGalleriesDto>(`/api/museum/${museum.id}`, data);
-              onSave(res.data);
+              const updatedMuseum = await api.museum.update(museum.id, data);
+              onSave(updatedMuseum);
               setOpen(false);
             } catch (error) {
               toast.error((error as Error).message);

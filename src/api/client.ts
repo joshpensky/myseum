@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { supabase } from '@src/data/supabase';
 import type { MyseumAPI } from './type';
@@ -99,6 +100,11 @@ export const ClientAPI: MyseumAPI = {
 
     async findOneById() {
       throw new Error('Implementation only available on server.');
+    },
+
+    async update(id, data) {
+      const res = await axios.put<MuseumWithGalleriesDto>(`/api/museum/${id}`, data);
+      return res.data;
     },
   },
 

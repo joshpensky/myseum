@@ -1,10 +1,9 @@
 import { GalleryColor } from '@prisma/client';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
-import type { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import type { MuseumDto } from '@src/data/serializers/museum.serializer';
+import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import type { MyseumAPI } from './type';
+import { MyseumAPI } from './type';
 
 export const MockAPI: MyseumAPI = {
   artwork: {
@@ -334,7 +333,7 @@ export const MockAPI: MyseumAPI = {
 
   museum: {
     async findOneByCurator(curator) {
-      const museum: MuseumDto = {
+      return {
         id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         name: 'Mock Museum',
         description: '',
@@ -342,11 +341,10 @@ export const MockAPI: MyseumAPI = {
         modifiedAt: new Date(),
         curator,
       };
-      return museum;
     },
 
     async findOneById(id) {
-      const museum: MuseumDto = {
+      return {
         id,
         name: 'Mock Museum',
         description: '',
@@ -362,7 +360,48 @@ export const MockAPI: MyseumAPI = {
           modifiedAt: new Date(),
         },
       };
-      return museum;
+    },
+
+    async update(id, data) {
+      const user: UserDto = {
+        id,
+        name: 'Mock User',
+        bio: '',
+        headshot: null,
+        museumId: id,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+      };
+
+      return {
+        id,
+        name: data.name,
+        description: data.description,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        galleries: [
+          {
+            id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+            name: 'Mock Gallery A',
+            description: '',
+            artworks: [],
+            height: 40,
+            color: GalleryColor.mint,
+            addedAt: new Date(),
+            modifiedAt: new Date(),
+            museum: {
+              id,
+              name: data.name,
+              description: data.description,
+              addedAt: new Date(),
+              modifiedAt: new Date(),
+              curator: user,
+            },
+            museumId: id,
+          },
+        ],
+        curator: user,
+      };
     },
   },
 
