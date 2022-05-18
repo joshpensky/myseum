@@ -10,7 +10,7 @@ import { MyseumAPI } from './type';
 
 export const ClientAPI: MyseumAPI = {
   auth: {
-    async getUserByCookie(context: GetServerSidePropsContext) {
+    async findUserByCookie(context: GetServerSidePropsContext) {
       const supabaseUser = await supabase.auth.api.getUserByCookie(context.req);
       if (!supabaseUser.user) {
         return null;
@@ -25,6 +25,14 @@ export const ClientAPI: MyseumAPI = {
       const galleries = await GalleryRepository.findAllByMuseum(museum.id);
       return galleries.map(gallery => GallerySerializer.serialize(gallery));
     },
+
+    async findOneByMuseum(museumId: string, galleryId: string) {
+      const gallery = await GalleryRepository.findOneByMuseum(museumId, galleryId);
+      if (!gallery) {
+        return null;
+      }
+      return GallerySerializer.serialize(gallery);
+    },
   },
 
   museum: {
@@ -34,6 +42,24 @@ export const ClientAPI: MyseumAPI = {
         throw new Error('Something went wrong. User should have associated museum.');
       }
       return MuseumSerializer.serialize(museum);
+    },
+
+    async findOneById(id: string) {
+      const museum = await MuseumRepository.findOne(id);
+      if (!museum) {
+        return null;
+      }
+      return MuseumSerializer.serialize(museum);
+    },
+  },
+
+  user: {
+    async findOneById(id: string) {
+      const user = await UserRepository.findOne(id);
+      if (!user) {
+        return null;
+      }
+      return UserSerializer.serialize(user);
     },
   },
 };

@@ -39,7 +39,7 @@ const Home = ({ museum, galleries }: HomeProps) => {
 export default Home;
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async ctx => {
-  const user = await api.auth.getUserByCookie(ctx);
+  const user = await api.auth.findUserByCookie(ctx);
   if (!user) {
     return {
       props: {

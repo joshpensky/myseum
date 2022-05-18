@@ -1,9 +1,7 @@
 import { GetServerSideProps } from 'next';
+import api from '@src/api';
 import { Loader } from '@src/components/Loader';
 import { SEO } from '@src/components/SEO';
-import { UserRepository } from '@src/data/repositories/user.repository';
-import { UserSerializer } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
 import { UserView } from '@src/features/profile/UserView';
 import { useAuth } from '@src/providers/AuthProvider';
 import styles from './_styles/me.module.scss';
@@ -29,10 +27,9 @@ const Profile = () => {
 export default Profile;
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
-  const supabaseUser = await supabase.auth.api.getUserByCookie(ctx.req);
+  const user = await api.auth.findUserByCookie(ctx);
 
-  // If user not logged in, redirect to homepage
-  if (!supabaseUser.user) {
+  if (!user) {
     return {
       redirect: {
         destination: '/',
@@ -41,14 +38,10 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
     };
   }
 
-  const user = await UserRepository.findOne(supabaseUser.user);
-  const serializedUser = UserSerializer.serialize(user);
-
-  // Otherwise, continue onward!
   return {
     props: {
-      __supabaseUser: supabaseUser.user,
-      __userData: serializedUser,
+      // __supabaseUser: supabaseUser.user,
+      __userData: user,
     },
   };
 };
