@@ -1,7 +1,7 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
-import api from '@src/api';
+import api from '@src/api/server';
 import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
 
 export default GalleryView;

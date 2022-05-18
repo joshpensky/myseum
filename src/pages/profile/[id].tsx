@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
-import api from '@src/api';
+import api from '@src/api/server';
 import { UserView, UserViewProps } from '@src/features/profile/UserView';
 
 export default UserView;

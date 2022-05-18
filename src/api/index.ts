@@ -3,7 +3,7 @@ import { MockAPI } from './mock';
 import { MyseumAPI } from './type';
 
 let api: MyseumAPI;
-if (process.env.USE_MOCK_API === 'true') {
+if (process.env.NEXT_PUBLIC_USE_MOCK_API === 'true') {
   api = MockAPI;
 } else {
   api = ClientAPI;

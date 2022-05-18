@@ -1,65 +1,56 @@
-import { GetServerSidePropsContext } from 'next';
-import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
-import { UserRepository } from '@src/data/repositories/user.repository';
-import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumDto, MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { UserDto, UserSerializer } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
-import { MyseumAPI } from './type';
+import axios from 'axios';
+import type { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import type { ArtworkDto } from '@src/data/serializers/artwork.serializer';
+import { UserDto } from '@src/data/serializers/user.serializer';
+import type { MyseumAPI } from './type';
 
 export const ClientAPI: MyseumAPI = {
+  artwork: {
+    async create(data: CreateArtworkDto) {
+      const res = await axios.post<ArtworkDto>('/api/artworks', data);
+      return res.data;
+    },
+
+    async findAllByUser(user: UserDto) {
+      const res = await axios.get<ArtworkDto[]>(`/api/user/${user.id}/artworks`);
+      return res.data;
+    },
+  },
+
   auth: {
-    async findUserByCookie(context: GetServerSidePropsContext) {
-      const supabaseUser = await supabase.auth.api.getUserByCookie(context.req);
-      if (!supabaseUser.user) {
-        return null;
-      }
-      const user = await UserRepository.findOne(supabaseUser.user);
-      return UserSerializer.serialize(user);
+    async findUserByCookie() {
+      throw new Error('Implementation only available on server.');
+    },
+
+    async findMyArtworks() {
+      const res = await axios.get<ArtworkDto[]>('/api/me/artworks');
+      return res.data;
     },
   },
 
   gallery: {
-    async findAllByMuseum(museum: MuseumDto) {
-      const galleries = await GalleryRepository.findAllByMuseum(museum.id);
-      return galleries.map(gallery => GallerySerializer.serialize(gallery));
+    async findAllByMuseum() {
+      throw new Error('Implementation only available on server.');
     },
 
-    async findOneByMuseum(museumId: string, galleryId: string) {
-      const gallery = await GalleryRepository.findOneByMuseum(museumId, galleryId);
-      if (!gallery) {
-        return null;
-      }
-      return GallerySerializer.serialize(gallery);
+    async findOneByMuseum() {
+      throw new Error('Implementation only available on server.');
     },
   },
 
   museum: {
-    async findOneByCurator(curator: UserDto) {
-      const museum = await MuseumRepository.findOneByCurator(curator.id);
-      if (!museum) {
-        throw new Error('Something went wrong. User should have associated museum.');
-      }
-      return MuseumSerializer.serialize(museum);
+    async findOneByCurator() {
+      throw new Error('Implementation only available on server.');
     },
 
-    async findOneById(id: string) {
-      const museum = await MuseumRepository.findOne(id);
-      if (!museum) {
-        return null;
-      }
-      return MuseumSerializer.serialize(museum);
+    async findOneById() {
+      throw new Error('Implementation only available on server.');
     },
   },
 
   user: {
-    async findOneById(id: string) {
-      const user = await UserRepository.findOne(id);
-      if (!user) {
-        return null;
-      }
-      return UserSerializer.serialize(user);
+    async findOneById() {
+      throw new Error('Implementation only available on server.');
     },
   },
 };

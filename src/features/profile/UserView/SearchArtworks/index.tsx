@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
 import useSWR from 'swr';
+import api from '@src/api';
 import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
@@ -119,6 +120,9 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
 
   const artworks = useSWR<ArtworkDto[]>(`/api/user/${user.id}/artworks`, {
     revalidateOnFocus: false,
+    async fetcher() {
+      return await api.artwork.findAllByUser(user);
+    },
   });
   const data = artworks.data ?? [];
 

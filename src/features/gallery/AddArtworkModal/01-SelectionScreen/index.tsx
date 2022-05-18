@@ -8,6 +8,7 @@ import { Form, Formik, FormikProps } from 'formik';
 import Fuse from 'fuse.js';
 import useSWR from 'swr';
 import * as z from 'zod';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import { ErrorMessage } from '@src/components/ErrorMessage';
 import * as FormModal from '@src/components/FormModal';
@@ -58,6 +59,9 @@ export const SelectionScreen = forwardRef<ScreenRefValue, SelectionScreenProps>(
   function SelectionScreen({ state, onSubmit }, ref) {
     const artworks = useSWR<ArtworkDto[], AxiosError>('/api/me/artworks', {
       revalidateOnFocus: false,
+      async fetcher() {
+        return await api.auth.findMyArtworks();
+      },
     });
     const data = artworks.data ?? [];
 

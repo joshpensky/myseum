@@ -1,9 +1,29 @@
 import { GetServerSidePropsContext } from 'next';
+import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 
 export interface MyseumAPI {
+  artwork: {
+    /**
+     * Creates a new artwork.
+     *
+     * @param data the artwork data
+     * @returns the created artwork
+     */
+    create(data: CreateArtworkDto): Promise<ArtworkDto>;
+
+    /**
+     * Finds all artworks for a given user.
+     *
+     * @param user the user to search within
+     * @return the user's artworks
+     */
+    findAllByUser(user: UserDto): Promise<ArtworkDto[]>;
+  };
+
   auth: {
     /**
      * Gets a user based on SSR context.
@@ -12,6 +32,13 @@ export interface MyseumAPI {
      * @return the user attached to the cookie, or null if none
      */
     findUserByCookie(context: GetServerSidePropsContext): Promise<UserDto | null>;
+
+    /**
+     * Finds all artworks for the current user.
+     *
+     * @return the current user's artworks
+     */
+    findMyArtworks(): Promise<ArtworkDto[]>;
   };
 
   gallery: {
@@ -23,6 +50,13 @@ export interface MyseumAPI {
      */
     findAllByMuseum(museum: MuseumDto): Promise<GalleryDto[]>;
 
+    /**
+     * Finds one gallery by a given ID within a given museum.
+     *
+     * @param museumId the museum to search within
+     * @param galleryId the gallery's ID
+     * @return the matched gallery, or null if not found
+     */
     findOneByMuseum(museumId: string, galleryId: string): Promise<GalleryDto | null>;
   };
 

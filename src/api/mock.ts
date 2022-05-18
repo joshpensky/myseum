@@ -1,10 +1,63 @@
 import { GalleryColor } from '@prisma/client';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { MuseumDto } from '@src/data/serializers/museum.serializer';
-import { UserDto } from '@src/data/serializers/user.serializer';
-import { MyseumAPI } from './type';
+import type { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import type { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import type { MuseumDto } from '@src/data/serializers/museum.serializer';
+import type { UserDto } from '@src/data/serializers/user.serializer';
+import type { MyseumAPI } from './type';
 
 export const MockAPI: MyseumAPI = {
+  artwork: {
+    async create(data: CreateArtworkDto) {
+      return {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        title: data.title,
+        description: data.description,
+        artist: null,
+        src: data.src,
+        alt: data.alt,
+        size: data.size,
+        unit: data.unit,
+        createdAt: data.createdAt ?? null,
+        acquiredAt: data.acquiredAt,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        owner: {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          name: 'Mock User',
+          bio: '',
+          headshot: null,
+          museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+        },
+      };
+    },
+
+    async findAllByUser(user: UserDto) {
+      return [
+        {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          title: 'Mock Artwork',
+          description: '',
+          artist: null,
+          src: '',
+          alt: '',
+          size: {
+            width: 2,
+            height: 3,
+            depth: 1,
+          },
+          unit: 'in',
+          createdAt: null,
+          acquiredAt: new Date(),
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          owner: user,
+        },
+      ];
+    },
+  },
+
   auth: {
     async findUserByCookie() {
       return {
@@ -16,6 +69,39 @@ export const MockAPI: MyseumAPI = {
         addedAt: new Date(),
         modifiedAt: new Date(),
       };
+    },
+
+    async findMyArtworks() {
+      return [
+        {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          title: 'Mock Artwork',
+          description: '',
+          artist: null,
+          src:
+            'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',
+          alt: '',
+          size: {
+            width: 2,
+            height: 3,
+            depth: 1,
+          },
+          unit: 'in',
+          createdAt: null,
+          acquiredAt: new Date(),
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          owner: {
+            id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+            name: 'Mock User',
+            bio: '',
+            headshot: null,
+            museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+            addedAt: new Date(),
+            modifiedAt: new Date(),
+          },
+        },
+      ];
     },
   },
 

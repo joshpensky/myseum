@@ -1,6 +1,6 @@
-import axios from 'axios';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import IconButton from '@src/components/IconButton';
@@ -48,8 +48,8 @@ export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProp
               acquiredAt: state.context.details.acquiredAt,
             };
 
-            const res = await axios.post<ArtworkDto>('/api/artworks', createArtworkData);
-            onSubmit(res.data);
+            const artwork = await api.artwork.create(createArtworkData);
+            onSubmit(artwork);
           } catch (error) {
             console.error(error);
           }

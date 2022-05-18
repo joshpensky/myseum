@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import api from '@src/api';
+import api from '@src/api/server';
 import { Loader } from '@src/components/Loader';
 import { SEO } from '@src/components/SEO';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
