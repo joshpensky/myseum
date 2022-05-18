@@ -1,10 +1,10 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { AuthChangeEvent, Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import api from '@src/api';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
 
 export interface AuthUserDto extends SupabaseUser, UserDto {
   email: string;
@@ -58,36 +58,24 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
   async function signIn() {
     const url = new URL(`${window.location.origin}/callback`);
     url.searchParams.append('returnTo', router.asPath);
-
-    const { error } = await supabase.auth.signIn(
-      { provider: 'google' },
-      {
-        redirectTo: url.toString(),
-      },
-    );
-    if (error) {
-      throw error;
-    }
+    await api.auth.signIn({ redirectTo: url.toString() });
   }
 
   async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      throw error;
-    }
+    await api.auth.signOut();
   }
 
   async function updateUserData(user: SupabaseUser, signal: AbortSignal) {
     try {
-      const res = await axios.get<UserDto>(`/api/user/${user.id}`, { signal });
+      const userDto = await api.user.findOneById(user.id, { signal });
       if (!signal.aborted) {
         // Update user data if not aborted
-        setUserData(res.data);
+        setUserData(userDto);
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         // Sign out of user not found
-        await supabase.auth.signOut();
+        await api.auth.signOut();
       } else if (!signal.aborted) {
         // Show error if user could not be fetched
         toast.error('Could not fetch user data.');
@@ -101,7 +89,7 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
     // Abort any ongoing abort controllers on mount
     abortControllerRef.current?.abort();
 
-    const initUser = supabase.auth.user();
+    const initUser = api.auth.getCurrentUser();
 
     if (initUser) {
       setSupabaseUser(initUser);
@@ -115,36 +103,23 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
     }
 
     // Listen to auth changes
-    const authSubscription = supabase.auth.onAuthStateChange(async function onAuthStateChange(
-      event: AuthChangeEvent,
-      session: Session | null,
-    ) {
+    const authSubscription = api.auth.onStateChange(async function onAuthStateChange(event, user) {
       // Abort any ongoing abort controllers on login-state change
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         abortControllerRef.current?.abort();
       }
 
       // Update auth state
-      if (session?.user) {
-        setSupabaseUser(session.user);
+      if (user) {
+        setSupabaseUser(user);
         // Then update user later with extra data
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
-        await updateUserData(session.user, abortController.signal);
+        await updateUserData(user, abortController.signal);
       } else {
         setSupabaseUser(null);
         setUserData(null);
       }
-
-      // Update SSR cookie on auth state change
-      fetch('/api/auth', {
-        method: 'POST',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-        }),
-        credentials: 'same-origin',
-        body: JSON.stringify({ event, session }),
-      });
 
       // Redirect user to homepage on sign out
       if (event === 'SIGNED_IN') {
@@ -155,7 +130,7 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
     });
 
     return () => {
-      authSubscription.data?.unsubscribe();
+      authSubscription?.unsubscribe();
     };
   }, []);
 

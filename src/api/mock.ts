@@ -1,13 +1,11 @@
 import { GalleryColor } from '@prisma/client';
-import type { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import type { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import type { MuseumDto } from '@src/data/serializers/museum.serializer';
-import type { UserDto } from '@src/data/serializers/user.serializer';
 import type { MyseumAPI } from './type';
 
 export const MockAPI: MyseumAPI = {
   artwork: {
-    async create(data: CreateArtworkDto) {
+    async create(data) {
       return {
         id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         title: data.title,
@@ -33,7 +31,7 @@ export const MockAPI: MyseumAPI = {
       };
     },
 
-    async findAllByUser(user: UserDto) {
+    async findAllByUser(user) {
       return [
         {
           id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
@@ -71,10 +69,59 @@ export const MockAPI: MyseumAPI = {
         modifiedAt: new Date(),
       };
     },
+
+    getCurrentUser() {
+      return {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        aud: 'authenticated',
+        confirmed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        email: 'user@mock.com',
+        email_confirmed_at: new Date().toISOString(),
+        last_sign_in_at: new Date().toISOString(),
+        role: 'authenticated',
+        updated_at: new Date().toISOString(),
+        app_metadata: {
+          provider: 'google',
+        },
+        user_metadata: {},
+      };
+    },
+
+    onStateChange(callback) {
+      // callback('SIGNED_IN', this.getCurrentUser());
+      const currentUser = this.getCurrentUser();
+      function handleSignIn() {
+        callback('SIGNED_IN', currentUser);
+      }
+      window.addEventListener('__mock_sign_in', handleSignIn);
+
+      function handleSignOut() {
+        callback('SIGNED_OUT', null);
+      }
+      window.addEventListener('__mock_sign_out', handleSignOut);
+
+      return {
+        unsubscribe() {
+          window.removeEventListener('__mock_sign_in', handleSignIn);
+          window.removeEventListener('__mock_sign_out', handleSignOut);
+        },
+      };
+    },
+
+    async signIn() {
+      const signInEvent = new Event('__mock_sign_in');
+      window.dispatchEvent(signInEvent);
+    },
+
+    async signOut() {
+      const signOutEvent = new Event('__mock_sign_out');
+      window.dispatchEvent(signOutEvent);
+    },
   },
 
   frame: {
-    async findAllByUser(user: UserDto) {
+    async findAllByUser(user) {
       return [
         {
           id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
@@ -103,7 +150,7 @@ export const MockAPI: MyseumAPI = {
   },
 
   gallery: {
-    async findAllByMuseum(museum: MuseumDto) {
+    async findAllByMuseum(museum) {
       const galleries: GalleryDto[] = [
         {
           id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
@@ -121,7 +168,7 @@ export const MockAPI: MyseumAPI = {
       return galleries;
     },
 
-    async findOneByMuseum(museumId: string, galleryId: string) {
+    async findOneByMuseum(museumId, galleryId) {
       return {
         id: galleryId,
         name: 'Mock Gallery A',
@@ -153,7 +200,7 @@ export const MockAPI: MyseumAPI = {
   },
 
   museum: {
-    async findOneByCurator(curator: UserDto) {
+    async findOneByCurator(curator) {
       const museum: MuseumDto = {
         id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         name: 'Mock Museum',
@@ -165,7 +212,7 @@ export const MockAPI: MyseumAPI = {
       return museum;
     },
 
-    async findOneById(id: string) {
+    async findOneById(id) {
       const museum: MuseumDto = {
         id,
         name: 'Mock Museum',
@@ -187,7 +234,7 @@ export const MockAPI: MyseumAPI = {
   },
 
   user: {
-    async findOneById(id: string) {
+    async findOneById(id) {
       return {
         id,
         name: 'Mock User',

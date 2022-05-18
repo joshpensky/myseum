@@ -1,4 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
+import { AuthChangeEvent, User } from '@supabase/supabase-js';
+import { AxiosRequestConfig } from 'axios';
 import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
@@ -33,6 +35,35 @@ export interface MyseumAPI {
      * @return the user attached to the cookie, or null if none
      */
     findUserByCookie(context: GetServerSidePropsContext): Promise<UserDto | null>;
+
+    /**
+     * Gets the current signed-in user.
+     *
+     * @return the current signed-in user, or null if none
+     */
+    getCurrentUser(): User | null;
+
+    /**
+     * Event handler for auth state changes.
+     *
+     * @param callback a callback to subscribe to state changes
+     * @return an unsubscribe function
+     */
+    onStateChange(
+      callback: (event: AuthChangeEvent, user: User | null) => void,
+    ): { unsubscribe(): void } | null;
+
+    /**
+     * Signs the user in.
+     *
+     * @param options an optional redirectTo destination
+     */
+    signIn(options?: { redirectTo?: string }): Promise<void>;
+
+    /**
+     * Signs the user out.
+     */
+    signOut(): Promise<void>;
   };
 
   frame: {
@@ -89,6 +120,6 @@ export interface MyseumAPI {
      * @param id the user's ID
      * @return the matched user, or null if not found
      */
-    findOneById(id: string): Promise<UserDto | null>;
+    findOneById(id: string, config?: AxiosRequestConfig<any>): Promise<UserDto | null>;
   };
 }
