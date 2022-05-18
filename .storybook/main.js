@@ -31,4 +31,8 @@ module.exports = {
 
     return config;
   },
+  env: config => ({
+    ...config,
+    NEXT_PUBLIC_USE_MOCK_API: 'true',
+  }),
 };

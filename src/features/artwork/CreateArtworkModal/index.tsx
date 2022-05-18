@@ -3,7 +3,7 @@ import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { AuthUserDto, useAuth } from '@src/providers/AuthProvider';
+import { useAuth } from '@src/providers/AuthProvider';
 import { UploadScreen } from './01-UploadScreen';
 import { DimensionsScreen } from './02-DimensionsScreen';
 import { SelectionScreen } from './03-SelectionScreen';
@@ -12,7 +12,7 @@ import { ReviewScreen } from './05-ReviewScreen';
 import styles from './createArtwork.module.scss';
 import { createArtworkMachine, CreateArtworkStateValue, ScreenRefValue } from './state';
 
-interface CreateArtworkModalProps {
+export interface CreateArtworkModalProps {
   trigger: ReactNode;
   onComplete(data: ArtworkDto): void;
 }
@@ -44,11 +44,10 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
     }
   };
 
-  // TODO: revert after plane ride
-  // if (!auth.user) {
-  //   return null;
-  // }
-  const user = auth.user as AuthUserDto;
+  if (!auth.user) {
+    return null;
+  }
+  const user = auth.user;
 
   const renderStep = () => {
     if (state.matches('upload')) {

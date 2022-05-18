@@ -4,7 +4,7 @@ import '@src/styles/index.scss';
 import { EditIcon } from '@src/svgs/EditIcon';
 
 export default {
-  title: 'Button',
+  title: 'Buttons/Basic',
   component: Button,
   argTypes: {
     filled: {
@@ -26,10 +26,10 @@ export default {
   },
 } as ComponentMeta<typeof Button>;
 
-export const Default: ComponentStory<typeof Button> = args => <Button {...args}>Button</Button>;
+export const Default: ComponentStory<typeof Button> = args => <Button {...args}>Open</Button>;
 
 export const Icon: ComponentStory<typeof Button> = args => (
   <Button {...args} icon={EditIcon}>
-    Button
+    Edit
   </Button>
 );

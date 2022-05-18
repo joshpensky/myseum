@@ -6,7 +6,7 @@ import { useAuth } from '@src/providers/AuthProvider';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './userTag.module.scss';
 
-interface UserTagProps {
+export interface UserTagProps {
   className?: string;
   user: UserDto;
 }

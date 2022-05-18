@@ -1,7 +1,7 @@
 import cx from 'classnames';
 import styles from './loader.module.scss';
 
-interface LoaderProps {
+export interface LoaderProps {
   className?: string;
   size?: 'normal' | 'large';
 }

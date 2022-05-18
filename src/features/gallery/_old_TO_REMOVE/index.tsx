@@ -229,13 +229,13 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
                 </div>
 
                 <div className={styles.headerSection}>
-                  <Tooltip
+                  {/* <Tooltip
                     value={<KeyboardShortcut keys={['meta', 's']} />}
                     disabled={isSubmitting}>
                     <Button disabled={isSubmitting} onClick={() => onSave()}>
                       Save
                     </Button>
-                  </Tooltip>
+                  </Tooltip> */}
                 </div>
               </Fragment>
             )}

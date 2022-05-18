@@ -55,7 +55,7 @@ export const UserView = ({ user }: UserViewProps) => {
       <header className={styles.header}>
         <div className={styles.headshot}>
           {user.headshot && (
-            <Image src={getImageUrl('headshots', user.headshot)} alt="" layout="fill" />
+            <Image src={getImageUrl('headshots', user.headshot)} alt="" layout="fill" priority />
           )}
         </div>
 
