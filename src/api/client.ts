@@ -18,6 +18,10 @@ export const ClientAPI: MyseumAPI = {
       const res = await axios.get<ArtworkDto[]>(`/api/user/${user.id}/artworks`);
       return res.data;
     },
+
+    async delete(id) {
+      await axios.delete(`/api/artworks/${id}`);
+    },
   },
 
   auth: {
@@ -112,6 +116,15 @@ export const ClientAPI: MyseumAPI = {
     async findOneById(id, config) {
       const res = await axios.get<UserDto>(`/api/user/${id}`, config);
       return res.data;
+    },
+
+    async update(id, data) {
+      const res = await axios.put<UserDto>(`/api/user/${id}`, data);
+      return res.data;
+    },
+
+    async delete(id) {
+      await axios.delete(`/api/user/${id}`);
     },
   },
 };

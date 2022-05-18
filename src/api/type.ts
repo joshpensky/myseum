@@ -8,6 +8,7 @@ import {
   UpdateGalleryDto,
 } from '@src/data/repositories/gallery.repository';
 import { UpdateMuseumDto } from '@src/data/repositories/museum.repository';
+import { UpdateUserDto } from '@src/data/repositories/user.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
@@ -31,6 +32,13 @@ export interface MyseumAPI {
      * @return the user's artworks
      */
     findAllByUser(user: UserDto): Promise<ArtworkDto[]>;
+
+    /**
+     * Deletes an existing artwork.
+     *
+     * @param id the artwork's ID
+     */
+    delete(id: string): Promise<void>;
   };
 
   auth: {
@@ -171,5 +179,21 @@ export interface MyseumAPI {
      * @return the matched user, or null if not found
      */
     findOneById(id: string, config?: AxiosRequestConfig<any>): Promise<UserDto | null>;
+
+    /**
+     * Updates a user with the given ID.
+     *
+     * @param id the user's ID
+     * @param data the user updated data
+     * @return the updated user
+     */
+    update(id: string, data: UpdateUserDto): Promise<UserDto>;
+
+    /**
+     * Deletes an existing user.
+     *
+     * @param id the user's ID
+     */
+    delete(id: string): Promise<void>;
   };
 }

@@ -1,5 +1,4 @@
 import { Fragment, useState } from 'react';
-import axios from 'axios';
 import cx from 'classnames';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
@@ -85,7 +84,7 @@ const ArtworkRow = ({ artwork, onDelete }: ArtworkRowProps) => {
                   onClick={async () => {
                     setIsDeleting(true);
                     try {
-                      await axios.delete(`/api/artworks/${artwork.id}`);
+                      await api.artwork.delete(artwork.id);
                       onDelete();
                     } catch {
                       // TODO: toast error

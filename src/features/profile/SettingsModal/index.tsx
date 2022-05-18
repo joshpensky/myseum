@@ -1,8 +1,8 @@
 import { ChangeEvent, DragEvent, Fragment, ReactNode, useRef, useState } from 'react';
-import axios from 'axios';
 import { Field, Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
+import api from '@src/api';
 import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
@@ -77,8 +77,8 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
                 bio: values.bio,
                 headshot: values.headshot,
               };
-              const res = await axios.put<UserDto>(`/api/user/${user.id}`, data);
-              onSave(res.data);
+              const updatedUser = await api.user.update(user.id, data);
+              onSave(updatedUser);
               setOpen(false);
             } catch (error) {
               toast.error((error as Error).message);
@@ -235,7 +235,7 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
                           onClick={async () => {
                             try {
                               setIsDeleting(true);
-                              await axios.delete(`/api/user/${user.id}`);
+                              await api.user.delete(user.id);
                               try {
                                 await auth.signOut();
                               } catch {

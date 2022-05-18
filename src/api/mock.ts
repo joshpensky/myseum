@@ -57,6 +57,8 @@ export const MockAPI: MyseumAPI = {
         },
       ];
     },
+
+    async delete() {},
   },
 
   auth: {
@@ -417,5 +419,19 @@ export const MockAPI: MyseumAPI = {
         modifiedAt: new Date(),
       };
     },
+
+    async update(id, data) {
+      return {
+        id,
+        name: data.name,
+        bio: data.bio ?? '',
+        headshot: data.headshot ?? null,
+        museumId: id,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+      };
+    },
+
+    async delete() {},
   },
 };
