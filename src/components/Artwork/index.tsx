@@ -5,7 +5,6 @@ import cx from 'classnames';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { supabase } from '@src/data/supabase';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { getImageUrl } from '@src/utils/getImageUrl';
@@ -21,8 +20,6 @@ export interface ArtworkProps {
   onDetailsOpenChange?(open: boolean): void;
   onLoad?(): void;
 }
-
-// const BEZEL = 0.05;
 
 export const Artwork = ({
   artwork,

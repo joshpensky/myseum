@@ -90,8 +90,7 @@ export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(functi
           });
         }}>
         {formik => {
-          const { isSubmitting, isValid, setFieldValue, values, errors } = formik;
-          console.log(errors);
+          const { isSubmitting, isValid, setFieldValue, values } = formik;
 
           /**
            * Resizes the image to a workable size and formats to JPEG.
