@@ -1,5 +1,5 @@
-import { ChangeEvent, DragEvent, Fragment, ReactNode, useRef, useState } from 'react';
-import { Field, Form, Formik, FormikProps } from 'formik';
+import { ReactNode, useRef, useState } from 'react';
+import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
 import api from '@src/api';
@@ -7,6 +7,7 @@ import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
+import { ImageField } from '@src/components/ImageField';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateUserDto } from '@src/data/repositories/user.repository';
@@ -87,58 +88,6 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
           {formik => {
             const { isSubmitting, isValid, setFieldValue, values } = formik;
 
-            const accept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-            const [isDroppingUpload, setIsDroppingUpload] = useState(false);
-            const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
-
-            const onFileUpload = (files: FileList | null) => {
-              setIsUploadingHeadshot(true);
-              const imageFile = files?.item(0);
-              if (!imageFile || !accept.includes(imageFile.type)) {
-                setIsUploadingHeadshot(false);
-                return;
-              }
-
-              const reader = new FileReader();
-              reader.onload = () => {
-                if (typeof reader.result === 'string') {
-                  const image = new Image();
-                  image.onload = () => {
-                    setFieldValue('headshot', image.src);
-                    setIsUploadingHeadshot(false);
-                  };
-                  image.src = reader.result;
-                } else {
-                  setIsUploadingHeadshot(false);
-                }
-              };
-              reader.readAsDataURL(imageFile);
-            };
-
-            /**
-             * Handler for when the user enters the drop area.
-             */
-            const onDropStart = (evt: DragEvent<HTMLLabelElement>) => {
-              evt.preventDefault();
-              setIsDroppingUpload(true);
-            };
-
-            /**
-             * Handler for when the user leaves the drop area.
-             */
-            const onDropEnd = (evt: DragEvent<HTMLLabelElement>) => {
-              evt.preventDefault();
-              setIsDroppingUpload(false);
-            };
-
-            /**
-             * Handler for when the user drops an image in the drop area.
-             */
-            const onDrop = (evt: DragEvent<HTMLLabelElement>) => {
-              onDropEnd(evt);
-              onFileUpload(evt.dataTransfer.files);
-            };
-
             return (
               <Form className={styles.form} noValidate>
                 <FieldWrapper
@@ -160,56 +109,27 @@ export const SettingsModal = ({ user, onSave, trigger }: SettingsModalProps) => 
                 </FieldWrapper>
 
                 <FieldWrapper className={styles.field} name="headshot" label="Headshot">
-                  {field => (
-                    <div className={styles.fieldHeadshot} data-dropping={isDroppingUpload}>
-                      {!values.headshot ? (
-                        <Fragment>
-                          <Field
-                            {...field}
-                            type="file"
-                            className="sr-only"
-                            accept={accept.join(', ')}
-                            disabled={isUploadingHeadshot}
-                            value=""
-                            onChange={(evt: ChangeEvent<HTMLInputElement>) => {
-                              onFileUpload(evt.target.files);
-                            }}
-                          />
-                          <label
-                            htmlFor={field.name}
-                            className={styles.fieldHeadshotInput}
-                            onDragOver={onDropStart}
-                            onDragEnter={onDropStart}
-                            onDragLeave={onDropEnd}
-                            onDragEnd={onDropEnd}
-                            onDrop={onDrop}>
-                            Tap or drag & drop to upload
-                          </label>
-                        </Fragment>
-                      ) : (
-                        <Fragment>
-                          <div className={styles.fieldHeadshotPreview}>
-                            <img
-                              src={
-                                values.headshot.includes('base64')
-                                  ? values.headshot
-                                  : getImageUrl('headshots', values.headshot)
-                              }
-                              alt=""
-                            />
-                          </div>
-
-                          <Button
-                            className={styles.fieldHeadshotChange}
-                            type="button"
-                            onClick={() => {
-                              setFieldValue('headshot', null);
-                            }}>
-                            Change
-                          </Button>
-                        </Fragment>
+                  {() => (
+                    <ImageField
+                      value={(() => {
+                        if (!values.headshot) {
+                          return null;
+                        }
+                        const image = new Image();
+                        image.src = values.headshot.includes('base64')
+                          ? values.headshot
+                          : getImageUrl('headshots', values.headshot);
+                        return image;
+                      })()}
+                      onChange={data => {
+                        setFieldValue('headshot', data?.image.src);
+                      }}
+                      preview={img => (
+                        <div className={styles.fieldHeadshotPreview}>
+                          <img src={img.src} alt="" />
+                        </div>
                       )}
-                    </div>
+                    />
                   )}
                 </FieldWrapper>
 

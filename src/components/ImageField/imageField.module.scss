@@ -1,0 +1,64 @@
+.field {
+  @include padding(sz(2));
+  align-items: center;
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: 150ms ease-out;
+  width: 100%;
+
+  @media (hover: hover) {
+    &:hover {
+      border: 1px solid c('border', 0.4);
+    }
+  }
+
+  &[data-dropping='true'],
+  &:focus-within {
+    border: 1px solid c('border', 1);
+  }
+}
+
+.file-drop {
+  @include padding(sz(4));
+  align-items: center;
+  background-color: c('bg-tint');
+  border-radius: sz(1.5);
+  color: c('secondary-text');
+  cursor: pointer;
+  display: flex;
+  height: 300px;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  input:focus + &,
+  &.file-drop--active {
+    background-color: c('bg-tint');
+  }
+}
+
+.preview {
+  background-color: c('bg-tint');
+  border-radius: sz(1.5);
+  margin-bottom: sz(2);
+  height: 300px;
+  position: relative;
+  width: 100%;
+
+  img {
+    @include absolute(sz(4));
+    @include size(calc(100% - (#{sz(4)} * 2)));
+    object-fit: contain;
+  }
+}
+
+.reset {
+  width: 100%;
+}
