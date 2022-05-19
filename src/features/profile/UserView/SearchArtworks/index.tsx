@@ -13,6 +13,7 @@ import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
+import { EditArtworkModal } from '@src/features/artwork/EditArtworkModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
 import { EditIcon } from '@src/svgs/EditIcon';
@@ -24,10 +25,11 @@ import styles from './searchArtworks.module.scss';
 
 interface ArtworkRowProps {
   artwork: ArtworkDto;
+  onEdit(data: ArtworkDto): void;
   onDelete(): void;
 }
 
-const ArtworkRow = ({ artwork, onDelete }: ArtworkRowProps) => {
+const ArtworkRow = ({ artwork, onEdit, onDelete }: ArtworkRowProps) => {
   const [hasDeleteIntent, setHasDeleteIntent] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -66,9 +68,15 @@ const ArtworkRow = ({ artwork, onDelete }: ArtworkRowProps) => {
         {isOwner && (
           <Fragment>
             {/* TODO: edit artwork */}
-            <IconButton title="Edit">
-              <EditIcon />
-            </IconButton>
+            <EditArtworkModal
+              artwork={artwork}
+              onComplete={onEdit}
+              trigger={
+                <IconButton title="Edit">
+                  <EditIcon />
+                </IconButton>
+              }
+            />
 
             <AlertDialog
               open={hasDeleteIntent}
@@ -196,6 +204,9 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
                   <li key={result.item.id} className={styles.rowWrapper}>
                     <ArtworkRow
                       artwork={result.item}
+                      onEdit={() => {
+                        artworks.revalidate();
+                      }}
                       onDelete={() => {
                         artworks.revalidate();
                       }}

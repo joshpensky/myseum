@@ -42,7 +42,7 @@ export type SelectionEditorAction =
     };
 
 export class SelectionEditorState {
-  private static DEFAULT_INITIAL_SNAPSHOT: SelectionEditorSnapshot = {
+  static DEFAULT_INITIAL_SNAPSHOT: SelectionEditorSnapshot = {
     outline: [
       { x: 0, y: 0 }, // top-left
       { x: 1, y: 0 }, // top-right

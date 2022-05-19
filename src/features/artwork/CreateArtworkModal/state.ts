@@ -88,10 +88,6 @@ export interface EditSelectionEvent {
   type: 'EDIT_SELECTION';
 }
 
-export interface EditFramingEvent {
-  type: 'EDIT_FRAMING';
-}
-
 export interface EditDetailsEvent {
   type: 'EDIT_DETAILS';
 }
@@ -105,7 +101,6 @@ export type CreateArtworkEvent =
   | ConfirmDetailsEvent
   | EditDimensionsEvent
   | EditSelectionEvent
-  | EditFramingEvent
   | EditDetailsEvent;
 
 //////////////////////////
@@ -186,10 +181,6 @@ export const createArtworkMachine = createMachine<
   initial: 'upload',
   states: {
     upload: {
-      meta: {
-        title: 'Upload',
-        description: 'Add a photo of the artwork to get started.',
-      },
       on: {
         RESET: {
           target: 'upload',
@@ -215,10 +206,6 @@ export const createArtworkMachine = createMachine<
       },
     },
     dimensions: {
-      meta: {
-        title: 'Dimensions',
-        description: 'Adjust to match the size of your artwork.',
-      },
       on: {
         RESET: {
           target: 'upload',
@@ -241,10 +228,6 @@ export const createArtworkMachine = createMachine<
       },
     },
     selection: {
-      meta: {
-        title: 'Selection',
-        description: 'Drag the handles to outline the artwork.',
-      },
       on: {
         RESET: {
           target: 'upload',
@@ -267,10 +250,6 @@ export const createArtworkMachine = createMachine<
       },
     },
     details: {
-      meta: {
-        title: 'Details',
-        description: 'Fill in some information about the artwork.',
-      },
       on: {
         RESET: {
           target: 'upload',
@@ -293,10 +272,6 @@ export const createArtworkMachine = createMachine<
       },
     },
     review: {
-      meta: {
-        title: 'Review',
-        description: 'Make any last edits and confirm your selections.',
-      },
       on: {
         RESET: {
           target: 'upload',

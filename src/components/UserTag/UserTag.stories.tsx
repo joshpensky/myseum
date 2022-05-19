@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { ComponentMeta } from '@storybook/react';
+import { Fragment, useEffect, useState } from 'react';
+import { ComponentStory, ComponentMeta } from '@storybook/react';
 import api from '@src/api';
-import Button from '@src/components/Button';
 import '@src/styles/index.scss';
 import { UserTag } from '@src/components/UserTag';
 import { UserDto } from '@src/data/serializers/user.serializer';
@@ -9,9 +8,9 @@ import { UserDto } from '@src/data/serializers/user.serializer';
 export default {
   title: 'User Tag',
   component: UserTag,
-} as ComponentMeta<typeof Button>;
+} as ComponentMeta<typeof UserTag>;
 
-export const Default = () => {
+export const Default: ComponentStory<typeof UserTag> = () => {
   const [user, setUser] = useState<UserDto | null>(null);
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export const Default = () => {
   }, []);
 
   if (!user) {
-    return null;
+    return <Fragment />;
   }
 
   return <UserTag user={user} />;
