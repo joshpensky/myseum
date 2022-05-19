@@ -73,7 +73,7 @@ export function useMoveController({
   });
   // Add an offset from the grid for when the item is position:fixed and moving
   useIsomorphicLayoutEffect(() => {
-    if (moveType && itemRef.current && !grid.readOnly) {
+    if (moveType && itemRef.current && !grid.preview) {
       // The initial offset is 0
       const parentOffsetPx = {
         x: 0,
@@ -93,11 +93,11 @@ export function useMoveController({
       // Then set the total offset
       setParentOffsetPx(parentOffsetPx);
     }
-  }, [moveType, grid.readOnly]);
+  }, [moveType, grid.preview]);
 
   // Gets the parent of the itemRef that scrolls
   let scrollParent: Element;
-  if (typeof document === 'undefined' || grid.readOnly) {
+  if (typeof document === 'undefined' || grid.preview) {
     // When this hook is server-rendered, there is no document and thus this will be undefined
     // This should only affect the `itemTranslateOffsetPx` variable, as every other use is encapsulated
     // within a `useEffect` (which only runs client-side)
@@ -216,7 +216,7 @@ export function useMoveController({
    * @param nextMoveType the type of move to start
    */
   const startMove = (nextMoveType: MoveControllerType) => {
-    if (grid.readOnly) {
+    if (grid.preview) {
       throw new Error('Cannot update a move in read-only mode.');
     }
 
@@ -232,7 +232,7 @@ export function useMoveController({
    * @param opts options for ending the move
    */
   const endMove = (opts?: { cancelled?: boolean }) => {
-    if (grid.readOnly) {
+    if (grid.preview) {
       throw new Error('Cannot update a move in read-only mode.');
     }
 
@@ -271,26 +271,26 @@ export function useMoveController({
 
   // Reset state when moved to `readOnly` mode
   useEffect(() => {
-    if (grid.readOnly) {
+    if (grid.preview) {
       updateMoveType(null);
       setItemTranslatePx({ x: 0, y: 0 });
       setParentOffsetPx({ x: 0, y: 0 });
     }
-  }, [grid.readOnly]);
+  }, [grid.preview]);
 
   // Update projected position when delta changes
   useEffect(() => {
-    if (moveType && !grid.readOnly) {
+    if (moveType && !grid.preview) {
       const projectedPosition = getProjectedPosition(position, itemTranslatePx);
       onPositionProjectionChange(projectedPosition);
     }
-  }, [grid.readOnly, moveType, itemTranslatePx.x, itemTranslatePx.y, grid.unitPx]);
+  }, [grid.preview, moveType, itemTranslatePx.x, itemTranslatePx.y, grid.unitPx]);
 
   return {
     ref: itemRef,
     animatedRef: animatedItemRef,
     scrollParent,
-    readOnly: grid.readOnly,
+    readOnly: grid.preview,
     move: {
       type: moveType,
       end: endMove,

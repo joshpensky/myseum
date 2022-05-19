@@ -4,8 +4,8 @@ import cx from 'classnames';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
-import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
-import { Tooltip } from '@src/components/Tooltip';
+// import { KeyboardShortcut } from '@src/components/KeyboardShortcut';
+// import { Tooltip } from '@src/components/Tooltip';
 import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { PlacedArtworkDto, GalleryDto } from '@src/data/serializers/gallery.serializer';
@@ -134,42 +134,42 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
   const onSave = async () => {
     setIsSubmitting(true);
     try {
-      const updateData: UpdateGalleryDto = {
-        name,
-        color: wallColor,
-        height: wallHeight,
-        artworks: placedArtworks.map(item => ({
-          artworkId: item.artwork.id,
-          frameId: item.frame?.id,
-          position: item.position,
-          framingOptions: item.framingOptions,
-        })),
-      };
+      // const updateData: UpdateGalleryDto = {
+      //   name,
+      //   color: wallColor,
+      //   height: wallHeight,
+      //   artworks: placedArtworks.map(item => ({
+      //     artworkId: item.artwork.id,
+      //     frameId: item.frame?.id,
+      //     position: item.position,
+      //     framingOptions: item.framingOptions,
+      //   })),
+      // };
 
-      const res = await fetch(`/api/museum/${museum.id}/gallery/${gallery.id}`, {
-        method: 'PATCH',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(updateData),
-      });
+      // const res = await fetch(`/api/museum/${museum.id}/gallery/${gallery.id}`, {
+      //   method: 'PATCH',
+      //   headers: new Headers({
+      //     'Content-Type': 'application/json',
+      //   }),
+      //   body: JSON.stringify(updateData),
+      // });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw error;
-      }
+      // if (!res.ok) {
+      //   const error = await res.json();
+      //   throw error;
+      // }
 
-      const data = await res.json();
+      // const data = await res.json();
 
-      // Update state
-      setGallery(gallery => ({
-        ...gallery,
-        ...data,
-      }));
+      // // Update state
+      // setGallery(gallery => ({
+      //   ...gallery,
+      //   ...data,
+      // }));
 
-      const newGalleryArtworks = getGalleryArtworks(data);
-      setWallWidth(getWallWidth(newGalleryArtworks) + 5);
-      setPlacedArtworks(newGalleryArtworks);
+      // const newGalleryArtworks = getGalleryArtworks(data);
+      // setWallWidth(getWallWidth(newGalleryArtworks) + 5);
+      // setPlacedArtworks(newGalleryArtworks);
 
       exitEditMode();
       toast.success('Gallery updated!');
@@ -243,7 +243,7 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
         </ThemeProvider>
 
         <div className={styles.gridWrapper}>
-          <Grid
+          {/* <Grid
             className={cx(styles.grid, isEditing && styles.gridEditing)}
             size={{ width: wallWidth, height: wallHeight }}
             items={placedArtworks}
@@ -280,7 +280,7 @@ export const GalleryView = ({ museum, gallery: initGallery }: GalleryViewProps) 
                 onRemove={() => onRemoveArtwork(index)}
               />
             )}
-          />
+          /> */}
         </div>
       </div>
     </ThemeProvider>

@@ -38,16 +38,10 @@ const ArtworkDetails = ({
       <Popover.Content side="right" align="start" aria-label={`Details for artwork "${title}"`}>
         <Popover.Header>
           <div className={styles.headerButtons}>
-            <IconButton
-              className={styles.headerButtonsItem}
-              title="Expand artwork"
-              tooltipProps={{ side: 'top' }}>
+            <IconButton className={styles.headerButtonsItem} title="Expand artwork">
               <ExpandIcon />
             </IconButton>
-            <IconButton
-              className={styles.headerButtonsItem}
-              title="Edit artwork"
-              tooltipProps={{ side: 'top' }}>
+            <IconButton className={styles.headerButtonsItem} title="Edit artwork">
               <EditIcon />
             </IconButton>
           </div>

@@ -76,7 +76,7 @@ const PopoverHeader = ({ children, className }: PropsWithChildren<PopoverHeaderP
     {children}
 
     <Close asChild>
-      <IconButton title="Close settings" tooltipProps={{ side: 'top' }}>
+      <IconButton title="Close settings">
         <CloseIcon />
       </IconButton>
     </Close>

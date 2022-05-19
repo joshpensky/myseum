@@ -1,12 +1,6 @@
 import { Position } from '@src/types';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 
-// export const LAYER_COLORS = [
-//   theme`colors.blue.500`,
-//   theme`colors.magenta.500`,
-//   theme`colors.yellow.500`,
-// ];
-
 export type SelectionEditorPath = [Position, Position, Position, Position];
 
 export interface SelectionEditorSnapshot {

@@ -11,5 +11,5 @@ export default {
 export const ImageField: ComponentStory<typeof ImageFieldComponent> = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
-  return <ImageFieldComponent value={image} onChange={data => setImage(data?.image)} />;
+  return <ImageFieldComponent value={image} onChange={data => setImage(data?.image ?? null)} />;
 };
