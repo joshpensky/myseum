@@ -5,7 +5,7 @@ import Button from '@src/components/Button';
 import { LAYER_COLORS } from '@src/features/selection';
 import ImageSelectionEditor from '@src/features/selection/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/features/selection/ImageSelectionPreview';
-import Layer from '@src/svgs/Layer';
+import { LayerIcon } from '@src/svgs/LayerIcon';
 import { Dimensions } from '@src/types';
 // import { GeometryUtils } from '@src/utils/GeometryUtils';
 import { SelectionEditorState } from '.';
@@ -32,7 +32,7 @@ const LayerInput = ({ layerIndex, activeLayer, onChange }: LayerInputProps) => (
     />
     <span /*css={tw`flex items-center`}*/>
       <span /*css={tw`block size-6 mr-3`}*/>
-        <Layer as={layerIndex === 0 ? 'outline' : 'inner'} />
+        <LayerIcon as={layerIndex === 0 ? 'outline' : 'inner'} />
       </span>
       <span>{layerIndex === 0 ? 'Frame' : 'Window'}</span>
     </span>

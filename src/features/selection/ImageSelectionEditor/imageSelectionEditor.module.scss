@@ -20,15 +20,20 @@
   @include absolute(0 x x 0);
   @include size(100%);
 
-  .path {
+  .outline-path {
     stroke: #0989ff;
     stroke-width: 4;
     fill: none;
   }
 
+  .inner-path {
+    stroke: #d400a6;
+    stroke-width: 2;
+    fill: c('black', 0.7);
+  }
+
   .overlay {
-    fill: c('black');
-    opacity: 0.7;
+    fill: c('black', 0.7);
   }
 }
 
@@ -38,17 +43,21 @@
 
   @include absolute(0 x x 0);
   @include size(15px);
-  background-image: var(--image-src);
-  background-position: calc(var(--x) * 100%) calc(var(--y) * 100%);
-  background-repeat: no-repeat;
-  background-size: calc(var(--width) * var(--zoom)) calc(var(--height) * var(--zoom));
-  border: 3px solid #0989ff; //#D400A6;
+  // background-image: var(--image-src);
+  // background-position: calc(var(--x) * 100%) calc(var(--y) * 100%);
+  // background-repeat: no-repeat;
+  // background-size: calc(var(--width) * var(--zoom)) calc(var(--height) * var(--zoom));
+  border: 3px solid #0989ff;
   border-radius: 50%;
   cursor: grab;
   transform: translate(-50%, -50%) translateX(calc(var(--x) * var(--width)))
     translateY(calc(var(--y) * var(--height)));
   transition: 150ms ease-out;
   transition-property: width, height;
+
+  &.button-point--inner {
+    border-color: #d400a6;
+  }
 
   &::before {
     @include absolute(0);

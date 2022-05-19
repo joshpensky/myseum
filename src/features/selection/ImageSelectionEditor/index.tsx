@@ -1,4 +1,4 @@
-import { KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import { Fragment, KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import { SelectionEditorState } from '@src/features/selection';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
@@ -8,7 +8,7 @@ import { CommonUtils } from '@src/utils/CommonUtils';
 import styles from './imageSelectionEditor.module.scss';
 
 export interface ImageSelectionEditorProps {
-  activeLayer?: number;
+  activeLayer?: 0 | 1;
   className?: string;
   editor: SelectionEditorState;
   onChange(editor: SelectionEditorState): void;
@@ -281,11 +281,27 @@ const ImageSelectionEditor = ({
           />
 
           <path
-            className={styles.path}
+            className={styles.outlinePath}
             d={CanvasUtils.getLineCommands(editor.current.outline)}
             vectorEffect="non-scaling-stroke"
             mask="url(#outline-path-inverse)"
           />
+
+          {editor.current.inner && (
+            <Fragment>
+              <mask id="inner-path">
+                <rect x="0" y="0" width="1" height="1" fill="white" />
+                <path d={CanvasUtils.getLineCommands(editor.current.inner)} fill="black" />
+              </mask>
+
+              <path
+                className={styles.innerPath}
+                d={CanvasUtils.getLineCommands(editor.current.inner)}
+                vectorEffect="non-scaling-stroke"
+                mask="url(#outline-path-inverse)"
+              />
+            </Fragment>
+          )}
         </svg>
 
         <img src={image.src} alt="" />
@@ -294,10 +310,10 @@ const ImageSelectionEditor = ({
           <button
             key={index}
             id={`editor-point-${index}`}
-            className={styles.buttonPoint}
+            className={cx(styles.buttonPoint, activeLayer === 1 && styles.buttonPointInner)}
             style={{
-              '--x': editor.current.outline[index].x,
-              '--y': editor.current.outline[index].y,
+              '--x': editor.current[activeLayer === 0 ? 'outline' : 'inner']?.[index].x ?? 0,
+              '--y': editor.current[activeLayer === 0 ? 'outline' : 'inner']?.[index].y ?? 0,
             }}
             type="button"
             onKeyDown={evt => onPointKeyDown(evt, index)}
