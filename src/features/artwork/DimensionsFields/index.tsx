@@ -63,7 +63,7 @@ interface DimensionsFieldsProps {
 }
 
 export const DimensionsFields = ({ onDepthFocus, onDepthBlur }: DimensionsFieldsProps) => {
-  const { handleChange, setFieldValue } = useFormikContext();
+  const { handleChange, setFieldValue } = useFormikContext<DimensionsFieldsSchema>();
 
   return (
     <Fragment>

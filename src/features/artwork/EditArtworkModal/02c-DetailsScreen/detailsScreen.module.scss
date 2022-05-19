@@ -30,23 +30,3 @@
   flex-direction: column;
   flex: 1;
 }
-
-.field,
-.form-row {
-  + .field,
-  + .form-row {
-    margin-top: sz(3);
-  }
-}
-
-.form-row {
-  display: flex;
-  width: 100%;
-}
-
-.created-at-field {
-  display: flex;
-  flex-direction: column;
-  margin-right: sz(4);
-  width: 100%;
-}
