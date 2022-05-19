@@ -11,6 +11,8 @@ import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { UploadScreen } from './01-UploadScreen';
 import { DimensionsScreen } from './02-DimensionsScreen';
 import { SelectionScreen } from './03-SelectionScreen';
+import { DetailsScreen } from './04-DetailsScreen';
+import { ReviewScreen } from './05-ReviewScreen';
 import styles from './createFrame.module.scss';
 import { createFrameMachine, CreateFrameStateValue, ScreenRefValue } from './state';
 
@@ -52,10 +54,7 @@ export const CreateFrameModal = ({ onComplete, trigger }: CreateFrameModalProps)
       return <DimensionsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else if (state.matches('selection')) {
       return <SelectionScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-    } else {
-      throw new Error('Form has entered unknown state.');
-    }
-    /*else if (state.matches('details')) {
+    } else if (state.matches('details')) {
       return <DetailsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else if (state.matches('review')) {
       return (
@@ -68,7 +67,9 @@ export const CreateFrameModal = ({ onComplete, trigger }: CreateFrameModalProps)
           }}
         />
       );
-    }*/
+    } else {
+      throw new Error('Form has entered unknown state.');
+    }
   };
 
   // Get the current step index

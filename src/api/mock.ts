@@ -164,6 +164,29 @@ export const MockAPI: MyseumAPI = {
   },
 
   frame: {
+    async create(data) {
+      return {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        name: data.name,
+        src: data.src,
+        alt: data.alt,
+        size: data.size,
+        unit: 'in',
+        window: data.window,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        owner: {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          name: 'Mock User',
+          bio: '',
+          headshot: null,
+          museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+        },
+      };
+    },
+
     async findAllByUser(user) {
       return [
         {
@@ -177,13 +200,13 @@ export const MockAPI: MyseumAPI = {
             height: 6,
             depth: 2,
           },
+          unit: 'in',
           window: [
             { x: 0.2, y: 0.2 },
             { x: 0.8, y: 0.2 },
             { x: 0.8, y: 0.8 },
             { x: 0.2, y: 0.8 },
           ],
-          // unit: 'in',
           addedAt: new Date(),
           modifiedAt: new Date(),
           owner: user,
@@ -238,13 +261,13 @@ export const MockAPI: MyseumAPI = {
             height: 6,
             depth: 2,
           },
+          unit: 'in',
           window: [
             { x: 0.2, y: 0.2 },
             { x: 0.8, y: 0.2 },
             { x: 0.8, y: 0.8 },
             { x: 0.2, y: 0.8 },
           ],
-          // unit: 'in',
           addedAt: new Date(),
           modifiedAt: new Date(),
           owner: user,

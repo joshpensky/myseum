@@ -1,4 +1,4 @@
-import { Frame } from '@prisma/client';
+import { Frame, MeasureUnit } from '@prisma/client';
 import { SelectionEditorPath } from '@src/features/selection';
 import { Dimensions3D } from '@src/types';
 import { PrismaUser, UserDto } from './user.serializer';
@@ -13,7 +13,7 @@ export interface FrameDto {
   src: string;
   alt: string;
   size: Dimensions3D;
-  // TODO: add unit
+  unit: MeasureUnit;
   window: SelectionEditorPath;
   owner: Pick<UserDto, 'id' | 'name'>;
   addedAt: Date;
@@ -32,6 +32,7 @@ export class FrameSerializer {
         height: frame.height,
         depth: frame.depth,
       },
+      unit: frame.unit,
       window: [
         {
           x: frame.windowX1,

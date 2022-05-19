@@ -2,6 +2,7 @@ import { MeasureUnit } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { SelectionEditorPath } from '@src/features/selection';
 import { Dimensions3D } from '@src/types';
+import { uploadSupabaseFile } from '@src/utils/uploadSupabaseFile';
 
 export interface CreateFrameDto {
   ownerId: string;
@@ -48,10 +49,12 @@ export class FrameRepository {
   }
 
   static async create(data: CreateFrameDto) {
+    const src = await uploadSupabaseFile('frames', data.src);
+
     const frame = await prisma.frame.create({
       data: {
         name: data.name,
-        src: data.src,
+        src,
         alt: data.alt,
         width: data.size.width,
         height: data.size.height,
@@ -70,6 +73,9 @@ export class FrameRepository {
             id: data.ownerId,
           },
         },
+      },
+      include: {
+        owner: true,
       },
     });
 

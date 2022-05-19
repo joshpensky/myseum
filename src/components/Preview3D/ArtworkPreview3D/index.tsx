@@ -30,13 +30,13 @@ export const ArtworkPreview3D = ({
   rotated,
   framingOptions,
 }: ArtworkPreview3DProps) => {
-  const previewUnitSize = convertUnit(1, artwork.unit, 'px');
+  const unitSize = convertUnit(1, artwork.unit, 'px');
 
   const originalSize = frame?.size ?? artwork.size;
   const size: Dimensions3D = {
-    width: originalSize.width * previewUnitSize,
-    height: originalSize.height * previewUnitSize,
-    depth: originalSize.depth * previewUnitSize,
+    width: originalSize.width * unitSize,
+    height: originalSize.height * unitSize,
+    depth: originalSize.depth * unitSize,
   };
 
   const getAverageColor = async (src: string): Promise<string | null> =>
@@ -94,8 +94,8 @@ export const ArtworkPreview3D = ({
   if (frame) {
     inner = {
       points: frame.window.map(({ x, y }) => ({
-        x: x * previewUnitSize,
-        y: y * previewUnitSize,
+        x: x * unitSize,
+        y: y * unitSize,
       })) as SelectionEditorPath,
       bottom: <div className={styles.side} style={{ '--color': depthColor ?? '' }} />,
       right: (
@@ -113,8 +113,8 @@ export const ArtworkPreview3D = ({
       rotated={rotated}
       front={previewUnitSize => {
         let artworkStyle: Record<string, number> = {
-          '--width': artwork.size.width * previewUnitSize,
-          '--height': artwork.size.height * previewUnitSize,
+          '--width': artwork.size.width * unitSize * previewUnitSize,
+          '--height': artwork.size.height * unitSize * previewUnitSize,
         };
 
         if (frame?.window) {
@@ -129,8 +129,8 @@ export const ArtworkPreview3D = ({
            */
           const windowPoints = GeometryUtils.sortConvexQuadrilateralPoints(frame.window).map(
             point => ({
-              x: point.x * previewUnitSize,
-              y: point.y * previewUnitSize,
+              x: point.x * frame.size.width * unitSize * previewUnitSize,
+              y: point.y * frame.size.height * unitSize * previewUnitSize,
             }),
           );
 

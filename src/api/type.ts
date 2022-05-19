@@ -2,6 +2,7 @@ import { GetServerSidePropsContext } from 'next';
 import { AuthChangeEvent, User } from '@supabase/supabase-js';
 import { AxiosRequestConfig } from 'axios';
 import { CreateArtworkDto, UpdateArtworkDto } from '@src/data/repositories/artwork.repository';
+import { CreateFrameDto } from '@src/data/repositories/frame.repository';
 import {
   AddPlacedArtworkDto,
   CreateGalleryDto,
@@ -91,6 +92,14 @@ export interface MyseumAPI {
   };
 
   frame: {
+    /**
+     * Creates a new frame.
+     *
+     * @param data the frame data
+     * @returns the created frame
+     */
+    create(data: Omit<CreateFrameDto, 'ownerId'>): Promise<FrameDto>;
+
     /**
      * Finds all frames for a given user.
      *

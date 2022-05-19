@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Matting } from '@prisma/client';
+import { Matting, MeasureUnit } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Field, Form, Formik } from 'formik';
@@ -7,7 +7,10 @@ import { z } from 'zod';
 import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import { ArtworkPreview3D } from '@src/components/Preview3D/ArtworkPreview3D';
+import {
+  ArtworkPreview3D,
+  ArtworkPreview3DProps,
+} from '@src/components/Preview3D/ArtworkPreview3D';
 import { AddPlacedArtworkDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { AddArtworkState } from '@src/features/gallery/AddArtworkModal/state';
@@ -36,9 +39,8 @@ const framingScreenSchema = z
           height: z.number(),
           depth: z.number(),
         }),
+        unit: z.nativeEnum(MeasureUnit),
         window: z.tuple([positionSchema, positionSchema, positionSchema, positionSchema]),
-        addedAt: z.date(),
-        modifiedAt: z.date(),
       })
       .optional(),
 
@@ -98,13 +100,21 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
           }
         }}>
         {formik => {
-          const { values, setFieldValue, isSubmitting, isValid } = formik;
+          const { values, setFieldValue, isSubmitting, isValid, errors } = formik;
 
           const [rotated, setRotated] = useState(false);
 
           let previewDepth = 0;
           if (values.hasFrame === false) {
             previewDepth = state.context.artwork.size.depth;
+          }
+
+          let frame: ArtworkPreview3DProps['frame'] = undefined;
+          if (values.hasFrame && values.frame) {
+            frame = {
+              ...values.frame,
+              src: getImageUrl('frames', values.frame.src),
+            };
           }
 
           return (
@@ -122,7 +132,7 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
                           depth: previewDepth,
                         },
                       }}
-                      frame={values.hasFrame && values.frame ? values.frame : undefined}
+                      frame={frame}
                       framingOptions={values.framingOptions}
                     />
                   </div>

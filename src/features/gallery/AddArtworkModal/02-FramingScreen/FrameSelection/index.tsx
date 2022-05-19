@@ -5,10 +5,11 @@ import Button from '@src/components/Button';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { useAuth } from '@src/providers/AuthProvider';
 import Checkmark from '@src/svgs/Checkmark';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './frameSelection.module.scss';
 
 export interface FrameSelectionProps {
-  value?: Omit<FrameDto, 'owner'>;
+  value?: Omit<FrameDto, 'owner' | 'addedAt' | 'modifiedAt'>;
   onChange(data: Omit<FrameDto, 'owner'>): void;
 }
 
@@ -70,7 +71,11 @@ export const FrameSelection = ({ value, onChange }: FrameSelectionProps) => {
             />
             <label htmlFor={`frame-${frame.id}`} className={styles.frame}>
               <span className="sr-only">{frame.name}</span>
-              <img className={styles.framePreview} src={frame.src} alt={frame.alt} />
+              <img
+                className={styles.framePreview}
+                src={getImageUrl('frames', frame.src)}
+                alt={frame.alt}
+              />
               <span className={styles.frameCheckmark}>
                 <Checkmark />
               </span>

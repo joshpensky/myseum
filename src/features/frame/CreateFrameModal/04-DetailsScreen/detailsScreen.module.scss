@@ -30,3 +30,9 @@
   flex-direction: column;
   flex: 1;
 }
+
+.field {
+  + .field {
+    margin-top: sz(3);
+  }
+}

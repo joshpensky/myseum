@@ -45,3 +45,11 @@ const artworkDetailController: NextApiHandler = async (req, res) => {
 };
 
 export default artworkDetailController;
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};

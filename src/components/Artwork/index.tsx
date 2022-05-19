@@ -12,6 +12,7 @@ import styles from './artwork.module.scss';
 
 const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
 
+// TODO: change to accept PlacedArtworkDto
 export interface ArtworkProps {
   artwork: ArtworkDto;
   frame?: FrameDto | null;
@@ -94,7 +95,7 @@ export const Artwork = ({
       ) : (
         <Fragment>
           <Image
-            src={frame.src}
+            src={getImageUrl('frames', frame.src)}
             alt=""
             layout="fill"
             objectFit="fill"

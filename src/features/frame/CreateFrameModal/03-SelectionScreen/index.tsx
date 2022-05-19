@@ -72,7 +72,8 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
           texture.destroy();
 
           // Generate the image src from the canvas contents
-          const previewSrc = destCanvas.toDataURL('image/jpeg');
+          // Save as PNG for transparency!
+          const previewSrc = destCanvas.toDataURL('image/png');
 
           onSubmit({
             type: 'CONFIRM_SELECTION',
@@ -148,7 +149,11 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
                   Back
                 </Button>
 
-                <Button type="submit" filled busy={isSubmitting} disabled={!isValid}>
+                <Button
+                  type="submit"
+                  filled
+                  busy={isSubmitting}
+                  disabled={!isValid || !editor.current.inner}>
                   Next
                 </Button>
               </FormModal.Footer>

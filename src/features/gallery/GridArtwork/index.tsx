@@ -111,6 +111,7 @@ export const GridArtwork = ({
 
           <Artwork
             artwork={item.artwork}
+            frame={item.frame}
             disabled={grid.preview || isEditing}
             onDetailsOpenChange={onDetailsOpenChange}
             onLoad={() => setIsLoaded(true)}

@@ -38,7 +38,7 @@ export const FramingOptions = () => {
             checked={!values.framingOptions.isScaled}
             onChange={() => setFieldValue('framingOptions.isScaled', false)}
           />
-          <label htmlFor="framingOptions.scaled-false" className={styles.radioGroupItem}>
+          <label htmlFor="framingOptions.isScaled-false" className={styles.radioGroupItem}>
             Actual Size
           </label>
 

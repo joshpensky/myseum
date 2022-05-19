@@ -64,6 +64,11 @@ export const ClientAPI: MyseumAPI = {
   },
 
   frame: {
+    async create(data) {
+      const res = await axios.post<FrameDto>('/api/frames', data);
+      return res.data;
+    },
+
     async findAllByUser(user) {
       const res = await axios.get<FrameDto[]>(`/api/user/${user.id}/frames`);
       return res.data;
