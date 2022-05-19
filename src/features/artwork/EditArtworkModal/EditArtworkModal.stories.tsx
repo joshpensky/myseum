@@ -5,7 +5,6 @@ import Button from '@src/components/Button';
 import '@src/styles/index.scss';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { EditArtworkModal } from '@src/features/artwork/EditArtworkModal';
-import { AuthProvider } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 
 export default {
@@ -32,12 +31,10 @@ export const EditArtwork: ComponentStory<typeof EditArtworkModal> = () => {
   }
 
   return (
-    <AuthProvider>
-      <EditArtworkModal
-        artwork={artwork}
-        trigger={<Button icon={EditIcon}>Edit</Button>}
-        onComplete={() => {}}
-      />
-    </AuthProvider>
+    <EditArtworkModal
+      artwork={artwork}
+      trigger={<Button icon={EditIcon}>Edit</Button>}
+      onComplete={() => {}}
+    />
   );
 };

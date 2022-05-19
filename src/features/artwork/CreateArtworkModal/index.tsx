@@ -3,7 +3,6 @@ import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { useAuth } from '@src/providers/AuthProvider';
 import { UploadScreen } from './01-UploadScreen';
 import { DimensionsScreen } from './02-DimensionsScreen';
 import { SelectionScreen } from './03-SelectionScreen';
@@ -19,7 +18,6 @@ export interface CreateArtworkModalProps {
 
 export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalProps) => {
   const screenRef = useRef<ScreenRefValue>(null);
-  const auth = useAuth();
 
   const [state, send] = useMachine(() =>
     createArtworkMachine.withContext({
@@ -44,11 +42,6 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
     }
   };
 
-  if (!auth.user) {
-    return null;
-  }
-  const user = auth.user;
-
   const renderStep = () => {
     if (state.matches('upload')) {
       return <UploadScreen ref={screenRef} state={state} onSubmit={data => send(data)} />;
@@ -62,7 +55,6 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
       return (
         <ReviewScreen
           state={state}
-          user={user}
           onEdit={event => send(event)}
           onSubmit={data => {
             onComplete(data);

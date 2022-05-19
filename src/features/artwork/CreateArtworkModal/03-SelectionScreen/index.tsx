@@ -42,13 +42,6 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
         onSubmit={() => {
           let previewSrc: string;
           if (
-            SelectionEditorState.matches(
-              editor.current.outline,
-              SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT.outline,
-            )
-          ) {
-            previewSrc = state.context.upload.image.src;
-          } else if (
             state.context.selection &&
             SelectionEditorState.matches(editor.current.outline, state.context.selection?.path)
           ) {

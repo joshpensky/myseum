@@ -67,7 +67,6 @@ const ArtworkRow = ({ artwork, onEdit, onDelete }: ArtworkRowProps) => {
 
         {isOwner && (
           <Fragment>
-            {/* TODO: edit artwork */}
             <EditArtworkModal
               artwork={artwork}
               onComplete={onEdit}
@@ -96,7 +95,6 @@ const ArtworkRow = ({ artwork, onEdit, onDelete }: ArtworkRowProps) => {
                       onDelete();
                     } catch {
                       // TODO: toast error
-                    } finally {
                       setHasDeleteIntent(false);
                       setIsDeleting(false);
                     }

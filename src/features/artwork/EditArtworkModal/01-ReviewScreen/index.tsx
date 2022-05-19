@@ -4,7 +4,6 @@ import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ReviewSection } from '@src/components/ReviewSection';
-import { UpdateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import {
   EditArtworkState,
@@ -33,7 +32,7 @@ export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => 
         initialValues={initialValues}
         onSubmit={async () => {
           try {
-            const updateArtworkData: UpdateArtworkDto = {
+            const artwork = await api.artwork.update(state.context.id, {
               title: state.context.details.title,
               description: state.context.details.description,
               src: state.context.selection.preview,
@@ -46,9 +45,7 @@ export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => 
               unit: state.context.dimensions.unit,
               createdAt: state.context.details.createdAt,
               acquiredAt: state.context.details.acquiredAt,
-            };
-
-            const artwork = await api.artwork.update(state.context.id, updateArtworkData);
+            });
             onSubmit(artwork);
           } catch (error) {
             console.error(error);

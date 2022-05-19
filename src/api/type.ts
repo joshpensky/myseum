@@ -24,7 +24,7 @@ export interface MyseumAPI {
      * @param data the artwork data
      * @returns the created artwork
      */
-    create(data: CreateArtworkDto): Promise<ArtworkDto>;
+    create(data: Omit<CreateArtworkDto, 'ownerId'>): Promise<ArtworkDto>;
 
     /**
      * Deletes an existing artwork.

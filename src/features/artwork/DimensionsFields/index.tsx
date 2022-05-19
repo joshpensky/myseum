@@ -58,11 +58,16 @@ const presets: Preset[] = [
 ];
 
 interface DimensionsFieldsProps {
+  hidePresets?: boolean;
   onDepthFocus(): void;
   onDepthBlur(): void;
 }
 
-export const DimensionsFields = ({ onDepthFocus, onDepthBlur }: DimensionsFieldsProps) => {
+export const DimensionsFields = ({
+  hidePresets,
+  onDepthFocus,
+  onDepthBlur,
+}: DimensionsFieldsProps) => {
   const { handleChange, setFieldValue } = useFormikContext<DimensionsFieldsSchema>();
 
   return (
@@ -134,33 +139,35 @@ export const DimensionsFields = ({ onDepthFocus, onDepthBlur }: DimensionsFields
         </FieldWrapper>
       </div>
 
-      <div className={styles.hint}>
-        <div className={styles.hintIcon}>
-          <Lightbulb />
+      {!hidePresets && (
+        <div className={styles.hint}>
+          <div className={styles.hintIcon}>
+            <Lightbulb />
+          </div>
+
+          <p className={styles.hintText}>
+            Is your artwork a standard size? Use one of the below presets.
+          </p>
+
+          <FieldWrapper name="preset" label="Preset" labelClassName="sr-only">
+            {field => (
+              <Select<string>
+                {...field}
+                options={[{ value: 'custom', display: 'Custom' }, ...presets]}
+                onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
+                  handleChange(evt);
+                  const preset = presets.find(preset => preset.value === evt.target.value);
+                  if (preset) {
+                    setFieldValue('width', preset.dimensions.width);
+                    setFieldValue('height', preset.dimensions.height);
+                    setFieldValue('unit', preset.dimensions.unit);
+                  }
+                }}
+              />
+            )}
+          </FieldWrapper>
         </div>
-
-        <p className={styles.hintText}>
-          Is your artwork a standard size? Use one of the below presets.
-        </p>
-
-        <FieldWrapper name="preset" label="Preset" labelClassName="sr-only">
-          {field => (
-            <Select<string>
-              {...field}
-              options={[{ value: 'custom', display: 'Custom' }, ...presets]}
-              onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
-                handleChange(evt);
-                const preset = presets.find(preset => preset.value === evt.target.value);
-                if (preset) {
-                  setFieldValue('width', preset.dimensions.width);
-                  setFieldValue('height', preset.dimensions.height);
-                  setFieldValue('unit', preset.dimensions.unit);
-                }
-              }}
-            />
-          )}
-        </FieldWrapper>
-      </div>
+      )}
     </Fragment>
   );
 };

@@ -40,7 +40,7 @@ export const MockAPI: MyseumAPI = {
         {
           id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
           title: 'Mock Artwork',
-          description: '',
+          description: 'Mock description.',
           artist: null,
           src:
             'https://images.unsplash.com/photo-1652796402043-094ea9c540aa?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987',

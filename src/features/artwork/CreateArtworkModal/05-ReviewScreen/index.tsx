@@ -4,7 +4,6 @@ import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ReviewSection } from '@src/components/ReviewSection';
-import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import {
   CreateArtworkState,
@@ -12,20 +11,18 @@ import {
   EditDimensionsEvent,
   EditSelectionEvent,
 } from '@src/features/artwork/CreateArtworkModal/state';
-import { AuthUserDto } from '@src/providers/AuthProvider';
 import { DetailsIcon } from '@src/svgs/DetailsIcon';
 import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
 import { SelectionIcon } from '@src/svgs/SelectionIcon';
 import styles from './reviewScreen.module.scss';
 
 interface ReviewScreenProps {
-  user: AuthUserDto;
   state: CreateArtworkState<'review'>;
   onEdit(event: EditDimensionsEvent | EditSelectionEvent | EditDetailsEvent): void;
   onSubmit(data: ArtworkDto): void;
 }
 
-export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProps) => {
+export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => {
   const initialValues = {};
 
   return (
@@ -34,8 +31,7 @@ export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProp
         initialValues={initialValues}
         onSubmit={async () => {
           try {
-            const createArtworkData: CreateArtworkDto = {
-              ownerId: user.id,
+            const artwork = await api.artwork.create({
               title: state.context.details.title,
               description: state.context.details.description,
               src: state.context.selection.preview,
@@ -48,9 +44,7 @@ export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProp
               unit: state.context.dimensions.unit,
               createdAt: state.context.details.createdAt,
               acquiredAt: state.context.details.acquiredAt,
-            };
-
-            const artwork = await api.artwork.create(createArtworkData);
+            });
             onSubmit(artwork);
           } catch (error) {
             console.error(error);

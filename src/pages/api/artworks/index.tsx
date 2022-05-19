@@ -1,6 +1,7 @@
 import { NextApiHandler } from 'next';
 import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
 import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
+import { supabase } from '@src/data/supabase';
 
 const artworkIndexController: NextApiHandler = async (req, res) => {
   try {
@@ -15,7 +16,12 @@ const artworkIndexController: NextApiHandler = async (req, res) => {
 
       // Creates new artwork
       case 'POST': {
-        const artwork = await ArtworkRepository.create(req.body);
+        const auth = await supabase.auth.api.getUserByCookie(req);
+        if (!auth.user) {
+          res.status(401).json({ message: 'Unauthorized.' });
+          return;
+        }
+        const artwork = await ArtworkRepository.create({ ...req.body, ownerId: auth.user.id });
         res.status(200).json(ArtworkSerializer.serialize(artwork));
         break;
       }
