@@ -10,6 +10,7 @@ import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
+import { CreateFrameModal } from '@src/features/frame/CreateFrameModal';
 import { useAuth } from '@src/providers/AuthProvider';
 import { EditIcon } from '@src/svgs/EditIcon';
 import { ExpandIcon } from '@src/svgs/ExpandIcon';
@@ -102,9 +103,16 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
             <Form className={styles.form} noValidate>
               <SearchBar name="search" label="Search frames" />
               {isCurrentUser && (
-                <Button className={styles.formAction} type="button" icon={PlusIcon}>
-                  Create
-                </Button>
+                <CreateFrameModal
+                  onComplete={() => {
+                    frames.revalidate();
+                  }}
+                  trigger={
+                    <Button className={styles.formAction} type="button" icon={PlusIcon}>
+                      Create
+                    </Button>
+                  }
+                />
               )}
             </Form>
 
@@ -126,7 +134,14 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
                     ? `No frames found for term "${values.search}."`
                     : `${isCurrentUser ? 'You have' : 'there are'} no frames.`}
                 </p>
-                {isCurrentUser && <Button className={styles.emptyStateAction}>Create frame</Button>}
+                {isCurrentUser && (
+                  <CreateFrameModal
+                    onComplete={() => {
+                      frames.revalidate();
+                    }}
+                    trigger={<Button className={styles.emptyStateAction}>Create frame</Button>}
+                  />
+                )}
               </div>
             ) : (
               <ul>

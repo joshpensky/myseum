@@ -33,7 +33,7 @@ export const EditArtwork: ComponentStory<typeof EditArtworkModal> = () => {
   return (
     <EditArtworkModal
       artwork={artwork}
-      trigger={<Button icon={EditIcon}>Edit</Button>}
+      trigger={<Button icon={EditIcon}>Edit artwork</Button>}
       onComplete={() => {}}
     />
   );

@@ -10,5 +10,8 @@ export default {
 } as ComponentMeta<typeof CreateArtworkModal>;
 
 export const CreateArtwork: ComponentStory<typeof CreateArtworkModal> = () => (
-  <CreateArtworkModal trigger={<Button icon={PlusIcon}>Create</Button>} onComplete={() => {}} />
+  <CreateArtworkModal
+    trigger={<Button icon={PlusIcon}>Create artwork</Button>}
+    onComplete={() => {}}
+  />
 );
