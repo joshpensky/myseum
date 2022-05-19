@@ -1,0 +1,40 @@
+.row {
+  align-items: flex-end;
+  display: flex;
+  width: 100%;
+  margin-bottom: sz(3);
+}
+
+.times-icon {
+  @include padding(x sz(3) sz(4));
+  color: c('text');
+
+  svg {
+    @include size(sz(3));
+  }
+}
+
+.hint {
+  @include padding(sz(3) sz(4) sz(3) sz(10));
+  background: c('bg-tint');
+  border-radius: sz(2.5);
+  display: flex;
+  flex-direction: column;
+  margin-top: sz(2);
+  position: relative;
+  width: 100%;
+}
+
+.hint__icon {
+  @include absolute(sz(3.5) x x sz(3));
+  color: c('secondary-text');
+
+  svg {
+    @include size(sz(4));
+  }
+}
+
+.hint__text {
+  @include label;
+  margin-bottom: sz(1.5);
+}

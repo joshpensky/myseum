@@ -1,77 +1,29 @@
-import { ChangeEvent, useRef, useState } from 'react';
-import { Matting, MeasureUnit } from '@prisma/client';
+import { useRef, useState } from 'react';
+import { Matting } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Form, Formik } from 'formik';
 import { z } from 'zod';
 import Button from '@src/components/Button';
-import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
-import { NumberField } from '@src/components/NumberField';
 import { ArtworkPreview3D } from '@src/components/Preview3D/ArtworkPreview3D';
 import { ObjectPreview3D } from '@src/components/Preview3D/ObjectPreview3D';
-import { Select } from '@src/components/Select';
 import {
   ConfirmDimensionsEvent,
   CreateArtworkState,
 } from '@src/features/artwork/CreateArtworkModal/state';
+import { DimensionsFields, dimensionsFieldsSchema } from '@src/features/artwork/DimensionsFields';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import Close from '@src/svgs/Close';
 import Rotate from '@src/svgs/Cube';
-import Lightbulb from '@src/svgs/Lightbulb';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { convertUnit } from '@src/utils/convertUnit';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './dimensionsScreen.module.scss';
 
-const dimensionsScreenSchema = z.object({
-  width: z
-    .number({ required_error: 'Width is required.' })
-    .positive('Width must be greater than 0.'),
-
-  height: z
-    .number({ required_error: 'Height is required.' })
-    .positive('Height must be greater than 0.'),
-
-  depth: z
-    .number({ required_error: 'Depth is required.' })
-    .nonnegative('Depth must be greater than or equal to 0.'),
-
-  unit: z.nativeEnum(MeasureUnit, {
-    invalid_type_error: 'Invalid unit.',
-    required_error: 'Unit is required.',
-  }),
-});
+const dimensionsScreenSchema = z.object({}).merge(dimensionsFieldsSchema);
 
 type DimensionsScreenSchema = z.infer<typeof dimensionsScreenSchema>;
-
-interface Preset {
-  value: string;
-  display: string;
-  dimensions: Omit<DimensionsScreenSchema, 'depth'>;
-}
-
-const presets: Preset[] = [
-  {
-    value: 'a4',
-    display: 'A4',
-    dimensions: {
-      width: 210,
-      height: 297,
-      unit: 'mm',
-    },
-  },
-  {
-    value: 'poster',
-    display: 'Poster',
-    dimensions: {
-      width: 11,
-      height: 17,
-      unit: 'in',
-    },
-  },
-];
 
 interface DimensionsScreenProps {
   state: CreateArtworkState<'dimensions'>;
@@ -132,7 +84,7 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
           });
         }}>
         {formik => {
-          const { handleChange, isSubmitting, isValid, values, setFieldValue } = formik;
+          const { isSubmitting, isValid, values } = formik;
 
           const unitPxRatio = convertUnit(1, values.unit, 'px');
           const pxDimensions: Dimensions = {
@@ -224,100 +176,10 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
               </FormModal.Sidecar>
 
               <div className={styles.formBody}>
-                <div className={styles.row}>
-                  <FieldWrapper name="width" label="Width" required>
-                    {field => (
-                      <NumberField
-                        {...field}
-                        min={0}
-                        onChange={evt => {
-                          handleChange(evt);
-                          setFieldValue('preset', 'custom');
-                        }}
-                      />
-                    )}
-                  </FieldWrapper>
-
-                  <div className={styles.timesIcon}>
-                    <Close />
-                  </div>
-
-                  <FieldWrapper name="height" label="Height" required>
-                    {field => (
-                      <NumberField
-                        {...field}
-                        min={0}
-                        onChange={evt => {
-                          handleChange(evt);
-                          setFieldValue('preset', 'custom');
-                        }}
-                      />
-                    )}
-                  </FieldWrapper>
-
-                  <div className={styles.timesIcon}>
-                    <Close />
-                  </div>
-
-                  <FieldWrapper name="depth" label="Depth" required>
-                    {field => (
-                      <NumberField
-                        {...field}
-                        min={0}
-                        onFocus={() => setIsDepthFocused(true)}
-                        onBlur={() => setIsDepthFocused(false)}
-                      />
-                    )}
-                  </FieldWrapper>
-                </div>
-
-                <div className={styles.row}>
-                  <FieldWrapper name="unit" label="Unit" required>
-                    {field => (
-                      <Select<MeasureUnit>
-                        {...field}
-                        options={[
-                          { value: 'px', display: 'pixels' },
-                          { value: 'in', display: 'inches' },
-                          { value: 'cm', display: 'centimeters' },
-                          { value: 'mm', display: 'millimeters' },
-                        ]}
-                        onChange={evt => {
-                          handleChange(evt);
-                          setFieldValue('preset', 'custom');
-                        }}
-                      />
-                    )}
-                  </FieldWrapper>
-                </div>
-
-                <div className={styles.hint}>
-                  <div className={styles.hintIcon}>
-                    <Lightbulb />
-                  </div>
-
-                  <p className={styles.hintText}>
-                    Is your artwork a standard size? Use one of the below presets.
-                  </p>
-
-                  <FieldWrapper name="preset" label="Preset" labelClassName="sr-only">
-                    {field => (
-                      <Select<string>
-                        {...field}
-                        options={[{ value: 'custom', display: 'Custom' }, ...presets]}
-                        onChange={(evt: ChangeEvent<HTMLSelectElement>) => {
-                          handleChange(evt);
-                          const preset = presets.find(preset => preset.value === evt.target.value);
-                          if (preset) {
-                            setFieldValue('width', preset.dimensions.width);
-                            setFieldValue('height', preset.dimensions.height);
-                            setFieldValue('unit', preset.dimensions.unit);
-                          }
-                        }}
-                      />
-                    )}
-                  </FieldWrapper>
-                </div>
+                <DimensionsFields
+                  onDepthFocus={() => setIsDepthFocused(true)}
+                  onDepthBlur={() => setIsDepthFocused(false)}
+                />
               </div>
 
               <FormModal.Footer>

@@ -1,5 +1,6 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useMachine } from '@xstate/react';
+import equal from 'fast-deep-equal';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
@@ -9,12 +10,7 @@ import { DimensionsScreen } from './02a-DimensionsScreen';
 import { SelectionScreen } from './02b-SelectionScreen';
 import { DetailsScreen } from './02c-DetailsScreen';
 import styles from './editArtworkModal.module.scss';
-import {
-  EditArtworkContext,
-  editArtworkMachine,
-  EditArtworkStateValue,
-  ScreenRefValue,
-} from './state';
+import { EditArtworkContext, editArtworkMachine, EditArtworkStateValue } from './state';
 
 export interface CreateArtworkModalProps {
   artwork: ArtworkDto;
@@ -23,8 +19,6 @@ export interface CreateArtworkModalProps {
 }
 
 export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtworkModalProps) => {
-  const screenRef = useRef<ScreenRefValue>(null);
-
   const initialContext: EditArtworkContext = {
     id: artwork.id,
     dimensions: {
@@ -115,7 +109,7 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
           </Button>
         ),
       }}
-      getIsDirty={() => screenRef.current?.getIsDirty() ?? false}
+      getIsDirty={() => !state.matches('review') || !equal(state.context, initialContext)}
       trigger={trigger}>
       {renderStep()}
     </FormModal.Root>
