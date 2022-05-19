@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext } from 'next';
 import { AuthChangeEvent, User } from '@supabase/supabase-js';
 import { AxiosRequestConfig } from 'axios';
-import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
+import { CreateArtworkDto, UpdateArtworkDto } from '@src/data/repositories/artwork.repository';
 import {
   AddPlacedArtworkDto,
   CreateGalleryDto,
@@ -27,6 +27,13 @@ export interface MyseumAPI {
     create(data: CreateArtworkDto): Promise<ArtworkDto>;
 
     /**
+     * Deletes an existing artwork.
+     *
+     * @param id the artwork's ID
+     */
+    delete(id: string): Promise<void>;
+
+    /**
      * Finds all artworks for a given user.
      *
      * @param user the user to search within
@@ -35,11 +42,13 @@ export interface MyseumAPI {
     findAllByUser(user: UserDto): Promise<ArtworkDto[]>;
 
     /**
-     * Deletes an existing artwork.
+     * Updates an existing artwork.
      *
      * @param id the artwork's ID
+     * @param data the artwork's updated data
+     * @returns the updated artwork
      */
-    delete(id: string): Promise<void>;
+    update(id: string, data: UpdateArtworkDto): Promise<ArtworkDto>;
   };
 
   auth: {
@@ -110,6 +119,14 @@ export interface MyseumAPI {
     create(data: CreateGalleryDto): Promise<GalleryDto>;
 
     /**
+     * Deletes an existing gallery.
+     *
+     * @param museumId the parent museum ID
+     * @param galleryId the gallery ID to delete
+     */
+    delete(museumId: string, galleryId: string): Promise<void>;
+
+    /**
      * Finds all galleries within a given museum.
      *
      * @param museum the museum to search within
@@ -135,14 +152,6 @@ export interface MyseumAPI {
      * @return the updated gallery
      */
     update(museumId: string, galleryId: string, data: UpdateGalleryDto): Promise<GalleryDto>;
-
-    /**
-     * Deletes an existing gallery.
-     *
-     * @param museumId the parent museum ID
-     * @param galleryId the gallery ID to delete
-     */
-    delete(museumId: string, galleryId: string): Promise<void>;
   };
 
   museum: {
@@ -174,6 +183,13 @@ export interface MyseumAPI {
 
   user: {
     /**
+     * Deletes an existing user.
+     *
+     * @param id the user's ID
+     */
+    delete(id: string): Promise<void>;
+
+    /**
      * Finds a user by a given ID.
      *
      * @param id the user's ID
@@ -189,12 +205,5 @@ export interface MyseumAPI {
      * @return the updated user
      */
     update(id: string, data: UpdateUserDto): Promise<UserDto>;
-
-    /**
-     * Deletes an existing user.
-     *
-     * @param id the user's ID
-     */
-    delete(id: string): Promise<void>;
   };
 }

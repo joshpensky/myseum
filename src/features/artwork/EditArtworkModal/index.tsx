@@ -4,13 +4,6 @@ import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { SelectionEditorState } from '@src/features/selection';
-import { useAuth } from '@src/providers/AuthProvider';
-// import { UploadScreen } from './01-UploadScreen';
-// import { DimensionsScreen } from './02-DimensionsScreen';
-// import { SelectionScreen } from './03-SelectionScreen';
-// import { DetailsScreen } from './04-DetailsScreen';
-// import { ReviewScreen } from './05-ReviewScreen';
-import { getImageUrl } from '@src/utils/getImageUrl';
 import { ReviewScreen } from './01-ReviewScreen';
 import styles from './editArtworkModal.module.scss';
 import { editArtworkMachine, EditArtworkStateValue, ScreenRefValue } from './state';
@@ -23,13 +16,10 @@ export interface CreateArtworkModalProps {
 
 export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtworkModalProps) => {
   const screenRef = useRef<ScreenRefValue>(null);
-  const auth = useAuth();
 
-  const [state, send] = useMachine(() => {
-    const preview = new Image();
-    preview.src = getImageUrl('artworks', artwork.src);
-
-    return editArtworkMachine.withContext({
+  const [state, send] = useMachine(() =>
+    editArtworkMachine.withContext({
+      id: artwork.id,
       dimensions: {
         width: artwork.size.width,
         height: artwork.size.height,
@@ -38,7 +28,7 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
       },
       selection: {
         path: SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT.outline,
-        preview,
+        preview: artwork.src,
       },
       details: {
         title: artwork.title,
@@ -48,8 +38,8 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
         createdAt: artwork.createdAt ?? undefined,
         acquiredAt: artwork.acquiredAt,
       },
-    });
-  });
+    }),
+  );
 
   const handleBack = () => {
     if (state.can('GO_BACK')) {
@@ -65,11 +55,6 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
       // TODO: reset with initial context
     }
   };
-
-  if (!auth.user) {
-    return null;
-  }
-  const user = auth.user;
 
   const renderStep = () => {
     if (state.matches('review')) {

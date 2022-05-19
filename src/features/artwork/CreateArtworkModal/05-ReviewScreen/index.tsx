@@ -3,7 +3,6 @@ import { Form, Formik } from 'formik';
 import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import IconButton from '@src/components/IconButton';
 import { ReviewSection } from '@src/components/ReviewSection';
 import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
@@ -16,7 +15,6 @@ import {
 import { AuthUserDto } from '@src/providers/AuthProvider';
 import { DetailsIcon } from '@src/svgs/DetailsIcon';
 import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
-import { EditIcon } from '@src/svgs/EditIcon';
 import { SelectionIcon } from '@src/svgs/SelectionIcon';
 import styles from './reviewScreen.module.scss';
 
@@ -40,7 +38,7 @@ export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProp
               ownerId: user.id,
               title: state.context.details.title,
               description: state.context.details.description,
-              src: state.context.selection.preview.src,
+              src: state.context.selection.preview,
               alt: state.context.details.altText,
               size: {
                 width: state.context.dimensions.width,
@@ -65,10 +63,7 @@ export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProp
             <Form className={styles.form} noValidate>
               <FormModal.Sidecar>
                 <div className={styles.preview}>
-                  <img
-                    src={state.context.selection.preview.src}
-                    alt={state.context.details.altText}
-                  />
+                  <img src={state.context.selection.preview} alt={state.context.details.altText} />
                 </div>
               </FormModal.Sidecar>
 

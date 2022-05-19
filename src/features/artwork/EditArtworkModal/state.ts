@@ -19,7 +19,7 @@ export interface DimensionsContext {
 
 export interface SelectionContext {
   path: SelectionEditorPath;
-  preview: HTMLImageElement;
+  preview: string;
 }
 
 export interface DetailsContext {
@@ -35,6 +35,7 @@ export interface DetailsContext {
 }
 
 export interface EditArtworkContext {
+  id: string;
   dimensions: DimensionsContext;
   selection: SelectionContext;
   details: DetailsContext;
@@ -147,6 +148,7 @@ export const editArtworkMachine = createMachine<
 >({
   id: 'form',
   context: ({
+    id: undefined,
     dimensions: undefined,
     selection: undefined,
     details: undefined,

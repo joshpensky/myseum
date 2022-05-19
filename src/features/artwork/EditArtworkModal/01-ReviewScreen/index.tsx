@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
+import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { ReviewSection } from '@src/components/ReviewSection';
+import { UpdateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import {
   EditArtworkState,
@@ -13,6 +15,7 @@ import {
 import { DetailsIcon } from '@src/svgs/DetailsIcon';
 import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
 import { SelectionIcon } from '@src/svgs/SelectionIcon';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './reviewScreen.module.scss';
 
 interface ReviewScreenProps {
@@ -25,11 +28,31 @@ export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => 
   const initialValues = {};
 
   return (
-    <FormModal.Screen title="Edit Artwork" description="Choose an area to edit">
+    <FormModal.Screen title="Edit Artwork" description="Choose an area to update.">
       <Formik
         initialValues={initialValues}
-        onSubmit={() => {
-          // TODO: on submit
+        onSubmit={async () => {
+          try {
+            const updateArtworkData: UpdateArtworkDto = {
+              title: state.context.details.title,
+              description: state.context.details.description,
+              src: state.context.selection.preview,
+              alt: state.context.details.altText,
+              size: {
+                width: state.context.dimensions.width,
+                height: state.context.dimensions.height,
+                depth: state.context.dimensions.depth ?? 0,
+              },
+              unit: state.context.dimensions.unit,
+              createdAt: state.context.details.createdAt,
+              acquiredAt: state.context.details.acquiredAt,
+            };
+
+            const artwork = await api.artwork.update(state.context.id, updateArtworkData);
+            onSubmit(artwork);
+          } catch (error) {
+            console.error(error);
+          }
         }}>
         {formik => {
           const { isSubmitting, isValid } = formik;
@@ -39,7 +62,11 @@ export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => 
               <FormModal.Sidecar>
                 <div className={styles.preview}>
                   <img
-                    src={state.context.selection.preview.src}
+                    src={
+                      state.context.selection.preview.includes('base64')
+                        ? state.context.selection.preview
+                        : getImageUrl('artworks', state.context.selection.preview)
+                    }
                     alt={state.context.details.altText}
                   />
                 </div>

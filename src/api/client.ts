@@ -14,13 +14,18 @@ export const ClientAPI: MyseumAPI = {
       return res.data;
     },
 
+    async delete(id) {
+      await axios.delete(`/api/artworks/${id}`);
+    },
+
     async findAllByUser(user) {
       const res = await axios.get<ArtworkDto[]>(`/api/user/${user.id}/artworks`);
       return res.data;
     },
 
-    async delete(id) {
-      await axios.delete(`/api/artworks/${id}`);
+    async update(id, data) {
+      const res = await axios.put<ArtworkDto>(`/api/artworks/${id}`, data);
+      return res.data;
     },
   },
 
@@ -79,6 +84,10 @@ export const ClientAPI: MyseumAPI = {
       return res.data;
     },
 
+    async delete(museumId, galleryId) {
+      await axios.delete(`/api/museum/${museumId}/gallery/${galleryId}`);
+    },
+
     async findAllByMuseum() {
       throw new Error('Implementation only available on server.');
     },
@@ -90,10 +99,6 @@ export const ClientAPI: MyseumAPI = {
     async update(museumId, galleryId, data) {
       const res = await axios.put<GalleryDto>(`/api/museum/${museumId}/gallery/${galleryId}`, data);
       return res.data;
-    },
-
-    async delete(museumId, galleryId) {
-      await axios.delete(`/api/museum/${museumId}/gallery/${galleryId}`);
     },
   },
 
@@ -113,6 +118,10 @@ export const ClientAPI: MyseumAPI = {
   },
 
   user: {
+    async delete(id) {
+      await axios.delete(`/api/user/${id}`);
+    },
+
     async findOneById(id, config) {
       const res = await axios.get<UserDto>(`/api/user/${id}`, config);
       return res.data;
@@ -121,10 +130,6 @@ export const ClientAPI: MyseumAPI = {
     async update(id, data) {
       const res = await axios.put<UserDto>(`/api/user/${id}`, data);
       return res.data;
-    },
-
-    async delete(id) {
-      await axios.delete(`/api/user/${id}`);
     },
   },
 };

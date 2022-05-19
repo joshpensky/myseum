@@ -33,6 +33,8 @@ export const MockAPI: MyseumAPI = {
       };
     },
 
+    async delete() {},
+
     async findAllByUser(user) {
       return [
         {
@@ -58,7 +60,31 @@ export const MockAPI: MyseumAPI = {
       ];
     },
 
-    async delete() {},
+    async update(id, data) {
+      return {
+        id,
+        title: data.title,
+        description: data.description,
+        artist: null,
+        src: data.src,
+        alt: data.alt,
+        size: data.size,
+        unit: data.unit,
+        createdAt: data.createdAt ?? null,
+        acquiredAt: data.acquiredAt,
+        addedAt: new Date(),
+        modifiedAt: new Date(),
+        owner: {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          name: 'Mock User',
+          bio: '',
+          headshot: null,
+          museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+        },
+      };
+    },
   },
 
   auth: {
@@ -266,6 +292,8 @@ export const MockAPI: MyseumAPI = {
       };
     },
 
+    async delete() {},
+
     async findAllByMuseum(museum) {
       const galleries: GalleryDto[] = [
         {
@@ -343,8 +371,6 @@ export const MockAPI: MyseumAPI = {
         museumId,
       };
     },
-
-    async delete() {},
   },
 
   museum: {
@@ -422,6 +448,8 @@ export const MockAPI: MyseumAPI = {
   },
 
   user: {
+    async delete() {},
+
     async findOneById(id) {
       return {
         id,
@@ -445,7 +473,5 @@ export const MockAPI: MyseumAPI = {
         modifiedAt: new Date(),
       };
     },
-
-    async delete() {},
   },
 };

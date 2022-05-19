@@ -80,14 +80,12 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
 
           // Generate the image src from the canvas contents
           const previewSrc = destCanvas.toDataURL('image/jpeg');
-          const preview = document.createElement('img');
-          preview.src = previewSrc;
 
           onSubmit({
             type: 'CONFIRM_SELECTION',
             selection: {
               path: editor.current.outline,
-              preview,
+              preview: previewSrc,
             },
           });
         }}>

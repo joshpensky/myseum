@@ -15,6 +15,17 @@ export interface CreateArtworkDto {
   acquiredAt: Date;
 }
 
+export interface UpdateArtworkDto {
+  title: string;
+  description: string;
+  src: string;
+  alt: string;
+  size: Dimensions3D;
+  unit: MeasureUnit;
+  createdAt?: Date;
+  acquiredAt: Date;
+}
+
 export class ArtworkRepository {
   static async findAll() {
     const artworks = await prisma.artwork.findMany({
@@ -89,6 +100,43 @@ export class ArtworkRepository {
             id: data.ownerId,
           },
         },
+        // TODO: create or connect artist
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return artwork;
+  }
+
+  static async update(id: string, data: UpdateArtworkDto) {
+    let src = data.src;
+    if (src.includes('base64')) {
+      src = await uploadSupabaseFile('artworks', src);
+    }
+
+    const artwork = await prisma.artwork.update({
+      where: {
+        id,
+      },
+      data: {
+        title: data.title,
+        description: data.description,
+        src,
+        alt: data.alt,
+        width: data.size.width,
+        height: data.size.height,
+        depth: data.size.depth,
+        unit: data.unit,
+        createdAt: data.createdAt,
+        acquiredAt: data.acquiredAt,
         // TODO: create or connect artist
       },
       include: {

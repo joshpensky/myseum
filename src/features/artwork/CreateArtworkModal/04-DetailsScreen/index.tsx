@@ -104,7 +104,7 @@ export const DetailsScreen = ({ state, onBack, onSubmit }: DetailsScreenProps) =
             <Form className={styles.form} noValidate>
               <FormModal.Sidecar>
                 <div className={styles.preview}>
-                  <img src={state.context.selection.preview.src} alt="" />
+                  <img src={state.context.selection.preview} alt="" />
                 </div>
               </FormModal.Sidecar>
 

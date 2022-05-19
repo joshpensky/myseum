@@ -1,5 +1,5 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import { MeasureUnit } from '@prisma/client';
+import { Matting, MeasureUnit } from '@prisma/client';
 import * as Toggle from '@radix-ui/react-toggle';
 import cx from 'classnames';
 import { Form, Formik } from 'formik';
@@ -8,6 +8,7 @@ import Button from '@src/components/Button';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import * as FormModal from '@src/components/FormModal';
 import { NumberField } from '@src/components/NumberField';
+import { ArtworkPreview3D } from '@src/components/Preview3D/ArtworkPreview3D';
 import { ObjectPreview3D } from '@src/components/Preview3D/ObjectPreview3D';
 import { Select } from '@src/components/Select';
 import {
@@ -156,40 +157,57 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
                     style={{
                       '--unit': values.unit === 'px' ? 0 : `${previewUnitSize}px`,
                     }}>
-                    <ObjectPreview3D
-                      size={{ ...previewDimensions, depth: previewUnitSize * values.depth }}
-                      rotated={isDepthFocused || rotated}
-                      front={
-                        <div
-                          className={cx(
-                            styles.previewBox,
-                            previewAreaDimensions.width === 0 && styles.previewBoxHidden,
-                          )}
-                          style={{
-                            '--width': `${previewDimensions.width}px`,
-                            '--height': `${previewDimensions.height}px`,
-                          }}
-                        />
-                      }
-                      left={
-                        <div
-                          className={cx(styles.previewBox)}
-                          style={{
-                            '--width': `${previewUnitSize * values.depth}px`,
-                            '--height': `${previewDimensions.height}px`,
-                          }}
-                        />
-                      }
-                      top={
-                        <div
-                          className={cx(styles.previewBox, styles.previewBoxTop)}
-                          style={{
-                            '--width': `${previewDimensions.width}px`,
-                            '--height': `${previewUnitSize * values.depth}px`,
-                          }}
-                        />
-                      }
-                    />
+                    {state.context.selection ? (
+                      <ArtworkPreview3D
+                        rotated={isDepthFocused || rotated}
+                        artwork={{
+                          alt: '',
+                          unit: values.unit,
+                          src: state.context.selection.preview,
+                          size: {
+                            width: values.width,
+                            height: values.height,
+                            depth: values.depth,
+                          },
+                        }}
+                        framingOptions={{ isScaled: false, matting: Matting.none, scaling: 1 }}
+                      />
+                    ) : (
+                      <ObjectPreview3D
+                        size={{ ...previewDimensions, depth: previewUnitSize * values.depth }}
+                        rotated={isDepthFocused || rotated}
+                        front={
+                          <div
+                            className={cx(
+                              styles.previewBox,
+                              previewAreaDimensions.width === 0 && styles.previewBoxHidden,
+                            )}
+                            style={{
+                              '--width': `${previewDimensions.width}px`,
+                              '--height': `${previewDimensions.height}px`,
+                            }}
+                          />
+                        }
+                        left={
+                          <div
+                            className={cx(styles.previewBox)}
+                            style={{
+                              '--width': `${previewUnitSize * values.depth}px`,
+                              '--height': `${previewDimensions.height}px`,
+                            }}
+                          />
+                        }
+                        top={
+                          <div
+                            className={cx(styles.previewBox, styles.previewBoxTop)}
+                            style={{
+                              '--width': `${previewDimensions.width}px`,
+                              '--height': `${previewUnitSize * values.depth}px`,
+                            }}
+                          />
+                        }
+                      />
+                    )}
                   </div>
 
                   <div className={styles.toolbar}>

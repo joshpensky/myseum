@@ -25,7 +25,7 @@ export interface DimensionsContext {
 
 export interface SelectionContext {
   path: SelectionEditorPath;
-  preview: HTMLImageElement;
+  preview: string;
 }
 
 export interface DetailsContext {
