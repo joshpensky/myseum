@@ -45,6 +45,11 @@ export interface EditArtworkContext {
 // Events
 //////////////////////////
 
+export interface ResetEvent {
+  type: 'RESET';
+  context: EditArtworkContext;
+}
+
 export interface GoBackEvent {
   type: 'GO_BACK';
 }
@@ -77,6 +82,7 @@ export interface EditDetailsEvent {
 }
 
 export type EditArtworkEvent =
+  | ResetEvent
   | GoBackEvent
   | ConfirmDimensionsEvent
   | ConfirmSelectionEvent
@@ -157,6 +163,9 @@ export const editArtworkMachine = createMachine<
   states: {
     review: {
       on: {
+        RESET: {
+          actions: assign((ctx, evt) => evt.context),
+        },
         EDIT_DIMENSIONS: {
           target: 'dimensions',
         },
@@ -170,6 +179,10 @@ export const editArtworkMachine = createMachine<
     },
     dimensions: {
       on: {
+        RESET: {
+          target: 'review',
+          actions: assign((ctx, evt) => evt.context),
+        },
         GO_BACK: {
           target: 'review',
         },
@@ -183,6 +196,10 @@ export const editArtworkMachine = createMachine<
     },
     selection: {
       on: {
+        RESET: {
+          target: 'review',
+          actions: assign((ctx, evt) => evt.context),
+        },
         GO_BACK: {
           target: 'review',
         },
@@ -196,6 +213,10 @@ export const editArtworkMachine = createMachine<
     },
     details: {
       on: {
+        RESET: {
+          target: 'review',
+          actions: assign((ctx, evt) => evt.context),
+        },
         GO_BACK: {
           target: 'review',
         },

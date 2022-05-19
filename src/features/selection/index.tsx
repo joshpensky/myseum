@@ -278,4 +278,8 @@ export class SelectionEditorState {
       }
     }
   }
+
+  static matches(a: SelectionEditorPath, b: SelectionEditorPath) {
+    return a.every((point, index) => point.x === b[index].x && point.y === b[index].y);
+  }
 }

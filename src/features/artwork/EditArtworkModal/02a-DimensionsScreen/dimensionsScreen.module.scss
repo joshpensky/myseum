@@ -1,0 +1,126 @@
+.sidecar {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  align-items: center;
+}
+
+.preview {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include mq(max, $bp-modal-drawer) {
+    @include padding(sz(4));
+    background-color: c('bg-tint');
+    border-radius: sz(2.5);
+    height: 300px;
+    margin-bottom: sz(4);
+    width: 100%;
+  }
+
+  @include mq($bp-modal-drawer) {
+    @include padding(sz(6));
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.toolbar {
+  @include padding(sz(2));
+  background-color: c('bg-tint', 0.8);
+  backdrop-filter: blur(2px);
+  border-radius: sz(4);
+  display: flex;
+  margin-bottom: sz(4);
+
+  @include mq($bp-modal-drawer) {
+    margin-bottom: sz(6);
+  }
+}
+
+.toolbar__button {
+  @include size(sz(8));
+  box-shadow: 0 0 0 0 c('border'), inset 0 0 0 0 c('bg-tint');
+  border-radius: sz(2.5);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include with-motion {
+    transition: box-shadow 150ms ease-out;
+  }
+
+  &:not(:disabled):focus {
+    @include outline-none;
+    box-shadow: 0 0 0 1px c('border'), inset 0 0 0 1.5px c('bg-tint');
+  }
+
+  &[aria-pressed='true'] {
+    background-color: c('border');
+    color: c('bg');
+  }
+
+  svg {
+    @include size(sz(5));
+    stroke-width: 1.2;
+  }
+
+  + .toolbar__button {
+    margin-left: sz(2);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.row {
+  align-items: flex-end;
+  display: flex;
+  width: 100%;
+  margin-bottom: sz(3);
+}
+
+.times-icon {
+  @include padding(x sz(3) sz(4));
+  color: c('text');
+
+  svg {
+    @include size(sz(3));
+  }
+}
+
+.hint {
+  @include padding(sz(3) sz(4) sz(3) sz(10));
+  background: c('bg-tint');
+  border-radius: sz(2.5);
+  display: flex;
+  flex-direction: column;
+  margin-top: sz(2);
+  position: relative;
+  width: 100%;
+}
+
+.hint__icon {
+  @include absolute(sz(3.5) x x sz(3));
+  color: c('secondary-text');
+
+  svg {
+    @include size(sz(4));
+  }
+}
+
+.hint__text {
+  @include label;
+  margin-bottom: sz(1.5);
+}

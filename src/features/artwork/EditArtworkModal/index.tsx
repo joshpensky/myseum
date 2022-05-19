@@ -5,8 +5,16 @@ import * as FormModal from '@src/components/FormModal';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { SelectionEditorState } from '@src/features/selection';
 import { ReviewScreen } from './01-ReviewScreen';
+import { DimensionsScreen } from './02a-DimensionsScreen';
+import { SelectionScreen } from './02b-SelectionScreen';
+import { DetailsScreen } from './02c-DetailsScreen';
 import styles from './editArtworkModal.module.scss';
-import { editArtworkMachine, EditArtworkStateValue, ScreenRefValue } from './state';
+import {
+  EditArtworkContext,
+  editArtworkMachine,
+  EditArtworkStateValue,
+  ScreenRefValue,
+} from './state';
 
 export interface CreateArtworkModalProps {
   artwork: ArtworkDto;
@@ -17,42 +25,41 @@ export interface CreateArtworkModalProps {
 export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtworkModalProps) => {
   const screenRef = useRef<ScreenRefValue>(null);
 
-  const [state, send] = useMachine(() =>
-    editArtworkMachine.withContext({
-      id: artwork.id,
-      dimensions: {
-        width: artwork.size.width,
-        height: artwork.size.height,
-        depth: artwork.size.depth,
-        unit: artwork.unit,
-      },
-      selection: {
-        path: SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT.outline,
-        preview: artwork.src,
-      },
-      details: {
-        title: artwork.title,
-        // artist,
-        description: artwork.description,
-        altText: artwork.alt,
-        createdAt: artwork.createdAt ?? undefined,
-        acquiredAt: artwork.acquiredAt,
-      },
-    }),
-  );
-
-  const handleBack = () => {
-    if (state.can('GO_BACK')) {
-      send({ type: 'GO_BACK' });
-    }
+  const initialContext: EditArtworkContext = {
+    id: artwork.id,
+    dimensions: {
+      width: artwork.size.width,
+      height: artwork.size.height,
+      depth: artwork.size.depth,
+      unit: artwork.unit,
+    },
+    selection: {
+      path: SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT.outline,
+      preview: artwork.src,
+    },
+    details: {
+      title: artwork.title,
+      // artist,
+      description: artwork.description,
+      altText: artwork.alt,
+      createdAt: artwork.createdAt ?? undefined,
+      acquiredAt: artwork.acquiredAt,
+    },
   };
+
+  const [state, send] = useMachine(() => editArtworkMachine.withContext(initialContext));
 
   const [open, setOpen] = useState(false);
   const onOpenChange = (open: boolean) => {
     setOpen(open);
     if (!open) {
-      handleBack();
-      // TODO: reset with initial context
+      send({ type: 'RESET', context: initialContext });
+    }
+  };
+
+  const handleBack = () => {
+    if (state.can('GO_BACK')) {
+      send({ type: 'GO_BACK' });
     }
   };
 
@@ -68,40 +75,23 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
           }}
         />
       );
+    } else if (state.matches('dimensions')) {
+      return <DimensionsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
+    } else if (state.matches('selection')) {
+      return <SelectionScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
+    } else if (state.matches('details')) {
+      return <DetailsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
     } else {
       throw new Error('Form has entered unknown state.');
     }
   };
-  // if (state.matches('upload')) {
-  //   return <UploadScreen ref={screenRef} state={state} onSubmit={data => send(data)} />;
-  // } else if (state.matches('dimensions')) {
-  //   return <DimensionsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-  // } else if (state.matches('selection')) {
-  //   return <SelectionScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-  // } else if (state.matches('details')) {
-  //   return <DetailsScreen state={state} onBack={handleBack} onSubmit={data => send(data)} />;
-  // } else if (state.matches('review')) {
-  //   return (
-  //     <ReviewScreen
-  //       state={state}
-  //       user={user}
-  //       onEdit={event => send(event)}
-  //       onSubmit={data => {
-  //         onComplete(data);
-  //         onOpenChange(false);
-  //       }}
-  //     />
-  //   );
-  // } else {
-  //   throw new Error('Form has entered unknown state.');
-  // }
 
   // Get the current step title
-  const stepTitles: Record<EditArtworkStateValue, string> = {
+  const stepTitles: Record<EditArtworkStateValue, string | undefined> = {
     dimensions: 'Dimensions',
     selection: 'Selection',
     details: 'Details',
-    review: 'Review',
+    review: undefined,
   };
   const currentStep = Object.keys(stepTitles).find(key =>
     state.matches(key as EditArtworkStateValue),
