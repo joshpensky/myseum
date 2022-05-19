@@ -1,10 +1,10 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { Loader } from '@src/components/Loader';
+import { Loader as LoaderComponent } from '@src/components/Loader';
 import '@src/styles/index.scss';
 
 export default {
   title: 'Loader',
-  component: Loader,
+  component: LoaderComponent,
   argTypes: {
     size: {
       defaultValue: 'normal',
@@ -12,6 +12,6 @@ export default {
       options: ['normal', 'large'],
     },
   },
-} as ComponentMeta<typeof Loader>;
+} as ComponentMeta<typeof LoaderComponent>;
 
-export const Default: ComponentStory<typeof Loader> = args => <Loader {...args} />;
+export const Loader: ComponentStory<typeof LoaderComponent> = args => <LoaderComponent {...args} />;

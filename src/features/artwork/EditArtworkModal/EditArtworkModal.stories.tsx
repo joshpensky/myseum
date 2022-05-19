@@ -13,7 +13,7 @@ export default {
   component: EditArtworkModal,
 } as ComponentMeta<typeof EditArtworkModal>;
 
-export const Default: ComponentStory<typeof EditArtworkModal> = () => {
+export const EditArtwork: ComponentStory<typeof EditArtworkModal> = () => {
   const [artwork, setArtwork] = useState<ArtworkDto | null>(null);
 
   useEffect(() => {

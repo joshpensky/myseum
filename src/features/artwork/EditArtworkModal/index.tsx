@@ -10,6 +10,8 @@ import { useAuth } from '@src/providers/AuthProvider';
 // import { SelectionScreen } from './03-SelectionScreen';
 // import { DetailsScreen } from './04-DetailsScreen';
 // import { ReviewScreen } from './05-ReviewScreen';
+import { getImageUrl } from '@src/utils/getImageUrl';
+import { ReviewScreen } from './01-ReviewScreen';
 import styles from './editArtworkModal.module.scss';
 import { editArtworkMachine, EditArtworkStateValue, ScreenRefValue } from './state';
 
@@ -25,7 +27,7 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
 
   const [state, send] = useMachine(() => {
     const preview = new Image();
-    preview.src = artwork.src;
+    preview.src = getImageUrl('artworks', artwork.src);
 
     return editArtworkMachine.withContext({
       dimensions: {
@@ -69,7 +71,22 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
   }
   const user = auth.user;
 
-  const renderStep = () => null;
+  const renderStep = () => {
+    if (state.matches('review')) {
+      return (
+        <ReviewScreen
+          state={state}
+          onEdit={event => send(event)}
+          onSubmit={data => {
+            onComplete(data);
+            onOpenChange(false);
+          }}
+        />
+      );
+    } else {
+      throw new Error('Form has entered unknown state.');
+    }
+  };
   // if (state.matches('upload')) {
   //   return <UploadScreen ref={screenRef} state={state} onSubmit={data => send(data)} />;
   // } else if (state.matches('dimensions')) {

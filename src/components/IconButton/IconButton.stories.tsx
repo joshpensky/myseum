@@ -14,7 +14,7 @@ export default {
   },
 } as ComponentMeta<typeof IconButton>;
 
-export const Default: ComponentStory<typeof IconButton> = args => (
+export const Icon: ComponentStory<typeof IconButton> = args => (
   <IconButton {...args}>
     <EditIcon />
   </IconButton>

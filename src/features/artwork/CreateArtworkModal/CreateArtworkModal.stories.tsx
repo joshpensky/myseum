@@ -10,7 +10,7 @@ export default {
   component: CreateArtworkModal,
 } as ComponentMeta<typeof CreateArtworkModal>;
 
-export const Default: ComponentStory<typeof CreateArtworkModal> = () => (
+export const CreateArtwork: ComponentStory<typeof CreateArtworkModal> = () => (
   <AuthProvider>
     <CreateArtworkModal trigger={<Button icon={PlusIcon}>Create</Button>} onComplete={() => {}} />
   </AuthProvider>

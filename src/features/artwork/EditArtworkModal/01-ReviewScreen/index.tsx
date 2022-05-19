@@ -1,62 +1,35 @@
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
-import api from '@src/api';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
-import IconButton from '@src/components/IconButton';
 import { ReviewSection } from '@src/components/ReviewSection';
-import { CreateArtworkDto } from '@src/data/repositories/artwork.repository';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import {
-  CreateArtworkState,
+  EditArtworkState,
   EditDetailsEvent,
   EditDimensionsEvent,
   EditSelectionEvent,
-} from '@src/features/artwork/CreateArtworkModal/state';
-import { AuthUserDto } from '@src/providers/AuthProvider';
+} from '@src/features/artwork/EditArtworkModal/state';
 import { DetailsIcon } from '@src/svgs/DetailsIcon';
 import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
-import { EditIcon } from '@src/svgs/EditIcon';
 import { SelectionIcon } from '@src/svgs/SelectionIcon';
 import styles from './reviewScreen.module.scss';
 
 interface ReviewScreenProps {
-  user: AuthUserDto;
-  state: CreateArtworkState<'review'>;
+  state: EditArtworkState<'review'>;
   onEdit(event: EditDimensionsEvent | EditSelectionEvent | EditDetailsEvent): void;
   onSubmit(data: ArtworkDto): void;
 }
 
-export const ReviewScreen = ({ user, state, onEdit, onSubmit }: ReviewScreenProps) => {
+export const ReviewScreen = ({ state, onEdit, onSubmit }: ReviewScreenProps) => {
   const initialValues = {};
 
   return (
-    <FormModal.Screen title="Review" description="Make any last edits and confirm your selections.">
+    <FormModal.Screen title="Edit Artwork" description="Choose an area to edit">
       <Formik
         initialValues={initialValues}
-        onSubmit={async () => {
-          try {
-            const createArtworkData: CreateArtworkDto = {
-              ownerId: user.id,
-              title: state.context.details.title,
-              description: state.context.details.description,
-              src: state.context.selection.preview.src,
-              alt: state.context.details.altText,
-              size: {
-                width: state.context.dimensions.width,
-                height: state.context.dimensions.height,
-                depth: state.context.dimensions.depth ?? 0,
-              },
-              unit: state.context.dimensions.unit,
-              createdAt: state.context.details.createdAt,
-              acquiredAt: state.context.details.acquiredAt,
-            };
-
-            const artwork = await api.artwork.create(createArtworkData);
-            onSubmit(artwork);
-          } catch (error) {
-            console.error(error);
-          }
+        onSubmit={() => {
+          // TODO: on submit
         }}>
         {formik => {
           const { isSubmitting, isValid } = formik;

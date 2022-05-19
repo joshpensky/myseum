@@ -2,15 +2,15 @@ import { Fragment, useEffect, useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import api from '@src/api';
 import '@src/styles/index.scss';
-import { UserTag } from '@src/components/UserTag';
+import { UserTag as UserTagComponent } from '@src/components/UserTag';
 import { UserDto } from '@src/data/serializers/user.serializer';
 
 export default {
   title: 'User Tag',
-  component: UserTag,
-} as ComponentMeta<typeof UserTag>;
+  component: UserTagComponent,
+} as ComponentMeta<typeof UserTagComponent>;
 
-export const Default: ComponentStory<typeof UserTag> = () => {
+export const UserTag: ComponentStory<typeof UserTagComponent> = () => {
   const [user, setUser] = useState<UserDto | null>(null);
 
   useEffect(() => {
@@ -24,5 +24,5 @@ export const Default: ComponentStory<typeof UserTag> = () => {
     return <Fragment />;
   }
 
-  return <UserTag user={user} />;
+  return <UserTagComponent user={user} />;
 };
