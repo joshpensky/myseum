@@ -35,7 +35,9 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
   // TODO: mobile version of editor
 
   return (
-    <FormModal.Screen title="Selection" description="Drag the handles to outline the artwork.">
+    <FormModal.Screen
+      title="Selection"
+      description="Drag the handles to outline and window of the frame.">
       <Formik
         initialValues={{}}
         onSubmit={() => {

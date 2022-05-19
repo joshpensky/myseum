@@ -66,7 +66,7 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
   const initialErrors = validateZodSchema(dimensionsScreenSchema, 'sync')(initialValues);
 
   return (
-    <FormModal.Screen title="Dimensions" description="Adjust to match the size of your artwork.">
+    <FormModal.Screen title="Dimensions" description="Adjust to match the size of your frame.">
       <Formik<DimensionsScreenSchema>
         initialValues={initialValues}
         initialErrors={initialErrors}

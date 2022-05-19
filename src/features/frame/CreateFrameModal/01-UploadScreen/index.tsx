@@ -42,7 +42,7 @@ export const UploadScreen = forwardRef<ScreenRefValue, UploadScreenProps>(functi
   }));
 
   return (
-    <FormModal.Screen title="Upload" description="Add a photo of the artwork to get started.">
+    <FormModal.Screen title="Upload" description="Add a photo of the frame to get started.">
       <Formik<UploadScreenSchema>
         innerRef={formikRef}
         initialValues={initialValues}

@@ -107,7 +107,6 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
             </div>
           ) : (
             <Grid.Root
-              preview
               size={{ width, height: gallery.height }}
               items={gallery.artworks}
               step={1}

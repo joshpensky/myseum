@@ -165,7 +165,7 @@ export function Grid({ className }: GridProps) {
         className={cx(
           styles.grid,
           grid.step >= 1 && styles.gridLarge,
-          grid.preview && styles.gridPreview,
+          grid.onItemChange && styles.gridEditable,
         )}
         style={{
           '--grid-step': grid.step,

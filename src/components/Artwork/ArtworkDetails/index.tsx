@@ -1,24 +1,19 @@
 import { Fragment, PropsWithChildren } from 'react';
-import Link from 'next/link';
 import dayjs from 'dayjs';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { EditIcon } from '@src/svgs/EditIcon';
 import { ExpandIcon } from '@src/svgs/ExpandIcon';
 import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {
   data: ArtworkDto;
-  galleries?: Omit<GalleryDto, 'artworks'>[];
   onOpenChange?(open: boolean): void;
 }
 
 const ArtworkDetails = ({
   children,
   data,
-  galleries,
   onOpenChange,
 }: PropsWithChildren<ArtworkDetailProps>) => {
   // const { museum } = useMuseum();
@@ -38,11 +33,9 @@ const ArtworkDetails = ({
       <Popover.Content side="right" align="start" aria-label={`Details for artwork "${title}"`}>
         <Popover.Header>
           <div className={styles.headerButtons}>
+            {/* TODO: fullscreen modal */}
             <IconButton className={styles.headerButtonsItem} title="Expand artwork">
               <ExpandIcon />
-            </IconButton>
-            <IconButton className={styles.headerButtonsItem} title="Edit artwork">
-              <EditIcon />
             </IconButton>
           </div>
         </Popover.Header>
@@ -66,42 +59,11 @@ const ArtworkDetails = ({
 
           <p className={styles.description}>{description}</p>
 
-          {(acquiredAt || galleries?.length) && (
+          {acquiredAt && (
             <div className={styles.bodyFooter}>
-              {acquiredAt && (
-                <p className={styles.acquisition}>
-                  Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
-                </p>
-              )}
-
-              {!galleries?.length ? (
-                <p className={styles.feature}>Not featured in museum</p>
-              ) : (
-                <p className={styles.feature}>
-                  Featured in{' '}
-                  {galleries.map((gallery, idx) => {
-                    let separator = '';
-                    if (galleries.length === 2 && idx === 0) {
-                      separator = ' and ';
-                    } else if (galleries.length >= 3) {
-                      if (idx === galleries.length - 2) {
-                        separator = ', and ';
-                      } else if (idx < galleries.length - 2) {
-                        separator = ', ';
-                      }
-                    }
-
-                    return (
-                      <Fragment key={gallery.id}>
-                        <Link href={`/gallery/${gallery.id}`}>
-                          <a>{gallery.name}</a>
-                        </Link>
-                        {separator}
-                      </Fragment>
-                    );
-                  })}
-                </p>
-              )}
+              <p className={styles.acquisition}>
+                Acquired <time dateTime={acquiredAt.toString()}>{dayjs(acquiredAt).year()}</time>
+              </p>
             </div>
           )}
         </Popover.Body>

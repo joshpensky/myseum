@@ -60,8 +60,9 @@
 }
 
 .user-popover {
-  width: sz(52);
+  background-color: c('white');
   overflow: hidden;
+  width: sz(52);
 }
 
 .user-popover__title {

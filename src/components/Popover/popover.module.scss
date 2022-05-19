@@ -24,8 +24,9 @@ $popover-anim-duration: 150ms;
 
 .popover {
   border-radius: sz(3);
-  background-color: c('white');
+  background-color: c('gray');
   border: 1px solid c('gray');
+  overflow: hidden;
   transform-origin: var(--radix-popover-content-transform-origin);
   width: sz(96);
   z-index: $z-popover;
@@ -64,7 +65,7 @@ $popover-anim-duration: 150ms;
 }
 
 .popover__body {
-  @include padding(sz(4) sz(5) sz(5));
+  @include padding(sz(3) sz(4) sz(4));
   background-color: c('white');
   position: relative;
 }

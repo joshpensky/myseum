@@ -108,7 +108,7 @@ body.scroll-dragging {
     }
   }
 
-  &.grid--preview {
+  &:not(.grid--editable) {
     border-bottom: none;
 
     &::before,

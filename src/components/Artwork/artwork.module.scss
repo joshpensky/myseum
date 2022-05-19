@@ -11,12 +11,20 @@
   @include size(100%);
   background-color: c('bg');
   clip-path: path(var(--path));
+
+  &.matting--light {
+    background-color: $c-mat-light;
+  }
+
+  &.matting--dark {
+    background-color: $c-mat-dark;
+  }
 }
 
 .artwork {
   @include absolute(0);
   @include size(var(--width), var(--height));
-  transform: translate(var(--x), var(--y));
+  transform: translate(var(--x), var(--y)) scale(calc(var(--scale, 100) / 100));
 }
 
 .placeholder {
