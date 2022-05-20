@@ -211,11 +211,6 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
                       onChange={data => setFieldValue('frame', data)}
                     />
 
-                    {/* TODO: add create frame modal */}
-                    <Button className={styles.createButton} type="button">
-                      Create frame
-                    </Button>
-
                     <hr className={styles.separator} />
 
                     <FramingOptions />

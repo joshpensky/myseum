@@ -190,11 +190,6 @@
   }
 }
 
-.create-button {
-  margin-top: sz(4);
-  width: 100%;
-}
-
 .separator {
   @include margin(sz(5) x sz(4));
   border-color: c('border', 0.2);

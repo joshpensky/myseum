@@ -20,7 +20,7 @@
   @include fixed(0);
   backdrop-filter: blur(2px);
   background-color: c('bg', 0.75);
-  z-index: 990;
+  z-index: 1000;
 
   &[data-state='open'] {
     animation: overlay-enter 150ms linear forwards 1;
