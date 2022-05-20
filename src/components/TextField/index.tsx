@@ -9,8 +9,8 @@ import {
 import composeRefs from '@seznam/compose-react-refs';
 import cx from 'classnames';
 import { Field, useField } from 'formik';
+import { FieldWrapperChildProps } from '@src/components/FieldWrapper';
 import styles from './textField.module.scss';
-import { FieldWrapperChildProps } from '../FieldWrapper';
 
 export interface TextFieldProps extends FieldWrapperChildProps {
   autoComplete?: 'off' | undefined;

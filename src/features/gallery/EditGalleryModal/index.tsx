@@ -5,11 +5,11 @@ import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { GridSidecar } from '@src/features/gallery/CreateGalleryModal/GridSidecar';
 import { ReviewScreen } from './01-ReviewScreen';
 import { DetailsScreen } from './02a-DetailsScreen';
 import { CollectionScreen } from './02b-CollectionScreen';
 import { EditGalleryContext, editGalleryMachine, ScreenRefValue } from './state';
-import { GridSidecar } from '../CreateGalleryModal/GridSidecar';
 
 export interface EditGalleryModalProps {
   gallery: GalleryDto;

@@ -5,6 +5,7 @@ import Button from '@src/components/Button';
 import { SEO } from '@src/components/SEO';
 import { UserTag } from '@src/components/UserTag';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { AddArtworkModal } from '@src/features/gallery/AddArtworkModal';
 import { EditGalleryModal } from '@src/features/gallery/EditGalleryModal';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
@@ -16,7 +17,6 @@ import { PlacedArtworkIllustration } from '@src/svgs/illustrations/PlacedArtwork
 import { PageComponent } from '@src/types';
 import { shareUrl } from '@src/utils/shareUrl';
 import styles from './galleryView.module.scss';
-import { AddArtworkModal } from '../AddArtworkModal';
 
 export interface GalleryViewProps {
   gallery: GalleryDto;

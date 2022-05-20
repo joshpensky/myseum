@@ -10,13 +10,13 @@ import * as FormModal from '@src/components/FormModal';
 import IconButton from '@src/components/IconButton';
 import { SearchBar } from '@src/components/SearchBar';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { AddArtworkModal } from '@src/features/gallery/AddArtworkModal';
+import { CreateGalleryModalContext } from '@src/features/gallery/CreateGalleryModal';
+import { CreateGalleryState } from '@src/features/gallery/CreateGalleryModal/state';
 import { PlusIcon } from '@src/svgs/icons/PlusIcon';
 import { TrashIcon } from '@src/svgs/icons/TrashIcon';
 import { PlacedArtworkIllustration } from '@src/svgs/illustrations/PlacedArtworkIllustration';
 import styles from './collectionScreen.module.scss';
-import { CreateGalleryModalContext } from '..';
-import { AddArtworkModal } from '../../AddArtworkModal';
-import { CreateGalleryState } from '../state';
 
 interface PlacedArtworkRowProps {
   state: CreateGalleryState<'collection'>;

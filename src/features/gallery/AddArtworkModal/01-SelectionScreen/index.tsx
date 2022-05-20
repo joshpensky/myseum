@@ -16,13 +16,16 @@ import { Loader } from '@src/components/Loader';
 import { SearchBar } from '@src/components/SearchBar';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
-import { ConfirmSelectionEvent, ScreenRefValue } from '@src/features/gallery/AddArtworkModal/state';
+import {
+  AddArtworkState,
+  ConfirmSelectionEvent,
+  ScreenRefValue,
+} from '@src/features/gallery/AddArtworkModal/state';
 import { useAuth } from '@src/providers/AuthProvider';
 import { PlusIcon } from '@src/svgs/icons/PlusIcon';
 import { ArtworkIllustration } from '@src/svgs/illustrations/ArtworkIllustration';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './selectionScreen.module.scss';
-import { AddArtworkState } from '../state';
 
 const selectionSchema = z.object({
   search: z.string(),
