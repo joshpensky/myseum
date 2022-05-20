@@ -37,9 +37,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
   const [open, setOpen] = useState(false);
   const onOpenChange = (open: boolean) => {
     setOpen(open);
-    if (!open) {
-      send({ type: 'RESET', context: initialContext });
-    }
+    send({ type: 'RESET', context: initialContext });
   };
 
   const handleBack = () => {
