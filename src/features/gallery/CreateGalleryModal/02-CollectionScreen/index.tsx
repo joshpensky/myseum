@@ -3,6 +3,7 @@ import { Form, Formik, FormikProps } from 'formik';
 import Fuse from 'fuse.js';
 import { z } from 'zod';
 import api from '@src/api';
+import { AlertDialog } from '@src/components/AlertDialog';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
@@ -17,6 +18,66 @@ import { CreateGalleryModalContext } from '..';
 import { AddArtworkModal } from '../../AddArtworkModal';
 import { CreateGalleryState } from '../state';
 
+interface PlacedArtworkRowProps {
+  state: CreateGalleryState<'collection'>;
+  item: PlacedArtworkDto;
+  onDelete(): void;
+}
+
+const PlacedArtworkRow = ({ state, item, onDelete }: PlacedArtworkRowProps) => {
+  const [hasDeleteIntent, setHasDeleteIntent] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  return (
+    <li className={styles.collectionRow}>
+      <div className={styles.collectionRowPreview}>
+        <Artwork item={item} disabled />
+      </div>
+
+      <div className={styles.collectionRowMeta}>
+        <p>{item.artwork.title}</p>
+        <p>{item.artwork.artist?.name ?? 'Unknown'}</p>
+      </div>
+
+      <AlertDialog
+        open={hasDeleteIntent}
+        onOpenChange={setHasDeleteIntent}
+        title="Delete Artwork"
+        description={`Are you sure you want to delete the artwork "${item.artwork.title}"?`}
+        hint="This action cannot be undone."
+        action={
+          <Button
+            danger
+            filled
+            busy={isDeleting}
+            onClick={async () => {
+              setIsDeleting(true);
+              try {
+                await api.gallery.deletePlacedArtwork(
+                  state.context.gallery.museum.id,
+                  state.context.gallery.id,
+                  item.id,
+                );
+                onDelete();
+              } catch {
+                // TODO: toast error
+                setHasDeleteIntent(false);
+                setIsDeleting(false);
+              }
+            }}>
+            Delete
+          </Button>
+        }
+        trigger={
+          <IconButton title="Delete">
+            <TrashIcon />
+          </IconButton>
+        }
+      />
+    </li>
+  );
+};
+
 const collectionScreenSchema = z.object({
   search: z.string(),
 });
@@ -27,13 +88,17 @@ interface CollectionScreenProps {
   state: CreateGalleryState<'collection'>;
   onBack(data: GalleryDto): void;
   onAddArtwork(data: PlacedArtworkDto): void;
+  onDeleteArtwork(data: PlacedArtworkDto): void;
   onSubmit(data: GalleryDto): void;
 }
 
 export const CollectionScreen = forwardRef<
   FormikProps<any>,
   PropsWithChildren<CollectionScreenProps>
->(function CollectionScreen({ children, state, onAddArtwork, onBack, onSubmit }, ref) {
+>(function CollectionScreen(
+  { children, state, onAddArtwork, onBack, onDeleteArtwork, onSubmit },
+  ref,
+) {
   async function updateGallery() {
     const gallery = await api.gallery.update(
       state.context.gallery.museum.id,
@@ -137,21 +202,14 @@ export const CollectionScreen = forwardRef<
                 ) : (
                   <ul>
                     {results.map(({ item }) => (
-                      <li key={item.id} className={styles.collectionRow}>
-                        <div className={styles.collectionRowPreview}>
-                          <Artwork item={item} disabled />
-                        </div>
-
-                        <div className={styles.collectionRowMeta}>
-                          <p>{item.artwork.title}</p>
-                          <p>{item.artwork.artist?.name ?? 'Unknown'}</p>
-                        </div>
-
-                        {/* TODO: delete placed artwork */}
-                        <IconButton type="button" title="Delete" onClick={() => {}}>
-                          <TrashIcon />
-                        </IconButton>
-                      </li>
+                      <PlacedArtworkRow
+                        key={item.id}
+                        state={state}
+                        item={item}
+                        onDelete={() => {
+                          onDeleteArtwork(item);
+                        }}
+                      />
                     ))}
                   </ul>
                 )}

@@ -86,6 +86,9 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
           onAddArtwork={data => {
             send({ type: 'ADD_ARTWORK', artwork: data });
           }}
+          onDeleteArtwork={data => {
+            send({ type: 'DELETE_ARTWORK', artwork: data });
+          }}
           onBack={data => {
             onSave?.(data);
             send({ type: 'GO_BACK' });

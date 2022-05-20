@@ -143,6 +143,15 @@ export interface MyseumAPI {
     delete(museumId: string, galleryId: string): Promise<void>;
 
     /**
+     * Deletes an existing placed artwork.
+     *
+     * @param museumId the parent museum ID
+     * @param galleryId the parent gallery ID
+     * @param artworkId the artwork to delete
+     */
+    deletePlacedArtwork(museumId: string, galleryId: string, artworkId: string): Promise<void>;
+
+    /**
      * Finds all galleries within a given museum.
      *
      * @param museum the museum to search within

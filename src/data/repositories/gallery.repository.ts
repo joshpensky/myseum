@@ -179,6 +179,15 @@ export class GalleryRepository {
     return gallery;
   }
 
+  static async deleteArtwork(gallery: Gallery, id: string) {
+    const deletedPlacedArtwork = await prisma.placedArtwork.delete({
+      where: {
+        id: id,
+      },
+    });
+    return deletedPlacedArtwork;
+  }
+
   static async addArtwork(
     gallery: Gallery & { artworks: (PlacedArtwork & { artwork: Artwork; frame: Frame | null })[] },
     data: AddPlacedArtworkDto,

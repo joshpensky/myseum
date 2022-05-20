@@ -97,6 +97,10 @@ export const ClientAPI: MyseumAPI = {
       await axios.delete(`/api/museum/${museumId}/gallery/${galleryId}`);
     },
 
+    async deletePlacedArtwork(museumId, galleryId, artworkId) {
+      await axios.delete(`/api/museum/${museumId}/gallery/${galleryId}/artworks/${artworkId}`);
+    },
+
     async findAllByMuseum() {
       throw new Error('Implementation only available on server.');
     },

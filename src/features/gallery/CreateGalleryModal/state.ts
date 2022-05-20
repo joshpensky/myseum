@@ -42,6 +42,11 @@ export interface MoveArtworkEvent {
   data: PlacedArtworkDto;
 }
 
+export interface DeleteArtworkEvent {
+  type: 'DELETE_ARTWORK';
+  artwork: PlacedArtworkDto;
+}
+
 export interface ChangeWidthEvent {
   type: 'CHANGE_WIDTH';
   width: number;
@@ -53,6 +58,7 @@ export type CreateGalleryEvent =
   | ConfirmDetailsEvent
   | AddArtworkEvent
   | MoveArtworkEvent
+  | DeleteArtworkEvent
   | ChangeWidthEvent;
 
 //////////////////////////
@@ -169,6 +175,22 @@ export const createGalleryMachine = createMachine<
                   evt.data,
                   ...ctx.gallery.artworks.slice(evt.index + 1),
                 ],
+              };
+            }
+
+            return {
+              gallery,
+            };
+          }),
+        },
+        DELETE_ARTWORK: {
+          actions: assign((ctx, evt) => {
+            let gallery: GalleryDto | undefined = undefined;
+
+            if (ctx.gallery) {
+              gallery = {
+                ...ctx.gallery,
+                artworks: ctx.gallery.artworks.filter(item => item.id !== evt.artwork.id),
               };
             }
 

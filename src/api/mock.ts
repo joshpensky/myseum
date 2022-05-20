@@ -277,6 +277,7 @@ export const MockAPI: MyseumAPI = {
       }
 
       return {
+        id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         artwork,
         frame,
         framingOptions: data.framingOptions,
@@ -318,6 +319,8 @@ export const MockAPI: MyseumAPI = {
     },
 
     async delete() {},
+
+    async deletePlacedArtwork() {},
 
     async findAllByMuseum(museum) {
       const galleries: GalleryDto[] = [
