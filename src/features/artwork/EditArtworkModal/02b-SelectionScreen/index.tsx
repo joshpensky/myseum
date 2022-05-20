@@ -62,8 +62,7 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
             SelectionEditorState.matches(
               editor.current.outline,
               SelectionEditorState.DEFAULT_INITIAL_SNAPSHOT.outline,
-            ) ||
-            SelectionEditorState.matches(editor.current.outline, state.context.selection.path)
+            )
           ) {
             previewSrc = state.context.selection.preview;
           } else {

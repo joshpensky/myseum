@@ -33,55 +33,45 @@ export const SelectionScreen = ({ state, onBack, onSubmit }: SelectionScreenProp
     return SelectionEditorState.create(initialSnapshot);
   });
 
-  // TODO: mobile version of editor
-
   return (
     <FormModal.Screen title="Selection" description="Drag the handles to outline the artwork.">
       <Formik
         initialValues={{}}
         onSubmit={() => {
-          let previewSrc: string;
-          if (
-            state.context.selection &&
-            SelectionEditorState.matches(editor.current.outline, state.context.selection?.path)
-          ) {
-            previewSrc = state.context.selection.preview;
-          } else {
-            // Create a destination canvas to render the preview to
-            const destCanvas = document.createElement('canvas');
-            // Resize the canvas to the highest quality within the image dimensions
-            const image = state.context.upload.image;
-            const maxDimensions = CanvasUtils.objectContain(
-              { width: 2000, height: 2000 },
-              CommonUtils.getImageDimensions(image),
-            );
-            const destCanvasDimensions = CanvasUtils.objectContain(
-              maxDimensions,
-              state.context.dimensions,
-            );
-            const destImageDimensions: Dimensions = {
-              width: destCanvasDimensions.width / CanvasUtils.devicePixelRatio,
-              height: destCanvasDimensions.height / CanvasUtils.devicePixelRatio,
-            };
-            CanvasUtils.resize(destCanvas, destImageDimensions);
+          // Create a destination canvas to render the preview to
+          const destCanvas = document.createElement('canvas');
+          // Resize the canvas to the highest quality within the image dimensions
+          const image = state.context.upload.image;
+          const maxDimensions = CanvasUtils.objectContain(
+            { width: 2000, height: 2000 },
+            CommonUtils.getImageDimensions(image),
+          );
+          const destCanvasDimensions = CanvasUtils.objectContain(
+            maxDimensions,
+            state.context.dimensions,
+          );
+          const destImageDimensions: Dimensions = {
+            width: destCanvasDimensions.width / CanvasUtils.devicePixelRatio,
+            height: destCanvasDimensions.height / CanvasUtils.devicePixelRatio,
+          };
+          CanvasUtils.resize(destCanvas, destImageDimensions);
 
-            // Render the preview onto the destination canvas
-            const webglCanvas = fx.canvas();
-            const texture = webglCanvas.texture(image);
-            renderPreview({
-              destCanvas,
-              webglCanvas,
-              texture,
-              image,
-              paths: editor.current,
-              dimensions: destImageDimensions,
-              position: { x: 0, y: 0 },
-            });
-            texture.destroy();
+          // Render the preview onto the destination canvas
+          const webglCanvas = fx.canvas();
+          const texture = webglCanvas.texture(image);
+          renderPreview({
+            destCanvas,
+            webglCanvas,
+            texture,
+            image,
+            paths: editor.current,
+            dimensions: destImageDimensions,
+            position: { x: 0, y: 0 },
+          });
+          texture.destroy();
 
-            // Generate the image src from the canvas contents
-            previewSrc = destCanvas.toDataURL('image/jpeg');
-          }
+          // Generate the image src from the canvas contents
+          const previewSrc = destCanvas.toDataURL('image/jpeg');
 
           onSubmit({
             type: 'CONFIRM_SELECTION',
