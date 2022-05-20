@@ -9,6 +9,7 @@ export interface UserDto {
   name: string;
   bio: string;
   headshot: string | null;
+  isAdmin: boolean;
   museumId: string;
   addedAt: Date;
   modifiedAt: Date;
@@ -21,6 +22,7 @@ export class UserSerializer {
       name: user.name,
       headshot: user.headshot ?? null,
       bio: user.bio,
+      isAdmin: user.isAdmin,
       // We are force-casting this, since it _should_ always be defined
       museumId: user.museum?.id as string,
       addedAt: user.addedAt,

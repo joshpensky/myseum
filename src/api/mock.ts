@@ -6,6 +6,30 @@ import { UserDto } from '@src/data/serializers/user.serializer';
 import { MyseumAPI } from './type';
 
 export const MockAPI: MyseumAPI = {
+  admin: {
+    async findAllMuseums() {
+      return [
+        {
+          id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+          name: 'Mock Museum',
+          description: '',
+          addedAt: new Date(),
+          modifiedAt: new Date(),
+          curator: {
+            id: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+            name: 'Mock User',
+            bio: '',
+            headshot: null,
+            isAdmin: false,
+            museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+            addedAt: new Date(),
+            modifiedAt: new Date(),
+          },
+        },
+      ];
+    },
+  },
+
   artwork: {
     async create(data) {
       return {
@@ -95,6 +119,7 @@ export const MockAPI: MyseumAPI = {
         name: 'Mock User',
         bio: '',
         headshot: null,
+        isAdmin: false,
         museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         addedAt: new Date(),
         modifiedAt: new Date(),
@@ -224,6 +249,7 @@ export const MockAPI: MyseumAPI = {
         name: 'Mock User',
         bio: '',
         headshot: null,
+        isAdmin: false,
         museumId: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
         addedAt: new Date(),
         modifiedAt: new Date(),
@@ -309,6 +335,7 @@ export const MockAPI: MyseumAPI = {
             name: 'Mock User',
             bio: '',
             headshot: null,
+            isAdmin: false,
             museumId: data.museumId,
             addedAt: new Date(),
             modifiedAt: new Date(),
@@ -361,6 +388,7 @@ export const MockAPI: MyseumAPI = {
             name: 'Mock User',
             bio: '',
             headshot: null,
+            isAdmin: false,
             museumId,
             addedAt: new Date(),
             modifiedAt: new Date(),
@@ -391,6 +419,7 @@ export const MockAPI: MyseumAPI = {
             name: 'Mock User',
             bio: '',
             headshot: null,
+            isAdmin: false,
             museumId,
             addedAt: new Date(),
             modifiedAt: new Date(),
@@ -425,6 +454,7 @@ export const MockAPI: MyseumAPI = {
           name: 'Mock User',
           bio: '',
           headshot: null,
+          isAdmin: false,
           museumId: id,
           addedAt: new Date(),
           modifiedAt: new Date(),
@@ -438,6 +468,7 @@ export const MockAPI: MyseumAPI = {
         name: 'Mock User',
         bio: '',
         headshot: null,
+        isAdmin: false,
         museumId: id,
         addedAt: new Date(),
         modifiedAt: new Date(),
@@ -485,6 +516,7 @@ export const MockAPI: MyseumAPI = {
         bio: '',
         headshot: null,
         museumId: id,
+        isAdmin: false,
         addedAt: new Date(),
         modifiedAt: new Date(),
       };
@@ -497,6 +529,7 @@ export const MockAPI: MyseumAPI = {
         bio: data.bio ?? '',
         headshot: data.headshot ?? null,
         museumId: id,
+        isAdmin: false,
         addedAt: new Date(),
         modifiedAt: new Date(),
       };
