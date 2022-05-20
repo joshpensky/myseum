@@ -31,7 +31,10 @@ const editGallerySchema = z.object({
   height: z.number().positive().int(),
 });
 
-type EditGallerySchema = z.infer<typeof editGallerySchema>;
+type EditGallerySchema = Omit<z.infer<typeof editGallerySchema>, 'artworks'> & {
+  // add the type manually, rather than define via zod!
+  artworks: PlacedArtworkDto[];
+};
 
 export interface EditGalleryModalProps {
   gallery: GalleryDto;
@@ -90,7 +93,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                 description: values.description,
                 color: values.color,
                 height: values.height,
-                artworks: (values.artworks as PlacedArtworkDto[]).map(item => ({
+                artworks: values.artworks.map(item => ({
                   id: item.id,
                   position: item.position,
                 })),
@@ -109,7 +112,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
               <Form className={styles.form} noValidate>
                 <Grid.Root
                   size={{ width: values.width, height: values.height }}
-                  items={values.artworks as PlacedArtworkDto[]}
+                  items={values.artworks}
                   step={1}
                   getItemId={item => item.id}
                   renderItem={(item, props) => (

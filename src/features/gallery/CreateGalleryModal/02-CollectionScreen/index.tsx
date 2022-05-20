@@ -1,5 +1,7 @@
 import { forwardRef, PropsWithChildren, useState } from 'react';
 import { Form, Formik, FormikProps } from 'formik';
+import Fuse from 'fuse.js';
+import { z } from 'zod';
 import api from '@src/api';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
@@ -14,6 +16,12 @@ import styles from './collectionScreen.module.scss';
 import { CreateGalleryModalContext } from '..';
 import { AddArtworkModal } from '../../AddArtworkModal';
 import { CreateGalleryState } from '../state';
+
+const collectionScreenSchema = z.object({
+  search: z.string(),
+});
+
+type CollectionScreenSchema = z.infer<typeof collectionScreenSchema>;
 
 interface CollectionScreenProps {
   state: CreateGalleryState<'collection'>;
@@ -42,11 +50,15 @@ export const CollectionScreen = forwardRef<
     return gallery;
   }
 
+  const initialValues: CollectionScreenSchema = {
+    search: '',
+  };
+
   return (
     <FormModal.Screen title="Collection" description="Add artworks to your gallery collection.">
-      <Formik
+      <Formik<CollectionScreenSchema>
         innerRef={ref}
-        initialValues={{}}
+        initialValues={initialValues}
         onSubmit={async (values, helpers) => {
           try {
             const gallery = await updateGallery();
@@ -57,8 +69,26 @@ export const CollectionScreen = forwardRef<
           }
         }}>
         {formik => {
-          const { isSubmitting, setSubmitting } = formik;
+          const { values, isSubmitting, setSubmitting } = formik;
           const [hasBackIntent, setHasBackIntent] = useState(false);
+
+          const fuse = new Fuse(state.context.gallery.artworks, {
+            keys: [
+              'artwork.title',
+              'artwork.description',
+              'artwork.alt',
+              'artwork.artist.name',
+              'frame.name',
+              'frame.alt',
+            ],
+          });
+
+          let results: { item: PlacedArtworkDto }[];
+          if (values.search) {
+            results = fuse.search(values.search);
+          } else {
+            results = state.context.gallery.artworks.map(item => ({ item }));
+          }
 
           return (
             <Form className={styles.form} noValidate>
@@ -78,12 +108,20 @@ export const CollectionScreen = forwardRef<
                   />
                 </div>
 
-                {!state.context.gallery.artworks.length ? (
+                <p className={styles.count}>
+                  {results.length} item{results.length === 1 ? '' : 's'} {values.search && 'found'}
+                </p>
+
+                {!results.length ? (
                   <div className={styles.emptyState}>
                     <div className={styles.emptyStateIllo}>
                       <PlacedArtworkIllustration />
                     </div>
-                    <p className={styles.emptyStateText}>You've added no artworks.</p>
+                    <p className={styles.emptyStateText}>
+                      {values.search
+                        ? `No artworks found for term "${values.search}."`
+                        : `You've added no artworks.`}
+                    </p>
                     <AddArtworkModal
                       gallery={state.context.gallery}
                       onSave={data => {
@@ -98,15 +136,15 @@ export const CollectionScreen = forwardRef<
                   </div>
                 ) : (
                   <ul>
-                    {state.context.gallery.artworks.map(artwork => (
-                      <li key={artwork.id} className={styles.collectionRow}>
+                    {results.map(({ item }) => (
+                      <li key={item.id} className={styles.collectionRow}>
                         <div className={styles.collectionRowPreview}>
-                          <Artwork item={artwork} disabled />
+                          <Artwork item={item} disabled />
                         </div>
 
                         <div className={styles.collectionRowMeta}>
-                          <p>{artwork.artwork.title}</p>
-                          <p>{artwork.artwork.artist?.name ?? 'Unknown'}</p>
+                          <p>{item.artwork.title}</p>
+                          <p>{item.artwork.artist?.name ?? 'Unknown'}</p>
                         </div>
 
                         {/* TODO: delete placed artwork */}

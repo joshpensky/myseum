@@ -12,10 +12,15 @@
 
 .search {
   display: flex;
+  margin-bottom: sz(2);
 }
 
 .search__action {
   margin-left: sz(2);
+}
+
+.count {
+  @include label;
 }
 
 .empty-state {
