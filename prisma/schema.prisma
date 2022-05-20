@@ -80,6 +80,8 @@ model Gallery {
 }
 
 model PlacedArtwork {
+  id String @id @default(uuid()) @db.Uuid
+
   artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
   artworkId String  @db.Uuid
 
@@ -97,7 +99,6 @@ model PlacedArtwork {
   addedAt    DateTime @default(now())
   modifiedAt DateTime @default(now()) @updatedAt
 
-  @@id(fields: [artworkId, galleryId])
   @@map("placed_artworks")
 }
 

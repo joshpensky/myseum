@@ -91,9 +91,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                 color: values.color,
                 height: values.height,
                 artworks: (values.artworks as PlacedArtworkDto[]).map(item => ({
-                  artworkId: item.artwork.id,
-                  frameId: item.frame?.id,
-                  framingOptions: item.framingOptions,
+                  id: item.id,
                   position: item.position,
                 })),
               };
@@ -113,7 +111,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                   size={{ width: values.width, height: values.height }}
                   items={values.artworks as PlacedArtworkDto[]}
                   step={1}
-                  getItemId={item => String(item.artwork.id)}
+                  getItemId={item => item.id}
                   renderItem={(item, props) => (
                     <GridArtwork {...props} item={item} isEditing disabled={props.disabled} />
                   )}

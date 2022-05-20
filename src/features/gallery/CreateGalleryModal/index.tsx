@@ -38,7 +38,7 @@ const GridBlock = ({ state, send, isEditing }: GridBlockProps) => {
       size={{ width: state.context.width, height: ctx.height }}
       items={state.context.gallery?.artworks ?? []}
       step={1}
-      getItemId={item => String(item.artwork.id)}
+      getItemId={item => item.id}
       renderItem={(item, props) => (
         <GridArtwork {...props} item={item} isEditing={isEditing} disabled={props.disabled} />
       )}

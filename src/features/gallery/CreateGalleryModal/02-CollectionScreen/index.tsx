@@ -34,9 +34,7 @@ export const CollectionScreen = forwardRef<
         name: state.context.gallery.name,
         description: state.context.gallery.description,
         artworks: state.context.gallery.artworks.map(item => ({
-          artworkId: item.artwork.id,
-          frameId: item.frame?.id,
-          framingOptions: item.framingOptions,
+          id: item.id,
           position: item.position,
         })),
       },
@@ -101,9 +99,7 @@ export const CollectionScreen = forwardRef<
                 ) : (
                   <ul>
                     {state.context.gallery.artworks.map(artwork => (
-                      <li
-                        key={`${artwork.artwork.id}-${artwork.frame?.id}`}
-                        className={styles.collectionRow}>
+                      <li key={artwork.id} className={styles.collectionRow}>
                         <div className={styles.collectionRowPreview}>
                           <Artwork item={artwork} disabled />
                         </div>

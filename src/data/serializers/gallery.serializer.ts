@@ -15,6 +15,7 @@ export interface PrismaGallery extends Gallery {
 }
 
 export interface PlacedArtworkDto {
+  id: string;
   artwork: ArtworkDto;
   frame: FrameDto | null;
   framingOptions: {
@@ -67,6 +68,7 @@ export class GallerySerializer {
     }
 
     return {
+      id: placedArtwork.id,
       artwork,
       frame,
       framingOptions: {

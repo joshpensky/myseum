@@ -21,7 +21,8 @@ export interface AddPlacedArtworkDto {
   };
 }
 
-export interface UpdatePlacedArtworkDto extends AddPlacedArtworkDto {
+export interface UpdatePlacedArtworkDto {
+  id: string;
   position: Position;
 }
 
@@ -256,9 +257,9 @@ export class GalleryRepository {
         artworksToDelete = {};
       } else {
         // Otherwise, delete any artworks not included in update
-        const updatedArtworkIdSet = new Set(data.artworks.map(artwork => artwork.artworkId));
+        const updatedArtworkIdSet = new Set(data.artworks.map(artwork => artwork.id));
         artworksToDelete = {
-          artworkId: {
+          id: {
             notIn: Array.from(updatedArtworkIdSet),
           },
         };
@@ -273,29 +274,13 @@ export class GalleryRepository {
         height: data.height,
         artworks: {
           deleteMany: artworksToDelete,
-          upsert: (data.artworks ?? []).map(item => ({
-            create: {
-              artworkId: item.artworkId,
-              frameId: item.frameId,
+          update: (data.artworks ?? []).map(item => ({
+            data: {
               posX: item.position.x,
               posY: item.position.y,
-              isScaled: item.framingOptions.isScaled,
-              scaling: item.framingOptions.scaling,
-              matting: item.framingOptions.matting,
-            },
-            update: {
-              frameId: item.frameId,
-              posX: item.position.x,
-              posY: item.position.y,
-              isScaled: item.framingOptions.isScaled,
-              scaling: item.framingOptions.scaling,
-              matting: item.framingOptions.matting,
             },
             where: {
-              artworkId_galleryId: {
-                artworkId: item.artworkId,
-                galleryId: gallery.id,
-              },
+              id: item.id,
             },
           })),
         },

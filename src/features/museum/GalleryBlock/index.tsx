@@ -39,7 +39,7 @@ const GalleryBlock = ({ museum, gallery }: GalleryBlockProps) => {
                   preview
                   size={{ width: gridWidth, height: gallery.height }}
                   items={gallery.artworks}
-                  getItemId={item => String(item.artwork.id)}
+                  getItemId={item => item.id}
                   renderItem={(item, props) => <GridArtwork {...props} item={item} />}>
                   <Grid.Grid />
                 </Grid.Root>

@@ -158,7 +158,7 @@ export const EditMuseumModal = ({ onSave, trigger, museum, galleries }: EditMuse
                                   size={{ width: 10, height: gallery.height }}
                                   items={gallery.artworks}
                                   step={1}
-                                  getItemId={item => item.artwork.id}
+                                  getItemId={item => item.id}
                                   renderItem={(item, props) => (
                                     <GridArtwork {...props} item={item} disabled={props.disabled} />
                                   )}>

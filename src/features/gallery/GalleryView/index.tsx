@@ -108,18 +108,17 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
               size={{ width, height: gallery.height }}
               items={gallery.artworks}
               step={1}
-              getItemId={item => String(item.artwork.id)}
+              getItemId={item => item.id}
               renderItem={(item, props) => (
                 <GridArtwork
                   {...props}
                   item={item}
                   disabled={
-                    props.disabled ||
-                    (openedArtworkId !== null && openedArtworkId !== item.artwork.id)
+                    props.disabled || (openedArtworkId !== null && openedArtworkId !== item.id)
                   }
                   onDetailsOpenChange={open => {
                     if (open) {
-                      setOpenedArtworkId(item.artwork.id);
+                      setOpenedArtworkId(item.id);
                     } else {
                       setOpenedArtworkId(null);
                     }
