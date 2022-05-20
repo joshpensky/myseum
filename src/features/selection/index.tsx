@@ -1,12 +1,5 @@
-import { theme } from 'twin.macro';
 import { Position } from '@src/types';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
-
-export const LAYER_COLORS = [
-  theme`colors.blue.500`,
-  theme`colors.magenta.500`,
-  theme`colors.yellow.500`,
-];
 
 export type SelectionEditorPath = [Position, Position, Position, Position];
 
@@ -43,7 +36,7 @@ export type SelectionEditorAction =
     };
 
 export class SelectionEditorState {
-  private static DEFAULT_INITIAL_SNAPSHOT: SelectionEditorSnapshot = {
+  static DEFAULT_INITIAL_SNAPSHOT: SelectionEditorSnapshot = {
     outline: [
       { x: 0, y: 0 }, // top-left
       { x: 1, y: 0 }, // top-right
@@ -278,5 +271,9 @@ export class SelectionEditorState {
         throw new Error('Path does not exist.');
       }
     }
+  }
+
+  static matches(a: SelectionEditorPath, b: SelectionEditorPath) {
+    return a.every((point, index) => point.x === b[index].x && point.y === b[index].y);
   }
 }

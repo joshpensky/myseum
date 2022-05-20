@@ -18,6 +18,7 @@ export interface FieldWrapperProps {
   name: string;
   label: string;
   labelClassName?: string;
+  hint?: string;
   required?: boolean;
   disabled?: boolean;
 }
@@ -29,6 +30,7 @@ export const FieldWrapper = ({
   name,
   label,
   labelClassName,
+  hint,
   required,
   disabled,
 }: FieldWrapperProps) => {
@@ -51,6 +53,12 @@ export const FieldWrapper = ({
       </label>
 
       {children(childProps)}
+
+      {hint && (
+        <p id={`${fieldId}-hint`} className={styles.hint}>
+          {hint}
+        </p>
+      )}
 
       {meta.touched && meta.error && (
         <p id={`${fieldId}-error`} className={styles.error}>

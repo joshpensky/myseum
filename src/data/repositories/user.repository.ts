@@ -3,11 +3,12 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import * as z from 'zod';
 import { prisma } from '@src/data/prisma';
 import { PrismaUser } from '@src/data/serializers/user.serializer';
+import { uploadSupabaseFile } from '@src/utils/uploadSupabaseFile';
 
-interface UpdateUserDto {
+export interface UpdateUserDto {
   name: string;
   bio?: string;
-  headshot?: string;
+  headshot: string | null;
 }
 
 export class UserRepository {
@@ -67,11 +68,16 @@ export class UserRepository {
     user: User | SupabaseUser,
     updateUserDto: UpdateUserDto,
   ): Promise<PrismaUser> {
+    let headshot = updateUserDto.headshot;
+    if (updateUserDto.headshot?.includes('base64')) {
+      headshot = await uploadSupabaseFile('headshots', updateUserDto.headshot);
+    }
+
     const updatedUser = await prisma.user.update({
       data: {
         name: updateUserDto.name,
         bio: updateUserDto.bio,
-        headshot: updateUserDto.headshot,
+        headshot,
       },
       where: {
         id: user.id,

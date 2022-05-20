@@ -73,11 +73,6 @@
                 "position": "before"
               },
               {
-                "pattern": "twin.macro",
-                "group": "external",
-                "position": "before"
-              },
-              {
                 "pattern": "@src/**",
                 "group": "internal"
               },

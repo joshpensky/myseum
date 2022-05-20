@@ -10,7 +10,7 @@ import {
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
-import CloseIcon from '@src/svgs/Close';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
 import styles from './popover.module.scss';
 
 const ANIMATION_DURATION = Number.parseInt(styles.varAnimDuration, 10);
@@ -76,7 +76,7 @@ const PopoverHeader = ({ children, className }: PropsWithChildren<PopoverHeaderP
     {children}
 
     <Close asChild>
-      <IconButton title="Close settings" tooltipProps={{ side: 'top' }}>
+      <IconButton title="Close settings">
         <CloseIcon />
       </IconButton>
     </Close>

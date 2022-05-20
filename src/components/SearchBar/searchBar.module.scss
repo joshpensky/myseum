@@ -1,0 +1,22 @@
+.icon {
+  @include absolute(sz(3.5) x x sz(3.5));
+  @include size(sz(4));
+  color: c('text');
+
+  svg {
+    stroke-width: 1.2;
+  }
+}
+
+.input {
+  padding-left: sz(10);
+  padding-right: sz(11);
+
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+.clear {
+  @include absolute(sz(1.5) sz(1.5) x x);
+}

@@ -1,12 +1,21 @@
-import { MeasureUnit } from '@prisma/client';
-import { decode } from 'base64-arraybuffer';
-import * as uuid from 'uuid';
+import { Artwork, MeasureUnit } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
-import { supabase } from '@src/data/supabase';
 import { Dimensions3D } from '@src/types';
+import { uploadSupabaseFile } from '@src/utils/uploadSupabaseFile';
 
 export interface CreateArtworkDto {
   ownerId: string;
+  title: string;
+  description: string;
+  src: string;
+  alt: string;
+  size: Dimensions3D;
+  unit: MeasureUnit;
+  createdAt?: Date;
+  acquiredAt: Date;
+}
+
+export interface UpdateArtworkDto {
   title: string;
   description: string;
   src: string;
@@ -22,32 +31,63 @@ export class ArtworkRepository {
     const artworks = await prisma.artwork.findMany({
       include: {
         artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     return artworks;
   }
 
-  static async create(data: CreateArtworkDto) {
-    // example of data.src: 'type:<contentType>;base64,<data>'
-    const fileContentType = data.src.slice(0, data.src.indexOf(';')).replace('data:', '');
-    const fileBase64Data = data.src.replace(`data:${fileContentType};base64,`, '');
-    const fileExtension = fileContentType.replace('image/', '');
-    const fileName = `${uuid.v4()}.${fileExtension}`;
-    const upload = await supabase.storage
-      .from('artworks')
-      .upload(fileName, decode(fileBase64Data), {
-        contentType: fileContentType,
-      });
+  static async findAllByUser(userId: string) {
+    const artworks = await prisma.artwork.findMany({
+      where: {
+        owner: {
+          id: userId,
+        },
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return artworks;
+  }
 
-    if (!upload.data || upload.error) {
-      throw upload.error ?? new Error('Artwork unable to upload.');
-    }
+  static async findOne(id: string) {
+    const artwork = await prisma.artwork.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return artwork;
+  }
+
+  static async create(data: CreateArtworkDto) {
+    const src = await uploadSupabaseFile('artworks', data.src);
 
     const artwork = await prisma.artwork.create({
       data: {
         title: data.title,
         description: data.description,
-        src: fileName,
+        src,
         alt: data.alt,
         width: data.size.width,
         height: data.size.height,
@@ -64,9 +104,61 @@ export class ArtworkRepository {
       },
       include: {
         artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
     return artwork;
+  }
+
+  static async update(id: string, data: UpdateArtworkDto) {
+    let src = data.src;
+    if (src.includes('base64')) {
+      src = await uploadSupabaseFile('artworks', src);
+    }
+
+    const artwork = await prisma.artwork.update({
+      where: {
+        id,
+      },
+      data: {
+        title: data.title,
+        description: data.description,
+        src,
+        alt: data.alt,
+        width: data.size.width,
+        height: data.size.height,
+        depth: data.size.depth,
+        unit: data.unit,
+        createdAt: data.createdAt,
+        acquiredAt: data.acquiredAt,
+        // TODO: create or connect artist
+      },
+      include: {
+        artist: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return artwork;
+  }
+
+  static async delete(artwork: Artwork) {
+    const deletedArtwork = await prisma.artwork.delete({
+      where: {
+        id: artwork.id,
+      },
+    });
+    return deletedArtwork;
   }
 }

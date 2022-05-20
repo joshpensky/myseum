@@ -1,11 +1,19 @@
-import { Gallery, Matting, Prisma } from '@prisma/client';
+import {
+  Artwork,
+  Frame,
+  Gallery,
+  GalleryColor,
+  Matting,
+  PlacedArtwork,
+  Prisma,
+} from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { Position } from '@src/types';
 
-interface UpdatePlacedArtworkDto {
-  artworkId: number;
-  frameId?: number;
-  position: Position;
+export interface AddPlacedArtworkDto {
+  artworkId: string;
+  frameId?: string;
+  position?: Position;
   framingOptions: {
     isScaled: boolean;
     scaling: number;
@@ -13,18 +21,35 @@ interface UpdatePlacedArtworkDto {
   };
 }
 
+export interface UpdatePlacedArtworkDto {
+  id: string;
+  position: Position;
+}
+
 export interface UpdateGalleryDto {
-  name?: string;
-  color?: Gallery['color'];
+  name: string;
+  description: string;
+  color?: GalleryColor;
   height?: number;
   artworks?: UpdatePlacedArtworkDto[];
 }
 
+export interface CreateGalleryDto {
+  name: string;
+  description: string;
+  color: GalleryColor;
+  height: number;
+  museumId: string;
+}
+
 export class GalleryRepository {
-  static async findAllByMuseum(museumId: number) {
+  static async findAllByMuseum(museumId: string) {
     const galleries = await prisma.gallery.findMany({
       where: {
         museumId,
+      },
+      orderBy: {
+        addedAt: 'desc',
       },
       include: {
         artworks: {
@@ -32,9 +57,29 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
           },
         },
       },
@@ -42,7 +87,7 @@ export class GalleryRepository {
     return galleries;
   }
 
-  static async findOneByMuseum(museumId: number, galleryId: number) {
+  static async findOneByMuseum(museumId: string, galleryId: string) {
     const gallery = await prisma.gallery.findFirst({
       where: {
         id: galleryId,
@@ -54,9 +99,29 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
           },
         },
       },
@@ -64,6 +129,132 @@ export class GalleryRepository {
 
     return gallery;
   }
+
+  static async create(data: CreateGalleryDto) {
+    const gallery = await prisma.gallery.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        color: data.color,
+        height: data.height,
+        museum: {
+          connect: {
+            id: data.museumId,
+          },
+        },
+      },
+      include: {
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
+          },
+        },
+      },
+    });
+    return gallery;
+  }
+
+  static async deleteArtwork(gallery: Gallery, id: string) {
+    const deletedPlacedArtwork = await prisma.placedArtwork.delete({
+      where: {
+        id: id,
+      },
+    });
+    return deletedPlacedArtwork;
+  }
+
+  static async addArtwork(
+    gallery: Gallery & { artworks: (PlacedArtwork & { artwork: Artwork; frame: Frame | null })[] },
+    data: AddPlacedArtworkDto,
+  ) {
+    const projectedPosition: Position = {
+      x: Math.ceil(
+        Math.max(0, ...gallery.artworks.map(a => a.posX + (a.frame?.width ?? a.artwork.width))),
+      ),
+      y: 0,
+    };
+
+    let frame: { connect: { id: string } } | undefined = undefined;
+    if (data.frameId) {
+      frame = {
+        connect: {
+          id: data.frameId,
+        },
+      };
+    }
+
+    const addedPlacedArtwork = await prisma.placedArtwork.create({
+      data: {
+        gallery: {
+          connect: {
+            id: gallery.id,
+          },
+        },
+        artwork: {
+          connect: {
+            id: data.artworkId,
+          },
+        },
+        frame: frame,
+        posX: data.position?.x ?? projectedPosition.x,
+        posY: data.position?.y ?? projectedPosition.y,
+        isScaled: data.framingOptions.isScaled,
+        scaling: data.framingOptions.scaling,
+        matting: data.framingOptions.matting,
+      },
+      include: {
+        artwork: {
+          include: {
+            artist: true,
+            owner: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        frame: {
+          include: {
+            owner: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return addedPlacedArtwork;
+  }
+
   static async update(gallery: Gallery, data: UpdateGalleryDto) {
     let artworksToDelete:
       | Prisma.Enumerable<Prisma.PlacedArtworkScalarWhereInput>
@@ -75,9 +266,9 @@ export class GalleryRepository {
         artworksToDelete = {};
       } else {
         // Otherwise, delete any artworks not included in update
-        const updatedArtworkIdSet = new Set(data.artworks.map(artwork => artwork.artworkId));
+        const updatedArtworkIdSet = new Set(data.artworks.map(artwork => artwork.id));
         artworksToDelete = {
-          artworkId: {
+          id: {
             notIn: Array.from(updatedArtworkIdSet),
           },
         };
@@ -87,33 +278,18 @@ export class GalleryRepository {
     const updatedGallery = await prisma.gallery.update({
       data: {
         name: data.name,
+        description: data.description,
         color: data.color,
         height: data.height,
         artworks: {
           deleteMany: artworksToDelete,
-          upsert: (data.artworks ?? []).map(item => ({
-            create: {
-              artworkId: item.artworkId,
-              frameId: item.frameId,
+          update: (data.artworks ?? []).map(item => ({
+            data: {
               posX: item.position.x,
               posY: item.position.y,
-              isScaled: item.framingOptions.isScaled,
-              scaling: item.framingOptions.scaling,
-              matting: item.framingOptions.matting,
-            },
-            update: {
-              frameId: item.frameId,
-              posX: item.position.x,
-              posY: item.position.y,
-              isScaled: item.framingOptions.isScaled,
-              scaling: item.framingOptions.scaling,
-              matting: item.framingOptions.matting,
             },
             where: {
-              artworkId_galleryId: {
-                artworkId: item.artworkId,
-                galleryId: gallery.id,
-              },
+              id: item.id,
             },
           })),
         },
@@ -127,13 +303,74 @@ export class GalleryRepository {
             artwork: {
               include: {
                 artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
-            frame: true,
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
           },
         },
       },
     });
     return updatedGallery;
+  }
+
+  static async delete(gallery: Gallery) {
+    const deletedGallery = await prisma.gallery.delete({
+      where: {
+        id: gallery.id,
+      },
+      include: {
+        artworks: {
+          include: {
+            artwork: {
+              include: {
+                artist: true,
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+            frame: {
+              include: {
+                owner: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        museum: {
+          include: {
+            curator: true,
+          },
+        },
+      },
+    });
+    return deletedGallery;
   }
 }

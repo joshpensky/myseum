@@ -1,0 +1,64 @@
+.field {
+  @include outline-none;
+  @include padding(sz(2) sz(3) sz(2));
+  appearance: none;
+  background-color: c('bg-tint', 0);
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+  height: sz(11);
+  min-width: 0;
+  width: 100%;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled) {
+    @media (hover: hover) {
+      &:hover {
+        background-color: c('bg-tint');
+        border: 1px solid c('border', 0.4);
+      }
+    }
+
+    &:focus {
+      background-color: c('bg-tint');
+      border: 1px solid c('border');
+    }
+
+    &:read-only {
+      cursor: default;
+    }
+  }
+
+  &:not(:disabled).field--error {
+    border: 1px solid c('red');
+  }
+
+  // Disable the up/down arrow buttons on number fields
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Firefox */
+  -moz-appearance: textfield;
+
+  &.dragging {
+    cursor: ew-resize;
+  }
+}
+
+.drag-pointer {
+  @include size(sz(5.5));
+  position: fixed;
+  top: var(--y, 0);
+  left: var(--x, 0);
+  transform: translate(-50%, -50%);
+}

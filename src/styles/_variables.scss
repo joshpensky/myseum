@@ -1,11 +1,13 @@
 $c-white: #ffffff;
 $c-black: #000000;
 $c-gray: #cccccc;
+$c-illo: mix(black, white, 30%);
+$c-illo-dark: mix(black, white, 70%);
 
 $c-mat-light: #fff2e0;
 $c-mat-dark: #141414;
 
-$c-red-500: #ff3737;
+$c-red-500: #ff5d47;
 
 $c-yellow-500: #ffaf37;
 
@@ -16,6 +18,7 @@ $c-mint-600: #8c8e84;
 $c-mint-700: #6a715c;
 $c-mint-800: #585f3c;
 $c-mint-900: #4e533f;
+$c-mint-1000: #3e4233;
 
 $c-pink-200: #f6efe8;
 
@@ -53,6 +56,19 @@ $shadow-lg: 0 10px 15px -3px c('black', 0.1), 0 4px 6px -2px c('black', 0.05);
 
 ////////////////////////////////////
 
+$nav-height: sz(16);
+
+////////////////////////////////////
+
+$bp-modal-drawer: 800px;
+
+$bp-desktop: 1000px;
+$bp-tablet: $bp-modal-drawer;
+$bp-mobile: 600px;
+
+////////////////////////////////////
+
+$z-nav: 90;
 $z-fab: 100;
 $z-popover: 110;
 $z-modal: 120;

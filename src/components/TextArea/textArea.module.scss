@@ -1,0 +1,40 @@
+.field {
+  @include outline-none;
+  @include padding(sz(2) sz(3) sz(2));
+  appearance: none;
+  background-color: c('bg-tint', 0);
+  border: 1px solid c('border', 0.2);
+  border-radius: sz(2.5);
+  max-height: sz(36);
+  min-height: sz(11);
+  min-width: 0;
+  resize: none;
+  width: 100%;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled) {
+    @media (hover: hover) {
+      &:hover {
+        background-color: c('bg-tint');
+        border: 1px solid c('border', 0.4);
+      }
+    }
+
+    &:focus {
+      background-color: c('bg-tint');
+      border: 1px solid c('border');
+    }
+  }
+
+  &:not(:disabled).field--error {
+    border: 1px solid c('red');
+  }
+}

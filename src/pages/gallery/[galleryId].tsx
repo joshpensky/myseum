@@ -1,13 +1,8 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
-import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
-import { UserRepository } from '@src/data/repositories/user.repository';
-import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { supabase } from '@src/data/supabase';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery';
+import api from '@src/api/server';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
 
 export default GalleryView;
 
@@ -19,8 +14,8 @@ export const getServerSideProps: GetServerSideProps<
   GalleryViewProps,
   GalleryPageParams
 > = async ctx => {
-  const supabaseUser = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!supabaseUser.user) {
+  const user = await api.auth.findUserByCookie(ctx);
+  if (!user) {
     return {
       redirect: {
         destination: '/',
@@ -28,21 +23,15 @@ export const getServerSideProps: GetServerSideProps<
       },
     };
   }
-  const userData = await UserRepository.findOne(supabaseUser.user);
 
-  const museum = await MuseumRepository.findOneByCurator(supabaseUser.user.id);
-  if (!museum) {
-    throw new Error('User must have museum.');
-  }
-
-  const galleryId = z.number().int().safeParse(Number(ctx.params?.galleryId));
+  const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
   if (!galleryId.success) {
     return {
       notFound: true,
     };
   }
 
-  const gallery = await GalleryRepository.findOneByMuseum(museum.id, galleryId.data);
+  const gallery = await api.gallery.findOneByMuseum(user.museumId, galleryId.data);
   if (!gallery) {
     return {
       notFound: true,
@@ -51,10 +40,8 @@ export const getServerSideProps: GetServerSideProps<
 
   return {
     props: {
-      __supabaseUser: supabaseUser.user,
-      __userData: userData,
-      museum: MuseumSerializer.serialize(museum),
-      gallery: GallerySerializer.serialize(gallery),
+      __authUser: user,
+      gallery,
     },
   };
 };

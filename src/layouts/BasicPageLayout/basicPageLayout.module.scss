@@ -1,0 +1,35 @@
+.page {
+  @include padding(sz(4));
+  max-width: 600px;
+}
+
+.title {
+  @include h1;
+  margin-bottom: sz(6);
+}
+
+.content {
+  h2 {
+    @include h2;
+    margin-bottom: sz(2);
+  }
+
+  h3 {
+    @include h3;
+    font-size: sz(5);
+    margin-bottom: sz(2);
+  }
+
+  p {
+    margin-bottom: sz(2);
+
+    + h2,
+    + h3 {
+      margin-top: sz(4);
+    }
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}

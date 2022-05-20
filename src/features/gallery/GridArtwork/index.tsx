@@ -3,9 +3,9 @@ import cx from 'classnames';
 import { Artwork } from '@src/components/Artwork';
 import { PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { useGrid } from '@src/features/grid';
-import { GridRenderItemProps } from '@src/features/grid/Grid';
-import DragHandle from '@src/svgs/DragHandle';
-import Trash from '@src/svgs/Trash';
+import { GridRenderItemProps } from '@src/features/grid/GridRoot';
+import { DragHandleIcon } from '@src/svgs/icons/DragHandleIcon';
+import { TrashIcon } from '@src/svgs/icons/TrashIcon';
 import styles from './gridArtwork.module.scss';
 
 const REMOVE_ANIM_DURATION = Number.parseInt(styles.varRemoveAnimDuration, 10);
@@ -110,7 +110,7 @@ export const GridArtwork = ({
           )}
 
           <Artwork
-            artwork={item.artwork}
+            item={item}
             disabled={grid.preview || isEditing}
             onDetailsOpenChange={onDetailsOpenChange}
             onLoad={() => setIsLoaded(true)}
@@ -122,24 +122,26 @@ export const GridArtwork = ({
         <div className={styles.actions}>
           <button
             {...dragHandleProps}
+            type="button"
             className={styles.actionsItem}
             disabled={disabled}
             title="Move"
             aria-label="Move">
             <span>
-              <DragHandle />
+              <DragHandleIcon />
             </span>
           </button>
 
           {onRemove && (
             <button
               className={styles.actionsItem}
+              type="button"
               disabled={disabled}
               onClick={() => handleRemove()}
               title="Remove"
               aria-label="Remove from gallery">
               <span>
-                <Trash />
+                <TrashIcon />
               </span>
             </button>
           )}

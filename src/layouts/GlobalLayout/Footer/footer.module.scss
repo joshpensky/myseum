@@ -1,0 +1,54 @@
+.footer {
+  @include padding(sz(4));
+  background-color: c('bg');
+  color: c('secondary-text');
+  display: flex;
+  justify-content: space-between;
+
+  @include mq(max, $bp-mobile) {
+    flex-direction: column;
+  }
+
+  a {
+    @include padding(sz(0.5) sz(1));
+    border-radius: sz(2);
+    box-shadow: inset 0 0 0 0 c('border', 0.2);
+
+    @include with-motion {
+      transition: 150ms ease-out;
+      transition-property: background-color, box-shadow;
+    }
+
+    &:focus {
+      @include outline-none;
+      background-color: c('bg-tint');
+      box-shadow: inset 0 0 0 1px c('border', 0.2);
+    }
+  }
+}
+
+.links {
+  align-items: center;
+  display: flex;
+
+  @include mq(max, $bp-mobile) {
+    margin-left: sz(-1);
+    margin-top: sz(0.5);
+  }
+}
+
+.links__item {
+  align-items: center;
+  display: flex;
+
+  + .links__item {
+    &::before {
+      content: '';
+      @include margin(x sz(1.5));
+      @include size(sz(1));
+      display: flex;
+      background-color: currentColor;
+      border-radius: 50%;
+    }
+  }
+}

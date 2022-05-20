@@ -1,0 +1,21 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.artwork-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: sz(3);
+}
+
+.artwork {
+  height: sz(30);
+}

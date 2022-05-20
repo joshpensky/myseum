@@ -1,0 +1,117 @@
+.trigger {
+  align-items: center;
+  display: flex;
+  position: relative;
+
+  &::after {
+    @include absolute(sz(-1));
+    border-radius: sz(2);
+    box-shadow: inset 0 0 0 0 c('border', 0.2);
+    content: '';
+    z-index: -1;
+
+    @include with-motion {
+      transition: 150ms ease-out;
+    }
+  }
+
+  &:focus {
+    @include outline-none;
+
+    &::after {
+      background-color: c('bg-tint');
+      box-shadow: inset 0 0 0 1px c('border', 0.2);
+    }
+  }
+}
+
+.headshot {
+  height: sz(7);
+  aspect-ratio: 3 / 4;
+  background-color: c('border', 0.2);
+  box-shadow: 0 0 0 0 c('bg'), 0 0 0 0 c('border', 0.8);
+  border-radius: 100%;
+  flex-shrink: 0;
+  margin-right: sz(1.5);
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 150ms ease;
+
+  // .trigger[aria-expanded='true'] &,
+  // .trigger:focus & {
+  //   box-shadow: 0 0 0 1.5px c('bg'), 0 0 0 2.5px c('border', 0.8);
+  // }
+
+  img {
+    @include absolute(0);
+    object-fit: cover;
+  }
+}
+
+.trigger__chevron {
+  @include size(0);
+  border: 4px solid transparent;
+  border-top-color: c('text', 0.8);
+  transform: translateY(50%);
+
+  .trigger[aria-expanded='true'] & {
+    transform: scaleY(-1);
+  }
+}
+
+.user-popover {
+  background-color: c('white');
+  overflow: hidden;
+  width: sz(52);
+}
+
+.user-popover__title {
+  @include padding(sz(2.5) sz(4));
+  display: flex;
+  flex-direction: column;
+}
+
+.user-popover__title__label {
+  @include label;
+  margin-bottom: sz(-0.5);
+}
+
+.separator {
+  border-color: c('gray');
+}
+
+.user-popover__links {
+  @include padding(sz(1.5) x);
+}
+
+.user-popover__link {
+  @include outline-none;
+  @include padding(sz(1) sz(4));
+  align-items: center;
+  border-top: 1px solid c('gray', 0);
+  border-bottom: 1px solid c('gray', 0);
+  display: flex;
+  width: 100%;
+  transition: 150ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: c('gray', 0.1);
+    }
+  }
+
+  &:focus {
+    @include outline-none;
+    background-color: c('gray', 0.1);
+    border-color: c('gray');
+  }
+
+  &[aria-busy='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.loader {
+  margin-left: sz(2);
+}

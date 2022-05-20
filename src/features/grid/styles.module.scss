@@ -6,32 +6,12 @@ body.scroll-dragging {
   user-select: none;
 }
 
-.root {
-  @include absolute(0);
-  @include size(100%);
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  &.root--preview {
-    overflow-x: hidden;
-  }
-
-  // Hide the actual scrollbar
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
 .scrollbar-wrapper {
   $scrollbar-height: sz(8);
-  @include fixed(x x sz(4) 50%);
+  position: relative;
   border: 1px solid c('border');
   border-radius: sz(1.5);
   height: $scrollbar-height;
-  transform: translateX(-50%);
   max-width: sz(96);
   overflow: hidden;
   // If height is capped at $scrollbar-height,
@@ -69,12 +49,11 @@ body.scroll-dragging {
   }
 }
 
-.grid {
-  .root:not(.root--preview) & {
-    // Place the grid vertically in the root container
-    @include margin(sz(8) x sz(16));
-  }
+.root {
+  height: 100%;
+}
 
+.grid {
   // Set the width and height based on the grid size and unit px size
   height: calc(var(--grid-height) * var(--unit-px));
   width: calc(var(--grid-width) * var(--unit-px));
@@ -82,8 +61,7 @@ body.scroll-dragging {
   position: relative;
 
   // Render the bottom line, since the bg-image doesn't do so!
-  border-bottom: currentColor 1px solid;
-  color: transparent;
+  border-bottom: c('border', 0.2) 1px solid;
 
   &::before,
   &::after {
@@ -93,8 +71,8 @@ body.scroll-dragging {
     left: 0;
 
     // Render the grid texture
-    background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
-      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+    background-image: linear-gradient(to right, c('border', 0.2) 1px, transparent 1px),
+      linear-gradient(to bottom, c('border', 0.2) 1px, transparent 1px);
 
     // Render the grid at the even unit px size (for crisp lines) at the chosen step (e.g., 1/2, 1, 2)
     background-size: calc(var(--even-unit-px) * var(--grid-step))
@@ -129,6 +107,15 @@ body.scroll-dragging {
       display: none;
     }
   }
+
+  &:not(.grid--editable) {
+    border-bottom: none;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
 }
 
 .item {
@@ -149,8 +136,4 @@ body.scroll-dragging {
 
 .drag-handle-instructions {
   display: none;
-}
-
-:export {
-  varGridYMargin: sz(8, $convert: 'px');
 }

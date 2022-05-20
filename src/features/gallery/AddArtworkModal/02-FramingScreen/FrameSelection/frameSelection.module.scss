@@ -1,0 +1,155 @@
+@keyframes load-pulse {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading {
+  @include margin(sz(2) x);
+  cursor: wait;
+  display: flex;
+  height: sz(24);
+  position: relative;
+
+  &::after {
+    content: '';
+    @include absolute(0);
+    background-image: scrim-gradient(to right, 'bg');
+  }
+
+  div {
+    @include size(100%);
+    animation: load-pulse 1000ms $ease-in-out-sine forwards alternate infinite;
+    background-color: c('bg-tint');
+    border-radius: sz(1);
+    margin-right: sz(4);
+
+    &:nth-child(1),
+    &:nth-child(3) {
+      width: 150%;
+    }
+
+    &:nth-child(2) {
+      width: 250%;
+    }
+  }
+}
+
+.message {
+  align-items: center;
+  background-color: c('bg-tint');
+  border-radius: sz(2.5);
+  display: flex;
+  flex-direction: column;
+  font-size: $fs-sm;
+  height: sz(24);
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+
+  p {
+    color: c('secondary-text');
+  }
+
+  button {
+    margin-top: sz(2);
+  }
+}
+
+.list-wrapper {
+  position: relative;
+
+  &::after {
+    @include absolute(x sz(-2) 0);
+    height: sz(4);
+    background: scrim-gradient(to bottom, 'bg');
+    content: '';
+  }
+}
+
+.list {
+  @include padding(sz(2) sz(2));
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: sz(-4);
+  margin-top: sz(-2);
+  max-height: 300px;
+  overflow-y: auto;
+  transform: translateX(sz(-2));
+  width: calc(100% + #{sz(4)});
+}
+
+.list__item {
+  display: flex;
+}
+
+.frame {
+  @include margin(x sz(4) sz(4) x);
+  border-radius: sz(0.5);
+  box-shadow: 0 0 0 0 c('bg'), 0 0 0 0 c('border');
+  cursor: pointer;
+  height: sz(24);
+  position: relative;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  input:disabled + & {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  input:checked + & {
+    box-shadow: 0 0 0 2px c('bg'), 0 0 0 3px c('border');
+  }
+
+  input:checked:not(:disabled):focus + & {
+    box-shadow: 0 0 0 4px c('bg'), 0 0 0 5px c('border');
+  }
+
+  input:not(:disabled):focus + & {
+    background-color: c('bg-tint');
+  }
+}
+
+.frame__preview {
+  height: 100%;
+}
+
+.frame__checkmark {
+  @include absolute(50% x x 50%);
+  @include size(sz(6));
+  align-items: center;
+  background-color: c('bg-tint');
+  border: 1px solid c('border');
+  border-radius: 50%;
+  color: c('white');
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+
+  @include with-motion {
+    transition: 150ms ease-out;
+  }
+
+  svg {
+    @include size(sz(3.5));
+    stroke-width: 1.2;
+  }
+
+  input:not(:checked) + .frame & {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+}
+
+.create-button {
+  margin-top: sz(4);
+  width: 100%;
+}

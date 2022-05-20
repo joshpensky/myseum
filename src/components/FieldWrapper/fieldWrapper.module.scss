@@ -2,6 +2,7 @@
   align-items: flex-start;
   display: flex;
   flex-direction: column;
+  position: relative;
   width: 100%;
 }
 
@@ -23,8 +24,23 @@
   font-size: $fs-xs;
 }
 
+.hint {
+  @include label;
+  margin-top: sz(1);
+
+  fieldset:disabled &,
+  .wrapper--disabled & {
+    opacity: 0.5;
+  }
+}
+
 .error {
   margin-top: sz(1);
   font-size: $fs-sm;
   color: c('red');
+
+  fieldset:disabled &,
+  .wrapper--disabled & {
+    opacity: 0.5;
+  }
 }

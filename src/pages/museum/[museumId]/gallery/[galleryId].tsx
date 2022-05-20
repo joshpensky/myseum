@@ -1,11 +1,8 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
 import * as z from 'zod';
-import { GalleryRepository } from '@src/data/repositories/gallery.repository';
-import { MuseumRepository } from '@src/data/repositories/museum.repository';
-import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { GalleryView, GalleryViewProps } from '@src/features/gallery';
+import api from '@src/api/server';
+import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
 
 export default GalleryView;
 
@@ -18,22 +15,15 @@ export const getServerSideProps: GetServerSideProps<
   GalleryViewProps,
   GalleryPageParams
 > = async ctx => {
-  const museumId = z.number().int().safeParse(Number(ctx.params?.museumId));
-  const galleryId = z.number().int().safeParse(Number(ctx.params?.galleryId));
+  const museumId = z.string().uuid().safeParse(ctx.params?.museumId);
+  const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
   if (!museumId.success || !galleryId.success) {
     return {
       notFound: true,
     };
   }
 
-  const museum = await MuseumRepository.findOne(museumId.data);
-  if (!museum) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
+  const gallery = await api.gallery.findOneByMuseum(museumId.data, galleryId.data);
   if (!gallery) {
     return {
       notFound: true,
@@ -42,8 +32,7 @@ export const getServerSideProps: GetServerSideProps<
 
   return {
     props: {
-      museum: MuseumSerializer.serialize(museum),
-      gallery: GallerySerializer.serialize(gallery),
+      gallery,
     },
   };
 };

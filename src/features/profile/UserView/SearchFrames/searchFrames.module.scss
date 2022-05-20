@@ -1,0 +1,100 @@
+.root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.form {
+  align-items: flex-start;
+  display: flex;
+  margin-bottom: sz(2);
+}
+
+.form__action {
+  margin-left: sz(2);
+}
+
+.count {
+  @include label;
+}
+
+.loading {
+  @include padding(sz(4));
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.empty-state {
+  @include padding(sz(4));
+  align-items: center;
+  color: c('secondary-text');
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-state__illo {
+  color: c('illustration');
+  margin-bottom: sz(5);
+  width: min(100%, #{sz(50)});
+
+  svg {
+    stroke-width: 1.2;
+  }
+}
+
+.empty-state__text {
+  margin-bottom: sz(3);
+}
+
+.empty-state__action {
+  @media (hover: hover) {
+    &:hover {
+      color: c('text', 0.5);
+    }
+  }
+
+  &:focus {
+    color: c('text');
+  }
+}
+
+.row-wrapper {
+  + .row-wrapper {
+    border-top: 1px solid c('border', 0.2);
+  }
+}
+
+.row {
+  @include padding(sz(4) x);
+  align-items: center;
+  display: flex;
+}
+
+.row__image {
+  @include size(sz(25));
+  object-fit: contain;
+  margin-right: sz(4);
+}
+
+.row__meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-right: sz(4);
+}
+
+.row__meta__desc {
+  @include label;
+}
+
+.row__actions {
+  button + button {
+    margin-left: sz(1);
+  }
+}

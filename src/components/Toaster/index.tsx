@@ -1,30 +1,26 @@
 import cx from 'classnames';
 import { Toaster as BaseToaster } from 'react-hot-toast';
-import Close from '@src/svgs/Close';
-import { Info } from '@src/svgs/Info';
 import styles from './toaster.module.scss';
+
+const TOP_OFFSET = Number.parseInt(styles.varTopOffset, 10);
+const GUTTER = Number.parseInt(styles.varGutter, 10);
 
 export const Toaster = () => (
   <BaseToaster
-    position="bottom-left"
+    position="top-center"
+    containerStyle={{ top: TOP_OFFSET }}
+    gutter={GUTTER}
     toastOptions={{
-      className: cx(`theme--paper`, styles.toast),
+      className: styles.toast,
       duration: 6000,
+      icon: null,
       success: {
-        icon: (
-          <span className={styles.icon}>
-            <Info />
-          </span>
-        ),
+        icon: null,
       },
       error: {
-        className: cx(`theme--paper`, styles.toast, styles.toastError),
+        className: cx(styles.toast, styles.toastError),
         duration: 10000,
-        icon: (
-          <span className={cx(styles.icon, styles.iconError)}>
-            <Close />
-          </span>
-        ),
+        icon: null,
       },
     }}
   />

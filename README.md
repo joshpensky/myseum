@@ -19,7 +19,7 @@ yarn develop
 ## Making schema updates
 
 ```bash
-yarn prisma db push --preview-feature
+yarn db:migrate
 ```
 
 ## Styling
@@ -58,7 +58,7 @@ color: c('text', 0.5); // use the theme's text color, 50% opacity
 Valid color themes are:
 
 - mint
-- pink
+- rose
 - navy
 - paper
 - ink

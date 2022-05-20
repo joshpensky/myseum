@@ -13,7 +13,7 @@ generator client {
 enum GalleryColor {
   mint
   navy
-  pink
+  rose
   paper
   ink
 }
@@ -32,12 +32,10 @@ enum MeasureUnit {
 }
 
 model User {
-  id       String  @id @db.Uuid
+  id       String  @id @default(uuid()) @db.Uuid
   name     String  @default("")
   bio      String  @default("")
   headshot String?
-
-  updatedAt DateTime @default(now()) @updatedAt
 
   museum   Museum?
   frames   Frame[]
@@ -50,12 +48,12 @@ model User {
 }
 
 model Museum {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid()) @db.Uuid
   name        String
   description String    @default("")
   galleries   Gallery[]
 
-  curator   User   @relation(fields: [curatorId], references: [id])
+  curator   User   @relation(fields: [curatorId], references: [id], onDelete: Cascade)
   curatorId String @unique @db.Uuid
 
   addedAt    DateTime @default(now())
@@ -65,49 +63,50 @@ model Museum {
 }
 
 model Gallery {
-  id          Int             @id @default(autoincrement())
+  id          String          @id @default(uuid()) @db.Uuid
   name        String
   description String          @default("")
   color       GalleryColor    @default(paper)
   height      Int             @default(40)
   artworks    PlacedArtwork[]
 
-  museum   Museum @relation(fields: [museumId], references: [id])
-  museumId Int
+  museum   Museum @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  museumId String @db.Uuid
 
   addedAt    DateTime @default(now())
   modifiedAt DateTime @default(now()) @updatedAt
 
-  // @@unique([museumId, posX, posY])
   @@map("galleries")
 }
 
 model PlacedArtwork {
-  artwork   Artwork @relation(fields: [artworkId], references: [id])
-  artworkId Int
+  id String @id @default(uuid()) @db.Uuid
 
-  frame    Frame?  @relation(fields: [frameId], references: [id])
-  frameId  Int?
+  artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  artworkId String  @db.Uuid
+
+  frame    Frame?  @relation(fields: [frameId], references: [id], onDelete: SetNull)
+  frameId  String? @db.Uuid
   isScaled Boolean
   scaling  Int
   matting  Matting @default(none)
 
   posX      Int
   posY      Int
-  gallery   Gallery @relation(fields: [galleryId], references: [id])
-  galleryId Int
+  gallery   Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  galleryId String  @db.Uuid
 
   addedAt    DateTime @default(now())
   modifiedAt DateTime @default(now()) @updatedAt
 
-  @@id(fields: [artworkId, galleryId])
   @@map("placed_artworks")
 }
 
 model Frame {
-  id          Int    @id @default(autoincrement())
-  src         String
-  description String
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+  src  String
+  alt  String
 
   width  Float
   height Float
@@ -125,7 +124,7 @@ model Frame {
 
   placements PlacedArtwork[]
 
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @db.Uuid
 
   addedAt    DateTime @default(now())
@@ -135,7 +134,7 @@ model Frame {
 }
 
 model Artwork {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(uuid()) @db.Uuid
   title       String
   description String
   src         String
@@ -149,12 +148,12 @@ model Artwork {
   createdAt  DateTime?
   acquiredAt DateTime  @default(now())
 
-  artist   Artist? @relation(fields: [artistId], references: [id])
-  artistId Int?
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  artistId String? @db.Uuid
 
   placements PlacedArtwork[]
 
-  owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @db.Uuid
 
   addedAt    DateTime @default(now())
@@ -164,7 +163,7 @@ model Artwork {
 }
 
 model Artist {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(uuid()) @db.Uuid
   name String
 
   artworks Artwork[]

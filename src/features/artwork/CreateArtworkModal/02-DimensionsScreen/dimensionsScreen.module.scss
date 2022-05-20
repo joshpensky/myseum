@@ -1,0 +1,112 @@
+.sidecar {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  align-items: center;
+}
+
+.preview {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include mq(max, $bp-modal-drawer) {
+    @include padding(sz(4));
+    background-color: c('bg-tint');
+    border-radius: sz(2.5);
+    height: 300px;
+    margin-bottom: sz(4);
+    width: 100%;
+  }
+
+  @include mq($bp-modal-drawer) {
+    @include padding(sz(6));
+    flex: 1;
+    width: 100%;
+  }
+}
+
+.preview__box {
+  background-color: c('bg', 0.5);
+  background-size: var(--unit, 0) var(--unit, 0);
+  background-image: linear-gradient(to right, c('border', 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, c('border', 0.2) 1px, transparent 1px);
+  border: 1px solid c('border');
+  border-radius: 1px;
+  height: var(--height);
+  width: var(--width);
+
+  @include with-motion {
+    transition: 300ms $ease-out-expo;
+  }
+
+  &.preview__box--hidden {
+    display: none;
+  }
+
+  @include mq($bp-modal-drawer) {
+    background-color: c('bg-tint', 0.5);
+  }
+
+  &.preview__box--top {
+    transform: scaleX(-1);
+  }
+}
+
+.toolbar {
+  @include padding(sz(2));
+  background-color: c('bg-tint', 0.8);
+  backdrop-filter: blur(2px);
+  border-radius: sz(4);
+  display: flex;
+  margin-bottom: sz(4);
+
+  @include mq($bp-modal-drawer) {
+    margin-bottom: sz(6);
+  }
+}
+
+.toolbar__button {
+  @include size(sz(8));
+  box-shadow: 0 0 0 0 c('border'), inset 0 0 0 0 c('bg-tint');
+  border-radius: sz(2.5);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  @include with-motion {
+    transition: box-shadow 150ms ease-out;
+  }
+
+  &:not(:disabled):focus {
+    @include outline-none;
+    box-shadow: 0 0 0 1px c('border'), inset 0 0 0 1.5px c('bg-tint');
+  }
+
+  &[aria-pressed='true'] {
+    background-color: c('border');
+    color: c('bg');
+  }
+
+  svg {
+    @include size(sz(5));
+    stroke-width: 1.2;
+  }
+
+  + .toolbar__button {
+    margin-left: sz(2);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

@@ -2,38 +2,25 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import cx from 'classnames';
-import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { FrameDto } from '@src/data/serializers/frame.serializer';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { supabase } from '@src/data/supabase';
+import { PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
+import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './artwork.module.scss';
 
 const ArtworkDetails = dynamic(() => import('@src/components/Artwork/ArtworkDetails'));
 
 export interface ArtworkProps {
-  artwork: ArtworkDto;
-  frame?: FrameDto | null;
+  item: PlacedArtworkDto;
   disabled?: boolean;
-  galleries?: Omit<GalleryDto, 'artworks'>[];
   onDetailsOpenChange?(open: boolean): void;
   onLoad?(): void;
 }
 
-// const BEZEL = 0.05;
-
-export const Artwork = ({
-  artwork,
-  frame,
-  disabled,
-  galleries,
-  onDetailsOpenChange,
-  onLoad,
-}: ArtworkProps) => {
+export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: ArtworkProps) => {
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [isArtworkLoaded, setIsArtworkLoaded] = useState(false);
-  const isLoaded = (!frame || isFrameLoaded) && isArtworkLoaded;
+  const isLoaded = (!item.frame || isFrameLoaded) && isArtworkLoaded;
 
   useEffect(() => {
     if (isLoaded && onLoad) {
@@ -42,8 +29,8 @@ export const Artwork = ({
   }, [isLoaded]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [heightPx, setHeightPx] = useState(0);
-  const [widthPx, setWidthPx] = useState(0);
+  const [_heightPx, setHeightPx] = useState(0);
+  const [_widthPx, setWidthPx] = useState(0);
   useIsomorphicLayoutEffect(() => {
     if (wrapperRef.current) {
       const observer = new ResizeObserver(entries => {
@@ -59,9 +46,15 @@ export const Artwork = ({
   }, []);
 
   // Get the width and height
-  const { width: artworkWidth, height: artworkHeight } = artwork.size;
-  const frameWidth = frame?.size.width ?? artworkWidth;
-  const frameHeight = frame?.size.height ?? artworkHeight;
+  const { width: artworkWidth, height: artworkHeight } = item.artwork.size;
+  const frameWidth = item.frame?.size.width ?? artworkWidth;
+  const frameHeight = item.frame?.size.height ?? artworkHeight;
+
+  const { width: widthPx, height: heightPx } = CanvasUtils.objectContain(
+    { width: _widthPx, height: _heightPx },
+    { width: frameWidth, height: frameHeight },
+  );
+
   // const frameDepth = frame?.size.depth ?? 0;
 
   // Center the artwork within the frame
@@ -72,254 +65,106 @@ export const Artwork = ({
   const xScale = widthPx / frameWidth;
   const yScale = heightPx / frameHeight;
 
-  const windowPath = CanvasUtils.getLineCommands(
-    (frame?.window ?? []).map(({ x, y }) => ({
-      x: x * xScale,
-      y: y * yScale,
-    })),
-  );
+  const windowPoints = (item.frame?.window ?? []).map(({ x, y }) => ({
+    x: x * widthPx,
+    y: y * heightPx,
+  }));
+  const windowPath = CanvasUtils.getLineCommands(windowPoints);
 
-  let artworkSrc: string;
-  if (artwork.src.startsWith('/')) {
-    artworkSrc = artwork.src;
-  } else {
-    const download = supabase.storage.from('artworks').getPublicUrl(artwork.src);
-    if (!download.data || download.error) {
-      throw download.error ?? new Error('Cannot access artwork image.');
-    }
-    artworkSrc = download.data.publicURL;
+  let artworkStyle: Record<string, any> = {
+    '--x': `${artworkX * xScale}px`,
+    '--y': `${artworkY * yScale}px`,
+    '--scale': 100,
+    '--width': `${artworkWidth * xScale}px`,
+    '--height': `${artworkHeight * yScale}px`,
+  };
+
+  if (item.framingOptions.isScaled) {
+    const windowMinX = Math.min(...windowPoints.map(point => point.x));
+    const windowMinY = Math.min(...windowPoints.map(point => point.y));
+    const windowMaxX = Math.max(...windowPoints.map(point => point.x));
+    const windowMaxY = Math.max(...windowPoints.map(point => point.y));
+
+    const windowDimensions = {
+      width: windowMaxX - windowMinX,
+      height: windowMaxY - windowMinY,
+    };
+    const scaledDimensions = CanvasUtils.objectContain(windowDimensions, item.artwork.size);
+
+    artworkStyle = {
+      '--x': `${windowMinX + (windowDimensions.width - scaledDimensions.width) / 2}px`,
+      '--y': `${windowMinY + (windowDimensions.height - scaledDimensions.height) / 2}px`,
+      '--scale': item.framingOptions.scaling,
+      '--width': `${scaledDimensions.width}px`,
+      '--height': `${scaledDimensions.height}px`,
+    };
   }
 
-  return (
-    <div ref={wrapperRef} className={styles.wrapper}>
-      {/* Use an SVG to define the dimensions of the element */}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox={[0, 0, frameWidth, frameHeight].join(' ')} />
+  const artworkSrc = getImageUrl('artworks', item.artwork.src);
 
-      {!frame ? (
-        <Image
-          src={artworkSrc}
-          layout="fill"
-          objectFit="fill"
-          onLoad={() => setIsArtworkLoaded(true)}
-        />
-      ) : (
-        <Fragment>
+  return (
+    <div
+      ref={wrapperRef}
+      className={styles.wrapper}
+      style={{ '--aspect-ratio': frameWidth / frameHeight }}>
+      <div>
+        {!item.frame ? (
           <Image
-            src={frame.src}
-            alt=""
+            src={artworkSrc}
             layout="fill"
             objectFit="fill"
-            onLoad={evt => {
-              if (evt.currentTarget.src.indexOf('data:image/gif;base64') < 0) {
+            onLoadingComplete={() => setIsArtworkLoaded(true)}
+          />
+        ) : (
+          <Fragment>
+            <Image
+              src={getImageUrl('frames', item.frame.src)}
+              alt=""
+              layout="fill"
+              objectFit="fill"
+              onLoadingComplete={() => {
                 setIsFrameLoaded(true);
-              }
-            }}
-          />
+              }}
+            />
 
-          <div
-            className={styles.window}
-            style={{
-              '--path': `'${windowPath}'`,
-            }}>
-            {/* TODO: add mat bezel */}
-            {/* TODO: add inner shadow */}
             <div
-              className={styles.artwork}
+              className={cx(styles.window, styles[`matting--${item.framingOptions.matting}`])}
               style={{
-                '--x': `${artworkX * xScale}px`,
-                '--y': `${artworkY * yScale}px`,
-                '--width': `${artworkWidth * xScale}px`,
-                '--height': `${artworkHeight * yScale}px`,
+                '--path': `'${windowPath}'`,
               }}>
-              <Image
-                src={artworkSrc}
-                alt={artwork.alt}
-                layout="fill"
-                objectFit="fill"
-                onLoad={evt => {
-                  if (evt.currentTarget.src.indexOf('data:image/gif;base64') < 0) {
-                    setIsArtworkLoaded(true);
-                  }
-                }}
-              />
+              {/* TODO: add scaling based on item.framingOptions.scaling */}
+              <div className={styles.artwork} style={artworkStyle}>
+                <div className={styles.artworkInner}>
+                  <Image
+                    src={artworkSrc}
+                    alt={item.artwork.alt}
+                    layout="fill"
+                    objectFit="fill"
+                    onLoadingComplete={() => {
+                      setIsArtworkLoaded(true);
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </Fragment>
-      )}
-
-      <div className={cx(styles.placeholder, isLoaded && styles.placeholderLoaded)}>
-        {windowPath && (
-          <div
-            className={styles.placeholderWindow}
-            style={{
-              '--path': `'${windowPath}'`,
-            }}
-          />
+          </Fragment>
         )}
+
+        <div className={cx(styles.placeholder, isLoaded && styles.placeholderLoaded)}>
+          {windowPath && (
+            <div
+              className={styles.placeholderWindow}
+              style={{
+                '--path': `'${windowPath}'`,
+              }}
+            />
+          )}
+        </div>
       </div>
 
       {isLoaded && !disabled && (
-        <ArtworkDetails data={artwork} galleries={galleries} onOpenChange={onDetailsOpenChange} />
+        <ArtworkDetails data={item.artwork} onOpenChange={onDetailsOpenChange} />
       )}
     </div>
   );
 };
-
-// {
-//   /* Then render the artwork through SVG */
-// }
-// <svg
-//   id={`artwork-${id}`}
-//   className={cx(`theme--${theme.color}`, styles.root)}
-//   xmlns="http://www.w3.org/2000/svg"
-//   aria-labelledby={`artwork-${id}-title`}
-//   aria-describedby={`artwork-${id}-desc`}
-//   viewBox={[0, 0, frameWidth, frameHeight].join(' ')}>
-//   <title id={`artwork-${id}-title`}>{title}</title>
-//   <desc id={`artwork-${id}-desc`}>{alt}</desc>
-
-//   {frame && (
-//     <Fragment>
-//       <defs>
-//         {/* Define window path */}
-//         <path id={`artwork-${id}-window`} d={CanvasUtils.getLineCommands(frame.window)} />
-
-//         {/* Define window inner shadow (https://stackoverflow.com/a/53503687) */}
-//         <filter id={`artwork-${id}-inner-shadow`}>
-//           {/* Shadow Offset */}
-//           <feOffset dx={0} dy={0} />
-//           {/* Shadow Blur */}
-//           <feGaussianBlur stdDeviation={0.15 * frameDepth} result="offset-blur" />
-//           {/* Invert the drop shadow to create an inner shadow */}
-//           <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse" />
-//           {/* Color & opacity */}
-//           <feFlood floodColor="black" floodOpacity={0.5} result="color" />
-//           {/* Clip color inside shadow */}
-//           <feComposite operator="in" in="color" in2="inverse" result="shadow" />
-//           {/* Shadow opacity */}
-//           <feComponentTransfer in="shadow" result="shadow">
-//             <feFuncA type="linear" slope="1" />
-//           </feComponentTransfer>
-//         </filter>
-
-//         {/* Define window mask for artwork */}
-//         <mask id={`artwork-${id}-window-mask`}>
-//           <rect fill="black" x={0} y={0} width={frameWidth} height={frameHeight} />
-//           <use fill="white" href={`#artwork-${id}-window`} />
-//         </mask>
-//       </defs>
-
-//       {/* Render frame */}
-//       {isLoaded && frameSrc && (
-//         <image
-//           className={cx(styles.frame, isLoaded && styles.frameLoaded)}
-//           href={frameSrc}
-//           preserveAspectRatio="none"
-//           x={0}
-//           y={0}
-//           width={frameWidth}
-//           height={frameHeight}
-//         />
-//       )}
-
-//       {/* Render frame window when loading, and frame mat when loaded */}
-//       <use
-//         className={cx(styles.window, isLoaded && styles.windowLoaded)}
-//         href={`#artwork-${id}-window`}
-//       />
-
-//       {/* Render bezel for the frame mat */}
-//       {isLoaded && (
-//         <g id={`artwork-${id}-mat-bezel`} mask={`url(#artwork-${id}-window-mask)`}>
-//           {/* Render base light of the bezel */}
-//           <rect
-//             fill="white"
-//             x={artworkX - BEZEL}
-//             y={artworkY - BEZEL}
-//             width={artworkWidth + BEZEL * 2}
-//             height={artworkHeight + BEZEL * 2}
-//           />
-//           {/* Render shadow sides of bezel */}
-//           <path
-//             className={styles.bezelShadow}
-//             d={CanvasUtils.getLineCommands([
-//               {
-//                 x: artworkX + artworkWidth + BEZEL,
-//                 y: artworkY - BEZEL,
-//               },
-//               {
-//                 x: artworkX + artworkWidth,
-//                 y: artworkY,
-//               },
-//               {
-//                 x: artworkX,
-//                 y: artworkY + artworkHeight,
-//               },
-//               {
-//                 x: artworkX - BEZEL,
-//                 y: artworkY + artworkHeight + BEZEL,
-//               },
-//               {
-//                 x: artworkX - BEZEL,
-//                 y: artworkY - BEZEL,
-//               },
-//             ])}
-//           />
-//           {/* Render darker top shadow of bezel */}
-//           <path
-//             className={styles.bezelShadow}
-//             d={CanvasUtils.getLineCommands([
-//               {
-//                 x: artworkX + artworkWidth + BEZEL,
-//                 y: artworkY - BEZEL,
-//               },
-//               {
-//                 x: artworkX + artworkWidth,
-//                 y: artworkY,
-//               },
-//               {
-//                 x: artworkX,
-//                 y: artworkY,
-//               },
-//               {
-//                 x: artworkX - BEZEL,
-//                 y: artworkY - BEZEL,
-//               },
-//             ])}
-//           />
-//           {/* Render back of frame under mat */}
-//           <rect
-//             className={styles.mat}
-//             x={artworkX}
-//             y={artworkY}
-//             width={artworkWidth}
-//             height={artworkHeight}
-//           />
-//         </g>
-//       )}
-//     </Fragment>
-//   )}
-
-//   {/* Render artwork image, centered in frame */}
-//   {isLoaded && artworkSrc && (
-//     <image
-//       className={cx(styles.artwork, isLoaded && styles.artworkLoaded)}
-//       href={artworkSrc}
-//       preserveAspectRatio="xMinYMin slice"
-//       x={artworkX}
-//       y={artworkY}
-//       width={artworkWidth}
-//       height={artworkHeight}
-//       mask={frame ? `url(#artwork-${id}-window-mask)` : undefined}
-//     />
-//   )}
-
-//   {/* Render frame inner shadow */}
-//   {isLoaded && frame && (
-//     <use
-//       className={styles.frameInnerShadow}
-//       href={`#artwork-${id}-window`}
-//       filter={`url(#artwork-${id}-inner-shadow)`}
-//     />
-//   )}
-// </svg>;

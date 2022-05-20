@@ -1,0 +1,10 @@
+.container {
+  @include size(100%);
+  position: relative;
+  transition: opacity 300ms ease-out;
+}
+
+.canvas {
+  @include absolute(0);
+  @include size(100%);
+}

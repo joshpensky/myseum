@@ -1,28 +1,38 @@
-import { Frame } from '@prisma/client';
+import { Frame, MeasureUnit } from '@prisma/client';
 import { SelectionEditorPath } from '@src/features/selection';
 import { Dimensions3D } from '@src/types';
+import { PrismaUser, UserDto } from './user.serializer';
+
+export interface PrismaFrame extends Frame {
+  owner: Pick<PrismaUser, 'id' | 'name'>;
+}
 
 export interface FrameDto {
-  id: number;
+  id: string;
+  name: string;
   src: string;
-  description: string;
+  alt: string;
   size: Dimensions3D;
+  unit: MeasureUnit;
   window: SelectionEditorPath;
+  owner: Pick<UserDto, 'id' | 'name'>;
   addedAt: Date;
   modifiedAt: Date;
 }
 
 export class FrameSerializer {
-  static serialize(frame: Frame): FrameDto {
+  static serialize(frame: PrismaFrame): FrameDto {
     return {
       id: frame.id,
+      name: frame.name,
       src: frame.src,
-      description: frame.description,
+      alt: frame.alt,
       size: {
         width: frame.width,
         height: frame.height,
         depth: frame.depth,
       },
+      unit: frame.unit,
       window: [
         {
           x: frame.windowX1,
@@ -41,6 +51,7 @@ export class FrameSerializer {
           y: frame.windowY4,
         },
       ],
+      owner: frame.owner,
       addedAt: frame.addedAt,
       modifiedAt: frame.modifiedAt,
     };

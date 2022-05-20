@@ -4,9 +4,9 @@ import { ApiError } from '@supabase/supabase-js';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
+import { UserDropdown } from '@src/layouts/GlobalLayout/UserDropdown';
 import { useAuth } from '@src/providers/AuthProvider';
 import Logo from '@src/svgs/Logo';
-import { UserDropdown } from './UserDropdown';
 import styles from './nav.module.scss';
 
 const Nav = () => {

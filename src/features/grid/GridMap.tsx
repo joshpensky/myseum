@@ -1,14 +1,9 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import styles from './styles.module.scss';
 import { useGrid } from './useGrid';
 
-interface GridMapProps {
-  gridRef: RefObject<HTMLDivElement>;
-  viewportRef: RefObject<HTMLDivElement>;
-}
-
-export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
+export const GridMap = () => {
   const grid = useGrid();
 
   const scrollbarRef = useRef<HTMLDivElement>(null);
@@ -19,8 +14,8 @@ export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
   const [visibleWidth, setVisibleWidth] = useState(0);
 
   useEffect(() => {
-    const viewport = viewportRef.current;
-    if (viewport && gridRef.current) {
+    const viewport = grid.viewportRef.current;
+    if (viewport && grid.gridRef.current) {
       // Track the visible and scroll width by attaching an observer
       // to both the viewport (scrollable) and the grid (expandable)
       const resizeObserver = new ResizeObserver(() => {
@@ -28,7 +23,7 @@ export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
         setScrollWidth(viewport.scrollWidth);
       });
       resizeObserver.observe(viewport);
-      resizeObserver.observe(gridRef.current);
+      resizeObserver.observe(grid.gridRef.current);
 
       // Updates the `scrollLeft` state on scroll
       const onScroll = () => {
@@ -50,7 +45,7 @@ export const GridMap = ({ gridRef, viewportRef }: GridMapProps) => {
    * @param pointerX the pointer's client X position
    */
   const onDragScroll = (pointerX: number) => {
-    const viewport = viewportRef.current;
+    const viewport = grid.viewportRef.current;
     const scrollbar = scrollbarRef.current;
     if (!viewport || !scrollbar) {
       return;

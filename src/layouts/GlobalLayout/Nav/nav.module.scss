@@ -1,11 +1,39 @@
 .root {
   @include padding(sz(4));
+  @include sticky(0 x x 0);
   align-items: center;
+  backdrop-filter: blur(3px);
+  background-color: c('bg', 0.8);
   display: flex;
+  height: $nav-height;
   justify-content: space-between;
+  z-index: $z-nav;
 }
 
 .nav__logo {
   display: flex;
   height: sz(8);
+  color: c('text');
+  position: relative;
+
+  &::after {
+    @include absolute(sz(-1.5));
+    border-radius: sz(2);
+    box-shadow: inset 0 0 0 0 c('border', 0.2);
+    content: '';
+    z-index: -1;
+
+    @include with-motion {
+      transition: 150ms ease-out;
+    }
+  }
+
+  &:focus {
+    @include outline-none;
+
+    &::after {
+      background-color: c('bg-tint');
+      box-shadow: inset 0 0 0 1px c('border', 0.2);
+    }
+  }
 }

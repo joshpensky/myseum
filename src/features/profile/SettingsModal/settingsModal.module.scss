@@ -1,0 +1,65 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.field {
+  + .field {
+    margin-top: sz(3);
+  }
+}
+
+.field-headshot__preview {
+  @include margin(sz(2) auto);
+  aspect-ratio: 3 / 4;
+  border-radius: 50%;
+  height: calc(100% - #{sz(4)});
+  background-color: c('bg-tint');
+  position: relative;
+  overflow: hidden;
+
+  img {
+    @include absolute(0);
+    @include size(100%);
+    object-fit: cover;
+    object-position: center center;
+  }
+}
+
+.legend {
+  @include label;
+}
+
+.separator {
+  @include margin(sz(5) x sz(4));
+  border-color: c('border', 0.2);
+}
+
+.danger-zone__label {
+  color: c('secondary-text');
+  margin-bottom: sz(0.5);
+}
+
+.danger-zone__hint {
+  @include label;
+  margin-bottom: sz(3);
+}
+
+.danger-zone__action {
+  width: 100%;
+}
+
+.actions {
+  @include sticky(x x 0);
+  align-items: flex-end;
+  background-color: c('bg', 0.7);
+  display: flex;
+  flex: 1;
+  margin-top: sz(4);
+  padding-bottom: sz(5);
+
+  button {
+    width: 100%;
+  }
+}

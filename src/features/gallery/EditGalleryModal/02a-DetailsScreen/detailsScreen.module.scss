@@ -1,0 +1,43 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.field {
+  + .field {
+    margin-top: sz(3);
+  }
+}
+
+.row {
+  display: flex;
+  margin-top: sz(3);
+
+  .field + .field {
+    margin-top: 0;
+    margin-left: sz(3);
+  }
+}
+
+.color-option {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+  &::before {
+    @include size(sz(4));
+    border-radius: sz(1);
+    content: '';
+    display: flex;
+    background-color: c('bg');
+    border: 1px solid c('white');
+    @include margin(sz(1) x sz(1));
+  }
+}
