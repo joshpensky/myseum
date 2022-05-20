@@ -35,7 +35,6 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
     if (wrapperRef.current) {
       const observer = new ResizeObserver(entries => {
         const [wrapper] = entries;
-        console.log(wrapper.contentRect);
         setHeightPx(wrapper.contentRect.height);
         setWidthPx(wrapper.contentRect.width);
       });
@@ -135,16 +134,18 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
               }}>
               {/* TODO: add scaling based on item.framingOptions.scaling */}
               <div className={styles.artwork} style={artworkStyle}>
-                <Image
-                  src={artworkSrc}
-                  alt={item.artwork.alt}
-                  layout="fill"
-                  objectFit="fill"
-                  priority
-                  onLoadingComplete={() => {
-                    setIsArtworkLoaded(true);
-                  }}
-                />
+                <div className={styles.artworkInner}>
+                  <Image
+                    src={artworkSrc}
+                    alt={item.artwork.alt}
+                    layout="fill"
+                    objectFit="fill"
+                    priority
+                    onLoadingComplete={() => {
+                      setIsArtworkLoaded(true);
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </Fragment>

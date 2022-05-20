@@ -122,6 +122,7 @@ export const GridArtwork = ({
         <div className={styles.actions}>
           <button
             {...dragHandleProps}
+            type="button"
             className={styles.actionsItem}
             disabled={disabled}
             title="Move"
@@ -134,6 +135,7 @@ export const GridArtwork = ({
           {onRemove && (
             <button
               className={styles.actionsItem}
+              type="button"
               disabled={disabled}
               onClick={() => handleRemove()}
               title="Remove"

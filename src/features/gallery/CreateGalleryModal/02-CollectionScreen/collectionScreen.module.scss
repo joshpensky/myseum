@@ -10,29 +10,6 @@
   flex-direction: column;
 }
 
-.grid-preview {
-  @include padding(sz(2));
-  height: sz(28);
-  width: 100%;
-  border-radius: sz(3);
-  background-color: c('bg');
-  position: relative;
-  overflow: hidden;
-  margin-bottom: sz(4);
-
-  @include mq($bp-modal-drawer) {
-    display: none;
-  }
-}
-
-.grid-preview__grid {
-  height: 100%;
-}
-
-.grid-preview__edit {
-  @include absolute(x sz(2) sz(2) x);
-}
-
 .search {
   display: flex;
 }

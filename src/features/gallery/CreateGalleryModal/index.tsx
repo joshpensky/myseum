@@ -33,7 +33,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
         step={1}
         getItemId={item => String(item.artwork.id)}
         renderItem={(item, props) => (
-          <GridArtwork {...props} item={item} disabled={props.disabled} />
+          <GridArtwork {...props} item={item} isEditing disabled={props.disabled} />
         )}
         // TODO: add editing ability
         onSizeChange={() => {}}

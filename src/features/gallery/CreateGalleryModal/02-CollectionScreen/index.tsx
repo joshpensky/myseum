@@ -63,42 +63,6 @@ export const CollectionScreen = forwardRef<
           return (
             <Form className={styles.form} noValidate>
               <div className={styles.formBody}>
-                <FormModal.Root
-                  open={openGridModal}
-                  onOpenChange={setOpenGridModal}
-                  title="Place Artworks"
-                  trigger={
-                    <div
-                      className={cx(styles.gridPreview, `theme--${state.context.gallery.color}`)}>
-                      <Grid.Root
-                        preview
-                        size={{ width: 10, height: state.context.gallery.height }}
-                        items={state.context.gallery.artworks}
-                        step={1}
-                        getItemId={item => item.artwork.id}
-                        renderItem={(item, props) => (
-                          <GridArtwork {...props} item={item} disabled={props.disabled} />
-                        )}>
-                        <Grid.Grid className={styles.gridPreviewGrid} />
-                      </Grid.Root>
-                      <IconButton className={styles.gridPreviewEdit} type="button" title="Edit">
-                        <EditIcon />
-                      </IconButton>
-                    </div>
-                  }>
-                  <Grid.Root
-                    size={{ width: 10, height: state.context.gallery.height }}
-                    items={state.context.gallery.artworks}
-                    step={1}
-                    getItemId={item => item.artwork.id}
-                    renderItem={(item, props) => (
-                      <GridArtwork {...props} item={item} disabled={props.disabled} />
-                    )}>
-                    <Grid.Grid />
-                    <Grid.Map />
-                  </Grid.Root>
-                </FormModal.Root>
-
                 <div className={styles.search}>
                   <SearchBar name="search" label="Search collection" />
                   <AddArtworkModal

@@ -33,6 +33,11 @@
   transform: translate(var(--x), var(--y)) scale(calc(var(--scale, 100) / 100));
 }
 
+.artwork--inner {
+  position: relative;
+  @include size(var(--width), var(--height));
+}
+
 .placeholder {
   @include absolute(0);
   @include size(100%);

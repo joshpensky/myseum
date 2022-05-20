@@ -15,7 +15,9 @@ import { RadioGroup } from '@src/components/RadioGroup';
 import { TextArea } from '@src/components/TextArea';
 import { TextField } from '@src/components/TextField';
 import { UpdateGalleryDto } from '@src/data/repositories/gallery.repository';
-import { GalleryDto } from '@src/data/serializers/gallery.serializer';
+import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
+import { GridArtwork } from '@src/features/gallery/GridArtwork';
+import * as Grid from '@src/features/grid';
 import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './editGalleryModal.module.scss';
@@ -24,6 +26,8 @@ const editGallerySchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   description: z.string(),
   color: z.nativeEnum(GalleryColor),
+  artworks: z.array(z.object({})),
+  width: z.number().positive(),
   height: z.number().positive().int(),
 });
 
@@ -39,10 +43,21 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
   const theme = useTheme();
   const router = useRouter();
 
+  const galleryWidth =
+    10 +
+    Math.max(
+      0,
+      ...gallery.artworks.map(
+        item => item.position.x + (item.frame?.size.width ?? item.artwork.size.width),
+      ),
+    );
+
   const initialValues: EditGallerySchema = {
     name: gallery.name,
     description: gallery.description,
     color: gallery.color,
+    artworks: gallery.artworks,
+    width: galleryWidth,
     height: gallery.height,
   };
 
@@ -81,6 +96,12 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
                 description: values.description,
                 color: values.color,
                 height: values.height,
+                artworks: (values.artworks as PlacedArtworkDto[]).map(item => ({
+                  artworkId: item.artwork.id,
+                  frameId: item.frame?.id,
+                  framingOptions: item.framingOptions,
+                  position: item.position,
+                })),
               };
               const updatedGallery = await api.gallery.update(gallery.museum.id, gallery.id, data);
               onSave(updatedGallery);
@@ -90,10 +111,39 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
             }
           }}>
           {formik => {
-            const { isSubmitting, isValid } = formik;
+            const { errors, values, setFieldValue, isSubmitting, isValid } = formik;
+            console.log(errors);
 
             return (
               <Form className={styles.form} noValidate>
+                <Grid.Root
+                  size={{ width: values.width, height: values.height }}
+                  items={values.artworks as PlacedArtworkDto[]}
+                  step={1}
+                  getItemId={item => String(item.artwork.id)}
+                  renderItem={(item, props) => (
+                    <GridArtwork {...props} item={item} isEditing disabled={props.disabled} />
+                  )}
+                  onSizeChange={size => {
+                    setFieldValue('width', size.width);
+                  }}
+                  onItemChange={(index, value) => {
+                    setFieldValue('artworks', [
+                      ...values.artworks.slice(0, index),
+                      value,
+                      ...values.artworks.slice(index + 1),
+                    ]);
+                  }}>
+                  <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${values.color}`)}>
+                    <div className={styles.gridBlockGridWrapper}>
+                      <Grid.Grid className={styles.gridBlockGrid} />
+                    </div>
+                    <div className={styles.gridBlockMap}>
+                      <Grid.Map />
+                    </div>
+                  </FormModal.Sidecar>
+                </Grid.Root>
+
                 <FieldWrapper className={styles.field} name="name" label="Name" required>
                   {field => <TextField {...field} type="text" />}
                 </FieldWrapper>

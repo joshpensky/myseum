@@ -14,8 +14,7 @@ import { useGrid } from './useGrid';
 export interface DragHandleProps {
   ref: React.RefObject<HTMLButtonElement>;
   'aria-describedby': string;
-  onMouseDown(evt: React.MouseEvent<HTMLButtonElement>): void;
-  onTouchStart(evt: React.TouchEvent<HTMLButtonElement>): void;
+  onPointerDown(evt: React.MouseEvent<HTMLButtonElement>): void;
   onBlur(evt: React.FocusEvent<HTMLButtonElement>): void;
   onKeyDown(evt: React.KeyboardEvent<HTMLButtonElement>): void;
 }
@@ -80,14 +79,11 @@ export function useMoveController({
         y: 0,
       };
 
-      // Loop through all positioned parents, and sum the offsets of each
-      let offsetParent: Element | null = itemRef.current.offsetParent;
-      while (offsetParent instanceof HTMLElement) {
+      const offsetParent: Element | null = itemRef.current.offsetParent;
+      if (offsetParent instanceof HTMLElement) {
         // Add the offset left + top to total
         parentOffsetPx.x += offsetParent.offsetLeft;
         parentOffsetPx.y += offsetParent.offsetTop;
-        // Then loop to next offset parent
-        offsetParent = offsetParent.offsetParent;
       }
 
       // Then set the total offset
@@ -358,9 +354,9 @@ function useAutoScroll(controller: MoveController): AutoScroll {
 
 // TODO: combine mousemove and touchmove into pointermove
 
-export function useMouseMove(
+export function usePointerMove(
   controller: MoveController,
-): Pick<DragHandleProps, 'onBlur' | 'onMouseDown'> {
+): Pick<DragHandleProps, 'onBlur' | 'onPointerDown'> {
   const { move, scrollParent, translateTo } = controller;
 
   const autoScroll = useAutoScroll(controller);
@@ -368,14 +364,15 @@ export function useMouseMove(
   // When the item is moving via mouse navigation, track mouse move+up via document
   useEffect(() => {
     if (move.type === 'mouse' && !controller.readOnly) {
-      const onMouseMove = (evt: MouseEvent) => {
+      const onPointerMove = (evt: PointerEvent) => {
         // Prevent browser from auto-scrolling on drag
         evt.preventDefault();
 
         // Update move delta on mouse move
         translateTo(posDelta => ({
-          x: posDelta.x + evt.movementX,
-          y: posDelta.y + evt.movementY,
+          // event is called twice, so this fixes drifting movement!
+          x: posDelta.x + evt.movementX / 2,
+          y: posDelta.y + evt.movementY / 2,
         }));
 
         // Initialize auto-scrolling (so it continues to scroll without movement)
@@ -389,18 +386,18 @@ export function useMouseMove(
       };
 
       // Cancel moving when mouse is released
-      const onMouseUp = () => {
+      const onPointerUp = () => {
         move.end();
         autoScroll.cancel();
       };
 
       // Toggle event listeners
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
 
       return () => {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
       };
     }
   }, [move.type, scrollParent, move.end, controller.readOnly]);
@@ -411,114 +408,9 @@ export function useMouseMove(
       autoScroll.cancel();
     },
     // Start moving if the target is clicked on in an idle state
-    onMouseDown: evt => {
+    onPointerDown: evt => {
       if (evt.button === 0 && !controller.readOnly) {
         move.start('mouse');
-      }
-    },
-  };
-}
-
-export function useTouchMove(
-  controller: MoveController,
-): Pick<DragHandleProps, 'onBlur' | 'onTouchStart'> {
-  const { move, scrollParent, translateTo } = controller;
-
-  const lastTouchPositionRef = useRef({ x: 0, y: 0 });
-
-  const autoScroll = useAutoScroll(controller);
-
-  // When the item is moving via mouse navigation, track mouse move+up via document
-  useEffect(() => {
-    if (move.type === 'touch' && !controller.readOnly) {
-      const onTouchMove = (evt: TouchEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-
-        const touch = evt.touches[0];
-        const touchPosition: Position = { x: touch.clientX, y: touch.clientY };
-
-        // Update move delta on mouse move
-        translateTo(translatePx => ({
-          x: translatePx.x + (touchPosition.x - lastTouchPositionRef.current.x),
-          y: translatePx.y + (touchPosition.y - lastTouchPositionRef.current.y),
-        }));
-        lastTouchPositionRef.current = touchPosition;
-
-        // Initialize auto-scrolling (so it continues to scroll without movement)
-        const scrollBounds = getScrollBounds(scrollParent);
-        if (!isInBounds({ position: touchPosition }, scrollBounds)) {
-          autoScroll.setOptions({ viewport: scrollParent, cursor: touchPosition });
-        } else {
-          autoScroll.cancel();
-        }
-      };
-
-      const onTouchEnd = (evt: TouchEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        move.end();
-        autoScroll.cancel();
-      };
-
-      const onTouchCancel = (evt: TouchEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        move.end({ cancelled: true });
-        autoScroll.cancel();
-      };
-
-      const onOrientationChange = () => {
-        move.end({ cancelled: true });
-        autoScroll.cancel();
-      };
-
-      const onContextMenu = (evt: MouseEvent) => {
-        evt.preventDefault();
-      };
-
-      // Toggle event listeners for touch
-      document.addEventListener('touchmove', onTouchMove, { passive: false });
-      document.addEventListener('touchend', onTouchEnd, { passive: false });
-      document.addEventListener('touchcancel', onTouchCancel, { passive: false });
-      // TODO: cancel for forcepress
-
-      // Cancel any touches when the screen orientation changes
-      window.addEventListener('orientationchange', onOrientationChange);
-      window.addEventListener('resize', onOrientationChange); // resize can be triggered by orienttion change
-
-      // Opt out of behavior where long-press brings up context menu
-      window.addEventListener('contextmenu', onContextMenu);
-
-      // TODO: cancel on page visibility change
-
-      return () => {
-        document.removeEventListener('touchmove', onTouchMove);
-        document.removeEventListener('touchend', onTouchEnd);
-        document.removeEventListener('touchcancel', onTouchCancel);
-
-        window.removeEventListener('orientationchange', onOrientationChange);
-        window.removeEventListener('resize', onOrientationChange);
-
-        window.removeEventListener('contextmenu', onContextMenu);
-      };
-    }
-  }, [move.type, scrollParent, move.end, controller.readOnly]);
-
-  return {
-    // Cancel auto-scrolling when the target is unfocused
-    onBlur: () => {
-      autoScroll.cancel();
-    },
-    // Start moving if the target is touched in an idle state
-    onTouchStart: evt => {
-      if (evt.touches.length === 1 && !controller.readOnly) {
-        // Record the latest touch position
-        const touch = evt.touches[0];
-        const touchPosition: Position = { x: touch.clientX, y: touch.clientY };
-        lastTouchPositionRef.current = touchPosition;
-        // And start moving
-        move.start('touch');
       }
     },
   };

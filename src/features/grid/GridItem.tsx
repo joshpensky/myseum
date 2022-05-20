@@ -6,9 +6,8 @@ import {
   DragHandleProps,
   MoveControllerType,
   useKeyboardMove,
-  useMouseMove,
+  usePointerMove,
   useMoveController,
-  useTouchMove,
 } from './useMoveController';
 
 const cx = classNames.bind(styles);
@@ -51,8 +50,7 @@ export function GridItem({
     onMoveTypeChange,
   });
 
-  const mouseDragHandleProps = useMouseMove(controller);
-  const touchDragHandleProps = useTouchMove(controller);
+  const pointerDragHandleProps = usePointerMove(controller);
   const keyboardDragHandleProps = useKeyboardMove(controller);
 
   const instructionsId = `grid-item-${id}-instructions`;
@@ -60,9 +58,7 @@ export function GridItem({
     ref: dragHandleRef,
     'aria-describedby': instructionsId,
     // Adds the drag handle props for mouse move
-    ...mouseDragHandleProps,
-    // Adds the drag handle props for touch move
-    ...touchDragHandleProps,
+    ...pointerDragHandleProps,
     // Adds the drag handle props for keyboard move
     ...keyboardDragHandleProps,
     // Handles cancelling move when focus is lost on the drag handle
@@ -71,8 +67,7 @@ export function GridItem({
         return;
       }
 
-      mouseDragHandleProps.onBlur(evt);
-      touchDragHandleProps.onBlur(evt);
+      pointerDragHandleProps.onBlur(evt);
       controller.move.end({ cancelled: true });
     },
   };
