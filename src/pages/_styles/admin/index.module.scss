@@ -1,0 +1,67 @@
+.page {
+  @include padding(sz(4));
+}
+
+.title {
+  @include h1;
+  margin-bottom: sz(4);
+}
+
+.subtitle {
+  @include h3;
+
+  + p {
+    margin-bottom: sz(4);
+  }
+}
+
+.museum-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: sz(3);
+}
+
+.museum {
+  --columns: 3;
+
+  @include padding(sz(4));
+  border-radius: sz(2.5);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid c('border', 0.2);
+  width: calc((100% - #{sz(3)} * (var(--columns) - 1)) / var(--columns));
+
+  @include mq(max, $bp-tablet) {
+    --columns: 2;
+  }
+
+  @include mq(max, $bp-mobile) {
+    --columns: 1;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: c('border', 0.4);
+    }
+  }
+
+  &:focus-within {
+    border-color: c('border');
+  }
+}
+
+.museum__name {
+  @include h2;
+}
+
+.created {
+  @include label;
+  margin-top: sz(1);
+}
+
+.last-modified {
+  @include label;
+  flex: 1;
+  margin-top: sz(1);
+  margin-bottom: sz(4);
+}

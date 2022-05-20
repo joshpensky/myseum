@@ -36,6 +36,7 @@ model User {
   name     String  @default("")
   bio      String  @default("")
   headshot String?
+  isAdmin  Boolean @default(false)
 
   museum   Museum?
   frames   Frame[]

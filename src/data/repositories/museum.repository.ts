@@ -18,6 +18,18 @@ export class MuseumRepository {
     return museum;
   }
 
+  static async findAll(): Promise<PrismaMuseum[]> {
+    const museums = await prisma.museum.findMany({
+      include: {
+        curator: true,
+      },
+      orderBy: {
+        modifiedAt: 'desc',
+      },
+    });
+    return museums;
+  }
+
   static async findOneByCurator(curatorId: string): Promise<PrismaMuseum | null> {
     const museum = await prisma.museum.findUnique({
       where: { curatorId },

@@ -73,6 +73,15 @@ export const UserDropdown = () => {
                 </a>
               </Link>
             </li>
+            {auth.user.isAdmin && (
+              <li className={styles.userPopoverLinksItem}>
+                <Link href="/admin">
+                  <a className={styles.userPopoverLink} onClick={() => setIsOpen(false)}>
+                    Admin
+                  </a>
+                </Link>
+              </li>
+            )}
             <li className={styles.userPopoverLinksItem}>
               <button
                 className={styles.userPopoverLink}

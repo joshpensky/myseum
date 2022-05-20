@@ -18,6 +18,15 @@ import { UserDto } from '@src/data/serializers/user.serializer';
 import { AuthUserDto } from '@src/providers/AuthProvider';
 
 export interface MyseumAPI {
+  admin: {
+    /**
+     * Finds all museums for the admin view.
+     *
+     * @return a list of all museums
+     */
+    findAllMuseums(): Promise<MuseumDto[]>;
+  };
+
   artwork: {
     /**
      * Creates a new artwork.
