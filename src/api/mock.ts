@@ -187,6 +187,8 @@ export const MockAPI: MyseumAPI = {
       };
     },
 
+    async delete() {},
+
     async findAllByUser(user) {
       return [
         {

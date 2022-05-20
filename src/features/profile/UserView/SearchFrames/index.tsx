@@ -1,9 +1,10 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import dayjs from 'dayjs';
 import { Form, Formik } from 'formik';
 import Fuse from 'fuse.js';
 import useSWR from 'swr';
 import api from '@src/api';
+import { AlertDialog } from '@src/components/AlertDialog';
 import Button from '@src/components/Button';
 import IconButton from '@src/components/IconButton';
 import { Loader } from '@src/components/Loader';
@@ -22,9 +23,13 @@ import styles from './searchFrames.module.scss';
 
 interface FrameRowProps {
   frame: FrameDto;
+  onDelete(): void;
 }
 
-const FrameRow = ({ frame }: FrameRowProps) => {
+const FrameRow = ({ frame, onDelete }: FrameRowProps) => {
+  const [hasDeleteIntent, setHasDeleteIntent] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const auth = useAuth();
   const isOwner = auth.user?.id === frame.owner.id;
 
@@ -42,19 +47,49 @@ const FrameRow = ({ frame }: FrameRowProps) => {
       </div>
 
       <div className={styles.rowActions}>
+        {/* TODO: fullscreen modal */}
         <IconButton title="Expand">
           <ExpandIcon />
         </IconButton>
 
         {isOwner && (
           <Fragment>
+            {/* TODO: edit frame modal */}
             <IconButton title="Edit">
               <EditIcon />
             </IconButton>
 
-            <IconButton title="Delete">
-              <TrashIcon />
-            </IconButton>
+            <AlertDialog
+              open={hasDeleteIntent}
+              onOpenChange={setHasDeleteIntent}
+              title="Delete Frame"
+              description={`Are you sure you want to delete the frame "${frame.name}"?`}
+              hint="This action cannot be undone."
+              action={
+                <Button
+                  danger
+                  filled
+                  busy={isDeleting}
+                  onClick={async () => {
+                    setIsDeleting(true);
+                    try {
+                      await api.frame.delete(frame.id);
+                      onDelete();
+                    } catch {
+                      // TODO: toast error
+                      setHasDeleteIntent(false);
+                      setIsDeleting(false);
+                    }
+                  }}>
+                  Delete
+                </Button>
+              }
+              trigger={
+                <IconButton title="Delete">
+                  <TrashIcon />
+                </IconButton>
+              }
+            />
           </Fragment>
         )}
       </div>
@@ -147,7 +182,12 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
               <ul>
                 {results.map(result => (
                   <li key={result.item.id} className={styles.rowWrapper}>
-                    <FrameRow frame={result.item} />
+                    <FrameRow
+                      frame={result.item}
+                      onDelete={() => {
+                        frames.revalidate();
+                      }}
+                    />
                   </li>
                 ))}
               </ul>

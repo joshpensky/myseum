@@ -1,4 +1,4 @@
-import { MeasureUnit } from '@prisma/client';
+import { Frame, MeasureUnit } from '@prisma/client';
 import { prisma } from '@src/data/prisma';
 import { SelectionEditorPath } from '@src/features/selection';
 import { Dimensions3D } from '@src/types';
@@ -48,6 +48,23 @@ export class FrameRepository {
     return frames;
   }
 
+  static async findOne(id: string) {
+    const frame = await prisma.frame.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return frame;
+  }
+
   static async create(data: CreateFrameDto) {
     const src = await uploadSupabaseFile('frames', data.src);
 
@@ -75,10 +92,24 @@ export class FrameRepository {
         },
       },
       include: {
-        owner: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
     return frame;
+  }
+
+  static async delete(frame: Frame) {
+    const deletedFrame = await prisma.frame.delete({
+      where: {
+        id: frame.id,
+      },
+    });
+    return deletedFrame;
   }
 }

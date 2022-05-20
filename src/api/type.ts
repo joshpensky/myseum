@@ -101,6 +101,13 @@ export interface MyseumAPI {
     create(data: Omit<CreateFrameDto, 'ownerId'>): Promise<FrameDto>;
 
     /**
+     * Deletes an existing frame.
+     *
+     * @param id the frame's ID
+     */
+    delete(id: string): Promise<void>;
+
+    /**
      * Finds all frames for a given user.
      *
      * @param user the user to search within

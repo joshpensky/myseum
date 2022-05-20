@@ -69,6 +69,10 @@ export const ClientAPI: MyseumAPI = {
       return res.data;
     },
 
+    async delete(id) {
+      await axios.delete(`/api/frames/${id}`);
+    },
+
     async findAllByUser(user) {
       const res = await axios.get<FrameDto[]>(`/api/user/${user.id}/frames`);
       return res.data;
