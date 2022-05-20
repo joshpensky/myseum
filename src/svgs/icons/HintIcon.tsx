@@ -1,6 +1,6 @@
 import styles from '@src/svgs/_svgs.module.scss';
 
-const Lightbulb = () => (
+export const HintIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <line
       className={styles.stroke}
@@ -17,5 +17,3 @@ const Lightbulb = () => (
     />
   </svg>
 );
-
-export default Lightbulb;

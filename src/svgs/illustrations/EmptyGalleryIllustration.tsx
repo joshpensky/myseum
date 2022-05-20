@@ -1,4 +1,4 @@
-import styles from './_svgs.module.scss';
+import styles from '@src/svgs/_svgs.module.scss';
 
 export const EmptyGalleryIllustration = () => (
   <svg className={styles.svg} viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">

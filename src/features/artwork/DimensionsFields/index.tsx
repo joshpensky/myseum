@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import { NumberField } from '@src/components/NumberField';
 import { Select } from '@src/components/Select';
-import Close from '@src/svgs/Close';
-import Lightbulb from '@src/svgs/Lightbulb';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
+import { HintIcon } from '@src/svgs/icons/HintIcon';
 import styles from './dimensionsFields.module.scss';
 
 export const dimensionsFieldsSchema = z.object({
@@ -87,7 +87,7 @@ export const DimensionsFields = ({
         </FieldWrapper>
 
         <div className={styles.timesIcon}>
-          <Close />
+          <CloseIcon />
         </div>
 
         <FieldWrapper name="height" label="Height" required>
@@ -104,7 +104,7 @@ export const DimensionsFields = ({
         </FieldWrapper>
 
         <div className={styles.timesIcon}>
-          <Close />
+          <CloseIcon />
         </div>
 
         <FieldWrapper name="depth" label="Depth" required>
@@ -142,7 +142,7 @@ export const DimensionsFields = ({
       {!hidePresets && (
         <div className={styles.hint}>
           <div className={styles.hintIcon}>
-            <Lightbulb />
+            <HintIcon />
           </div>
 
           <p className={styles.hintText}>

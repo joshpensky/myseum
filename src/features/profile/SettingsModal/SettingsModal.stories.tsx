@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Button from '@src/components/Button';
 import { SettingsModal } from '@src/features/profile/SettingsModal';
 import { AuthProvider, useAuth } from '@src/providers/AuthProvider';
-import Cog from '@src/svgs/Cog';
+import { CogIcon } from '@src/svgs/icons/CogIcon';
 import '@src/styles/index.scss';
 
 export default {
@@ -22,7 +22,7 @@ export const Settings: ComponentStory<typeof SettingsModal> = () => {
     return (
       <SettingsModal
         user={auth.user}
-        trigger={<Button icon={Cog}>Settings</Button>}
+        trigger={<Button icon={CogIcon}>Settings</Button>}
         onSave={() => {}}
       />
     );

@@ -19,8 +19,8 @@ import { CreateGalleryModal } from '@src/features/gallery/CreateGalleryModal';
 import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
 import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
-import { EmptyGalleryIllustration } from '@src/svgs/EmptyGalleryIllustration';
-import { TrashIcon } from '@src/svgs/TrashIcon';
+import { TrashIcon } from '@src/svgs/icons/TrashIcon';
+import { EmptyGalleryIllustration } from '@src/svgs/illustrations/EmptyGalleryIllustration';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './editMuseumModal.module.scss';
 

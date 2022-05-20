@@ -15,11 +15,11 @@ import { UserDto } from '@src/data/serializers/user.serializer';
 import { CreateArtworkModal } from '@src/features/artwork/CreateArtworkModal';
 import { EditArtworkModal } from '@src/features/artwork/EditArtworkModal';
 import { useAuth } from '@src/providers/AuthProvider';
-import { ArtworkIllustration } from '@src/svgs/ArtworkIllustration';
-import { EditIcon } from '@src/svgs/EditIcon';
-import { ExpandIcon } from '@src/svgs/ExpandIcon';
-import { PlusIcon } from '@src/svgs/PlusIcon';
-import { TrashIcon } from '@src/svgs/TrashIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
+import { ExpandIcon } from '@src/svgs/icons/ExpandIcon';
+import { PlusIcon } from '@src/svgs/icons/PlusIcon';
+import { TrashIcon } from '@src/svgs/icons/TrashIcon';
+import { ArtworkIllustration } from '@src/svgs/illustrations/ArtworkIllustration';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './searchArtworks.module.scss';
 

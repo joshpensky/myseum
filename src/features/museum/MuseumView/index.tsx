@@ -9,9 +9,9 @@ import { CreateGalleryModal } from '@src/features/gallery/CreateGalleryModal';
 import { EditMuseumModal } from '@src/features/museum/EditMuseumModal';
 import GalleryBlock from '@src/features/museum/GalleryBlock';
 import { useAuth } from '@src/providers/AuthProvider';
-import { EditIcon } from '@src/svgs/EditIcon';
-import { EmptyGalleryIllustration } from '@src/svgs/EmptyGalleryIllustration';
-import { ShareIcon } from '@src/svgs/ShareIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
+import { ShareIcon } from '@src/svgs/icons/ShareIcon';
+import { EmptyGalleryIllustration } from '@src/svgs/illustrations/EmptyGalleryIllustration';
 import { shareUrl } from '@src/utils/shareUrl';
 import styles from './museumView.module.scss';
 

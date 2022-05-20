@@ -7,7 +7,7 @@ import { AlertDialog } from '@src/components/AlertDialog';
 import IconButton from '@src/components/IconButton';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
-import { CloseIcon } from '@src/svgs/Close';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
 import styles from './formModal.module.scss';
 
 const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);

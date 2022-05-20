@@ -13,7 +13,7 @@ import {
   CreateFrameState,
 } from '@src/features/frame/CreateFrameModal/state';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import Rotate from '@src/svgs/Cube';
+import { RotateIcon } from '@src/svgs/icons/RotateIcon';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { convertUnit } from '@src/utils/convertUnit';
@@ -167,7 +167,7 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
                         className={styles.toolbarButton}
                         title="Toggle 3D View"
                         aria-label="Toggle 3D View">
-                        <Rotate />
+                        <RotateIcon />
                       </button>
                     </Toggle.Root>
                   </div>

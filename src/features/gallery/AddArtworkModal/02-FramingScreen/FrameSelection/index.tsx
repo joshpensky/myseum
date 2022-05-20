@@ -6,7 +6,7 @@ import Button from '@src/components/Button';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { CreateFrameModal } from '@src/features/frame/CreateFrameModal';
 import { useAuth } from '@src/providers/AuthProvider';
-import Checkmark from '@src/svgs/Checkmark';
+import { CheckmarkIcon } from '@src/svgs/icons/CheckmarkIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './frameSelection.module.scss';
 
@@ -80,7 +80,7 @@ export const FrameSelection = ({ value, onChange }: FrameSelectionProps) => {
                   alt={frame.alt}
                 />
                 <span className={styles.frameCheckmark}>
-                  <Checkmark />
+                  <CheckmarkIcon />
                 </span>
               </label>
             </li>

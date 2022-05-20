@@ -2,7 +2,7 @@ import { ChangeEventHandler, FocusEventHandler, HTMLProps, ReactNode } from 'rea
 import cx from 'classnames';
 import { Field, useField } from 'formik';
 import { FieldWrapperChildProps } from '@src/components/FieldWrapper';
-import Checkmark from '@src/svgs/Checkmark';
+import { CheckmarkIcon } from '@src/svgs/icons/CheckmarkIcon';
 import styles from './checkboxField.module.scss';
 
 interface CheckboxFieldProps extends Omit<FieldWrapperChildProps, 'id' | 'aria-describedby'> {
@@ -55,7 +55,7 @@ export const CheckboxField = ({
         {label}
       </label>
       <div className={styles.checkmark} aria-hidden="true">
-        <Checkmark />
+        <CheckmarkIcon />
       </div>
 
       {hasError && (

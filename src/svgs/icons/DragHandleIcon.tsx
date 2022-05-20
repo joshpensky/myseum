@@ -1,6 +1,6 @@
 import styles from '@src/svgs/_svgs.module.scss';
 
-const DragHandle = () => (
+export const DragHandleIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <line
       className={styles.stroke}
@@ -24,5 +24,3 @@ const DragHandle = () => (
     <path className={styles.fill} d="M2.5 10L2.5 6L0.5 8L2.5 10Z" />
   </svg>
 );
-
-export default DragHandle;

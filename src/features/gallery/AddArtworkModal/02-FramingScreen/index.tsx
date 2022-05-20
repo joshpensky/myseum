@@ -14,8 +14,8 @@ import {
 import { AddPlacedArtworkDto } from '@src/data/repositories/gallery.repository';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { AddArtworkState } from '@src/features/gallery/AddArtworkModal/state';
-import Checkmark from '@src/svgs/Checkmark';
-import Rotate from '@src/svgs/Cube';
+import { CheckmarkIcon } from '@src/svgs/icons/CheckmarkIcon';
+import { RotateIcon } from '@src/svgs/icons/RotateIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import { FrameSelection } from './FrameSelection';
@@ -144,7 +144,7 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
                       className={styles.toolbarButton}
                       title="Toggle 3D View"
                       aria-label="Toggle 3D View">
-                      <Rotate />
+                      <RotateIcon />
                     </button>
                   </Toggle.Root>
                 </div>
@@ -165,7 +165,7 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
 
                   <label className={styles.radioGroupLabel} htmlFor="hasFrame-false">
                     <span className={styles.radioGroupButton} aria-hidden="true">
-                      <Checkmark />
+                      <CheckmarkIcon />
                     </span>
                     No Frame
                   </label>
@@ -193,7 +193,7 @@ export const FramingScreen = ({ gallery, state, onBack, onSubmit }: FramingScree
 
                   <label className={styles.radioGroupLabel} htmlFor="hasFrame-true">
                     <span className={styles.radioGroupButton} aria-hidden="true">
-                      <Checkmark />
+                      <CheckmarkIcon />
                     </span>
                     Framed
                   </label>

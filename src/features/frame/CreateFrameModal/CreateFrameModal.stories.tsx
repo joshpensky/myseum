@@ -2,7 +2,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Button from '@src/components/Button';
 import '@src/styles/index.scss';
 import { CreateFrameModal } from '@src/features/frame/CreateFrameModal';
-import { PlusIcon } from '@src/svgs/PlusIcon';
+import { PlusIcon } from '@src/svgs/icons/PlusIcon';
 
 export default {
   title: 'Modals/Create Frame',

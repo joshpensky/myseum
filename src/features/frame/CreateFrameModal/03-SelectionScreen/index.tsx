@@ -11,7 +11,7 @@ import { SelectionEditorSnapshot, SelectionEditorState } from '@src/features/sel
 import ImageSelectionEditor from '@src/features/selection/ImageSelectionEditor';
 import ImageSelectionPreview from '@src/features/selection/ImageSelectionPreview';
 import { renderPreview } from '@src/features/selection/renderPreview';
-import { LayerIcon } from '@src/svgs/LayerIcon';
+import { LayerIcon } from '@src/svgs/icons/LayerIcon';
 import { Dimensions } from '@src/types';
 import { CanvasUtils } from '@src/utils/CanvasUtils';
 import { CommonUtils } from '@src/utils/CommonUtils';

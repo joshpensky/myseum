@@ -10,7 +10,7 @@ import {
 import cx from 'classnames';
 import IconButton from '@src/components/IconButton';
 import { ThemeProvider } from '@src/providers/ThemeProvider';
-import CloseIcon from '@src/svgs/Close';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
 import styles from './popover.module.scss';
 
 const ANIMATION_DURATION = Number.parseInt(styles.varAnimDuration, 10);

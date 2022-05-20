@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import IconButton from '@src/components/IconButton';
 import { Popover } from '@src/components/Popover';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
-import { ExpandIcon } from '@src/svgs/ExpandIcon';
+import { ExpandIcon } from '@src/svgs/icons/ExpandIcon';
 import styles from './artworkDetails.module.scss';
 
 export interface ArtworkDetailProps {

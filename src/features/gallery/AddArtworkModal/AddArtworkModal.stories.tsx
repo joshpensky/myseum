@@ -5,7 +5,7 @@ import Button from '@src/components/Button';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { AddArtworkModal } from '@src/features/gallery/AddArtworkModal';
 import { AuthProvider } from '@src/providers/AuthProvider';
-import { PlusIcon } from '@src/svgs/PlusIcon';
+import { PlusIcon } from '@src/svgs/icons/PlusIcon';
 import '@src/styles/index.scss';
 
 export default {

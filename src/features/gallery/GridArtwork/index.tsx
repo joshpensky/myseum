@@ -4,8 +4,8 @@ import { Artwork } from '@src/components/Artwork';
 import { PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { useGrid } from '@src/features/grid';
 import { GridRenderItemProps } from '@src/features/grid/GridRoot';
-import DragHandle from '@src/svgs/DragHandle';
-import { TrashIcon } from '@src/svgs/TrashIcon';
+import { DragHandleIcon } from '@src/svgs/icons/DragHandleIcon';
+import { TrashIcon } from '@src/svgs/icons/TrashIcon';
 import styles from './gridArtwork.module.scss';
 
 const REMOVE_ANIM_DURATION = Number.parseInt(styles.varRemoveAnimDuration, 10);
@@ -128,7 +128,7 @@ export const GridArtwork = ({
             title="Move"
             aria-label="Move">
             <span>
-              <DragHandle />
+              <DragHandleIcon />
             </span>
           </button>
 

@@ -13,9 +13,9 @@ import {
   EditSelectionEvent,
 } from '@src/features/frame/CreateFrameModal/state';
 import { SelectionEditorPath, SelectionEditorState } from '@src/features/selection';
-import { DetailsIcon } from '@src/svgs/DetailsIcon';
-import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
-import { SelectionIcon } from '@src/svgs/SelectionIcon';
+import { DetailsIcon } from '@src/svgs/icons/DetailsIcon';
+import { DimensionsIcon } from '@src/svgs/icons/DimensionsIcon';
+import { SelectionIcon } from '@src/svgs/icons/SelectionIcon';
 import { GeometryUtils } from '@src/utils/GeometryUtils';
 import styles from './reviewScreen.module.scss';
 

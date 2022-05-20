@@ -1,6 +1,6 @@
 import styles from '@src/svgs/_svgs.module.scss';
 
-const Rotate = () => (
+export const RotateIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path
       className={styles.stroke}
@@ -15,5 +15,3 @@ const Rotate = () => (
     <path className={styles.stroke} vectorEffect="non-scaling-stroke" d="M8.22222 7.22223V15" />
   </svg>
 );
-
-export default Rotate;

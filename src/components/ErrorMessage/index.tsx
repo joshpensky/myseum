@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import Button from '@src/components/Button';
-import { CloseIcon } from '@src/svgs/Close';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
 import styles from './errorMessage.module.scss';
 
 interface ErrorMessageProps {

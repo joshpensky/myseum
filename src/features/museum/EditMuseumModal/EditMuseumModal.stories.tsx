@@ -5,7 +5,7 @@ import Button from '@src/components/Button';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto } from '@src/data/serializers/museum.serializer';
 import { EditMuseumModal } from '@src/features/museum/EditMuseumModal';
-import { EditIcon } from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
 import '@src/styles/index.scss';
 
 export default {

@@ -3,8 +3,8 @@ import { useField } from 'formik';
 import { FieldWrapper } from '@src/components/FieldWrapper';
 import IconButton from '@src/components/IconButton';
 import { TextField } from '@src/components/TextField';
-import { CloseIcon } from '@src/svgs/Close';
-import { SearchIcon } from '@src/svgs/SearchIcon';
+import { CloseIcon } from '@src/svgs/icons/CloseIcon';
+import { SearchIcon } from '@src/svgs/icons/SearchIcon';
 import styles from './searchBar.module.scss';
 
 interface SearchBarProps {

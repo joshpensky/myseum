@@ -11,9 +11,9 @@ import {
   EditDimensionsEvent,
   EditSelectionEvent,
 } from '@src/features/artwork/EditArtworkModal/state';
-import { DetailsIcon } from '@src/svgs/DetailsIcon';
-import { DimensionsIcon } from '@src/svgs/DimensionsIcon';
-import { SelectionIcon } from '@src/svgs/SelectionIcon';
+import { DetailsIcon } from '@src/svgs/icons/DetailsIcon';
+import { DimensionsIcon } from '@src/svgs/icons/DimensionsIcon';
+import { SelectionIcon } from '@src/svgs/icons/SelectionIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './reviewScreen.module.scss';
 

@@ -5,7 +5,7 @@ import Button from '@src/components/Button';
 import '@src/styles/index.scss';
 import { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { EditArtworkModal } from '@src/features/artwork/EditArtworkModal';
-import { EditIcon } from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
 
 export default {
   title: 'Modals/Edit Artwork',

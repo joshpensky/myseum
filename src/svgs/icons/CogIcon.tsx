@@ -1,6 +1,6 @@
 import styles from '@src/svgs/_svgs.module.scss';
 
-const Cog = () => (
+export const CogIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path
       className={styles.stroke}
@@ -14,5 +14,3 @@ const Cog = () => (
     />
   </svg>
 );
-
-export default Cog;

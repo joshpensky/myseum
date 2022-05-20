@@ -1,6 +1,6 @@
 import Button from '@src/components/Button';
 import { SEO } from '@src/components/SEO';
-import { NotFoundIllustration } from '@src/svgs/NotFoundIllustration';
+import { NotFoundIllustration } from '@src/svgs/illustrations/NotFoundIllustration';
 import styles from './_styles/404.module.scss';
 
 const NotFound = () => (

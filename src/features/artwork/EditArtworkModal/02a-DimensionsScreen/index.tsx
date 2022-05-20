@@ -11,7 +11,7 @@ import {
   ConfirmDimensionsEvent,
   EditArtworkState,
 } from '@src/features/artwork/EditArtworkModal/state';
-import Rotate from '@src/svgs/Cube';
+import { RotateIcon } from '@src/svgs/icons/RotateIcon';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
 import styles from './dimensionsScreen.module.scss';
@@ -88,7 +88,7 @@ export const DimensionsScreen = ({ state, onBack, onSubmit }: DimensionsScreenPr
                         className={styles.toolbarButton}
                         title="Toggle 3D View"
                         aria-label="Toggle 3D View">
-                        <Rotate />
+                        <RotateIcon />
                       </button>
                     </Toggle.Root>
                   </div>

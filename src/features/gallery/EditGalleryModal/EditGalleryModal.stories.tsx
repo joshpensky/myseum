@@ -4,7 +4,7 @@ import api from '@src/api';
 import Button from '@src/components/Button';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
 import { EditGalleryModal } from '@src/features/gallery/EditGalleryModal';
-import { EditIcon } from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
 import '@src/styles/index.scss';
 
 export default {

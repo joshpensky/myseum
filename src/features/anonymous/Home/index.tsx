@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import Button from '@src/components/Button';
 import { SEO } from '@src/components/SEO';
 import { useAuth } from '@src/providers/AuthProvider';
-import { MyseumIconIllustration } from '@src/svgs/MyseumIconIllustration';
+import { MyseumIconIllustration } from '@src/svgs/illustrations/MyseumIconIllustration';
 import styles from './home.module.scss';
 
 export const AnonymousHome = () => {

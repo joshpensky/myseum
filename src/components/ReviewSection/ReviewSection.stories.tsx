@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { ReviewSection as ReviewSectionComponent } from '@src/components/ReviewSection';
-import { DetailsIcon } from '@src/svgs/DetailsIcon';
+import { DetailsIcon } from '@src/svgs/icons/DetailsIcon';
 import '@src/styles/index.scss';
 
 export default {

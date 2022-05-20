@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Button from '@src/components/Button';
 import { CreateGalleryModal } from '@src/features/gallery/CreateGalleryModal';
-import { PlusIcon } from '@src/svgs/PlusIcon';
+import { PlusIcon } from '@src/svgs/icons/PlusIcon';
 import '@src/styles/index.scss';
 
 export default {

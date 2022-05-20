@@ -13,11 +13,11 @@ import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
 import { CreateFrameModal } from '@src/features/frame/CreateFrameModal';
 import { useAuth } from '@src/providers/AuthProvider';
-import { EditIcon } from '@src/svgs/EditIcon';
-import { ExpandIcon } from '@src/svgs/ExpandIcon';
-import { FrameIllustration } from '@src/svgs/FrameIllustration';
-import { PlusIcon } from '@src/svgs/PlusIcon';
-import { TrashIcon } from '@src/svgs/TrashIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
+import { ExpandIcon } from '@src/svgs/icons/ExpandIcon';
+import { PlusIcon } from '@src/svgs/icons/PlusIcon';
+import { TrashIcon } from '@src/svgs/icons/TrashIcon';
+import { FrameIllustration } from '@src/svgs/illustrations/FrameIllustration';
 import { getImageUrl } from '@src/utils/getImageUrl';
 import styles from './searchFrames.module.scss';
 

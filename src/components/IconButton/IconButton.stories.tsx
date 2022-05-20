@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import '@src/styles/index.scss';
 import IconButton from '@src/components/IconButton';
-import { EditIcon } from '@src/svgs/EditIcon';
+import { EditIcon } from '@src/svgs/icons/EditIcon';
 
 export default {
   title: 'Buttons/Icon',

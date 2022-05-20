@@ -1,6 +1,6 @@
 import styles from '@src/svgs/_svgs.module.scss';
 
-const CollectionViewIcon = () => (
+export const CollectionIcon = () => (
   <svg className={styles.svg} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <rect
       className={styles.stroke}
@@ -40,5 +40,3 @@ const CollectionViewIcon = () => (
     />
   </svg>
 );
-
-export default CollectionViewIcon;

@@ -1,7 +1,7 @@
 import { ChangeEventHandler, FocusEventHandler, HTMLProps } from 'react';
 import cx from 'classnames';
 import { Field, useField } from 'formik';
-import Caret from '@src/svgs/Caret';
+import { CaretIcon } from '@src/svgs/icons/CaretIcon';
 import styles from './select.module.scss';
 import { FieldWrapperChildProps } from '../FieldWrapper';
 
@@ -63,7 +63,7 @@ export function Select<V extends string>({
       </Field>
 
       <span className={styles.caret}>
-        <Caret />
+        <CaretIcon />
       </span>
     </div>
   );
