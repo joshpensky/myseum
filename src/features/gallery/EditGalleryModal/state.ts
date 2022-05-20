@@ -40,6 +40,11 @@ export interface ConfirmDetailsEvent {
   gallery: GalleryDto;
 }
 
+export interface ConfirmCollectionEvent {
+  type: 'CONFIRM_COLLECTION';
+  gallery: GalleryDto;
+}
+
 export interface AddArtworkEvent {
   type: 'ADD_ARTWORK';
   artwork: PlacedArtworkDto;
@@ -67,6 +72,7 @@ export type EditGalleryEvent =
   | EditDetailsEvent
   | EditCollectionEvent
   | ConfirmDetailsEvent
+  | ConfirmCollectionEvent
   | AddArtworkEvent
   | MoveArtworkEvent
   | DeleteArtworkEvent
@@ -170,6 +176,12 @@ export const editGalleryMachine = createMachine<
         RESET: {
           target: 'review',
           actions: assign((ctx, evt) => evt.context),
+        },
+        CONFIRM_COLLECTION: {
+          target: 'review',
+          actions: assign((ctx, evt) => ({
+            gallery: evt.gallery,
+          })),
         },
         ADD_ARTWORK: {
           actions: assign((ctx, evt) => {
