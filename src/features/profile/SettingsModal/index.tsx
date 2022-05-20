@@ -27,7 +27,7 @@ const userSettingsSchema = z.object({
 
 type UserSettingsSchema = z.infer<typeof userSettingsSchema>;
 
-interface SettingsModalProps {
+export interface SettingsModalProps {
   user: AuthUserDto;
   onSave(user: UserDto): void;
   trigger: ReactNode;

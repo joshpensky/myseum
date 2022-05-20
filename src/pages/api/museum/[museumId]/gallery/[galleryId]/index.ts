@@ -16,6 +16,17 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
+      // Gets the chosen gallery
+      case 'GET': {
+        const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
+        if (!gallery) {
+          res.status(404).json({ message: 'Not found.' });
+          return;
+        }
+        res.status(200).json(GallerySerializer.serialize(gallery));
+        break;
+      }
+
       // Updates the chosen gallery
       case 'PUT': {
         const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
@@ -42,7 +53,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'PUT');
+        res.setHeader('Allow', 'GET, PUT, DELETE');
         res.status(405).end('Method Not Allowed');
       }
     }

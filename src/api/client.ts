@@ -101,8 +101,9 @@ export const ClientAPI: MyseumAPI = {
       throw new Error('Implementation only available on server.');
     },
 
-    async findOneByMuseum() {
-      throw new Error('Implementation only available on server.');
+    async findOneByMuseum(museumId, galleryId) {
+      const res = await axios.get<GalleryDto>(`/api/museum/${museumId}/gallery/${galleryId}`);
+      return res.data;
     },
 
     async update(museumId, galleryId, data) {

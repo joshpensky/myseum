@@ -7,7 +7,7 @@ import { SelectionScreen } from './01-SelectionScreen';
 import { FramingScreen } from './02-FramingScreen';
 import { addArtworkMachine, AddArtworkStateValue, ScreenRefValue } from './state';
 
-interface AddArtworkModalProps {
+export interface AddArtworkModalProps {
   gallery: GalleryDto;
   onSave(data: PlacedArtworkDto): void;
   trigger: ReactNode;
@@ -63,12 +63,12 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
       description={`Step ${stepIdx + 1} of ${stepKeys.length}`}
       progress={(stepIdx + 1) / stepKeys.length}
       abandonDialogProps={{
-        title: 'Discard Artwork',
-        description: 'Are you sure you want to discard adding this new artwork?',
+        title: 'Abandon Artwork',
+        description: 'Are you sure you want to abandon adding this new artwork?',
         hint: 'Your data will not be saved.',
         action: (
           <Button danger filled>
-            Discard
+            Abandon
           </Button>
         ),
       }}

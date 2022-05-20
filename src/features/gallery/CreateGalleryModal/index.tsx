@@ -11,7 +11,7 @@ import { CollectionScreen } from './02-CollectionScreen';
 import styles from './createGalleryModal.module.scss';
 import { createGalleryMachine, CreateGalleryStateValue, ScreenRefValue } from './state';
 
-interface CreateGalleryModalProps {
+export interface CreateGalleryModalProps {
   onSave?(gallery: GalleryDto): void;
   onComplete?(gallery: GalleryDto): void;
   trigger: ReactNode;
@@ -32,10 +32,12 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
         items={state.context.gallery?.artworks ?? []}
         step={1}
         getItemId={item => String(item.artwork.id)}
-        // TODO: add editing ability
         renderItem={(item, props) => (
           <GridArtwork {...props} item={item} disabled={props.disabled} />
-        )}>
+        )}
+        // TODO: add editing ability
+        onSizeChange={() => {}}
+        onItemChange={() => {}}>
         <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
           <div className={styles.gridBlockGridWrapper}>
             <Grid.Grid className={styles.gridBlockGrid} />

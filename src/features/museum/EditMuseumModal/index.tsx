@@ -31,7 +31,7 @@ const editMuseumSchema = z.object({
 
 type EditMuseumSchema = z.infer<typeof editMuseumSchema>;
 
-interface EditMuseumModalProps {
+export interface EditMuseumModalProps {
   museum: MuseumDto;
   galleries: GalleryDto[];
   onSave(museum: MuseumWithGalleriesDto): void;

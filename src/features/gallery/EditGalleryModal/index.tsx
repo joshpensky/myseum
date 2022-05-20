@@ -29,7 +29,7 @@ const editGallerySchema = z.object({
 
 type EditGallerySchema = z.infer<typeof editGallerySchema>;
 
-interface EditGalleryModalProps {
+export interface EditGalleryModalProps {
   gallery: GalleryDto;
   onSave(museum: GalleryDto): void;
   trigger: ReactNode;
