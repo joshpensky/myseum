@@ -1,22 +1,14 @@
-import { createContext, ReactNode, useContext, useRef, useState } from 'react';
+import { createContext, ReactNode, useRef, useState } from 'react';
+import { GalleryColor } from '@prisma/client';
 import { useMachine } from '@xstate/react';
-import cx from 'classnames';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import { GalleryDto } from '@src/data/serializers/gallery.serializer';
-import { GridArtwork } from '@src/features/gallery/GridArtwork';
-import * as Grid from '@src/features/grid';
 import { DetailsScreen } from './01-DetailsScreen';
 import { CollectionScreen } from './02-CollectionScreen';
+import { GridSidecar } from './GridSidecar';
 import styles from './createGalleryModal.module.scss';
-import {
-  ChangeWidthEvent,
-  createGalleryMachine,
-  CreateGalleryStateValue,
-  CreateGalleryTypestate,
-  MoveArtworkEvent,
-  ScreenRefValue,
-} from './state';
+import { createGalleryMachine, CreateGalleryStateValue, ScreenRefValue } from './state';
 
 export interface CreateGalleryModalProps {
   onSave?(gallery: GalleryDto): void;
@@ -24,42 +16,10 @@ export interface CreateGalleryModalProps {
   trigger: ReactNode;
 }
 
-export const CreateGalleryModalContext = createContext({ height: 0, color: 'paper' });
-
-interface GridBlockProps {
-  state: CreateGalleryTypestate;
-  isEditing?: boolean;
-  send: (event: ChangeWidthEvent | MoveArtworkEvent) => void;
-}
-const GridBlock = ({ state, send, isEditing }: GridBlockProps) => {
-  const ctx = useContext(CreateGalleryModalContext);
-  return (
-    <Grid.Root
-      size={{ width: state.context.width, height: ctx.height }}
-      items={state.context.gallery?.artworks ?? []}
-      step={1}
-      getItemId={item => item.id}
-      renderItem={(item, props) => (
-        <GridArtwork {...props} item={item} isEditing={isEditing} disabled={props.disabled} />
-      )}
-      onSizeChange={size => {
-        send({ type: 'CHANGE_WIDTH', width: size.width });
-      }}
-      onItemChange={(index, data) => {
-        console.log(index, data);
-        send({ type: 'MOVE_ARTWORK', index, data });
-      }}>
-      <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
-        <div className={styles.gridBlockGridWrapper}>
-          <Grid.Grid className={styles.gridBlockGrid} />
-        </div>
-        <div className={styles.gridBlockMap}>
-          <Grid.Map />
-        </div>
-      </FormModal.Sidecar>
-    </Grid.Root>
-  );
-};
+export const CreateGalleryModalContext = createContext<{ height: number; color: GalleryColor }>({
+  height: 0,
+  color: 'paper',
+});
 
 export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGalleryModalProps) => {
   const screenRef = useRef<ScreenRefValue>(null);
@@ -76,7 +36,9 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
             onSave?.(data.gallery);
             send(data);
           }}>
-          <GridBlock state={state} send={send} />
+          <CreateGalleryModalContext.Consumer>
+            {ctx => <GridSidecar color={ctx.color} height={ctx.height} state={state} send={send} />}
+          </CreateGalleryModalContext.Consumer>
         </DetailsScreen>
       );
     } else if (state.matches('collection')) {
@@ -98,7 +60,17 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
             onComplete?.(data);
             setOpen(false);
           }}>
-          <GridBlock state={state} send={send} isEditing />
+          <CreateGalleryModalContext.Consumer>
+            {ctx => (
+              <GridSidecar
+                color={ctx.color}
+                height={ctx.height}
+                state={state}
+                send={send}
+                isEditing
+              />
+            )}
+          </CreateGalleryModalContext.Consumer>
         </CollectionScreen>
       );
     } else {

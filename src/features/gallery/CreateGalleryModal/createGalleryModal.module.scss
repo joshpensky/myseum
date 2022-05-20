@@ -1,38 +1,3 @@
 .overlay {
   background-color: c('black');
 }
-
-.grid-block {
-  align-items: center;
-
-  @include mq(max, $bp-modal-drawer) {
-    display: none;
-  }
-}
-
-.grid-block__grid-wrapper {
-  @include padding(sz(4));
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: 100%;
-
-  // Hide the actual scrollbar
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.grid-block__grid {
-  height: 100%;
-}
-
-.grid-block__map {
-  display: flex;
-  justify-content: center;
-  padding-bottom: sz(4);
-}

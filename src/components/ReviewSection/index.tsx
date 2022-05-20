@@ -24,7 +24,7 @@ export const ReviewSection = ({
 
     {children}
 
-    <Button className={styles.sectionEdit} onClick={() => onEdit()}>
+    <Button className={styles.sectionEdit} type="button" onClick={() => onEdit()}>
       Edit
     </Button>
   </section>

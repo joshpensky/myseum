@@ -1,6 +1,7 @@
-import { ReactNode, useRef, useState } from 'react';
+import { createContext, ReactNode, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { GalleryColor } from '@prisma/client';
+import { useMachine } from '@xstate/react';
 import cx from 'classnames';
 import { Form, Formik, FormikProps } from 'formik';
 import toast from 'react-hot-toast';
@@ -20,7 +21,10 @@ import { GridArtwork } from '@src/features/gallery/GridArtwork';
 import * as Grid from '@src/features/grid';
 import { ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
 import { validateZodSchema } from '@src/utils/validateZodSchema';
+import { ReviewScreen } from './01-ReviewScreen';
 import styles from './editGalleryModal.module.scss';
+import { EditGalleryContext, editGalleryMachine } from './state';
+import { GridSidecar } from '../CreateGalleryModal/GridSidecar';
 
 const editGallerySchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -42,6 +46,11 @@ export interface EditGalleryModalProps {
   trigger: ReactNode;
 }
 
+export const EditGalleryModalContext = createContext<{ height: number; color: GalleryColor }>({
+  height: 0,
+  color: 'paper',
+});
+
 export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalProps) => {
   const theme = useTheme();
   const router = useRouter();
@@ -58,16 +67,50 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
     height: gallery.height,
   };
 
+  const initialContext: EditGalleryContext = {
+    width: galleryWidth,
+    gallery,
+  };
+
+  const [state, send] = useMachine(() => editGalleryMachine.withContext(initialContext));
+
   const [open, setOpen] = useState(false);
-  const [hasDeleteIntent, setHasDeleteIntent] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+    if (!open) {
+      send({ type: 'RESET', context: initialContext });
+    }
+  };
 
   const formikRef = useRef<FormikProps<EditGallerySchema>>(null);
+
+  const renderScreen = () => {
+    if (state.matches('review')) {
+      return (
+        <ReviewScreen
+          state={state}
+          onDelete={() => {
+            onOpenChange(false);
+            router.push('/');
+          }}
+          onEdit={evt => send(evt)}
+          onSubmit={() => {}}>
+          <GridSidecar
+            color={state.context.gallery.color}
+            height={state.context.gallery.height}
+            state={state}
+            send={send}
+          />
+        </ReviewScreen>
+      );
+    }
+    return null;
+  };
 
   return (
     <FormModal.Root
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       trigger={trigger}
       title="Edit Gallery"
       abandonDialogProps={{
@@ -81,7 +124,8 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
         ),
       }}
       getIsDirty={() => formikRef.current?.dirty ?? false}>
-      <FormModal.Screen title="Edit Gallery" description="Choose an area to update.">
+      {renderScreen()}
+      {/* <FormModal.Screen title="Edit Gallery" description="Choose an area to update.">
         <Formik
           innerRef={formikRef}
           initialValues={initialValues}
@@ -242,7 +286,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
             );
           }}
         </Formik>
-      </FormModal.Screen>
+      </FormModal.Screen> */}
     </FormModal.Root>
   );
 };
