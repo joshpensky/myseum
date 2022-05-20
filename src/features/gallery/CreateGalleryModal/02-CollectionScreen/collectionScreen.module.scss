@@ -41,6 +41,68 @@
   margin-left: sz(2);
 }
 
+.empty-state {
+  @include padding(sz(4));
+  align-items: center;
+  color: c('secondary-text');
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-state__illo {
+  color: c('illustration');
+  margin-bottom: sz(5);
+  width: min(100%, #{sz(30)});
+
+  svg {
+    stroke-width: 1.2;
+  }
+}
+
+.empty-state__text {
+  margin-bottom: sz(3);
+}
+
+.empty-state__action {
+  @media (hover: hover) {
+    &:hover {
+      color: c('text', 0.5);
+    }
+  }
+
+  &:focus {
+    color: c('text');
+  }
+}
+
+.collection-row {
+  @include padding(sz(4) x);
+  align-items: center;
+  display: flex;
+
+  + .collection-row {
+    border-top: 1px solid c('border', 0.2);
+  }
+}
+
+.collection-row__preview {
+  @include size(sz(25));
+  display: flex;
+  align-items: center;
+  margin-right: sz(3);
+}
+
+.collection-row__meta {
+  flex: 1;
+
+  p:nth-child(2) {
+    color: c('secondary-text');
+  }
+}
+
 :export {
   varBpDrawer: $bp-modal-drawer;
 }

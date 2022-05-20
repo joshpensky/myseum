@@ -29,8 +29,8 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
   }, [isLoaded]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [heightPx, setHeightPx] = useState(0);
-  const [widthPx, setWidthPx] = useState(0);
+  const [_heightPx, setHeightPx] = useState(0);
+  const [_widthPx, setWidthPx] = useState(0);
   useIsomorphicLayoutEffect(() => {
     if (wrapperRef.current) {
       const observer = new ResizeObserver(entries => {
@@ -50,6 +50,12 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
   const { width: artworkWidth, height: artworkHeight } = item.artwork.size;
   const frameWidth = item.frame?.size.width ?? artworkWidth;
   const frameHeight = item.frame?.size.height ?? artworkHeight;
+
+  const { width: widthPx, height: heightPx } = CanvasUtils.objectContain(
+    { width: _widthPx, height: _heightPx },
+    { width: frameWidth, height: frameHeight },
+  );
+
   // const frameDepth = frame?.size.depth ?? 0;
 
   // Center the artwork within the frame
@@ -98,60 +104,62 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
   const artworkSrc = getImageUrl('artworks', item.artwork.src);
 
   return (
-    <div ref={wrapperRef} className={styles.wrapper}>
-      {/* Use an SVG to define the dimensions of the element */}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox={[0, 0, frameWidth, frameHeight].join(' ')} />
-
-      {!item.frame ? (
-        <Image
-          src={artworkSrc}
-          layout="fill"
-          objectFit="fill"
-          onLoadingComplete={() => setIsArtworkLoaded(true)}
-        />
-      ) : (
-        <Fragment>
+    <div
+      ref={wrapperRef}
+      className={styles.wrapper}
+      style={{ '--aspect-ratio': frameWidth / frameHeight }}>
+      <div>
+        {!item.frame ? (
           <Image
-            src={getImageUrl('frames', item.frame.src)}
-            alt=""
+            src={artworkSrc}
             layout="fill"
             objectFit="fill"
-            onLoadingComplete={() => {
-              setIsFrameLoaded(true);
-            }}
+            onLoadingComplete={() => setIsArtworkLoaded(true)}
           />
+        ) : (
+          <Fragment>
+            <Image
+              src={getImageUrl('frames', item.frame.src)}
+              alt=""
+              layout="fill"
+              objectFit="fill"
+              onLoadingComplete={() => {
+                setIsFrameLoaded(true);
+              }}
+            />
 
-          <div
-            className={cx(styles.window, styles[`matting--${item.framingOptions.matting}`])}
-            style={{
-              '--path': `'${windowPath}'`,
-            }}>
-            {/* TODO: add scaling based on item.framingOptions.scaling */}
-            <div className={styles.artwork} style={artworkStyle}>
-              <Image
-                src={artworkSrc}
-                alt={item.artwork.alt}
-                layout="fill"
-                objectFit="fill"
-                priority
-                onLoadingComplete={() => {
-                  setIsArtworkLoaded(true);
-                }}
-              />
+            <div
+              className={cx(styles.window, styles[`matting--${item.framingOptions.matting}`])}
+              style={{
+                '--path': `'${windowPath}'`,
+              }}>
+              {/* TODO: add scaling based on item.framingOptions.scaling */}
+              <div className={styles.artwork} style={artworkStyle}>
+                <Image
+                  src={artworkSrc}
+                  alt={item.artwork.alt}
+                  layout="fill"
+                  objectFit="fill"
+                  priority
+                  onLoadingComplete={() => {
+                    setIsArtworkLoaded(true);
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        </Fragment>
-      )}
-
-      <div className={cx(styles.placeholder, isLoaded && styles.placeholderLoaded)}>
-        {windowPath && (
-          <div
-            className={styles.placeholderWindow}
-            style={{
-              '--path': `'${windowPath}'`,
-            }}
-          />
+          </Fragment>
         )}
+
+        <div className={cx(styles.placeholder, isLoaded && styles.placeholderLoaded)}>
+          {windowPath && (
+            <div
+              className={styles.placeholderWindow}
+              style={{
+                '--path': `'${windowPath}'`,
+              }}
+            />
+          )}
+        </div>
       </div>
 
       {isLoaded && !disabled && (

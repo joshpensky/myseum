@@ -1,9 +1,15 @@
 .wrapper {
   @include size(100%);
-  background-color: c('bg-tint');
   display: flex;
-  position: relative;
+  justify-content: center;
   overflow: hidden;
+  position: relative;
+
+  > div {
+    aspect-ratio: var(--aspect-ratio);
+    background-color: c('bg-tint');
+    position: relative;
+  }
 }
 
 .window {
@@ -47,39 +53,3 @@
   background-color: c('bg');
   clip-path: path(var(--path));
 }
-
-// .frame {
-//   opacity: 0;
-
-//   &.frame--loaded {
-//     opacity: 1;
-//   }
-// }
-
-// .window {
-//   fill: c('bg');
-
-//   &.window--loaded {
-//     fill: $c-paper-200;
-//   }
-// }
-
-// .bezel-shadow {
-//   fill: c('black', 0.2);
-// }
-
-// .mat {
-//   fill: $c-paper-300;
-// }
-
-// .artwork {
-//   opacity: 0;
-
-//   &.artwork--loaded {
-//     opacity: 1;
-//   }
-// }
-
-// .frame-inner-shadow {
-//   fill: c('black');
-// }
