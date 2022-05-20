@@ -55,6 +55,7 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
   async function signIn() {
     const url = new URL(`${window.location.origin}/callback`);
     url.searchParams.append('returnTo', router.asPath);
+    alert(url);
     await api.auth.signIn({ redirectTo: url.toString() });
   }
 
