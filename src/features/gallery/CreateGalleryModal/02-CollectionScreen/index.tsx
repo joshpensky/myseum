@@ -1,16 +1,12 @@
 import { forwardRef, PropsWithChildren, useState } from 'react';
-import cx from 'classnames';
 import { Form, Formik, FormikProps } from 'formik';
+import api from '@src/api';
 import { Artwork } from '@src/components/Artwork';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
 import IconButton from '@src/components/IconButton';
 import { SearchBar } from '@src/components/SearchBar';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
-import { GridArtwork } from '@src/features/gallery/GridArtwork';
-import * as Grid from '@src/features/grid';
-import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
-import { EditIcon } from '@src/svgs/EditIcon';
 import { PlacedArtworkIllustration } from '@src/svgs/PlacedArtworkIllustration';
 import { PlusIcon } from '@src/svgs/PlusIcon';
 import { TrashIcon } from '@src/svgs/TrashIcon';
@@ -19,11 +15,9 @@ import { CreateGalleryModalContext } from '..';
 import { AddArtworkModal } from '../../AddArtworkModal';
 import { CreateGalleryState } from '../state';
 
-const BP_DRAWER = Number.parseInt(styles.varBpDrawer, 10);
-
 interface CollectionScreenProps {
   state: CreateGalleryState<'collection'>;
-  onBack(): void;
+  onBack(data: GalleryDto): void;
   onAddArtwork(data: PlacedArtworkDto): void;
   onSubmit(data: GalleryDto): void;
 }
@@ -32,33 +26,41 @@ export const CollectionScreen = forwardRef<
   FormikProps<any>,
   PropsWithChildren<CollectionScreenProps>
 >(function CollectionScreen({ children, state, onAddArtwork, onBack, onSubmit }, ref) {
-  const [openGridModal, setOpenGridModal] = useState(false);
-
-  useIsomorphicLayoutEffect(() => {
-    const query = window.matchMedia(`(max-width: ${BP_DRAWER - 1}px)`);
-    if (!query.matches) {
-      setOpenGridModal(false);
-    }
-
-    query.addEventListener('change', query => {
-      if (!query.matches) {
-        setOpenGridModal(false);
-      }
-    });
-  }, []);
+  async function updateGallery() {
+    const gallery = await api.gallery.update(
+      state.context.gallery.museum.id,
+      state.context.gallery.id,
+      {
+        name: state.context.gallery.name,
+        description: state.context.gallery.description,
+        artworks: state.context.gallery.artworks.map(item => ({
+          artworkId: item.artwork.id,
+          frameId: item.frame?.id,
+          framingOptions: item.framingOptions,
+          position: item.position,
+        })),
+      },
+    );
+    return gallery;
+  }
 
   return (
     <FormModal.Screen title="Collection" description="Add artworks to your gallery collection.">
       <Formik
         innerRef={ref}
         initialValues={{}}
-        onSubmit={(values, helpers) => {
-          // TODO: add artworks to gallery
-          onSubmit(state.context.gallery);
-          helpers.setSubmitting(false);
+        onSubmit={async (values, helpers) => {
+          try {
+            const gallery = await updateGallery();
+            onSubmit(gallery);
+          } catch (error) {
+            console.error(error);
+            helpers.setSubmitting(false);
+          }
         }}>
         {formik => {
-          const { isSubmitting } = formik;
+          const { isSubmitting, setSubmitting } = formik;
+          const [hasBackIntent, setHasBackIntent] = useState(false);
 
           return (
             <Form className={styles.form} noValidate>
@@ -130,10 +132,29 @@ export const CollectionScreen = forwardRef<
               </div>
 
               <FormModal.Footer>
-                <Button type="button" onClick={() => onBack()}>
+                <Button
+                  type="button"
+                  busy={hasBackIntent}
+                  onClick={async () => {
+                    setHasBackIntent(true);
+                    setSubmitting(true);
+                    try {
+                      const gallery = await updateGallery();
+                      onBack(gallery);
+                    } catch (error) {
+                      console.error(error);
+                      setHasBackIntent(false);
+                      setSubmitting(false);
+                    }
+                  }}>
                   Back
                 </Button>
-                <Button type="submit" filled busy={isSubmitting}>
+
+                <Button
+                  type="submit"
+                  filled
+                  busy={isSubmitting && !hasBackIntent}
+                  disabled={hasBackIntent}>
                   Save
                 </Button>
               </FormModal.Footer>

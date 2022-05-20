@@ -44,13 +44,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
   const router = useRouter();
 
   const galleryWidth =
-    10 +
-    Math.max(
-      0,
-      ...gallery.artworks.map(
-        item => item.position.x + (item.frame?.size.width ?? item.artwork.size.width),
-      ),
-    );
+    10 + Math.max(0, ...gallery.artworks.map(item => item.position.x + item.size.width));
 
   const initialValues: EditGallerySchema = {
     name: gallery.name,
@@ -111,8 +105,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
             }
           }}>
           {formik => {
-            const { errors, values, setFieldValue, isSubmitting, isValid } = formik;
-            console.log(errors);
+            const { values, setFieldValue, isSubmitting, isValid } = formik;
 
             return (
               <Form className={styles.form} noValidate>

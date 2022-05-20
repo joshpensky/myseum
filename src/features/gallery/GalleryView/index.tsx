@@ -35,9 +35,7 @@ export const GalleryView: PageComponent<GalleryViewProps, GalleryViewComputedPro
   const isCurrentUser = auth.user?.id === gallery.museum.curator.id;
 
   const [openedArtworkId, setOpenedArtworkId] = useState<string | null>(null);
-  const width = Math.max(
-    ...gallery.artworks.map(artwork => artwork.position.x + artwork.size.width),
-  );
+  const width = 10 + Math.max(...gallery.artworks.map(item => item.position.x + item.size.width));
 
   return (
     <ThemeProvider theme={{ color: gallery.color }}>

@@ -140,7 +140,6 @@ export const Artwork = ({ item, disabled, onDetailsOpenChange, onLoad }: Artwork
                     alt={item.artwork.alt}
                     layout="fill"
                     objectFit="fill"
-                    priority
                     onLoadingComplete={() => {
                       setIsArtworkLoaded(true);
                     }}

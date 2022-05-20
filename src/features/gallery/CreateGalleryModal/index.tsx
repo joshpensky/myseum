@@ -9,7 +9,14 @@ import * as Grid from '@src/features/grid';
 import { DetailsScreen } from './01-DetailsScreen';
 import { CollectionScreen } from './02-CollectionScreen';
 import styles from './createGalleryModal.module.scss';
-import { createGalleryMachine, CreateGalleryStateValue, ScreenRefValue } from './state';
+import {
+  ChangeWidthEvent,
+  createGalleryMachine,
+  CreateGalleryStateValue,
+  CreateGalleryTypestate,
+  MoveArtworkEvent,
+  ScreenRefValue,
+} from './state';
 
 export interface CreateGalleryModalProps {
   onSave?(gallery: GalleryDto): void;
@@ -19,36 +26,45 @@ export interface CreateGalleryModalProps {
 
 export const CreateGalleryModalContext = createContext({ height: 0, color: 'paper' });
 
+interface GridBlockProps {
+  state: CreateGalleryTypestate;
+  isEditing?: boolean;
+  send: (event: ChangeWidthEvent | MoveArtworkEvent) => void;
+}
+const GridBlock = ({ state, send, isEditing }: GridBlockProps) => {
+  const ctx = useContext(CreateGalleryModalContext);
+  return (
+    <Grid.Root
+      size={{ width: state.context.width, height: ctx.height }}
+      items={state.context.gallery?.artworks ?? []}
+      step={1}
+      getItemId={item => String(item.artwork.id)}
+      renderItem={(item, props) => (
+        <GridArtwork {...props} item={item} isEditing={isEditing} disabled={props.disabled} />
+      )}
+      onSizeChange={size => {
+        send({ type: 'CHANGE_WIDTH', width: size.width });
+      }}
+      onItemChange={(index, data) => {
+        console.log(index, data);
+        send({ type: 'MOVE_ARTWORK', index, data });
+      }}>
+      <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
+        <div className={styles.gridBlockGridWrapper}>
+          <Grid.Grid className={styles.gridBlockGrid} />
+        </div>
+        <div className={styles.gridBlockMap}>
+          <Grid.Map />
+        </div>
+      </FormModal.Sidecar>
+    </Grid.Root>
+  );
+};
+
 export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGalleryModalProps) => {
   const screenRef = useRef<ScreenRefValue>(null);
   const [open, setOpen] = useState(false);
   const [state, send] = useMachine(createGalleryMachine);
-
-  const GridBlock = () => {
-    const ctx = useContext(CreateGalleryModalContext);
-    return (
-      <Grid.Root
-        size={{ width: 10, height: ctx.height }}
-        items={state.context.gallery?.artworks ?? []}
-        step={1}
-        getItemId={item => String(item.artwork.id)}
-        renderItem={(item, props) => (
-          <GridArtwork {...props} item={item} isEditing disabled={props.disabled} />
-        )}
-        // TODO: add editing ability
-        onSizeChange={() => {}}
-        onItemChange={() => {}}>
-        <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${ctx.color}`)}>
-          <div className={styles.gridBlockGridWrapper}>
-            <Grid.Grid className={styles.gridBlockGrid} />
-          </div>
-          <div className={styles.gridBlockMap}>
-            <Grid.Map />
-          </div>
-        </FormModal.Sidecar>
-      </Grid.Root>
-    );
-  };
 
   const renderStep = () => {
     if (state.matches('details')) {
@@ -60,7 +76,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
             onSave?.(data.gallery);
             send(data);
           }}>
-          <GridBlock />
+          <GridBlock state={state} send={send} />
         </DetailsScreen>
       );
     } else if (state.matches('collection')) {
@@ -70,7 +86,8 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
           onAddArtwork={data => {
             send({ type: 'ADD_ARTWORK', artwork: data });
           }}
-          onBack={() => {
+          onBack={data => {
+            onSave?.(data);
             send({ type: 'GO_BACK' });
           }}
           onSubmit={data => {
@@ -78,7 +95,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
             onComplete?.(data);
             setOpen(false);
           }}>
-          <GridBlock />
+          <GridBlock state={state} send={send} isEditing />
         </CollectionScreen>
       );
     } else {

@@ -10,6 +10,7 @@ export interface ScreenRefValue {
 //////////////////////////
 
 export interface CreateGalleryContext {
+  width: number;
   gallery?: GalleryDto;
 }
 
@@ -35,7 +36,24 @@ export interface AddArtworkEvent {
   artwork: PlacedArtworkDto;
 }
 
-export type CreateGalleryEvent = GoBackEvent | ResetEvent | ConfirmDetailsEvent | AddArtworkEvent;
+export interface MoveArtworkEvent {
+  type: 'MOVE_ARTWORK';
+  index: number;
+  data: PlacedArtworkDto;
+}
+
+export interface ChangeWidthEvent {
+  type: 'CHANGE_WIDTH';
+  width: number;
+}
+
+export type CreateGalleryEvent =
+  | GoBackEvent
+  | ResetEvent
+  | ConfirmDetailsEvent
+  | AddArtworkEvent
+  | MoveArtworkEvent
+  | ChangeWidthEvent;
 
 //////////////////////////
 // Typestates
@@ -84,6 +102,7 @@ export const createGalleryMachine = createMachine<
 >({
   id: 'form',
   context: {
+    width: 10,
     gallery: undefined,
   },
   initial: 'details',
@@ -117,15 +136,51 @@ export const createGalleryMachine = createMachine<
         },
         ADD_ARTWORK: {
           actions: assign((ctx, evt) => {
+            let width = 10;
             let gallery: GalleryDto | undefined = undefined;
+
             if (ctx.gallery) {
               gallery = {
                 ...ctx.gallery,
                 artworks: [...ctx.gallery.artworks, evt.artwork],
               };
+
+              width += Math.max(
+                0,
+                ...gallery.artworks.map(item => item.position.x + item.size.width),
+              );
             }
-            return { gallery };
+
+            return {
+              width,
+              gallery,
+            };
           }),
+        },
+        MOVE_ARTWORK: {
+          actions: assign((ctx, evt) => {
+            let gallery: GalleryDto | undefined = undefined;
+
+            if (ctx.gallery) {
+              gallery = {
+                ...ctx.gallery,
+                artworks: [
+                  ...ctx.gallery.artworks.slice(0, evt.index),
+                  evt.data,
+                  ...ctx.gallery.artworks.slice(evt.index + 1),
+                ],
+              };
+            }
+
+            return {
+              gallery,
+            };
+          }),
+        },
+        CHANGE_WIDTH: {
+          actions: assign((ctx, evt) => ({
+            width: evt.width,
+          })),
         },
       },
     },
