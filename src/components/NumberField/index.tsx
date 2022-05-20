@@ -17,7 +17,7 @@ import { EWResizeCursor } from '@src/svgs/EWResizeCursor';
 import { Position } from '@src/types';
 import styles from './numberField.module.scss';
 
-interface NumberFieldProps extends FieldWrapperChildProps {
+export interface NumberFieldProps extends FieldWrapperChildProps {
   className?: string;
   max?: number;
   min?: number;
@@ -79,7 +79,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
         case 'Up': {
           evt.preventDefault();
           let nextValue = field.value + megaStep;
-          if (max) {
+          if (max !== undefined) {
             nextValue = Math.min(max, nextValue);
           }
           helpers.setValue(nextValue);
@@ -89,7 +89,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
         case 'Down': {
           evt.preventDefault();
           let nextValue = field.value - megaStep;
-          if (min) {
+          if (min !== undefined) {
             nextValue = Math.max(min, nextValue);
           }
           helpers.setValue(nextValue);
@@ -108,7 +108,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
    * Locks the pointer when holding the option key and clicking.
    */
   controlProps.onPointerDown = evt => {
-    if (evt.altKey) {
+    if (evt.altKey && !readOnly && !disabled) {
       inputRef.current?.requestPointerLock();
       setDragPosition({ x: evt.clientX, y: evt.clientY });
     }
@@ -128,10 +128,10 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
       // Calculate the new value based on the difference in drag
       const valueDelta = (nextDragDelta - currDragDelta) * (step ?? 1);
       let nextValue = field.value + valueDelta;
-      if (min) {
+      if (min !== undefined) {
         nextValue = Math.max(min, nextValue);
       }
-      if (max) {
+      if (max !== undefined) {
         nextValue = Math.min(max, nextValue);
       }
       helpers.setValue(nextValue);

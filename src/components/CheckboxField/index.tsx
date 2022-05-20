@@ -5,7 +5,8 @@ import { FieldWrapperChildProps } from '@src/components/FieldWrapper';
 import { CheckmarkIcon } from '@src/svgs/icons/CheckmarkIcon';
 import styles from './checkboxField.module.scss';
 
-interface CheckboxFieldProps extends Omit<FieldWrapperChildProps, 'id' | 'aria-describedby'> {
+export interface CheckboxFieldProps
+  extends Omit<FieldWrapperChildProps, 'id' | 'aria-describedby'> {
   id?: string;
   label: string | ReactNode;
   checked?: boolean;

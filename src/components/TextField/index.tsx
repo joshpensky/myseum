@@ -12,7 +12,7 @@ import { Field, useField } from 'formik';
 import styles from './textField.module.scss';
 import { FieldWrapperChildProps } from '../FieldWrapper';
 
-interface TextFieldProps extends FieldWrapperChildProps {
+export interface TextFieldProps extends FieldWrapperChildProps {
   autoComplete?: 'off' | undefined;
   className?: string;
   onBlur?: FocusEventHandler<HTMLInputElement>;

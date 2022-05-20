@@ -7,7 +7,7 @@ import { CloseIcon } from '@src/svgs/icons/CloseIcon';
 import { SearchIcon } from '@src/svgs/icons/SearchIcon';
 import styles from './searchBar.module.scss';
 
-interface SearchBarProps {
+export interface SearchBarProps {
   label: string;
   name: string;
 }

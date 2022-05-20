@@ -12,7 +12,7 @@ import { FieldWrapperChildProps } from '@src/components/FieldWrapper';
 import useIsomorphicLayoutEffect from '@src/hooks/useIsomorphicLayoutEffect';
 import styles from './textArea.module.scss';
 
-interface TextAreaProps extends FieldWrapperChildProps {
+export interface TextAreaProps extends FieldWrapperChildProps {
   className?: string;
   onBlur?: FocusEventHandler<HTMLTextAreaElement>;
   onChange?: ChangeEventHandler<HTMLTextAreaElement>;
