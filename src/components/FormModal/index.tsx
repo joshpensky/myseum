@@ -1,4 +1,12 @@
-import { Fragment, PointerEvent, PropsWithChildren, ReactNode, useRef, useState } from 'react';
+import {
+  forwardRef,
+  Fragment,
+  PointerEvent,
+  PropsWithChildren,
+  ReactNode,
+  useRef,
+  useState,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Slot } from '@radix-ui/react-slot';
 import cx from 'classnames';
@@ -32,18 +40,21 @@ interface FormModalProps {
   };
 }
 
-export const Root = ({
-  children,
-  open,
-  onOpenChange,
-  getIsDirty,
-  progress,
-  title,
-  description,
-  trigger,
-  overlayClassName,
-  abandonDialogProps,
-}: PropsWithChildren<FormModalProps>) => {
+export const Root = forwardRef<HTMLDivElement, PropsWithChildren<FormModalProps>>(function Root(
+  {
+    children,
+    open,
+    onOpenChange,
+    getIsDirty,
+    progress,
+    title,
+    description,
+    trigger,
+    overlayClassName,
+    abandonDialogProps,
+  },
+  ref,
+) {
   const theme = useTheme();
 
   const [showAlertDialog, setShowAlertDialog] = useState(false);
@@ -156,7 +167,9 @@ export const Root = ({
                     />
                   </header>
 
-                  <div className={styles.body}>{children}</div>
+                  <div className={styles.body} ref={ref}>
+                    {children}
+                  </div>
                 </motion.div>
               </ThemeProvider>
             </motion.div>
@@ -165,7 +178,7 @@ export const Root = ({
       </Dialog.Root>
     </Fragment>
   );
-};
+});
 
 interface FormModalScreenProps {
   title: string;
@@ -178,7 +191,9 @@ export const Screen = ({
   description,
 }: PropsWithChildren<FormModalScreenProps>) => (
   <div className={styles.screen}>
-    <h3 className={styles.title}>{title}</h3>
+    <h3 className={styles.title} tabIndex={-1}>
+      {title}
+    </h3>
     <p className={styles.description}>{description}</p>
 
     {children}

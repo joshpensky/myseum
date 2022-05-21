@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useRef, useState } from 'react';
+import { createContext, ReactNode, useEffect, useRef, useState } from 'react';
 import { GalleryColor } from '@prisma/client';
 import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
@@ -25,6 +25,16 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
   const screenRef = useRef<ScreenRefValue>(null);
   const [open, setOpen] = useState(false);
   const [state, send] = useMachine(createGalleryMachine);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) {
+      const screenHeading = modalRef.current?.querySelector('h3');
+      if (screenHeading) {
+        screenHeading.focus();
+      }
+    }
+  }, [state.value]);
 
   const renderStep = () => {
     if (state.matches('details')) {
@@ -83,6 +93,7 @@ export const CreateGalleryModal = ({ onComplete, onSave, trigger }: CreateGaller
 
   return (
     <FormModal.Root
+      ref={modalRef}
       overlayClassName={styles.overlay}
       open={open}
       onOpenChange={nextOpen => {

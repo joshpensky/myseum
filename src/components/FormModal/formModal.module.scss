@@ -189,6 +189,7 @@
 
 .title {
   @include h3;
+  @include outline-none;
 }
 
 .description {

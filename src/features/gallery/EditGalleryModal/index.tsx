@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useRef, useState } from 'react';
+import { createContext, ReactNode, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { GalleryColor } from '@prisma/client';
 import { useMachine } from '@xstate/react';
@@ -39,6 +39,16 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
     setOpen(open);
     send({ type: 'RESET', context: initialContext });
   };
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) {
+      const screenHeading = modalRef.current?.querySelector('h3');
+      if (screenHeading) {
+        screenHeading.focus();
+      }
+    }
+  }, [state.value]);
 
   const handleBack = () => {
     if (state.can('GO_BACK')) {
@@ -102,6 +112,7 @@ export const EditGalleryModal = ({ gallery, onSave, trigger }: EditGalleryModalP
 
   return (
     <FormModal.Root
+      ref={modalRef}
       open={open}
       onOpenChange={onOpenChange}
       trigger={trigger}

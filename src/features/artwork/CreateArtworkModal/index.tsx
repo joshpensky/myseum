@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
@@ -35,6 +35,16 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
       send({ type: 'RESET' });
     }
   };
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) {
+      const screenHeading = modalRef.current?.querySelector('h3');
+      if (screenHeading) {
+        screenHeading.focus();
+      }
+    }
+  }, [state.value]);
 
   const handleBack = () => {
     if (state.can('GO_BACK')) {
@@ -79,6 +89,7 @@ export const CreateArtworkModal = ({ onComplete, trigger }: CreateArtworkModalPr
 
   return (
     <FormModal.Root
+      ref={modalRef}
       overlayClassName={styles.overlay}
       open={open}
       onOpenChange={onOpenChange}

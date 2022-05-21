@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import Button from '@src/components/Button';
 import * as FormModal from '@src/components/FormModal';
@@ -17,6 +17,16 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
   const [state, send] = useMachine(addArtworkMachine);
 
   const [open, setOpen] = useState(false);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) {
+      const screenHeading = modalRef.current?.querySelector('h3');
+      if (screenHeading) {
+        screenHeading.focus();
+      }
+    }
+  }, [state.value]);
 
   const screenRef = useRef<ScreenRefValue>(null);
 
@@ -53,6 +63,7 @@ export const AddArtworkModal = ({ gallery, onSave, trigger }: AddArtworkModalPro
 
   return (
     <FormModal.Root
+      ref={modalRef}
       open={open}
       onOpenChange={nextOpen => {
         setOpen(nextOpen);

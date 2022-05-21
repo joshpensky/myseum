@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import equal from 'fast-deep-equal';
 import Button from '@src/components/Button';
@@ -51,6 +51,16 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
     }
   };
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) {
+      const screenHeading = modalRef.current?.querySelector('h3');
+      if (screenHeading) {
+        screenHeading.focus();
+      }
+    }
+  }, [state.value]);
+
   const handleBack = () => {
     if (state.can('GO_BACK')) {
       send({ type: 'GO_BACK' });
@@ -94,6 +104,7 @@ export const EditArtworkModal = ({ artwork, onComplete, trigger }: CreateArtwork
 
   return (
     <FormModal.Root
+      ref={modalRef}
       overlayClassName={styles.overlay}
       open={open}
       onOpenChange={onOpenChange}
