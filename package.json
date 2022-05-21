@@ -7,7 +7,7 @@
     "develop:next": "next dev",
     "develop:prisma": "prisma generate --watch",
     "develop:storybook": "start-storybook -p 6006",
-    "build": "yarn build:storybook && yarn build:next",
+    "build": "yarn build:prisma && yarn build:storybook && yarn build:next",
     "build:next": "next build",
     "build:prisma": "prisma generate",
     "build:storybook": "build-storybook -o ./public/storybook",
