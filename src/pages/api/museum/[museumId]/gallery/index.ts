@@ -5,10 +5,17 @@ import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 import { supabase } from '@src/data/supabase';
 
-const galleryDetailHandler: NextApiHandler = async (req, res) => {
+const galleryIndexHandler: NextApiHandler = async (req, res) => {
   const museumId = z.string().uuid().safeParse(req.query.museumId);
   if (!museumId.success) {
     res.status(400).json({ message: 'Must supply a valid museum ID' });
+    return;
+  }
+
+  // Protect endpoint for only authenticated users
+  const auth = await supabase.auth.api.getUserByCookie(req);
+  if (!auth.user) {
+    res.status(401).json({ message: 'Unauthorized.' });
     return;
   }
 
@@ -30,7 +37,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
         }
         // Only allow curators to update their own museum
         if (auth.user.id !== museum.curator.id) {
-          res.status(401).json({ message: 'Unauthorized.' });
+          res.status(401).json({ message: 'You do not have permissions to update this museum.' });
           return;
         }
         // Create the gallery
@@ -50,4 +57,4 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
   }
 };
 
-export default galleryDetailHandler;
+export default galleryIndexHandler;

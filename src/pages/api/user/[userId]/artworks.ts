@@ -3,7 +3,7 @@ import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
 
-const userDetailController: NextApiHandler = async (req, res) => {
+const userArtworksController: NextApiHandler = async (req, res) => {
   const userId = req.query.userId;
   if (typeof userId !== 'string') {
     res.status(400).json({ message: 'Must supply a single user ID' });
@@ -12,7 +12,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
-      // Gets the chosen user
+      // Gets the chosen user's artworks
       case 'GET': {
         const user = await UserRepository.findOne(userId);
         if (!user) {
@@ -36,4 +36,4 @@ const userDetailController: NextApiHandler = async (req, res) => {
   }
 };
 
-export default userDetailController;
+export default userArtworksController;

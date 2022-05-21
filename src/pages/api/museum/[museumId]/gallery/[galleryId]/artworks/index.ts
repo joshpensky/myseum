@@ -2,8 +2,9 @@ import { NextApiHandler } from 'next';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
+import { supabase } from '@src/data/supabase';
 
-const galleryArtworksHandler: NextApiHandler = async (req, res) => {
+const placedArtworksIndexHandler: NextApiHandler = async (req, res) => {
   const museumId = z.string().uuid().safeParse(req.query.museumId);
   const galleryId = z.string().uuid().safeParse(req.query.galleryId);
   if (!museumId.success) {
@@ -14,6 +15,13 @@ const galleryArtworksHandler: NextApiHandler = async (req, res) => {
     return;
   }
 
+  // Protect endpoint for only authenticated users
+  const auth = await supabase.auth.api.getUserByCookie(req);
+  if (!auth.user) {
+    res.status(401).json({ message: 'Unauthorized.' });
+    return;
+  }
+
   try {
     switch (req.method) {
       // Adds a new placed artwork
@@ -21,6 +29,9 @@ const galleryArtworksHandler: NextApiHandler = async (req, res) => {
         const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
         if (!gallery) {
           res.status(404).json({ message: 'Not found.' });
+          return;
+        } else if (gallery.museum.curator.id !== auth.user.id) {
+          res.status(401).json({ message: 'You do not have permissions to update this gallery.' });
           return;
         }
         const addedPlacedArtwork = await GalleryRepository.addArtwork(gallery, req.body);
@@ -39,4 +50,4 @@ const galleryArtworksHandler: NextApiHandler = async (req, res) => {
   }
 };
 
-export default galleryArtworksHandler;
+export default placedArtworksIndexHandler;

@@ -25,9 +25,14 @@ const userDetailController: NextApiHandler = async (req, res) => {
 
       // Updates the chosen user
       case 'PUT': {
+        // Protect endpoint for only authenticated users
         const auth = await supabase.auth.api.getUserByCookie(req);
+        if (!auth.user) {
+          res.status(401).json({ message: 'Unauthorized.' });
+          return;
+        }
         // Only allow users to update themselves
-        if (!auth.user || auth.user.id !== userId) {
+        if (auth.user.id !== userId) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
         }
@@ -37,9 +42,14 @@ const userDetailController: NextApiHandler = async (req, res) => {
       }
 
       case 'DELETE': {
+        // Protect endpoint for only authenticated users
         const auth = await supabase.auth.api.getUserByCookie(req);
-        // Only allow users to update themselves
-        if (!auth.user || auth.user.id !== userId) {
+        if (!auth.user) {
+          res.status(401).json({ message: 'Unauthorized.' });
+          return;
+        }
+        // Only allow users to delete themselves
+        if (auth.user.id !== userId) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
         }
@@ -53,7 +63,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'GET');
+        res.setHeader('Allow', 'GET, PUT, DELETE');
         res.status(405).end('Method Not Allowed');
       }
     }

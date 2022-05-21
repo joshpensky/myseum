@@ -6,15 +6,6 @@ import { supabase } from '@src/data/supabase';
 const frameIndexController: NextApiHandler = async (req, res) => {
   try {
     switch (req.method) {
-      // Gets all frames
-      case 'GET': {
-        const frames = await FrameRepository.findAll();
-        const serializedFrames = frames.map(frame => FrameSerializer.serialize(frame));
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        res.status(200).json(serializedFrames);
-        break;
-      }
-
       // Create new frame
       case 'POST': {
         const auth = await supabase.auth.api.getUserByCookie(req);
@@ -29,7 +20,7 @@ const frameIndexController: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'GET, POST');
+        res.setHeader('Allow', 'POST');
         res.status(405).end('Method Not Allowed');
       }
     }

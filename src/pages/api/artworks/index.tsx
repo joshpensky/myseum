@@ -4,16 +4,15 @@ import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
 import { supabase } from '@src/data/supabase';
 
 const artworkIndexController: NextApiHandler = async (req, res) => {
+  // Protect endpoint for only authenticated users
+  const auth = await supabase.auth.api.getUserByCookie(req);
+  if (!auth.user) {
+    res.status(401).json({ message: 'Unauthorized.' });
+    return;
+  }
+
   try {
     switch (req.method) {
-      // Gets all artworks
-      case 'GET': {
-        const artworks = await ArtworkRepository.findAll();
-        const serializedArtworks = artworks.map(artwork => ArtworkSerializer.serialize(artwork));
-        res.status(200).json(serializedArtworks);
-        break;
-      }
-
       // Creates new artwork
       case 'POST': {
         const auth = await supabase.auth.api.getUserByCookie(req);
@@ -28,7 +27,7 @@ const artworkIndexController: NextApiHandler = async (req, res) => {
 
       // Otherwise, endpoint not found
       default: {
-        res.setHeader('Allow', 'GET, POST');
+        res.setHeader('Allow', 'POST');
         res.status(405).end('Method Not Allowed');
       }
     }

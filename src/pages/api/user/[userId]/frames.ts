@@ -3,7 +3,7 @@ import { FrameRepository } from '@src/data/repositories/frame.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { FrameSerializer } from '@src/data/serializers/frame.serializer';
 
-const userDetailController: NextApiHandler = async (req, res) => {
+const userFramesController: NextApiHandler = async (req, res) => {
   const userId = req.query.userId;
   if (typeof userId !== 'string') {
     res.status(400).json({ message: 'Must supply a single user ID' });
@@ -12,7 +12,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
 
   try {
     switch (req.method) {
-      // Gets the chosen user
+      // Gets the chosen user's frames
       case 'GET': {
         const user = await UserRepository.findOne(userId);
         if (!user) {
@@ -36,4 +36,4 @@ const userDetailController: NextApiHandler = async (req, res) => {
   }
 };
 
-export default userDetailController;
+export default userFramesController;

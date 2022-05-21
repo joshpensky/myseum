@@ -1,8 +1,16 @@
 import { NextApiHandler } from 'next';
 import { ArtistRepository } from '@src/data/repositories/artist.repository';
 import { ArtistSerializer } from '@src/data/serializers/artist.serializer';
+import { supabase } from '@src/data/supabase';
 
 const artistIndexController: NextApiHandler = async (req, res) => {
+  // Protect endpoint for only authenticated users
+  const auth = await supabase.auth.api.getUserByCookie(req);
+  if (!auth.user) {
+    res.status(401).json({ message: 'Unauthorized.' });
+    return;
+  }
+
   try {
     switch (req.method) {
       // Gets all artists
