@@ -167,7 +167,7 @@ export const SearchFrames = ({ user }: SearchFramesProps) => {
                 <p className={styles.emptyStateText}>
                   {values.search
                     ? `No frames found for term "${values.search}."`
-                    : `${isCurrentUser ? 'You have' : 'there are'} no frames.`}
+                    : `${isCurrentUser ? 'You have' : 'There are'} no frames.`}
                 </p>
                 {isCurrentUser && (
                   <CreateFrameModal

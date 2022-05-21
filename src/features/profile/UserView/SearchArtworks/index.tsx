@@ -185,7 +185,7 @@ export const SearchArtworks = ({ user }: SearchArtworksProps) => {
                 <p className={styles.emptyStateText}>
                   {values.search
                     ? `No artworks found for term "${values.search}."`
-                    : `${isCurrentUser ? 'You have' : 'there are'} no artworks.`}
+                    : `${isCurrentUser ? 'You have' : 'There are'} no artworks.`}
                 </p>
                 {isCurrentUser && (
                   <CreateArtworkModal
