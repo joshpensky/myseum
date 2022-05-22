@@ -24,10 +24,10 @@ export function getScrollParentPosition(parent?: Element): Position {
     };
   }
 
-  // Otherwise, combine the parent's scroll position AND the page scroll position
+  // Otherwise, return the parent's scroll position
   return {
-    x: parent.scrollLeft + document.documentElement.scrollLeft,
-    y: parent.scrollTop + document.documentElement.scrollTop,
+    x: parent.scrollLeft,
+    y: parent.scrollTop,
   };
 }
 
