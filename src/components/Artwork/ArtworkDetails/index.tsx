@@ -16,8 +16,6 @@ const ArtworkDetails = ({
   data,
   onOpenChange,
 }: PropsWithChildren<ArtworkDetailProps>) => {
-  // const { museum } = useMuseum();
-
   const { title, artist, description, acquiredAt, createdAt } = data;
 
   return (
