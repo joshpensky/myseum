@@ -1,5 +1,6 @@
 .loader {
   @include size(var(--size));
+  color: c('text');
   display: flex;
   position: relative;
 

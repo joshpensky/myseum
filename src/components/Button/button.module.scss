@@ -18,6 +18,7 @@
   @include padding(sz(2.5) sz(5.5));
   align-items: center;
   border-radius: sz(3);
+  color: c('text');
   display: flex;
   flex: 1;
   justify-content: center;

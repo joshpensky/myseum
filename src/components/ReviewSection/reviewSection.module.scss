@@ -27,6 +27,10 @@
       margin-bottom: sz(0.5);
     }
 
+    dd {
+      color: c('text');
+    }
+
     dt,
     dd {
       line-height: 1.2;
@@ -50,6 +54,7 @@
 
 .section__header {
   align-items: center;
+  color: c('text');
   display: flex;
   margin-bottom: sz(3);
 
