@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { UserSerializer } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
 
 const userDetailController: NextApiHandler = async (req, res) => {
   const userId = req.query.userId;
@@ -26,7 +26,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
       // Updates the chosen user
       case 'PUT': {
         // Protect endpoint for only authenticated users
-        const auth = await supabase.auth.api.getUserByCookie(req);
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
         if (!auth.user) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
@@ -43,7 +43,7 @@ const userDetailController: NextApiHandler = async (req, res) => {
 
       case 'DELETE': {
         // Protect endpoint for only authenticated users
-        const auth = await supabase.auth.api.getUserByCookie(req);
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
         if (!auth.user) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
@@ -53,7 +53,9 @@ const userDetailController: NextApiHandler = async (req, res) => {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
         }
-        const { error } = await supabase.auth.api.deleteUser(auth.user.id);
+        const { error } = await supabaseServerClient({ req, res }).auth.api.deleteUser(
+          auth.user.id,
+        );
         if (error) {
           throw error;
         }

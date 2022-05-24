@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import { withPageAuth } from '@supabase/supabase-auth-helpers/nextjs';
 import api from '@src/api/server';
 import { Loader } from '@src/components/Loader';
 import { SEO } from '@src/components/SEO';
@@ -38,25 +39,28 @@ const Home = ({ museum, galleries }: HomeProps) => {
 
 export default Home;
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async ctx => {
-  const user = await api.auth.findUserByCookie(ctx);
-  if (!user) {
+export const getServerSideProps: GetServerSideProps<HomeProps> = withPageAuth({
+  authRequired: false,
+  async getServerSideProps(ctx) {
+    const user = await api.auth.findUserByCookie(ctx);
+    if (!user) {
+      return {
+        props: {
+          museum: null,
+          galleries: [],
+        },
+      };
+    }
+
+    const museum = await api.museum.findOneByCurator(user);
+    const galleries = await api.gallery.findAllByMuseum(museum);
+
     return {
       props: {
-        museum: null,
-        galleries: [],
+        __authUser: user,
+        museum,
+        galleries,
       },
     };
-  }
-
-  const museum = await api.museum.findOneByCurator(user);
-  const galleries = await api.gallery.findAllByMuseum(museum);
-
-  return {
-    props: {
-      __authUser: user,
-      museum,
-      galleries,
-    },
-  };
-};
+  },
+});

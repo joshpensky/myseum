@@ -186,6 +186,16 @@ export const MockAPI: MyseumAPI = {
       const signOutEvent = new Event('__mock_sign_out');
       window.dispatchEvent(signOutEvent);
     },
+
+    useUser() {
+      return {
+        accessToken: 'a66435d2-dd82-4207-9f77-b1eef3a16a1e',
+        async checkSession() {},
+        isLoading: false,
+        error: undefined,
+        user: this.getCurrentUser(),
+      };
+    },
   },
 
   frame: {

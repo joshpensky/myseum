@@ -1,10 +1,12 @@
+import { supabaseClient } from '@supabase/supabase-auth-helpers/nextjs';
+import { useUser } from '@supabase/supabase-auth-helpers/react';
 import axios from 'axios';
 import type { ArtworkDto } from '@src/data/serializers/artwork.serializer';
 import { FrameDto } from '@src/data/serializers/frame.serializer';
 import { GalleryDto, PlacedArtworkDto } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
 import { UserDto } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
+// import { supabase } from '@src/data/supabase';
 import type { MyseumAPI } from './type';
 
 export const ClientAPI: MyseumAPI = {
@@ -42,9 +44,7 @@ export const ClientAPI: MyseumAPI = {
     },
 
     onStateChange(callback) {
-      const subscription = supabase.auth.onAuthStateChange((event, session) => {
-        // Update SSR cookie on auth state change
-        axios.post('/api/auth', { event, session }, { withCredentials: true });
+      const subscription = supabaseClient.auth.onAuthStateChange((event, session) => {
         // Callback for additional functionality
         callback(event, session?.user ?? null);
       });
@@ -52,22 +52,24 @@ export const ClientAPI: MyseumAPI = {
     },
 
     getCurrentUser() {
-      return supabase.auth.user();
+      return supabaseClient.auth.user();
     },
 
     async signIn(options) {
-      const { error } = await supabase.auth.signIn({ provider: 'google' }, options);
+      const { error } = await supabaseClient.auth.signIn({ provider: 'google' }, options);
       if (error) {
         throw error;
       }
     },
 
     async signOut() {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabaseClient.auth.signOut();
       if (error) {
         throw error;
       }
     },
+
+    useUser: useUser,
   },
 
   frame: {

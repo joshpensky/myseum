@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import { withPageAuth } from '@supabase/supabase-auth-helpers/nextjs';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
 import api from '@src/api';
@@ -47,18 +48,22 @@ const Admin = () => {
 
 export default Admin;
 
-export const getServerSideProps: GetServerSideProps = async ctx => {
-  const user = await serverApi.auth.findUserByCookie(ctx);
-  if (!user || !user.isAdmin) {
+export const getServerSideProps: GetServerSideProps = withPageAuth({
+  async getServerSideProps(ctx) {
+    const user = await serverApi.auth.findUserByCookie(ctx);
+    if (!user || !user.isAdmin) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
+      props: {
+        __authUser: user,
       },
     };
-  }
-
-  return {
-    props: {},
-  };
-};
+  },
+});

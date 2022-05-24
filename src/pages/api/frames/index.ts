@@ -1,14 +1,14 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import { FrameRepository } from '@src/data/repositories/frame.repository';
 import { FrameSerializer } from '@src/data/serializers/frame.serializer';
-import { supabase } from '@src/data/supabase';
 
 const frameIndexController: NextApiHandler = async (req, res) => {
   try {
     switch (req.method) {
       // Create new frame
       case 'POST': {
-        const auth = await supabase.auth.api.getUserByCookie(req);
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
         if (!auth.user) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;

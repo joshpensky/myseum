@@ -1,5 +1,6 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSideProps } from 'next';
+import { withPageAuth } from '@supabase/supabase-auth-helpers/nextjs';
 import * as z from 'zod';
 import api from '@src/api/server';
 import { GalleryView, GalleryViewProps } from '@src/features/gallery/GalleryView';
@@ -13,35 +14,40 @@ interface GalleryPageParams extends ParsedUrlQuery {
 export const getServerSideProps: GetServerSideProps<
   GalleryViewProps,
   GalleryPageParams
-> = async ctx => {
-  const user = await api.auth.findUserByCookie(ctx);
-  if (!user) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
+> = withPageAuth({
+  redirectTo: '/',
+  async getServerSideProps(ctx) {
+    {
+      const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
+      if (!galleryId.success) {
+        return {
+          notFound: true,
+        };
+      }
 
-  const galleryId = z.string().uuid().safeParse(ctx.params?.galleryId);
-  if (!galleryId.success) {
-    return {
-      notFound: true,
-    };
-  }
+      const user = await api.auth.findUserByCookie(ctx);
+      if (!user) {
+        return {
+          redirect: {
+            destination: '/',
+            permanent: false,
+          },
+        };
+      }
 
-  const gallery = await api.gallery.findOneByMuseum(user.museumId, galleryId.data);
-  if (!gallery) {
-    return {
-      notFound: true,
-    };
-  }
+      const gallery = await api.gallery.findOneByMuseum(user.museumId, galleryId.data);
+      if (!gallery) {
+        return {
+          notFound: true,
+        };
+      }
 
-  return {
-    props: {
-      __authUser: user,
-      gallery,
-    },
-  };
-};
+      return {
+        props: {
+          __authUser: user,
+          gallery,
+        },
+      };
+    }
+  },
+});

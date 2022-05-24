@@ -1,4 +1,5 @@
 import { GetServerSidePropsContext } from 'next';
+import { UserState } from '@supabase/supabase-auth-helpers/react/types';
 import { AuthChangeEvent, User } from '@supabase/supabase-js';
 import { AxiosRequestConfig } from 'axios';
 import { CreateArtworkDto, UpdateArtworkDto } from '@src/data/repositories/artwork.repository';
@@ -98,6 +99,11 @@ export interface MyseumAPI {
      * Signs the user out.
      */
     signOut(): Promise<void>;
+
+    /**
+     * Hook for getting the current user auth state.
+     */
+    useUser(): UserState;
   };
 
   frame: {

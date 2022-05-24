@@ -1,10 +1,10 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 import { MuseumSerializer, MuseumWithGalleriesDto } from '@src/data/serializers/museum.serializer';
-import { supabase } from '@src/data/supabase';
 
 const museumDetailController: NextApiHandler = async (req, res) => {
   const museumId = z.string().uuid().safeParse(req.query.museumId);
@@ -34,7 +34,7 @@ const museumDetailController: NextApiHandler = async (req, res) => {
       // Updates the museum with the given ID
       case 'PUT': {
         // Protect endpoint for only authenticated users
-        const auth = await supabase.auth.api.getUserByCookie(req);
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
         if (!auth.user) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;

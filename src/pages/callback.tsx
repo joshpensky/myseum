@@ -7,6 +7,7 @@ import styles from './_styles/callback.module.scss';
 
 const Callback = () => {
   const auth = useAuth();
+  console.log(auth);
   const router = useRouter();
 
   useEffect(() => {

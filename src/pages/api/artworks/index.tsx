@@ -1,11 +1,11 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
 import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
-import { supabase } from '@src/data/supabase';
 
 const artworkIndexController: NextApiHandler = async (req, res) => {
   // Protect endpoint for only authenticated users
-  const auth = await supabase.auth.api.getUserByCookie(req);
+  const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
   if (!auth.user) {
     res.status(401).json({ message: 'Unauthorized.' });
     return;
@@ -15,11 +15,6 @@ const artworkIndexController: NextApiHandler = async (req, res) => {
     switch (req.method) {
       // Creates new artwork
       case 'POST': {
-        const auth = await supabase.auth.api.getUserByCookie(req);
-        if (!auth.user) {
-          res.status(401).json({ message: 'Unauthorized.' });
-          return;
-        }
         const artwork = await ArtworkRepository.create({ ...req.body, ownerId: auth.user.id });
         res.status(200).json(ArtworkSerializer.serialize(artwork));
         break;

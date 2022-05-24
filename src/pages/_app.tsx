@@ -1,5 +1,7 @@
 import type { AppProps as BaseAppProps } from 'next/app';
 import { IdProvider } from '@radix-ui/react-id';
+import { supabaseClient } from '@supabase/supabase-auth-helpers/nextjs';
+import { UserProvider } from '@supabase/supabase-auth-helpers/react';
 import { Toaster } from '@src/components/Toaster';
 import { GlobalLayout } from '@src/layouts/GlobalLayout';
 import { AuthProvider } from '@src/providers/AuthProvider';
@@ -17,13 +19,15 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <IdProvider>
-      <AuthProvider initValue={pageProps.__authUser}>
-        <GlobalLayout {...computedProps.global}>
-          <Component {...pageProps} {...computedProps.page} />
-        </GlobalLayout>
+      <UserProvider supabaseClient={supabaseClient}>
+        <AuthProvider initValue={pageProps.__authUser}>
+          <GlobalLayout {...computedProps.global}>
+            <Component {...pageProps} {...computedProps.page} />
+          </GlobalLayout>
 
-        <Toaster />
-      </AuthProvider>
+          <Toaster />
+        </AuthProvider>
+      </UserProvider>
     </IdProvider>
   );
 };

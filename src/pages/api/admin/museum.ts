@@ -1,12 +1,12 @@
 import { NextApiHandler } from 'next';
+import { getUser } from '@supabase/supabase-auth-helpers/nextjs';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { MuseumSerializer } from '@src/data/serializers/museum.serializer';
-import { supabase } from '@src/data/supabase';
 
 const adminMuseumController: NextApiHandler = async (req, res) => {
   // Protect endpoint for only authenticated, admin users
-  const auth = await supabase.auth.api.getUserByCookie(req);
+  const auth = await getUser({ req, res });
   if (!auth.user) {
     res.status(401).json({ message: 'Unauthorized.' });
     return;

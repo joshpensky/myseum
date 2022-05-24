@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useUser } from '@supabase/supabase-auth-helpers/react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -33,35 +34,18 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProviderProps>) => {
   const router = useRouter();
 
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(initValue ?? null);
+  const [serverSupabaseUser, setServerSupabaseUser] = useState(initValue);
+  const { user: clientSupabaseUser, isLoading } = useUser();
+  const supabaseUser = clientSupabaseUser ?? serverSupabaseUser;
+
+  // Clear server data when client data is loaded
+  useEffect(() => {
+    if (clientSupabaseUser) {
+      setServerSupabaseUser(null);
+    }
+  }, [!!clientSupabaseUser]);
+
   const [userData, setUserData] = useState<UserDto | null>(initValue ?? null);
-
-  // Flag for if the user is logged in, but their data is still loading!
-  const isUserLoading = !!supabaseUser && !userData;
-
-  let user: AuthUserDto | null = null;
-  if (supabaseUser && userData) {
-    user = {
-      ...supabaseUser,
-      ...userData,
-      // Registration is thru Google OAuth, so email guaranteed!
-      email: supabaseUser.email as string,
-    };
-  }
-
-  /**
-   * Signs in the user via Google OAuth.
-   */
-  async function signIn() {
-    const url = new URL(`${window.location.origin}/callback`);
-    window.localStorage.setItem('returnTo', router.asPath);
-    await api.auth.signIn({ redirectTo: url.toString() });
-  }
-
-  async function signOut() {
-    await api.auth.signOut();
-  }
-
   async function updateUserData(user: SupabaseUser, signal: AbortSignal) {
     try {
       const userDto = await api.user.findOneById(user.id, { signal });
@@ -85,56 +69,52 @@ export const AuthProvider = ({ children, initValue }: PropsWithChildren<AuthProv
   useEffect(() => {
     // Abort any ongoing abort controllers on mount
     abortControllerRef.current?.abort();
-
-    const initUser = api.auth.getCurrentUser();
-
-    if (initUser) {
-      setSupabaseUser(initUser);
+    if (supabaseUser) {
       // Update user later with extra data
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
-      updateUserData(initUser, abortController.signal);
+      updateUserData(supabaseUser, abortController.signal);
     } else {
-      setSupabaseUser(null);
       setUserData(null);
     }
 
-    // Listen to auth changes
-    const authSubscription = api.auth.onStateChange(async function onAuthStateChange(event, user) {
-      // Abort any ongoing abort controllers on login-state change
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-        abortControllerRef.current?.abort();
-      }
-
-      // Update auth state
-      if (user) {
-        setSupabaseUser(user);
-        // Then update user later with extra data
-        const abortController = new AbortController();
-        abortControllerRef.current = abortController;
-        await updateUserData(user, abortController.signal);
-      } else {
-        setSupabaseUser(null);
-        setUserData(null);
-      }
-
-      // Redirect user to homepage on sign out
-      if (event === 'SIGNED_IN') {
-        toast.success('Signed in!');
-      } else if (event === 'SIGNED_OUT') {
+    api.auth.onStateChange(event => {
+      if (event === 'SIGNED_OUT') {
         router.replace('/');
       }
     });
+  }, [supabaseUser]);
 
-    return () => {
-      authSubscription?.unsubscribe();
+  /**
+   * Signs in the user via Google OAuth.
+   */
+  async function signIn() {
+    const url = new URL(`${window.location.origin}/callback`);
+    window.localStorage.setItem('returnTo', router.asPath);
+    await api.auth.signIn({ redirectTo: url.toString() });
+  }
+
+  /**
+   * Signs the user out.
+   */
+  async function signOut() {
+    await api.auth.signOut();
+  }
+
+  let user: AuthUserDto | null = null;
+  if (supabaseUser && userData) {
+    user = {
+      ...supabaseUser,
+      ...userData,
+      // Registration is thru Google OAuth, so email guaranteed!
+      email: supabaseUser.email as string,
     };
-  }, []);
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        isUserLoading,
+        isUserLoading: isLoading,
         user,
         signIn,
         signOut,

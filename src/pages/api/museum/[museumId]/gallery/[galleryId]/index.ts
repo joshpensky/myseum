@@ -1,8 +1,8 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import * as z from 'zod';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
-import { supabase } from '@src/data/supabase';
 
 const galleryDetailHandler: NextApiHandler = async (req, res) => {
   const museumId = z.string().uuid().safeParse(req.query.museumId);
@@ -31,7 +31,7 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
       // Updates the chosen gallery
       case 'PUT': {
         // Protect endpoint for only authenticated users
-        const auth = await supabase.auth.api.getUserByCookie(req);
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
         if (!auth.user) {
           res.status(401).json({ message: 'Unauthorized.' });
           return;
@@ -50,11 +50,21 @@ const galleryDetailHandler: NextApiHandler = async (req, res) => {
         break;
       }
 
-      // Updates the chosen gallery
+      // Deletes the chosen gallery
       case 'DELETE': {
+        // Protect endpoint for only authenticated users
+        const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
+        if (!auth.user) {
+          res.status(401).json({ message: 'Unauthorized.' });
+          return;
+        }
+
         const gallery = await GalleryRepository.findOneByMuseum(museumId.data, galleryId.data);
         if (!gallery) {
           res.status(404).json({ message: 'Not found.' });
+          return;
+        } else if (gallery.museum.curator.id !== auth.user.id) {
+          res.status(401).json({ message: 'You do not have permissions to update this gallery.' });
           return;
         }
         const deletedGallery = await GalleryRepository.delete(gallery);

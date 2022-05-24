@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import { ArtworkRepository } from '@src/data/repositories/artwork.repository';
 import { ArtworkSerializer } from '@src/data/serializers/artwork.serializer';
-import { supabase } from '@src/data/supabase';
 
 const artworkDetailController: NextApiHandler = async (req, res) => {
   const artworkId = req.query.artworkId;
@@ -11,7 +11,7 @@ const artworkDetailController: NextApiHandler = async (req, res) => {
   }
 
   // Protect endpoint for only authenticated users
-  const auth = await supabase.auth.api.getUserByCookie(req);
+  const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
   if (!auth.user) {
     res.status(401).json({ message: 'Unauthorized.' });
     return;

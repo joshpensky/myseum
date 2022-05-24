@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
+import { supabaseServerClient } from '@supabase/supabase-auth-helpers/nextjs';
 import { FrameRepository } from '@src/data/repositories/frame.repository';
-import { supabase } from '@src/data/supabase';
 
 const frameDetailController: NextApiHandler = async (req, res) => {
   const frameId = req.query.frameId;
@@ -10,7 +10,7 @@ const frameDetailController: NextApiHandler = async (req, res) => {
   }
 
   // Protect endpoint for only authenticated users
-  const auth = await supabase.auth.api.getUserByCookie(req);
+  const auth = await supabaseServerClient({ req, res }).auth.api.getUserByCookie(req);
   if (!auth.user) {
     res.status(401).json({ message: 'Unauthorized.' });
     return;

@@ -1,4 +1,5 @@
 import { GetServerSideProps } from 'next';
+import { withPageAuth } from '@supabase/supabase-auth-helpers/nextjs';
 import api from '@src/api/server';
 import { Loader } from '@src/components/Loader';
 import { SEO } from '@src/components/SEO';
@@ -26,21 +27,14 @@ const Profile = () => {
 
 export default Profile;
 
-export const getServerSideProps: GetServerSideProps = async ctx => {
-  const user = await api.auth.findUserByCookie(ctx);
-
-  if (!user) {
+export const getServerSideProps: GetServerSideProps = withPageAuth({
+  redirectTo: '/',
+  async getServerSideProps(ctx) {
+    const user = await api.auth.findUserByCookie(ctx);
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
+      props: {
+        __authUser: user,
       },
     };
-  }
-
-  return {
-    props: {
-      __authUser: user,
-    },
-  };
-};
+  },
+});

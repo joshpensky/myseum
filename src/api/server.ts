@@ -1,11 +1,11 @@
 import { GetServerSidePropsContext } from 'next';
+import { getUser } from '@supabase/supabase-auth-helpers/nextjs';
 import { GalleryRepository } from '@src/data/repositories/gallery.repository';
 import { MuseumRepository } from '@src/data/repositories/museum.repository';
 import { UserRepository } from '@src/data/repositories/user.repository';
 import { GallerySerializer } from '@src/data/serializers/gallery.serializer';
 import { MuseumDto, MuseumSerializer } from '@src/data/serializers/museum.serializer';
 import { UserDto, UserSerializer } from '@src/data/serializers/user.serializer';
-import { supabase } from '@src/data/supabase';
 import { ClientAPI } from './client';
 import { MockAPI } from './mock';
 import { MyseumAPI } from './type';
@@ -21,7 +21,7 @@ if (process.env.NEXT_PUBLIC_USE_MOCK_API === 'true') {
       ...ClientAPI.auth,
 
       async findUserByCookie(context: GetServerSidePropsContext) {
-        const supabaseUser = await supabase.auth.api.getUserByCookie(context.req);
+        const supabaseUser = await getUser(context);
         if (!supabaseUser.user) {
           return null;
         }
