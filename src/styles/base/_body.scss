@@ -1,6 +1,7 @@
 body {
   background-color: c('bg');
   font-family: $ff-sans;
+  color: c('text');
 }
 
 body.dragging * {

@@ -1,6 +1,6 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import cx from 'classnames';
-import { ThemeContextValue, ThemeProvider, useTheme } from '@src/providers/ThemeProvider';
+import { ThemeContextValue, ThemeProvider } from '@src/providers/ThemeProvider';
 import { Footer } from './Footer';
 import Nav from './Nav';
 import styles from './layout.module.scss';
@@ -13,8 +13,26 @@ export const GlobalLayout = ({
   children,
   theme: propsTheme,
 }: PropsWithChildren<GlobalLayoutProps>) => {
-  const ctxTheme = useTheme();
-  const theme = propsTheme ?? ctxTheme;
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'paper';
+    } else {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+  });
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    const onQueryChange = (event: MediaQueryListEvent) => {
+      setIsDarkMode(event.matches);
+    };
+    query.addEventListener('change', onQueryChange);
+    return () => {
+      query.removeEventListener('change', onQueryChange);
+    };
+  }, []);
+
+  const theme: ThemeContextValue = propsTheme ?? { color: isDarkMode ? 'ink' : 'paper' };
 
   return (
     <ThemeProvider theme={theme}>

@@ -19,6 +19,20 @@
   --c-highlight: #{hex-to-rgb($c-white)}; // TODO: replace
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #{hex-to-rgb(#090909)};
+    --c-bg-tint: #{hex-to-rgb(#2d2d2d)};
+    --c-icon: #{hex-to-rgb(#ffffff)};
+    --c-text: #{hex-to-rgb(#ffffff)};
+    --c-secondary-text: #{hex-to-rgb(#888888)};
+    --c-border: #{hex-to-rgb(#ffffff)};
+    --c-illustration: #{hex-to-rgb(#666666)};
+    --c-shadow: #{hex-to-rgb(mix($c-white, $c-black, 30%))}; // TODO: replace
+    --c-highlight: #{hex-to-rgb($c-navy-800)}; // TODO: replace
+  }
+}
+
 .theme--ink {
   --c-bg: #{hex-to-rgb(#090909)};
   --c-bg-tint: #{hex-to-rgb(#2d2d2d)};

@@ -25,6 +25,7 @@ $popover-anim-duration: 150ms;
 .popover {
   border-radius: sz(3);
   background-color: c('gray');
+  color: c('text');
   border: 1px solid c('gray');
   overflow: hidden;
   transform-origin: var(--radix-popover-content-transform-origin);
