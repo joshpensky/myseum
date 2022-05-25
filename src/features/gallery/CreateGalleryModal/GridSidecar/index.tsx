@@ -39,7 +39,6 @@ export function GridSidecar<S extends CreateGalleryTypestate | EditGalleryTypest
         send({ type: 'CHANGE_WIDTH', width: size.width });
       }}
       onItemChange={(index, data) => {
-        console.log(index, data);
         send({ type: 'MOVE_ARTWORK', index, data });
       }}>
       <FormModal.Sidecar className={cx(styles.gridBlock, `theme--${color}`)}>
